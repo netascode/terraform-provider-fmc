@@ -1,0 +1,46 @@
+---
+name: Device
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords
+data_source_name_query: true
+doc_category: Devices
+attributes:
+  - model_name: name
+    type: String
+    mandatory: false
+    description: User-specified name of the registered device. (Example- Device 01 - 192.168.0.152.)
+    example: FTD1
+  - model_name: hostName
+    type: String
+    mandatory: true
+    description: Hostname or IP address of the device. If the device is behind NAT, you can leave the host name as blank, and enter the NAT_ID string in the 'Unique NAT ID' text box. Use the same NAT_ID string that you used while configuring FMC on the device.
+    example: 192.168.0.152
+  - model_name: regKey
+    type: String
+    mandatory: true
+    description: Registration Key that you entered while configuring FMC on the device.
+    example: cisco
+  - model_name: license_caps
+    type: StringList
+    mandatory: false
+    description: license
+    example: MALWARE
+  - model_name: id
+    data_path: [accessPolicy]
+    type: String
+    tf_name: access_policy_id
+    mandatory: true
+    description: Id of the ACP
+    example: 9BCD876543456789A0
+  - model_name: name
+    data_path: [accessPolicy]
+    type: String
+    mandatory: false
+    description: Name of the ACP
+    tf_name: access_policy_name
+    example: Test-ACP
+  - model_name: type
+    type: String
+    mandatory: false
+    description:  Type of the resource
+    example: Device
+  

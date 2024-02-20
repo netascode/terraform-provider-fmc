@@ -1,6 +1,8 @@
 *.dll
 *.exe
 .DS_Store
+running.sh
+logger.go
 example.tf
 terraform.tfplan
 terraform.tfstate
