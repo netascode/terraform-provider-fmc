@@ -1,6 +1,6 @@
 module github.com/netascode/terraform-provider-fmc
 
-go 1.20
+go 1.19
 
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.18.0
