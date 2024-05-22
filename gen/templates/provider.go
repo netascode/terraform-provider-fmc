@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 )
 
@@ -223,6 +224,8 @@ func (p *FmcProvider) Configure(ctx context.Context, req provider.ConfigureReque
 	} else {
 		retries = config.Retries.ValueInt64()
 	}
+
+	tflog.Debug(ctx, "Creating a new FMC client")
 
 	// Create a new FMC client and set it to the provider client
 	c, err := fmc.NewClient(url, username, password, fmc.Insecure(insecure), fmc.MaxRetries(int(retries)))
