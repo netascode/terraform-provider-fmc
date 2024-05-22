@@ -19,7 +19,7 @@
 
 package provider
 
-//template:begin imports
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
 	"testing"
@@ -27,9 +27,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-//template:end imports
+// End of section. //template:end imports
 
-//template:begin testAcc
+// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccFmcAccessControlPolicyCategory(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy_category.test", "name", "Category1"))
@@ -52,9 +52,9 @@ func TestAccFmcAccessControlPolicyCategory(t *testing.T) {
 	})
 }
 
-//template:end testAcc
+// End of section. //template:end testAcc
 
-//template:begin testPrerequisites
+// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccFmcAccessControlPolicyCategoryPrerequisitesConfig = `
 resource "fmc_access_control_policy" "test" {
   name = "POLICY1"
@@ -63,9 +63,9 @@ resource "fmc_access_control_policy" "test" {
 
 `
 
-//template:end testPrerequisites
+// End of section. //template:end testPrerequisites
 
-//template:begin testAccConfigMinimal
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccFmcAccessControlPolicyCategoryConfig_minimum() string {
 	config := `resource "fmc_access_control_policy_category" "test" {` + "\n"
 	config += `	access_control_policy_id = fmc_access_control_policy.test.id` + "\n"
@@ -74,9 +74,9 @@ func testAccFmcAccessControlPolicyCategoryConfig_minimum() string {
 	return config
 }
 
-//template:end testAccConfigMinimal
+// End of section. //template:end testAccConfigMinimal
 
-//template:begin testAccConfigAll
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccFmcAccessControlPolicyCategoryConfig_all() string {
 	config := `resource "fmc_access_control_policy_category" "test" {` + "\n"
 	config += `	access_control_policy_id = fmc_access_control_policy.test.id` + "\n"
@@ -85,4 +85,4 @@ func testAccFmcAccessControlPolicyCategoryConfig_all() string {
 	return config
 }
 
-//template:end testAccConfigAll
+// End of section. //template:end testAccConfigAll

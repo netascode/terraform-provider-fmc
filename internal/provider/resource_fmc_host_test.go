@@ -19,7 +19,7 @@
 
 package provider
 
-//template:begin imports
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
 	"testing"
@@ -27,9 +27,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-//template:end imports
+// End of section. //template:end imports
 
-//template:begin testAcc
+// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccFmcHost(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_host.test", "name", "HOST1"))
@@ -59,12 +59,12 @@ func TestAccFmcHost(t *testing.T) {
 	})
 }
 
-//template:end testAcc
+// End of section. //template:end testAcc
 
-//template:begin testPrerequisites
-//template:end testPrerequisites
+// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+// End of section. //template:end testPrerequisites
 
-//template:begin testAccConfigMinimal
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccFmcHostConfig_minimum() string {
 	config := `resource "fmc_host" "test" {` + "\n"
 	config += `	name = "HOST1"` + "\n"
@@ -73,9 +73,9 @@ func testAccFmcHostConfig_minimum() string {
 	return config
 }
 
-//template:end testAccConfigMinimal
+// End of section. //template:end testAccConfigMinimal
 
-//template:begin testAccConfigAll
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccFmcHostConfig_all() string {
 	config := `resource "fmc_host" "test" {` + "\n"
 	config += `	name = "HOST1"` + "\n"
@@ -86,4 +86,4 @@ func testAccFmcHostConfig_all() string {
 	return config
 }
 
-//template:end testAccConfigAll
+// End of section. //template:end testAccConfigAll

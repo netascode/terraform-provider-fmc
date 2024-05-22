@@ -19,7 +19,7 @@
 
 package provider
 
-//template:begin provider
+// Section below is generated&owned by "gen/generator.go". //template:begin provider
 import (
 	"context"
 	"os"
@@ -266,4 +266,4 @@ func New(version string) func() provider.Provider {
 	}
 }
 
-//template:end provider
+// End of section. //template:end provider

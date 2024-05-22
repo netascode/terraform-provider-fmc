@@ -19,7 +19,7 @@
 
 package provider
 
-//template:begin imports
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
 	"fmt"
@@ -35,9 +35,9 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-//template:end imports
+// End of section. //template:end imports
 
-//template:begin model
+// Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
@@ -125,9 +125,9 @@ func (d *AccessControlPolicyDataSource) Configure(_ context.Context, req datasou
 	d.client = req.ProviderData.(*FmcProviderData).Client
 }
 
-//template:end model
+// End of section. //template:end model
 
-//template:begin read
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *AccessControlPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config AccessControlPolicy
 
@@ -191,4 +191,4 @@ func (d *AccessControlPolicyDataSource) Read(ctx context.Context, req datasource
 	resp.Diagnostics.Append(diags...)
 }
 
-//template:end read
+// End of section. //template:end read

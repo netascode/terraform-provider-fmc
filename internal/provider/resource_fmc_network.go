@@ -19,7 +19,7 @@
 
 package provider
 
-//template:begin imports
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
 	"fmt"
@@ -37,9 +37,9 @@ import (
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 )
 
-//template:end imports
+// End of section. //template:end imports
 
-//template:begin model
+// Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &NetworkResource{}
@@ -105,9 +105,9 @@ func (r *NetworkResource) Configure(_ context.Context, req resource.ConfigureReq
 	r.client = req.ProviderData.(*FmcProviderData).Client
 }
 
-//template:end model
+// End of section. //template:end model
 
-//template:begin create
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Network
 
@@ -141,9 +141,9 @@ func (r *NetworkResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-//template:end create
+// End of section. //template:end create
 
-//template:begin read
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Network
 
@@ -184,9 +184,9 @@ func (r *NetworkResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(diags...)
 }
 
-//template:end read
+// End of section. //template:end read
 
-//template:begin update
+// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Network
 
@@ -224,9 +224,9 @@ func (r *NetworkResource) Update(ctx context.Context, req resource.UpdateRequest
 	resp.Diagnostics.Append(diags...)
 }
 
-//template:end update
+// End of section. //template:end update
 
-//template:begin delete
+// Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Network
 
@@ -255,11 +255,11 @@ func (r *NetworkResource) Delete(ctx context.Context, req resource.DeleteRequest
 	resp.State.RemoveResource(ctx)
 }
 
-//template:end delete
+// End of section. //template:end delete
 
-//template:begin import
+// Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *NetworkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-//template:end import
+// End of section. //template:end import

@@ -19,7 +19,7 @@
 
 package provider
 
-//template:begin imports
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
 	"testing"
@@ -27,9 +27,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-//template:end imports
+// End of section. //template:end imports
 
-//template:begin testAcc
+// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccFmcAccessControlPolicy(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "name", "POLICY1"))
@@ -62,12 +62,12 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 	})
 }
 
-//template:end testAcc
+// End of section. //template:end testAcc
 
-//template:begin testPrerequisites
-//template:end testPrerequisites
+// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+// End of section. //template:end testPrerequisites
 
-//template:begin testAccConfigMinimal
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccFmcAccessControlPolicyConfig_minimum() string {
 	config := `resource "fmc_access_control_policy" "test" {` + "\n"
 	config += `	name = "POLICY1"` + "\n"
@@ -76,9 +76,9 @@ func testAccFmcAccessControlPolicyConfig_minimum() string {
 	return config
 }
 
-//template:end testAccConfigMinimal
+// End of section. //template:end testAccConfigMinimal
 
-//template:begin testAccConfigAll
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 func testAccFmcAccessControlPolicyConfig_all() string {
 	config := `resource "fmc_access_control_policy" "test" {` + "\n"
 	config += `	name = "POLICY1"` + "\n"
@@ -92,4 +92,4 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	return config
 }
 
-//template:end testAccConfigAll
+// End of section. //template:end testAccConfigAll
