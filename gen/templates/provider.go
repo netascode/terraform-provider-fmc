@@ -156,7 +156,7 @@ func (p *FmcProvider) Configure(ctx context.Context, req provider.ConfigureReque
 		return
 	}
 
-	// User must provide a username to the provider
+	// User must provide a URL to the provider
 	var url string
 	if config.URL.IsUnknown() {
 		// Cannot connect to client with an unknown value

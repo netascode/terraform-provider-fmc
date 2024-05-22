@@ -4,6 +4,9 @@
 
 The FMC provider provides resources to interact with a Cisco Secure FMC (Firewall Management Center) instance. It communicates with FMC via the REST API.
 
+We strongly recommend to use `-parallelism=1` option with Terraform. The FMC REST API currently does
+not support parallel create/update/delete operations.
+
 All resources and data sources have been tested with the following releases.
 
 | Platform | Version |
