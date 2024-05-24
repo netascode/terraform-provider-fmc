@@ -117,7 +117,6 @@ func (r *DeviceResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Device
 
@@ -143,15 +142,42 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("id").String())
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	taskID := res.Get("metadata.task.id").String()
+	tflog.Debug(ctx, fmt.Sprintf("%s: Async task initiated successfully", taskID))
+
+	// We need device's UUID, but it only shows once task succeeds. Poll the task.
+	for i := 0; i < 300; i++ {
+		task, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/job/taskstatuses/"+url.QueryEscape(taskID), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read object (GET), got error: %s, %s", err, task.String()))
+			return
+		}
+		if st := strings.ToUpper(task.Get("status").String()); st != "PENDING" && st != "RUNNING" {
+			break
+		}
+	}
+
+	bulk, err := r.client.Get(fmt.Sprintf("%s?filter=name:%s", plan.getPath(), url.QueryEscape(plan.Name.ValueString())))
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read object (GET), got error: %s, %s", err, bulk))
+		return
+	}
+
+	plan.Id = types.StringValue(bulk.Get("items.0.id").String())
+	if plan.Id.ValueString() == "" {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("No device named %q: %s", plan.Name.ValueString(), bulk))
+		return
+	}
+	if bulk.Get("items.1.id").String() != "" {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Multiple devices named %q: %s", plan.Name.ValueString(), bulk))
+		return
+	}
+	tflog.Debug(ctx, fmt.Sprintf("%s: Created successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
