@@ -33,7 +33,7 @@ func TestAccFmcDevice(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "host_name", "device1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.0", "BASE"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "type", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "type", "Device"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -91,7 +91,7 @@ func testAccFmcDeviceConfig_all() string {
 	config += `	host_name = "device1"` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
-	config += `	type = ""` + "\n"
+	config += `	type = "Device"` + "\n"
 	config += `	access_policy_id = "fmc_access_control_policy.test.id"` + "\n"
 	config += `}` + "\n"
 	return config

@@ -67,15 +67,15 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name",
+				MarkdownDescription: "User-specified name of the registered device. Must be unique.",
 				Computed:            true,
 			},
 			"host_name": schema.StringAttribute{
-				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host name as blank, and enter the NAT_ID string in the 'Unique NAT ID' text box. Use the same NAT_ID string that you used while configuring FMC on the device.",
+				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.",
 				Computed:            true,
 			},
 			"license_caps": schema.ListAttribute{
-				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL. ",
+				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
@@ -88,7 +88,7 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:            true,
 			},
 			"access_policy_id": schema.StringAttribute{
-				MarkdownDescription: "Object representing the currently assigned access control policy. You need to specify an existing access control policy when registering a device.",
+				MarkdownDescription: "The currently assigned access control policy. You need to specify an existing access control policy when creating a device.",
 				Computed:            true,
 			},
 		},
