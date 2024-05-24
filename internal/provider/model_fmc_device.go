@@ -33,6 +33,7 @@ import (
 type Device struct {
 	Id             types.String `tfsdk:"id"`
 	Domain         types.String `tfsdk:"domain"`
+	Name           types.String `tfsdk:"name"`
 	HostName       types.String `tfsdk:"host_name"`
 	LicenseCaps    types.List   `tfsdk:"license_caps"`
 	RegKey         types.String `tfsdk:"reg_key"`
@@ -54,6 +55,9 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
+	}
+	if !data.Name.IsNull() {
+		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
 	if !data.HostName.IsNull() {
 		body, _ = sjson.Set(body, "hostName", data.HostName.ValueString())
@@ -79,6 +83,11 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("name"); value.Exists() {
+		data.Name = types.StringValue(value.String())
+	} else {
+		data.Name = types.StringNull()
+	}
 	if value := res.Get("hostName"); value.Exists() {
 		data.HostName = types.StringValue(value.String())
 	} else {
@@ -89,20 +98,10 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.LicenseCaps = types.ListNull(types.StringType)
 	}
-	if value := res.Get("regKey"); value.Exists() {
-		data.RegKey = types.StringValue(value.String())
-	} else {
-		data.RegKey = types.StringNull()
-	}
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
 		data.Type = types.StringValue("Device")
-	}
-	if value := res.Get("accessPolicy.id"); value.Exists() {
-		data.AccessPolicyId = types.StringValue(value.String())
-	} else {
-		data.AccessPolicyId = types.StringNull()
 	}
 }
 
@@ -110,6 +109,11 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
+		data.Name = types.StringValue(value.String())
+	} else {
+		data.Name = types.StringNull()
+	}
 	if value := res.Get("hostName"); value.Exists() && !data.HostName.IsNull() {
 		data.HostName = types.StringValue(value.String())
 	} else {
@@ -120,20 +124,10 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.LicenseCaps = types.ListNull(types.StringType)
 	}
-	if value := res.Get("regKey"); value.Exists() && !data.RegKey.IsNull() {
-		data.RegKey = types.StringValue(value.String())
-	} else {
-		data.RegKey = types.StringNull()
-	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
 	} else if data.Type.ValueString() != "Device" {
 		data.Type = types.StringNull()
-	}
-	if value := res.Get("accessPolicy.id"); value.Exists() && !data.AccessPolicyId.IsNull() {
-		data.AccessPolicyId = types.StringValue(value.String())
-	} else {
-		data.AccessPolicyId = types.StringNull()
 	}
 }
 
@@ -141,6 +135,9 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
+	if !data.Name.IsNull() {
+		return false
+	}
 	if !data.HostName.IsNull() {
 		return false
 	}

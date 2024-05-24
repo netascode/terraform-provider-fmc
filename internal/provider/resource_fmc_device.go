@@ -76,6 +76,10 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name").String,
+				Required:            true,
+			},
 			"host_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Hostname or IP address of the device. If the device is behind NAT, you can leave the host name as blank, and enter the NAT_ID string in the 'Unique NAT ID' text box. Use the same NAT_ID string that you used while configuring FMC on the device.").String,
 				Required:            true,

@@ -29,11 +29,10 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceFmcDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "name", "device1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "host_name", "device1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "license_caps.0", "BASE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "reg_key", "key1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "type", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "access_policy_id", "fmc_access_control_policy.test.id"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -62,6 +61,7 @@ resource "fmc_access_control_policy" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 func testAccDataSourceFmcDeviceConfig() string {
 	config := `resource "fmc_device" "test" {` + "\n"
+	config += `	name = "device1"` + "\n"
 	config += `	host_name = "device1"` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"

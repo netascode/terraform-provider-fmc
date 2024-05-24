@@ -1,4 +1,5 @@
 resource "fmc_device" "example" {
+  name             = "device1"
   host_name        = "device1"
   license_caps     = ["BASE"]
   reg_key          = "key1"

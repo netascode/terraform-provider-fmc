@@ -4,6 +4,11 @@ rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords
 # data_source_name_query: true
 doc_category: Devices
 attributes:
+  - model_name: name
+    type: String
+    mandatory: true
+    description: Name
+    example: device1
   - model_name: hostName
     type: String
     mandatory: true
@@ -20,6 +25,7 @@ attributes:
     mandatory: true
     description: Registration Key that you entered while configuring FMC on the device.
     example: key1
+    write_only: true
   - model_name: type
     type: String
     description: Type of the device; this value is always Device.
@@ -30,6 +36,7 @@ attributes:
     model_name: id
     data_path:
       - accessPolicy
+    write_only: true
     type: String
     description: Object representing the currently assigned access control policy. You need to specify an existing access control policy when registering a device.
     example: fmc_access_control_policy.test.id

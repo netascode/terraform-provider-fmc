@@ -66,6 +66,10 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "The name of the FMC domain",
 				Optional:            true,
 			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name",
+				Computed:            true,
+			},
 			"host_name": schema.StringAttribute{
 				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host name as blank, and enter the NAT_ID string in the 'Unique NAT ID' text box. Use the same NAT_ID string that you used while configuring FMC on the device.",
 				Computed:            true,
