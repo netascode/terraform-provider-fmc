@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -26,11 +27,12 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 func TestAccDataSourceFmcDevice(t *testing.T) {
+	if os.Getenv("FMC_DEV") == "" {
+		t.Skip("skipping test, set environment variable FMC_DEV")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "name", "device1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "host_name", "10.0.0.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "license_caps.0", "BASE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "type", "Device"))
 	resource.Test(t, resource.TestCase{
@@ -42,16 +44,54 @@ func TestAccDataSourceFmcDevice(t *testing.T) {
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"ssh": {
+				VersionConstraint: "2.7.0",
+				Source:            "loafoe/ssh",
+			},
+		},
 	})
 }
-
-// End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceFmcDevicePrerequisitesConfig = `
 resource "fmc_access_control_policy" "test" {
   name = "POLICY1"
   default_action = "BLOCK"
+
+#   FTDv does not handle this ssh method: "Failed to upload script"
+#   connection {
+#     type = "ssh"
+#     user = "admin"
+#     password = "${var.dev_password}"
+#     host = "${var.dev}"
+#     # agent = false
+#     timeout = "30s"
+#   }
+
+#   provisioner "remote-exec" {
+#     inline = [
+#       "configure manager delete 10.50.202.44",
+#       # "configure manager add 10.50.202.44 key1",
+#     ]
+#   }
+}
+
+// Set all these with TF_VAR_varname:
+variable "dev" {}
+variable "dev_password" {}
+
+resource "ssh_resource" "preconfigured_device" {
+  host         = "${var.dev}"
+  user         = "admin"
+  password     = "${var.dev_password}"
+  agent        = false
+
+  commands = [
+    "configure manager delete 10.50.202.44",
+    "configure manager add 10.50.202.44 key1",
+  "show managers verbose",
+  ]
 }
 
 `
@@ -62,7 +102,7 @@ resource "fmc_access_control_policy" "test" {
 func testAccDataSourceFmcDeviceConfig() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1"` + "\n"
-	config += `	host_name = "10.0.0.1"` + "\n"
+	config += `	host_name = var.dev` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
 	config += `	type = "Device"` + "\n"

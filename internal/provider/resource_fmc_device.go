@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -153,15 +154,21 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Async task initiated successfully", taskID))
 
 	// We need device's UUID, but it only shows once task succeeds. Poll the task.
-	for i := 0; i < 300; i++ {
+	for i := 0; i < 60; i++ {
 		task, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/job/taskstatuses/"+url.QueryEscape(taskID), reqMods...)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read object (GET), got error: %s, %s", err, task.String()))
 			return
 		}
-		if st := strings.ToUpper(task.Get("status").String()); st != "PENDING" && st != "RUNNING" {
+		stat := strings.ToUpper(task.Get("status").String())
+		if stat == "FAILED" {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("API task for the new device failed: %s, %s", task.Get("message"), task.Get("description")))
+			return
+		}
+		if stat != "PENDING" && stat != "RUNNING" {
 			break
 		}
+		time.Sleep(time.Second * 5)
 	}
 
 	bulk, err := r.client.Get(fmt.Sprintf("%s?filter=name:%s", plan.getPath(), url.QueryEscape(plan.Name.ValueString())))
@@ -179,6 +186,24 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Multiple devices named %q: %s", plan.Name.ValueString(), bulk))
 		return
 	}
+
+	// We need long-running deployment to finish because:
+	//   - we need the device that can handle a DELETE verb
+	//   - also nice to have an access_policy_id in GET
+	for i := 0; i < 60; i++ {
+		res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		policy := res.Get("accessPolicy.id").String()
+		stat := strings.ToUpper(res.Get("deploymentStatus").String())
+		if policy != "" && stat != "DEPLOYMENT_IN_PROGRESS" && stat != "DEPLOYMENT_PENDING" {
+			break
+		}
+		time.Sleep(time.Second * 5)
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Created successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

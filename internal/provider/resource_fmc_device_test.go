@@ -27,11 +27,12 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 func TestAccFmcDevice(t *testing.T) {
+	if os.Getenv("FMC_DEV") == "" {
+		t.Skip("skipping test, set environment variable FMC_DEV")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "host_name", "10.0.0.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.0", "BASE"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "type", "Device"))
 
@@ -54,16 +55,54 @@ func TestAccFmcDevice(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps:                    steps,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"ssh": {
+				VersionConstraint: "2.7.0",
+				Source:            "loafoe/ssh",
+			},
+		},
 	})
 }
-
-// End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccFmcDevicePrerequisitesConfig = `
 resource "fmc_access_control_policy" "test" {
   name = "POLICY1"
   default_action = "BLOCK"
+
+#   FTDv does not handle this ssh method: "Failed to upload script"
+#   connection {
+#     type = "ssh"
+#     user = "admin"
+#     password = "${var.dev_password}"
+#     host = "${var.dev}"
+#     # agent = false
+#     timeout = "30s"
+#   }
+
+#   provisioner "remote-exec" {
+#     inline = [
+#       "configure manager delete 10.50.202.44",
+#       # "configure manager add 10.50.202.44 key1",
+#     ]
+#   }
+}
+
+// Set all these with TF_VAR_varname:
+variable "dev" {}
+variable "dev_password" {}
+
+resource "ssh_resource" "preconfigured_device" {
+  host         = "${var.dev}"
+  user         = "admin"
+  password     = "${var.dev_password}"
+  agent        = false
+
+  commands = [
+    "configure manager delete 10.50.202.44",
+    "configure manager add 10.50.202.44 key1",
+  "show managers verbose",
+  ]
 }
 
 `
@@ -74,7 +113,7 @@ resource "fmc_access_control_policy" "test" {
 func testAccFmcDeviceConfig_minimum() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1alt"` + "\n"
-	config += `	host_name = "10.0.0.1"` + "\n"
+	config += `	host_name = var.dev` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
@@ -88,7 +127,7 @@ func testAccFmcDeviceConfig_minimum() string {
 func testAccFmcDeviceConfig_all() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1"` + "\n"
-	config += `	host_name = "10.0.0.1"` + "\n"
+	config += `	host_name = var.dev` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
 	config += `	type = "Device"` + "\n"
