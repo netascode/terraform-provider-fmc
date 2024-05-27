@@ -33,7 +33,6 @@ func TestAccDataSourceFmcDevice(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "host_name", "10.0.0.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "license_caps.0", "BASE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "type", "Device"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "access_policy_id", "fmc_access_control_policy.test.id"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -67,7 +66,7 @@ func testAccDataSourceFmcDeviceConfig() string {
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
 	config += `	type = "Device"` + "\n"
-	config += `	access_policy_id = "fmc_access_control_policy.test.id"` + "\n"
+	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `}` + "\n"
 
 	config += `

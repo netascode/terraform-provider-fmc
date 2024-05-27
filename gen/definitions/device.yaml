@@ -44,6 +44,7 @@ attributes:
     type: String
     description: The currently assigned access control policy. You need to specify an existing access control policy when creating a device.
     example: fmc_access_control_policy.test.id
+    test_value: fmc_access_control_policy.test.id
 
 test_prerequisites: |
   resource "fmc_access_control_policy" "test" {
