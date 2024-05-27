@@ -103,6 +103,11 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Type = types.StringValue("Device")
 	}
+	if value := res.Get("accessPolicy.id"); value.Exists() {
+		data.AccessPolicyId = types.StringValue(value.String())
+	} else {
+		data.AccessPolicyId = types.StringNull()
+	}
 }
 
 // End of section. //template:end fromBody
@@ -128,6 +133,11 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Type = types.StringValue(value.String())
 	} else if data.Type.ValueString() != "Device" {
 		data.Type = types.StringNull()
+	}
+	if value := res.Get("accessPolicy.id"); value.Exists() && !data.AccessPolicyId.IsNull() {
+		data.AccessPolicyId = types.StringValue(value.String())
+	} else {
+		data.AccessPolicyId = types.StringNull()
 	}
 }
 

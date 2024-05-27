@@ -105,6 +105,9 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"access_policy_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy. You need to specify an existing access control policy when creating a device.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}

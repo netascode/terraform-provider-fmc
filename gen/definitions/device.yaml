@@ -9,11 +9,12 @@ attributes:
     mandatory: true
     description: User-specified name of the registered device. Must be unique.
     example: device1
+    minimum_test_value: '"device1alt"'
   - model_name: hostName
     type: String
     mandatory: true
     description: Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.
-    example: device1
+    example: 10.0.0.1
   - model_name: license_caps
     type: List
     element_type: String
@@ -38,8 +39,8 @@ attributes:
     model_name: id
     data_path:
       - accessPolicy
-    write_only: true
-    # requires_replace: true
+    # Current api has POST but ignores PUT. TODO: is there another api?
+    requires_replace: true
     type: String
     description: The currently assigned access control policy. You need to specify an existing access control policy when creating a device.
     example: fmc_access_control_policy.test.id

@@ -31,9 +31,10 @@ import (
 func TestAccFmcDevice(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "host_name", "device1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "host_name", "10.0.0.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.0", "BASE"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "type", "Device"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "access_policy_id", "fmc_access_control_policy.test.id"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -73,8 +74,8 @@ resource "fmc_access_control_policy" "test" {
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 func testAccFmcDeviceConfig_minimum() string {
 	config := `resource "fmc_device" "test" {` + "\n"
-	config += `	name = "device1"` + "\n"
-	config += `	host_name = "device1"` + "\n"
+	config += `	name = "device1alt"` + "\n"
+	config += `	host_name = "10.0.0.1"` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
 	config += `	access_policy_id = "fmc_access_control_policy.test.id"` + "\n"
@@ -88,7 +89,7 @@ func testAccFmcDeviceConfig_minimum() string {
 func testAccFmcDeviceConfig_all() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1"` + "\n"
-	config += `	host_name = "device1"` + "\n"
+	config += `	host_name = "10.0.0.1"` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = "key1"` + "\n"
 	config += `	type = "Device"` + "\n"
