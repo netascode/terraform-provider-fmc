@@ -63,4 +63,10 @@ jobs:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
       - run: go mod download
-
+      - env:
+          TF_ACC: "1"
+          FMC_USERNAME: ${{ secrets.FMC_USERNAME }}
+          FMC_PASSWORD: ${{ secrets.FMC_PASSWORD }}
+          FMC_URL: ${{ secrets.FMC_URL }}
+        run: go test -v -cover -timeout 45m ./internal/provider/
+        timeout-minutes: 45
