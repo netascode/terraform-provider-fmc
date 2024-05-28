@@ -153,8 +153,9 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 	taskID := res.Get("metadata.task.id").String()
 	tflog.Debug(ctx, fmt.Sprintf("%s: Async task initiated successfully", taskID))
 
-	// We need device's UUID, but it only shows once task succeeds. Poll the task.
-	for i := 0; i < 60; i++ {
+	const atom time.Duration = 5 * time.Second
+	// We need device's UUID, but it only shows after the task succeeds. Poll the task.
+	for i := time.Duration(0); i < 5*time.Minute; i += atom {
 		task, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/job/taskstatuses/"+url.QueryEscape(taskID), reqMods...)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read object (GET), got error: %s, %s", err, task.String()))
@@ -168,10 +169,10 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		if stat != "PENDING" && stat != "RUNNING" {
 			break
 		}
-		time.Sleep(time.Second * 5)
+		time.Sleep(atom)
 	}
 
-	bulk, err := r.client.Get(fmt.Sprintf("%s?filter=name:%s", plan.getPath(), url.QueryEscape(plan.Name.ValueString())))
+	bulk, err := r.client.Get(plan.getPath() + "?filter=name:" + url.QueryEscape(plan.Name.ValueString()))
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read object (GET), got error: %s, %s", err, bulk))
 		return
@@ -182,26 +183,22 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("No device named %q: %s", plan.Name.ValueString(), bulk))
 		return
 	}
-	if bulk.Get("items.1.id").String() != "" {
+	if bulk.Get("items.1").Exists() {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Multiple devices named %q: %s", plan.Name.ValueString(), bulk))
 		return
 	}
 
-	// We need long-running deployment to finish because:
-	//   - we need the device that can handle a DELETE verb
-	//   - also nice to have an access_policy_id in GET
-	for i := 0; i < 60; i++ {
+	// Wait, because the long-running deployment enables DELETE verb. Our tests require that.
+	for i := time.Duration(0); i < 10*time.Minute; i += atom {
 		res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 			return
 		}
-		policy := res.Get("accessPolicy.id").String()
-		stat := strings.ToUpper(res.Get("deploymentStatus").String())
-		if policy != "" && stat != "DEPLOYMENT_IN_PROGRESS" {
-			break
+		if res.Get("accessPolicy.id").Exists() {
+			break // access policy fully deployed
 		}
-		time.Sleep(time.Second * 5)
+		time.Sleep(atom)
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Created successfully", plan.Id.ValueString()))
