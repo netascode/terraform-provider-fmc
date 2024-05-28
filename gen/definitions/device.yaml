@@ -3,7 +3,7 @@ name: Device
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords
 # data_source_name_query: true
 doc_category: Devices
-test_tags: [FMC_DEV]
+test_tags: [FTD_ADDR]
 attributes:
   - model_name: name
     type: String
@@ -16,7 +16,7 @@ attributes:
     mandatory: true
     description: Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.
     example: 10.0.0.1
-    test_value: var.dev
+    test_value: var.ftd_addr
   - model_name: license_caps
     type: List
     element_type: String
@@ -29,6 +29,7 @@ attributes:
     description: Registration Key that you entered while configuring FMC on the device.
     example: key1
     write_only: true
+    test_value: var.reg_key
   - model_name: type
     type: String
     description: Type of the device; this value is always Device.
@@ -52,38 +53,8 @@ test_prerequisites: |
   resource "fmc_access_control_policy" "test" {
     name = "POLICY1"
     default_action = "BLOCK"
-
-  #   FTDv does not handle this ssh method: "Failed to upload script"
-  #   connection {
-  #     type = "ssh"
-  #     user = "admin"
-  #     password = "${var.dev_password}"
-  #     host = "${var.dev}"
-  #     # agent = false
-  #     timeout = "30s"
-  #   }
-
-  #   provisioner "remote-exec" {
-  #     inline = [
-  #       "configure manager delete 10.50.202.44",
-  #       # "configure manager add 10.50.202.44 key1",
-  #     ]
-  #   }
   }
 
-  // Set all these with TF_VAR_varname:
-  variable "dev" {}
-  variable "dev_password" {}
+  variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr
 
-  resource "ssh_resource" "preconfigured_device" {
-    host         = "${var.dev}"
-    user         = "admin"
-    password     = "${var.dev_password}"
-    agent        = false
-
-    commands = [
-      "configure manager delete 10.50.202.44",
-      "configure manager add 10.50.202.44 key1",
-    "show managers verbose",
-    ]
-  }
+  variable "reg_key" {} // tests will set $TF_VAR_reg_key

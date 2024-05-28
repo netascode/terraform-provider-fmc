@@ -23,14 +23,21 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/netascode/terraform-provider-fmc/internal/ftd"
 )
 
 // End of section. //template:end imports
 
 func TestAccFmcDevice(t *testing.T) {
-	if os.Getenv("FMC_DEV") == "" {
-		t.Skip("skipping test, set environment variable FMC_DEV")
+	ftdAddr := os.Getenv("FTD_ADDR")
+	if ftdAddr == "" {
+		t.Skip("skipping test, set environment variable FTD_ADDR")
 	}
+	// Prepare Terraform's var.ftd_addr
+	os.Setenv("TF_VAR_ftd_addr", ftdAddr)
+	// Prepare Terraform's var.reg_key
+	os.Setenv("TF_VAR_reg_key", ftd.MustRandomizeKey())
+
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.0", "BASE"))
@@ -39,12 +46,14 @@ func TestAccFmcDevice(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcDevicePrerequisitesConfig + testAccFmcDeviceConfig_minimum(),
+			PreConfig: ftd.MustInitFromEnv,
+			Config:    testAccFmcDevicePrerequisitesConfig + testAccFmcDeviceConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcDevicePrerequisitesConfig + testAccFmcDeviceConfig_all(),
-		Check:  resource.ComposeTestCheckFunc(checks...),
+		PreConfig: ftd.MustInitFromEnv,
+		Config:    testAccFmcDevicePrerequisitesConfig + testAccFmcDeviceConfig_all(),
+		Check:     resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
 		ResourceName: "fmc_device.test",
@@ -52,15 +61,11 @@ func TestAccFmcDevice(t *testing.T) {
 	})
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps:                    steps,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"ssh": {
-				VersionConstraint: "2.7.0",
-				Source:            "loafoe/ssh",
-			},
-		},
 	})
 }
 
@@ -69,41 +74,11 @@ const testAccFmcDevicePrerequisitesConfig = `
 resource "fmc_access_control_policy" "test" {
   name = "POLICY1"
   default_action = "BLOCK"
-
-#   FTDv does not handle this ssh method: "Failed to upload script"
-#   connection {
-#     type = "ssh"
-#     user = "admin"
-#     password = "${var.dev_password}"
-#     host = "${var.dev}"
-#     # agent = false
-#     timeout = "30s"
-#   }
-
-#   provisioner "remote-exec" {
-#     inline = [
-#       "configure manager delete 10.50.202.44",
-#       # "configure manager add 10.50.202.44 key1",
-#     ]
-#   }
 }
 
-// Set all these with TF_VAR_varname:
-variable "dev" {}
-variable "dev_password" {}
+variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr
 
-resource "ssh_resource" "preconfigured_device" {
-  host         = "${var.dev}"
-  user         = "admin"
-  password     = "${var.dev_password}"
-  agent        = false
-
-  commands = [
-    "configure manager delete 10.50.202.44",
-    "configure manager add 10.50.202.44 key1",
-  "show managers verbose",
-  ]
-}
+variable "reg_key" {} // tests will set $TF_VAR_reg_key
 
 `
 
@@ -113,9 +88,9 @@ resource "ssh_resource" "preconfigured_device" {
 func testAccFmcDeviceConfig_minimum() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1alt"` + "\n"
-	config += `	host_name = var.dev` + "\n"
+	config += `	host_name = var.ftd_addr` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
-	config += `	reg_key = "key1"` + "\n"
+	config += `	reg_key = var.reg_key` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `}` + "\n"
 	return config
@@ -127,9 +102,9 @@ func testAccFmcDeviceConfig_minimum() string {
 func testAccFmcDeviceConfig_all() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1"` + "\n"
-	config += `	host_name = var.dev` + "\n"
+	config += `	host_name = var.ftd_addr` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
-	config += `	reg_key = "key1"` + "\n"
+	config += `	reg_key = var.reg_key` + "\n"
 	config += `	type = "Device"` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `}` + "\n"
