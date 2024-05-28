@@ -67,11 +67,11 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-specified name of the registered device. Must be unique.",
+				MarkdownDescription: "User-specified name, must be unique.",
 				Computed:            true,
 			},
 			"host_name": schema.StringAttribute{
-				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.",
+				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.",
 				Computed:            true,
 			},
 			"license_caps": schema.ListAttribute{
@@ -80,15 +80,15 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:            true,
 			},
 			"reg_key": schema.StringAttribute{
-				MarkdownDescription: "Registration Key that you entered while configuring FMC on the device.",
+				MarkdownDescription: "Registration Key identical to the one previously configured on the device (`configure manager`).",
 				Computed:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: "Type of the device; this value is always Device.",
+				MarkdownDescription: "Type of the device; this value is always 'Device'.",
 				Computed:            true,
 			},
 			"access_policy_id": schema.StringAttribute{
-				MarkdownDescription: "The currently assigned access control policy. You need to specify an existing access control policy when creating a device.",
+				MarkdownDescription: "The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.",
 				Computed:            true,
 			},
 		},

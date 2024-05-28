@@ -78,11 +78,11 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-specified name of the registered device. Must be unique.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("User-specified name, must be unique.").String,
 				Required:            true,
 			},
 			"host_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.").String,
 				Required:            true,
 			},
 			"license_caps": schema.ListAttribute{
@@ -91,11 +91,11 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Required:            true,
 			},
 			"reg_key": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Registration Key that you entered while configuring FMC on the device.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Registration Key identical to the one previously configured on the device (`configure manager`).").String,
 				Required:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the device; this value is always Device.").AddDefaultValueDescription("Device").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the device; this value is always 'Device'.").AddDefaultValueDescription("Device").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             stringdefault.StaticString("Device"),
@@ -104,7 +104,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"access_policy_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy. You need to specify an existing access control policy when creating a device.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
