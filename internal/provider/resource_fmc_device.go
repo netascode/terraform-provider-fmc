@@ -198,7 +198,7 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		}
 		policy := res.Get("accessPolicy.id").String()
 		stat := strings.ToUpper(res.Get("deploymentStatus").String())
-		if policy != "" && stat != "DEPLOYMENT_IN_PROGRESS" && stat != "DEPLOYMENT_PENDING" {
+		if policy != "" && stat != "DEPLOYMENT_IN_PROGRESS" {
 			break
 		}
 		time.Sleep(time.Second * 5)
