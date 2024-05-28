@@ -8,31 +8,31 @@ attributes:
   - model_name: name
     type: String
     mandatory: true
-    description: User-specified name of the registered device. Must be unique.
+    description: User-specified name, must be unique.
     example: device1
     minimum_test_value: '"device1alt"'
   - model_name: hostName
     type: String
     mandatory: true
-    description: Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.
+    description: Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.
     example: 10.0.0.1
     test_value: var.ftd_addr
   - model_name: license_caps
     type: List
     element_type: String
     mandatory: true
-    description: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL."
+    description: 'Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.'
     example: BASE
   - model_name: regKey
     type: String
     mandatory: true
-    description: Registration Key that you entered while configuring FMC on the device.
+    description: Registration Key identical to the one previously configured on the device (`configure manager`).
     example: key1
     write_only: true
     test_value: var.reg_key
   - model_name: type
     type: String
-    description: Type of the device; this value is always Device.
+    description: Type of the device; this value is always 'Device'.
     exclude_example: true
     requires_replace: true
     default_value: Device
@@ -45,7 +45,7 @@ attributes:
       - accessPolicy
     # Current api has POST but ignores PUT. TODO: is there another api?
     requires_replace: true
-    description: The currently assigned access control policy. You need to specify an existing access control policy when creating a device.
+    description: The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.
     example: fmc_access_control_policy.test.id
     test_value: fmc_access_control_policy.test.id
 

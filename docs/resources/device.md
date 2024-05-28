@@ -27,16 +27,16 @@ resource "fmc_device" "example" {
 
 ### Required
 
-- `access_policy_id` (String) The currently assigned access control policy. You need to specify an existing access control policy when creating a device.
-- `host_name` (String) Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field. Use the same nat_id string that you used while configuring FMC on the device.
+- `access_policy_id` (String) The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.
+- `host_name` (String) Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.
 - `license_caps` (List of String) Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.
-- `name` (String) User-specified name of the registered device. Must be unique.
-- `reg_key` (String) Registration Key that you entered while configuring FMC on the device.
+- `name` (String) User-specified name, must be unique.
+- `reg_key` (String) Registration Key identical to the one previously configured on the device (`configure manager`).
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `type` (String) Type of the device; this value is always Device.
+- `type` (String) Type of the device; this value is always 'Device'.
   - Default value: `Device`
 
 ### Read-Only
