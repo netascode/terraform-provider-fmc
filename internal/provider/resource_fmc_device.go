@@ -23,8 +23,10 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -35,6 +37,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -104,11 +108,8 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"access_policy_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy.").String,
 				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 		},
 	}
@@ -250,7 +251,6 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Device
 
@@ -282,13 +282,67 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
+	// accessPolicy is ignored in PUT, let's use another api for that.
+	diags = r.updatePolicy(ctx, plan.AccessPolicyId.ValueString(), plan, state, reqMods)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end update
+var policyMu sync.Mutex
+
+func (r *DeviceResource) updatePolicy(ctx context.Context, policy string, plan, state Device, reqMods [](func(*fmc.Req))) diag.Diagnostics {
+	// Marginal risk of data race follows (GET/PUT).
+	// Partial self-protection in case user specifies terraform -parallelism 2 or more:
+	policyMu.Lock()
+	defer policyMu.Unlock()
+
+	res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(policy), reqMods...)
+	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+		stub, _ := sjson.Set("{}", "id", policy)
+		stub, _ = sjson.Set(stub, "policy.id", policy)
+		stub, _ = sjson.Set(stub, "targets", []any{})
+		res = gjson.Parse(stub)
+	} else if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic(
+			"Client Error",
+			fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()),
+		)}
+	}
+
+	if res.Get(fmt.Sprintf(`targets.#(id=="%s")`, plan.Id.ValueString())).Exists() {
+		tflog.Debug(ctx, fmt.Sprintf("target %s already assigned to policy %s", plan.Id.ValueString(), policy))
+		return nil
+	}
+
+	polBody, err := sjson.Set(res.String(), `targets.-1`, map[string]any{
+		"id":   plan.Id.ValueString(),
+		"type": "Device",
+	})
+	if err != nil {
+		return diag.Diagnostics{diag.NewAttributeErrorDiagnostic(
+			path.Root("id"),
+			"Internal Error",
+			fmt.Sprintf("Failed to append to JSON list \"targets\", got error: %s, %s", err, res),
+		)}
+	}
+
+	res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(policy), polBody, reqMods...)
+	if err != nil {
+		return diag.Diagnostics{diag.NewErrorDiagnostic(
+			"Client Error",
+			fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()),
+		)}
+	}
+
+	return nil
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *DeviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

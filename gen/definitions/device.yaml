@@ -43,9 +43,7 @@ attributes:
     model_name: id
     data_path:
       - accessPolicy
-    # Current api has POST but ignores PUT. TODO: is there another api?
-    requires_replace: true
-    description: The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.
+    description: The currently assigned access control policy.
     example: fmc_access_control_policy.test.id
     test_value: fmc_access_control_policy.test.id
 

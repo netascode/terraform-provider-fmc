@@ -88,7 +88,7 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:            true,
 			},
 			"access_policy_id": schema.StringAttribute{
-				MarkdownDescription: "The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.",
+				MarkdownDescription: "The currently assigned access control policy.",
 				Computed:            true,
 			},
 		},

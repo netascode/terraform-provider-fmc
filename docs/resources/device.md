@@ -27,7 +27,7 @@ resource "fmc_device" "example" {
 
 ### Required
 
-- `access_policy_id` (String) The currently assigned access control policy. Changing it is time-consuming as the device resource is then re-created.
+- `access_policy_id` (String) The currently assigned access control policy.
 - `host_name` (String) Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.
 - `license_caps` (Set of String) Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.
 - `name` (String) User-specified name, must be unique.
