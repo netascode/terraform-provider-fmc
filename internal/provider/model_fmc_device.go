@@ -41,6 +41,7 @@ type Device struct {
 	RegKey         types.String `tfsdk:"reg_key"`
 	Type           types.String `tfsdk:"type"`
 	AccessPolicyId types.String `tfsdk:"access_policy_id"`
+	NatPolicyId    types.String `tfsdk:"nat_policy_id"`
 }
 
 // End of section. //template:end types
@@ -77,6 +78,9 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	}
 	if !data.AccessPolicyId.IsNull() {
 		body, _ = sjson.Set(body, "accessPolicy.id", data.AccessPolicyId.ValueString())
+	}
+	if !data.NatPolicyId.IsNull() {
+		body, _ = sjson.Set(body, "dummy_nat_policy_id", data.NatPolicyId.ValueString())
 	}
 	return body
 }
@@ -136,7 +140,31 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 // End of section. //template:end updateFromBody
 
 func (data *Device) fromPolicyBody(ctx context.Context, res gjson.Result) {
-	// FIXME copy
+	query := fmt.Sprintf(`items.#(targets.#(id=="%s"))#.policy`, data.Id.ValueString())
+	list := res.Get(query)
+	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in %d policies: %s", query, len(list.Array()), list))
+
+	if !list.Exists() {
+		data.AccessPolicyId = types.StringNull()
+		data.NatPolicyId = types.StringNull()
+		return
+	}
+
+	value := list.Get(`#(type=="AccessPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search AccessPolicy resulted in: %s", value))
+	if value.Exists() {
+		data.AccessPolicyId = types.StringValue(value.String())
+	} else {
+		data.AccessPolicyId = types.StringNull()
+	}
+
+	value = list.Get(`#(type=="FTDNatPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search FTDNatPolicy resulted in: %s", value))
+	if value.Exists() {
+		data.NatPolicyId = types.StringValue(value.String())
+	} else {
+		data.NatPolicyId = types.StringNull()
+	}
 }
 
 func (data *Device) updateFromPolicyBody(ctx context.Context, res gjson.Result) {
@@ -146,16 +174,24 @@ func (data *Device) updateFromPolicyBody(ctx context.Context, res gjson.Result) 
 
 	if !list.Exists() {
 		data.AccessPolicyId = types.StringNull()
+		data.NatPolicyId = types.StringNull()
 		return
 	}
 
-	subquery := `#(type=="AccessPolicy").id`
-	value := list.Get(subquery)
-	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in: %s", subquery, value))
+	value := list.Get(`#(type=="AccessPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search AccessPolicy resulted in: %s", value))
 	if value.Exists() && !data.AccessPolicyId.IsNull() {
 		data.AccessPolicyId = types.StringValue(value.String())
 	} else {
 		data.AccessPolicyId = types.StringNull()
+	}
+
+	value = list.Get(`#(type=="FTDNatPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search FTDNatPolicy resulted in: %s", value))
+	if value.Exists() && !data.NatPolicyId.IsNull() {
+		data.NatPolicyId = types.StringValue(value.String())
+	} else {
+		data.NatPolicyId = types.StringNull()
 	}
 }
 
@@ -177,6 +213,9 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.AccessPolicyId.IsNull() {
+		return false
+	}
+	if !data.NatPolicyId.IsNull() {
 		return false
 	}
 	return true

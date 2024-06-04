@@ -36,6 +36,7 @@ resource "fmc_device" "example" {
 ### Optional
 
 - `domain` (String) The name of the FMC domain
+- `nat_policy_id` (String) The currently assigned NAT policy.
 - `type` (String) Type of the device; this value is always 'Device'.
   - Default value: `Device`
 

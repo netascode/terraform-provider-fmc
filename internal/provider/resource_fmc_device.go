@@ -33,7 +33,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
@@ -111,6 +113,10 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy.").String,
 				Required:            true,
 			},
+			"nat_policy_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned NAT policy.").String,
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -145,6 +151,7 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// Create object
 	body := plan.toBody(ctx, Device{})
+	body, _ = sjson.Delete(body, "dummy_nat_policy_id")
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
@@ -189,7 +196,13 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Wait, because the long-running deployment enables DELETE verb. Our tests require that.
+	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, resp.State, reqMods)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Let long-running deployment finish because it enables DELETE verb. Our tests really expect that.
 	for i := time.Duration(0); i < 10*time.Minute; i += atom {
 		res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 		if err != nil {
@@ -248,6 +261,7 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 	} else {
 		state.updateFromBody(ctx, res)
 		state.updateFromPolicyBody(ctx, policies)
+		tflog.Debug(ctx, fmt.Sprintf("nat policy assignment after update: %s", state.NatPolicyId))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
@@ -281,14 +295,21 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
+	body, _ = sjson.Delete(body, "accessPolicy") // usable for POST, but not for PUT
+	body, _ = sjson.Delete(body, "dummy_nat_policy_id")
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
 
-	// accessPolicy is ignored in PUT, let's use another api for that.
-	diags = r.updatePolicy(ctx, plan.AccessPolicyId.ValueString(), plan, state, reqMods)
+	diags = r.updatePolicy(ctx, plan.Id, path.Root("access_policy_id"), req.Plan, req.State, reqMods)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, req.State, reqMods)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -302,16 +323,63 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 var policyMu sync.Mutex
 
-func (r *DeviceResource) updatePolicy(ctx context.Context, policy string, plan, state Device, reqMods [](func(*fmc.Req))) diag.Diagnostics {
+func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.StringValue, policyPath path.Path, plan tfsdk.Plan, state tfsdk.State, reqMods [](func(*fmc.Req))) diag.Diagnostics {
+	devId := device.ValueString()
+
+	var planPolicy types.String
+	if diags := plan.GetAttribute(ctx, policyPath, &planPolicy); diags.HasError() {
+		return diags
+	}
+
+	var statePolicy types.String
+	if diags := state.GetAttribute(ctx, policyPath, &statePolicy); diags.HasError() {
+		return diags
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("policy assignment %s id %s planned policy %s state policy %s", policyPath, devId, planPolicy, statePolicy))
+
+	if statePolicy.Equal(planPolicy) {
+		return nil
+	}
+
 	// Marginal risk of data race follows (GET/PUT).
 	// Partial self-protection in case user specifies terraform -parallelism 2 or more:
 	policyMu.Lock()
 	defer policyMu.Unlock()
 
-	res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(policy), reqMods...)
+	if planPolicy.IsNull() {
+		res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(statePolicy.ValueString()), reqMods...)
+		if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+			return nil
+		} else if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic(
+				"Client Error",
+				fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()),
+			)}
+		}
+		query := fmt.Sprintf(`targets.#(id=="%s")`, devId)
+		body, err := sjson.Delete(res.String(), query)
+		if err != nil {
+			return diag.Diagnostics{diag.NewAttributeErrorDiagnostic(
+				path.Root("id"),
+				"Internal Error",
+				fmt.Sprintf("Failed to delete from JSON list \"targets\", got error: %s, %s", err, res),
+			)}
+		}
+		res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(statePolicy.ValueString()), body, reqMods...)
+		if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic(
+				"Client Error",
+				fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()),
+			)}
+		}
+		return nil
+	}
+
+	res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(planPolicy.ValueString()), reqMods...)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-		stub, _ := sjson.Set("{}", "id", policy)
-		stub, _ = sjson.Set(stub, "policy.id", policy)
+		stub, _ := sjson.Set("{}", "id", planPolicy.ValueString())
+		stub, _ = sjson.Set(stub, "policy.id", planPolicy.ValueString())
 		stub, _ = sjson.Set(stub, "targets", []any{})
 		res = gjson.Parse(stub)
 	} else if err != nil {
@@ -321,13 +389,13 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, policy string, plan, 
 		)}
 	}
 
-	if res.Get(fmt.Sprintf(`targets.#(id=="%s")`, plan.Id.ValueString())).Exists() {
-		tflog.Debug(ctx, fmt.Sprintf("target %s already assigned to policy %s", plan.Id.ValueString(), policy))
+	if res.Get(fmt.Sprintf(`targets.#(id=="%s")`, devId)).Exists() {
+		tflog.Debug(ctx, fmt.Sprintf("target %s already assigned to policy %s", devId, planPolicy))
 		return nil
 	}
 
 	polBody, err := sjson.Set(res.String(), `targets.-1`, map[string]any{
-		"id":   plan.Id.ValueString(),
+		"id":   devId,
 		"type": "Device",
 	})
 	if err != nil {
@@ -338,7 +406,7 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, policy string, plan, 
 		)}
 	}
 
-	res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(policy), polBody, reqMods...)
+	res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(planPolicy.ValueString()), polBody, reqMods...)
 	if err != nil {
 		return diag.Diagnostics{diag.NewErrorDiagnostic(
 			"Client Error",

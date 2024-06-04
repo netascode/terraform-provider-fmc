@@ -91,6 +91,10 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "The currently assigned access control policy.",
 				Computed:            true,
 			},
+			"nat_policy_id": schema.StringAttribute{
+				MarkdownDescription: "The currently assigned NAT policy.",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -105,7 +109,6 @@ func (d *DeviceDataSource) Configure(_ context.Context, req datasource.Configure
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *DeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config Device
 
@@ -132,10 +135,16 @@ func (d *DeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	config.fromBody(ctx, res)
 
+	policies, err := d.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments?offset=0&limit=1000&expanded=true", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
+		return
+	}
+
+	config.fromPolicyBody(ctx, policies)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

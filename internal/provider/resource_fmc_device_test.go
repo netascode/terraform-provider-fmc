@@ -107,6 +107,7 @@ func testAccFmcDeviceConfig_all() string {
 	config += `	reg_key = var.reg_key` + "\n"
 	config += `	type = "Device"` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
+	config += `	nat_policy_id = null` + "\n"
 	config += `}` + "\n"
 	return config
 }

@@ -47,6 +47,15 @@ attributes:
     description: The currently assigned access control policy.
     example: fmc_access_control_policy.test.id
     test_value: fmc_access_control_policy.test.id
+  - tf_name: nat_policy_id
+    type: String
+    model_name: dummy_nat_policy_id
+    write_only: true # actually is read-write, but (for reading) generated code hurts custom code
+    description: The currently assigned NAT policy.
+    exclude_example: true
+    # example: fmc_nat_control_policy.test.id
+    test_value: "null"
+    # test_value: fmc_nat_control_policy.test.id
 
 test_prerequisites: |
   resource "fmc_access_control_policy" "test" {
