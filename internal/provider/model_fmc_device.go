@@ -20,8 +20,10 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -103,11 +105,6 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Type = types.StringValue("Device")
 	}
-	if value := res.Get("accessPolicy.id"); value.Exists() {
-		data.AccessPolicyId = types.StringValue(value.String())
-	} else {
-		data.AccessPolicyId = types.StringNull()
-	}
 }
 
 // End of section. //template:end fromBody
@@ -134,14 +131,33 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else if data.Type.ValueString() != "Device" {
 		data.Type = types.StringNull()
 	}
-	if value := res.Get("accessPolicy.id"); value.Exists() && !data.AccessPolicyId.IsNull() {
+}
+
+// End of section. //template:end updateFromBody
+
+func (data *Device) fromPolicyBody(ctx context.Context, res gjson.Result) {
+	// FIXME copy
+}
+
+func (data *Device) updateFromPolicyBody(ctx context.Context, res gjson.Result) {
+	query := fmt.Sprintf(`items.#(targets.#(id=="%s"))#.policy`, data.Id.ValueString())
+	list := res.Get(query)
+	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in %d policies for update: %s", query, len(list.Array()), list))
+
+	if !list.Exists() {
+		data.AccessPolicyId = types.StringNull()
+		return
+	}
+
+	subquery := `#(type=="AccessPolicy").id`
+	value := list.Get(subquery)
+	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in: %s", subquery, value))
+	if value.Exists() && !data.AccessPolicyId.IsNull() {
 		data.AccessPolicyId = types.StringValue(value.String())
 	} else {
 		data.AccessPolicyId = types.StringNull()
 	}
 }
-
-// End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {

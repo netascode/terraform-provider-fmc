@@ -208,7 +208,6 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Device
 
@@ -236,11 +235,19 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	policies, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments?offset=0&limit=1000&expanded=true", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, policies.String()))
+		return
+	}
+
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
 	if state.isNull(ctx, res) {
 		state.fromBody(ctx, res)
+		state.fromPolicyBody(ctx, policies)
 	} else {
 		state.updateFromBody(ctx, res)
+		state.updateFromPolicyBody(ctx, policies)
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
@@ -248,8 +255,6 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
 
 func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Device

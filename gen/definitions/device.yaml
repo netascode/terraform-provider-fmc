@@ -43,6 +43,7 @@ attributes:
     model_name: id
     data_path:
       - accessPolicy
+    write_only: true # actually is read-write, but (for reading) generated code hurts custom code
     description: The currently assigned access control policy.
     example: fmc_access_control_policy.test.id
     test_value: fmc_access_control_policy.test.id
