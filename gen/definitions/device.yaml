@@ -46,6 +46,7 @@ attributes:
     write_only: true # actually is read-write, but (for reading) generated code hurts custom code
     description: The currently assigned access control policy.
     example: fmc_access_control_policy.test.id
+    minimum_test_value: fmc_access_control_policy.minimum.id
     test_value: fmc_access_control_policy.test.id
   - tf_name: nat_policy_id
     type: String
@@ -58,9 +59,14 @@ attributes:
     # test_value: fmc_nat_control_policy.test.id
 
 test_prerequisites: |
-  resource "fmc_access_control_policy" "test" {
+  resource "fmc_access_control_policy" "minimum" {
     name = "POLICY1"
     default_action = "BLOCK"
+  }
+
+  resource "fmc_access_control_policy" "test" {
+    name = "POLICY2"
+    default_action = "PERMIT"
   }
 
   variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr

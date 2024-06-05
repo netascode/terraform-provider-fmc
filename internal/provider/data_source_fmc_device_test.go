@@ -57,9 +57,14 @@ func TestAccDataSourceFmcDevice(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccDataSourceFmcDevicePrerequisitesConfig = `
-resource "fmc_access_control_policy" "test" {
+resource "fmc_access_control_policy" "minimum" {
   name = "POLICY1"
   default_action = "BLOCK"
+}
+
+resource "fmc_access_control_policy" "test" {
+  name = "POLICY2"
+  default_action = "PERMIT"
 }
 
 variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr

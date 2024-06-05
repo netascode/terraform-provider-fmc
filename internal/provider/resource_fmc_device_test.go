@@ -71,9 +71,14 @@ func TestAccFmcDevice(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccFmcDevicePrerequisitesConfig = `
-resource "fmc_access_control_policy" "test" {
+resource "fmc_access_control_policy" "minimum" {
   name = "POLICY1"
   default_action = "BLOCK"
+}
+
+resource "fmc_access_control_policy" "test" {
+  name = "POLICY2"
+  default_action = "PERMIT"
 }
 
 variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr
@@ -91,7 +96,7 @@ func testAccFmcDeviceConfig_minimum() string {
 	config += `	host_name = var.ftd_addr` + "\n"
 	config += `	license_caps = ["BASE", "THREAT", "PROTECT", "URLFilter", "MALWARE"]` + "\n"
 	config += `	reg_key = var.reg_key` + "\n"
-	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
+	config += `	access_policy_id = fmc_access_control_policy.minimum.id` + "\n"
 	config += `}` + "\n"
 	return config
 }
