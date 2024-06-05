@@ -90,8 +90,12 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Required:            true,
 			},
 			"host_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.").String,
-				Required:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Hostname or IP address of the device. Either the host_name or nat_id must be present.").String,
+				Optional:            true,
+			},
+			"nat_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("(used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.").String,
+				Optional:            true,
 			},
 			"license_caps": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.").String,

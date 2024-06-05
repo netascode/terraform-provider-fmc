@@ -1,3 +1,4 @@
+// Package ftd handles the functionality specific to Secure Firewall Threat Defense boxes.
 package ftd
 
 import (
@@ -51,13 +52,14 @@ func MustInitFromEnv() {
 		os.Getenv("FTD_PASSWORD"),
 		fmcAddr,
 		os.Getenv("TF_VAR_reg_key"),
+		os.Getenv("TF_VAR_nat_id" /* can be unset */),
 	)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func initialize(ftdAddr, ftdUser, ftdPass, fmcAddr, registrationKey string) error {
+func initialize(ftdAddr, ftdUser, ftdPass, fmcAddr, registrationKey, natID string) error {
 	client, err := ssh.Dial("tcp",
 		net.JoinHostPort(ftdAddr, "22"),
 		&ssh.ClientConfig{
@@ -99,9 +101,10 @@ func initialize(ftdAddr, ftdUser, ftdPass, fmcAddr, registrationKey string) erro
 		return err
 	}
 
+	fmt.Fprintf(stdin, "configure manager delete %s\n", natID)
 	fmt.Fprintf(stdin, "configure manager delete %s\n", fmcAddr)
-	fmt.Fprintf(stdin, "configure manager delete %s\n", fmcAddr)
-	fmt.Fprintf(stdin, "configure manager add  %s %s\n", fmcAddr, registrationKey)
+	fmt.Fprintln(stdin, "configure manager delete")
+	fmt.Fprintf(stdin, "configure manager add  %s %s %s\n", fmcAddr, registrationKey, natID)
 	fmt.Fprint(stdin, "show managers verbose\n")
 	stdin.Close()
 

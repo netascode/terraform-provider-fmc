@@ -37,6 +37,7 @@ type Device struct {
 	Domain                 types.String `tfsdk:"domain"`
 	Name                   types.String `tfsdk:"name"`
 	HostName               types.String `tfsdk:"host_name"`
+	NatId                  types.String `tfsdk:"nat_id"`
 	LicenseCaps            types.Set    `tfsdk:"license_caps"`
 	RegKey                 types.String `tfsdk:"reg_key"`
 	Type                   types.String `tfsdk:"type"`
@@ -66,6 +67,9 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	}
 	if !data.HostName.IsNull() {
 		body, _ = sjson.Set(body, "hostName", data.HostName.ValueString())
+	}
+	if !data.NatId.IsNull() {
+		body, _ = sjson.Set(body, "natID", data.NatId.ValueString())
 	}
 	if !data.LicenseCaps.IsNull() {
 		var values []string
@@ -209,6 +213,9 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.HostName.IsNull() {
+		return false
+	}
+	if !data.NatId.IsNull() {
 		return false
 	}
 	if !data.LicenseCaps.IsNull() {

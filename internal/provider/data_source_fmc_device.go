@@ -71,7 +71,11 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:            true,
 			},
 			"host_name": schema.StringAttribute{
-				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.",
+				MarkdownDescription: "Hostname or IP address of the device. Either the host_name or nat_id must be present.",
+				Computed:            true,
+			},
+			"nat_id": schema.StringAttribute{
+				MarkdownDescription: "(used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.",
 				Computed:            true,
 			},
 			"license_caps": schema.SetAttribute{

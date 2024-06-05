@@ -12,10 +12,18 @@ attributes:
     minimum_test_value: '"device1alt"'
   - model_name: hostName
     type: String
-    mandatory: true
-    description: Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.
+    description: Hostname or IP address of the device. Either the host_name or nat_id must be present.
     example: 10.0.0.1
+    minimum_test_value: var.ftd_addr
     test_value: var.ftd_addr
+  - model_name: natID
+    tf_name: nat_id
+    type: String
+    description: (used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.
+    write_only: true
+    exclude_example: true
+    test_value: var.nat_id
+    minimum_test_value: var.nat_id
   - model_name: license_caps
     type: Set
     element_type: String
@@ -84,6 +92,6 @@ test_prerequisites: |
     default_action = "PERMIT"
   }
 
-  variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr
-
-  variable "reg_key" {} // tests will set $TF_VAR_reg_key
+  variable "ftd_addr" { default = null } // tests will set $TF_VAR_ftd_addr
+  variable "nat_id"   { default = null } // tests will set $TF_VAR_nat_id
+  variable "reg_key"                  {} // tests will set $TF_VAR_reg_key

@@ -33,8 +33,11 @@ func TestAccDataSourceFmcDevice(t *testing.T) {
 	if ftdAddr == "" {
 		t.Skip("skipping test, set environment variable FTD_ADDR")
 	}
-	// Prepare Terraform's var.ftd_addr
-	os.Setenv("TF_VAR_ftd_addr", ftdAddr)
+
+	if os.Getenv("TF_VAR_nat_id") == "" {
+		// Prepare Terraform's var.ftd_addr
+		os.Setenv("TF_VAR_ftd_addr", ftdAddr)
+	}
 	// Prepare Terraform's var.reg_key
 	os.Setenv("TF_VAR_reg_key", ftd.MustRandomizeKey())
 
@@ -67,9 +70,9 @@ resource "fmc_access_control_policy" "test" {
   default_action = "PERMIT"
 }
 
-variable "ftd_addr" {} // tests will set $TF_VAR_ftd_addr
-
-variable "reg_key" {} // tests will set $TF_VAR_reg_key
+variable "ftd_addr" { default = null } // tests will set $TF_VAR_ftd_addr
+variable "nat_id"   { default = null } // tests will set $TF_VAR_nat_id
+variable "reg_key"                  {} // tests will set $TF_VAR_reg_key
 
 `
 
@@ -80,6 +83,7 @@ func testAccDataSourceFmcDeviceConfig() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1"` + "\n"
 	config += `	host_name = var.ftd_addr` + "\n"
+	config += `	nat_id = var.nat_id` + "\n"
 	config += `	license_caps = ["BASE"]` + "\n"
 	config += `	reg_key = var.reg_key` + "\n"
 	config += `	type = "Device"` + "\n"
