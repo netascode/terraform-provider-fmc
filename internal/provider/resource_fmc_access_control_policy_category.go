@@ -126,7 +126,7 @@ func (r *AccessControlPolicyCategoryResource) Create(ctx context.Context, req re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(strings.ToLower(res.Get("id").String()))
+	plan.Id = types.StringValue(res.Get("id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 

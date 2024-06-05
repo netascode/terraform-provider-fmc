@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -141,7 +140,7 @@ func (d *HostDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
 					if config.Name.ValueString() == v.Get("name").String() {
-						config.Id = types.StringValue(strings.ToLower(v.Get("id").String()))
+						config.Id = types.StringValue(v.Get("id").String())
 						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
 						return false
 					}
