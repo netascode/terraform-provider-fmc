@@ -22,7 +22,7 @@ attributes:
     mandatory: true
     description: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL."
     example: BASE
-    minimum_test_value: '["BASE", "THREAT", "PROTECT", "URLFilter", "MALWARE"]'
+    minimum_test_value: '["THREAT", "URLFilter", "BASE", "MALWARE"]'
   - model_name: regKey
     type: String
     mandatory: true
