@@ -35,7 +35,7 @@ type Device struct {
 	Domain         types.String `tfsdk:"domain"`
 	Name           types.String `tfsdk:"name"`
 	HostName       types.String `tfsdk:"host_name"`
-	LicenseCaps    types.List   `tfsdk:"license_caps"`
+	LicenseCaps    types.Set    `tfsdk:"license_caps"`
 	RegKey         types.String `tfsdk:"reg_key"`
 	Type           types.String `tfsdk:"type"`
 	AccessPolicyId types.String `tfsdk:"access_policy_id"`
@@ -94,9 +94,9 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 		data.HostName = types.StringNull()
 	}
 	if value := res.Get("license_caps"); value.Exists() {
-		data.LicenseCaps = helpers.GetStringList(value.Array())
+		data.LicenseCaps = helpers.GetStringSet(value.Array())
 	} else {
-		data.LicenseCaps = types.ListNull(types.StringType)
+		data.LicenseCaps = types.SetNull(types.StringType)
 	}
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
@@ -125,9 +125,9 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.HostName = types.StringNull()
 	}
 	if value := res.Get("license_caps"); value.Exists() && !data.LicenseCaps.IsNull() {
-		data.LicenseCaps = helpers.GetStringList(value.Array())
+		data.LicenseCaps = helpers.GetStringSet(value.Array())
 	} else {
-		data.LicenseCaps = types.ListNull(types.StringType)
+		data.LicenseCaps = types.SetNull(types.StringType)
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())

@@ -74,7 +74,7 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.",
 				Computed:            true,
 			},
-			"license_caps": schema.ListAttribute{
+			"license_caps": schema.SetAttribute{
 				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.",
 				ElementType:         types.StringType,
 				Computed:            true,

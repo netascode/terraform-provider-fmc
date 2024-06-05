@@ -1,7 +1,6 @@
 ---
 name: Device
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords
-# data_source_name_query: true
 doc_category: Devices
 test_tags: [FTD_ADDR]
 attributes:
@@ -18,11 +17,12 @@ attributes:
     example: 10.0.0.1
     test_value: var.ftd_addr
   - model_name: license_caps
-    type: List
+    type: Set
     element_type: String
     mandatory: true
-    description: 'Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.'
+    description: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL."
     example: BASE
+    minimum_test_value: '["BASE", "THREAT", "PROTECT", "URLFilter", "MALWARE"]'
   - model_name: regKey
     type: String
     mandatory: true

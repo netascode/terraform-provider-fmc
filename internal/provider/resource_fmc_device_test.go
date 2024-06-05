@@ -89,7 +89,7 @@ func testAccFmcDeviceConfig_minimum() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "device1alt"` + "\n"
 	config += `	host_name = var.ftd_addr` + "\n"
-	config += `	license_caps = ["BASE"]` + "\n"
+	config += `	license_caps = ["BASE", "THREAT", "PROTECT", "URLFilter", "MALWARE"]` + "\n"
 	config += `	reg_key = var.reg_key` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `}` + "\n"
