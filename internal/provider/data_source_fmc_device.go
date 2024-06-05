@@ -67,7 +67,7 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-specified name, must be unique.",
+				MarkdownDescription: "User-specified name, must be unique. Example: 'Device 01 - 192.168.0.152'",
 				Computed:            true,
 			},
 			"host_name": schema.StringAttribute{
@@ -93,6 +93,14 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"nat_policy_id": schema.StringAttribute{
 				MarkdownDescription: "The currently assigned NAT policy.",
+				Computed:            true,
+			},
+			"prohibit_packet_transfer": schema.BoolAttribute{
+				MarkdownDescription: "Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.",
+				Computed:            true,
+			},
+			"performance_tier": schema.StringAttribute{
+				MarkdownDescription: "Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.",
 				Computed:            true,
 			},
 		},

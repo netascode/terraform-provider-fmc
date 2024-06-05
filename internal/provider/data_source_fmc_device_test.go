@@ -85,6 +85,8 @@ func testAccDataSourceFmcDeviceConfig() string {
 	config += `	type = "Device"` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `	nat_policy_id = null` + "\n"
+	config += `	prohibit_packet_transfer = false` + "\n"
+	config += `	performance_tier = "FTDv5"` + "\n"
 	config += `}` + "\n"
 
 	config += `

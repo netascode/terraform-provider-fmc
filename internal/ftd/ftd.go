@@ -100,6 +100,7 @@ func initialize(ftdAddr, ftdUser, ftdPass, fmcAddr, registrationKey string) erro
 	}
 
 	fmt.Fprintf(stdin, "configure manager delete %s\n", fmcAddr)
+	fmt.Fprintf(stdin, "configure manager delete %s\n", fmcAddr)
 	fmt.Fprintf(stdin, "configure manager add  %s %s\n", fmcAddr, registrationKey)
 	fmt.Fprint(stdin, "show managers verbose\n")
 	stdin.Close()

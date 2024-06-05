@@ -26,6 +26,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -33,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -84,7 +86,7 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-specified name, must be unique.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("User-specified name, must be unique. Example: 'Device 01 - 192.168.0.152'").String,
 				Required:            true,
 			},
 			"host_name": schema.StringAttribute{
@@ -116,6 +118,17 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"nat_policy_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned NAT policy.").String,
 				Optional:            true,
+			},
+			"prohibit_packet_transfer": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.").String,
+				Optional:            true,
+			},
+			"performance_tier": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.").AddStringEnumDescription("FTDv5", "FTDv10", "FTDv20", "FTDv30", "FTDv50", "Legacy").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("FTDv5", "FTDv10", "FTDv20", "FTDv30", "FTDv50", "Legacy"),
+				},
 			},
 		},
 	}
@@ -195,6 +208,8 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Multiple devices named %q: %s", plan.Name.ValueString(), bulk))
 		return
 	}
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Configuring the non-access policy assignments", plan.Id.ValueString()))
 
 	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, resp.State, reqMods)
 	resp.Diagnostics.Append(diags...)

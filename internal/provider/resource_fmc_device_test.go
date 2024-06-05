@@ -97,6 +97,8 @@ func testAccFmcDeviceConfig_minimum() string {
 	config += `	license_caps = ["BASE", "THREAT", "PROTECT", "URLFilter", "MALWARE"]` + "\n"
 	config += `	reg_key = var.reg_key` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.minimum.id` + "\n"
+	config += `	prohibit_packet_transfer = true` + "\n"
+	config += `	performance_tier = "FTDv20"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -113,6 +115,8 @@ func testAccFmcDeviceConfig_all() string {
 	config += `	type = "Device"` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `	nat_policy_id = null` + "\n"
+	config += `	prohibit_packet_transfer = false` + "\n"
+	config += `	performance_tier = "FTDv5"` + "\n"
 	config += `}` + "\n"
 	return config
 }

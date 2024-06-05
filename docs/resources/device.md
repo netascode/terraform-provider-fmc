@@ -19,6 +19,7 @@ resource "fmc_device" "example" {
   license_caps     = ["BASE"]
   reg_key          = "key1"
   access_policy_id = "fmc_access_control_policy.test.id"
+  performance_tier = "FTDv50"
 }
 ```
 
@@ -30,13 +31,16 @@ resource "fmc_device" "example" {
 - `access_policy_id` (String) The currently assigned access control policy.
 - `host_name` (String) Hostname or IP address of the device. If the device is behind NAT, you can leave the host_name as blank, and use the nat_id field.
 - `license_caps` (Set of String) Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.
-- `name` (String) User-specified name, must be unique.
+- `name` (String) User-specified name, must be unique. Example: 'Device 01 - 192.168.0.152'
 - `reg_key` (String) Registration Key identical to the one previously configured on the device (`configure manager`).
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
 - `nat_policy_id` (String) The currently assigned NAT policy.
+- `performance_tier` (String) Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.
+  - Choices: `FTDv5`, `FTDv10`, `FTDv20`, `FTDv30`, `FTDv50`, `Legacy`
+- `prohibit_packet_transfer` (Boolean) Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.
 - `type` (String) Type of the device; this value is always 'Device'.
   - Default value: `Device`
 

@@ -33,15 +33,17 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type Device struct {
-	Id             types.String `tfsdk:"id"`
-	Domain         types.String `tfsdk:"domain"`
-	Name           types.String `tfsdk:"name"`
-	HostName       types.String `tfsdk:"host_name"`
-	LicenseCaps    types.Set    `tfsdk:"license_caps"`
-	RegKey         types.String `tfsdk:"reg_key"`
-	Type           types.String `tfsdk:"type"`
-	AccessPolicyId types.String `tfsdk:"access_policy_id"`
-	NatPolicyId    types.String `tfsdk:"nat_policy_id"`
+	Id                     types.String `tfsdk:"id"`
+	Domain                 types.String `tfsdk:"domain"`
+	Name                   types.String `tfsdk:"name"`
+	HostName               types.String `tfsdk:"host_name"`
+	LicenseCaps            types.Set    `tfsdk:"license_caps"`
+	RegKey                 types.String `tfsdk:"reg_key"`
+	Type                   types.String `tfsdk:"type"`
+	AccessPolicyId         types.String `tfsdk:"access_policy_id"`
+	NatPolicyId            types.String `tfsdk:"nat_policy_id"`
+	ProhibitPacketTransfer types.Bool   `tfsdk:"prohibit_packet_transfer"`
+	PerformanceTier        types.String `tfsdk:"performance_tier"`
 }
 
 // End of section. //template:end types
@@ -82,6 +84,12 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.NatPolicyId.IsNull() {
 		body, _ = sjson.Set(body, "dummy_nat_policy_id", data.NatPolicyId.ValueString())
 	}
+	if !data.ProhibitPacketTransfer.IsNull() {
+		body, _ = sjson.Set(body, "prohibitPacketTransfer", data.ProhibitPacketTransfer.ValueBool())
+	}
+	if !data.PerformanceTier.IsNull() {
+		body, _ = sjson.Set(body, "performanceTier", data.PerformanceTier.ValueString())
+	}
 	return body
 }
 
@@ -109,6 +117,11 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Type = types.StringValue("Device")
 	}
+	if value := res.Get("prohibitPacketTransfer"); value.Exists() {
+		data.ProhibitPacketTransfer = types.BoolValue(value.Bool())
+	} else {
+		data.ProhibitPacketTransfer = types.BoolNull()
+	}
 }
 
 // End of section. //template:end fromBody
@@ -134,6 +147,11 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Type = types.StringValue(value.String())
 	} else if data.Type.ValueString() != "Device" {
 		data.Type = types.StringNull()
+	}
+	if value := res.Get("prohibitPacketTransfer"); value.Exists() && !data.ProhibitPacketTransfer.IsNull() {
+		data.ProhibitPacketTransfer = types.BoolValue(value.Bool())
+	} else {
+		data.ProhibitPacketTransfer = types.BoolNull()
 	}
 }
 
@@ -216,6 +234,12 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 		return false
 	}
 	if !data.NatPolicyId.IsNull() {
+		return false
+	}
+	if !data.ProhibitPacketTransfer.IsNull() {
+		return false
+	}
+	if !data.PerformanceTier.IsNull() {
 		return false
 	}
 	return true

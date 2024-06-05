@@ -4,4 +4,5 @@ resource "fmc_device" "example" {
   license_caps     = ["BASE"]
   reg_key          = "key1"
   access_policy_id = "fmc_access_control_policy.test.id"
+  performance_tier = "FTDv50"
 }
