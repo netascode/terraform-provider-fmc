@@ -117,11 +117,6 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Type = types.StringValue("Device")
 	}
-	if value := res.Get("prohibitPacketTransfer"); value.Exists() {
-		data.ProhibitPacketTransfer = types.BoolValue(value.Bool())
-	} else {
-		data.ProhibitPacketTransfer = types.BoolNull()
-	}
 }
 
 // End of section. //template:end fromBody
@@ -147,11 +142,6 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 		data.Type = types.StringValue(value.String())
 	} else if data.Type.ValueString() != "Device" {
 		data.Type = types.StringNull()
-	}
-	if value := res.Get("prohibitPacketTransfer"); value.Exists() && !data.ProhibitPacketTransfer.IsNull() {
-		data.ProhibitPacketTransfer = types.BoolValue(value.Bool())
-	} else {
-		data.ProhibitPacketTransfer = types.BoolNull()
 	}
 }
 
