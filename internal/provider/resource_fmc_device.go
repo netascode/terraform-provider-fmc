@@ -372,15 +372,17 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.Stri
 				fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()),
 			)}
 		}
-		query := fmt.Sprintf(`targets.#(id=="%s")`, devId)
-		body, err := sjson.Delete(res.String(), query)
+		targets := res.Get(fmt.Sprintf(`targets.#(id != "%s")#`, devId))
+		body, err := sjson.SetRaw(res.String(), "targets", targets.Raw)
+		tflog.Debug(ctx, fmt.Sprintf("policy assignment with device %s removed: %s", devId, res))
 		if err != nil {
 			return diag.Diagnostics{diag.NewAttributeErrorDiagnostic(
 				path.Root("id"),
 				"Internal Error",
-				fmt.Sprintf("Failed to delete from JSON list \"targets\", got error: %s, %s", err, res),
+				fmt.Sprintf("Failed to set JSON \"targets\", got error: %s, %s, %s", err, res, targets),
 			)}
 		}
+
 		res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(statePolicy.ValueString()), body, reqMods...)
 		if err != nil {
 			return diag.Diagnostics{diag.NewErrorDiagnostic(
