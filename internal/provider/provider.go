@@ -20,9 +20,11 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin provider
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -45,11 +47,12 @@ type FmcProvider struct {
 
 // FmcProviderModel describes the provider data model.
 type FmcProviderModel struct {
-	Username types.String `tfsdk:"username"`
-	Password types.String `tfsdk:"password"`
-	URL      types.String `tfsdk:"url"`
-	Insecure types.Bool   `tfsdk:"insecure"`
-	Retries  types.Int64  `tfsdk:"retries"`
+	Username   types.String `tfsdk:"username"`
+	Password   types.String `tfsdk:"password"`
+	URL        types.String `tfsdk:"url"`
+	Insecure   types.Bool   `tfsdk:"insecure"`
+	ReqTimeout types.String `tfsdk:"req_timeout"`
+	Retries    types.Int64  `tfsdk:"retries"`
 }
 
 // FmcProviderData describes the data maintained by the provider.
@@ -82,6 +85,10 @@ func (p *FmcProvider) Schema(ctx context.Context, req provider.SchemaRequest, re
 			},
 			"insecure": schema.BoolAttribute{
 				MarkdownDescription: "Allow insecure HTTPS client. This can also be set as the FMC_INSECURE environment variable. Defaults to `true`.",
+				Optional:            true,
+			},
+			"req_timeout": schema.StringAttribute{
+				MarkdownDescription: "Timeout for a single HTTPS request made to REST API before it is retried. This can also be set as the FMC_REQTIMEOUT environment variable. A string like `\"1s\"` means one second. Defaults to `\"5s\"`.",
 				Optional:            true,
 			},
 			"retries": schema.Int64Attribute{
@@ -203,6 +210,34 @@ func (p *FmcProvider) Configure(ctx context.Context, req provider.ConfigureReque
 		insecure = config.Insecure.ValueBool()
 	}
 
+	var reqTimeout time.Duration
+	if config.ReqTimeout.IsUnknown() {
+		// Cannot connect to client with an unknown value
+		resp.Diagnostics.AddWarning(
+			"Unable to create client",
+			"Cannot use unknown value as req_timeout",
+		)
+		return
+	}
+
+	var reqTimeoutStr string
+	if config.ReqTimeout.IsNull() {
+		reqTimeoutStr = os.Getenv("FMC_REQTIMEOUT")
+		if reqTimeoutStr == "" {
+			reqTimeoutStr = "5s"
+		}
+	} else {
+		reqTimeoutStr = config.ReqTimeout.ValueString()
+	}
+	reqTimeout, err := time.ParseDuration(reqTimeoutStr)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to create client",
+			fmt.Sprintf("Cannot parse the req_timeout string: %v", err),
+		)
+		return
+	}
+
 	var retries int64
 	if config.Retries.IsUnknown() {
 		// Cannot connect to client with an unknown value
@@ -224,10 +259,15 @@ func (p *FmcProvider) Configure(ctx context.Context, req provider.ConfigureReque
 		retries = config.Retries.ValueInt64()
 	}
 
-	tflog.Debug(ctx, "Creating a new FMC client")
+	tflog.Debug(ctx, fmt.Sprint("Creating a new FMC client",
+		"  url=", url,
+		"  insecure=", insecure,
+		"  req_timeout=", reqTimeout,
+		"  retries=", retries,
+	))
 
 	// Create a new FMC client and set it to the provider client
-	c, err := fmc.NewClient(url, username, password, fmc.Insecure(insecure), fmc.MaxRetries(int(retries)))
+	c, err := fmc.NewClient(url, username, password, fmc.Insecure(insecure), fmc.MaxRetries(int(retries)), fmc.RequestTimeout(reqTimeout))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to create client",
