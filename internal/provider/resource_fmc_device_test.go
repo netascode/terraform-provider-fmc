@@ -43,7 +43,8 @@ func TestAccFmcDevice(t *testing.T) {
 
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.0", "BASE"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.#", "1"))
+	checks = append(checks, resource.TestCheckTypeSetElemAttr("fmc_device.test", "license_caps.*", "BASE"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "type", "Device"))
 
 	var steps []resource.TestStep
