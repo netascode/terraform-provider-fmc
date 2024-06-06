@@ -211,7 +211,7 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Configuring the non-access policy assignments", plan.Id.ValueString()))
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, resp.State, reqMods)
+	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, resp.State, reqMods...)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -318,13 +318,13 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("access_policy_id"), req.Plan, req.State, reqMods)
+	diags = r.updatePolicy(ctx, plan.Id, path.Root("access_policy_id"), req.Plan, req.State, reqMods...)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, req.State, reqMods)
+	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, req.State, reqMods...)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -338,7 +338,9 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 var policyMu sync.Mutex
 
-func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.StringValue, policyPath path.Path, plan tfsdk.Plan, state tfsdk.State, reqMods [](func(*fmc.Req))) diag.Diagnostics {
+// updatePolicy updates policy-to-device assignment of one specific device (UUID) and of one specific policy type
+// (policyPath points to a different attribute for Access Policy, NAT Policy, Platform Settings Policy, etc.).
+func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.StringValue, policyPath path.Path, plan tfsdk.Plan, state tfsdk.State, reqMods ...func(*fmc.Req)) diag.Diagnostics {
 	devId := device.ValueString()
 
 	var planPolicy types.String
@@ -351,7 +353,7 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.Stri
 		return diags
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("policy assignment %s id %s planned policy %s state policy %s", policyPath, devId, planPolicy, statePolicy))
+	tflog.Debug(ctx, fmt.Sprintf("policy assignment %s id %s policy planned  %s, state %s", policyPath, devId, planPolicy, statePolicy))
 
 	if statePolicy.Equal(planPolicy) {
 		return nil
