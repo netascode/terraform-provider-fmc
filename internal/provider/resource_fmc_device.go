@@ -97,12 +97,12 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: helpers.NewAttributeDescription("(used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.").String,
 				Optional:            true,
 			},
-			"license_caps": schema.SetAttribute{
+			"license_capabilities": schema.SetAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.").String,
 				ElementType:         types.StringType,
 				Required:            true,
 			},
-			"reg_key": schema.StringAttribute{
+			"registration_key": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Registration Key identical to the one previously configured on the device (`configure manager`).").String,
 				Required:            true,
 			},
@@ -116,11 +116,11 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				},
 			},
 			"access_policy_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned access control policy.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The UUID of the assigned access control policy. For example `fmc_access_control_policy.example.id`.").String,
 				Required:            true,
 			},
 			"nat_policy_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The currently assigned NAT policy.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The UUID of the assigned NAT policy.").String,
 				Optional:            true,
 			},
 			"prohibit_packet_transfer": schema.BoolAttribute{

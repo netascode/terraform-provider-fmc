@@ -31,13 +31,13 @@ data "fmc_device" "example" {
 
 ### Read-Only
 
-- `access_policy_id` (String) The currently assigned access control policy.
+- `access_policy_id` (String) The UUID of the assigned access control policy. For example `fmc_access_control_policy.example.id`.
 - `host_name` (String) Hostname or IP address of the device. Either the host_name or nat_id must be present.
-- `license_caps` (Set of String) Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.
+- `license_capabilities` (Set of String) Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.
 - `name` (String) User-specified name, must be unique. Example: 'Device 01 - 192.168.0.152'
 - `nat_id` (String) (used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.
-- `nat_policy_id` (String) The currently assigned NAT policy.
+- `nat_policy_id` (String) The UUID of the assigned NAT policy.
 - `performance_tier` (String) Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.
 - `prohibit_packet_transfer` (Boolean) Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.
-- `reg_key` (String) Registration Key identical to the one previously configured on the device (`configure manager`).
+- `registration_key` (String) Registration Key identical to the one previously configured on the device (`configure manager`).
 - `type` (String) Type of the device; this value is always 'Device'.

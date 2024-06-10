@@ -38,13 +38,13 @@ func TestAccDataSourceFmcDevice(t *testing.T) {
 		// Prepare Terraform's var.ftd_addr
 		os.Setenv("TF_VAR_ftd_addr", ftdAddr)
 	}
-	// Prepare Terraform's var.reg_key
-	os.Setenv("TF_VAR_reg_key", ftd.MustRandomizeKey())
+	// Prepare Terraform's var.registration_key
+	os.Setenv("TF_VAR_registration_key", ftd.MustRandomizeKey())
 
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "name", "device1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_caps.#", "1"))
-	checks = append(checks, resource.TestCheckTypeSetElemAttr("fmc_device.test", "license_caps.*", "BASE"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_capabilities.#", "1"))
+	checks = append(checks, resource.TestCheckTypeSetElemAttr("fmc_device.test", "license_capabilities.*", "BASE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device.test", "type", "Device"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -73,7 +73,7 @@ resource "fmc_access_control_policy" "test" {
 
 variable "ftd_addr" { default = null } // tests will set $TF_VAR_ftd_addr
 variable "nat_id"   { default = null } // tests will set $TF_VAR_nat_id
-variable "reg_key"                  {} // tests will set $TF_VAR_reg_key
+variable "registration_key"         {} // tests will set $TF_VAR_registration_key
 
 `
 
@@ -85,13 +85,13 @@ func testAccDataSourceFmcDeviceConfig() string {
 	config += `	name = "device1"` + "\n"
 	config += `	host_name = var.ftd_addr` + "\n"
 	config += `	nat_id = var.nat_id` + "\n"
-	config += `	license_caps = ["BASE"]` + "\n"
-	config += `	reg_key = var.reg_key` + "\n"
+	config += `	license_capabilities = ["BASE"]` + "\n"
+	config += `	registration_key = var.registration_key` + "\n"
 	config += `	type = "Device"` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.test.id` + "\n"
 	config += `	nat_policy_id = null` + "\n"
-	config += `	prohibit_packet_transfer = false` + "\n"
-	config += `	performance_tier = "FTDv5"` + "\n"
+	config += `	prohibit_packet_transfer = true` + "\n"
+	config += `	performance_tier = "FTDv50"` + "\n"
 	config += `}` + "\n"
 
 	config += `

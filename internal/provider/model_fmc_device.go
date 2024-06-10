@@ -38,8 +38,8 @@ type Device struct {
 	Name                   types.String `tfsdk:"name"`
 	HostName               types.String `tfsdk:"host_name"`
 	NatId                  types.String `tfsdk:"nat_id"`
-	LicenseCaps            types.Set    `tfsdk:"license_caps"`
-	RegKey                 types.String `tfsdk:"reg_key"`
+	LicenseCapabilities    types.Set    `tfsdk:"license_capabilities"`
+	RegistrationKey        types.String `tfsdk:"registration_key"`
 	Type                   types.String `tfsdk:"type"`
 	AccessPolicyId         types.String `tfsdk:"access_policy_id"`
 	NatPolicyId            types.String `tfsdk:"nat_policy_id"`
@@ -71,13 +71,13 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.NatId.IsNull() {
 		body, _ = sjson.Set(body, "natID", data.NatId.ValueString())
 	}
-	if !data.LicenseCaps.IsNull() {
+	if !data.LicenseCapabilities.IsNull() {
 		var values []string
-		data.LicenseCaps.ElementsAs(ctx, &values, false)
+		data.LicenseCapabilities.ElementsAs(ctx, &values, false)
 		body, _ = sjson.Set(body, "license_caps", values)
 	}
-	if !data.RegKey.IsNull() {
-		body, _ = sjson.Set(body, "regKey", data.RegKey.ValueString())
+	if !data.RegistrationKey.IsNull() {
+		body, _ = sjson.Set(body, "regKey", data.RegistrationKey.ValueString())
 	}
 	if !data.Type.IsNull() {
 		body, _ = sjson.Set(body, "type", data.Type.ValueString())
@@ -112,9 +112,9 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 		data.HostName = types.StringNull()
 	}
 	if value := res.Get("license_caps"); value.Exists() {
-		data.LicenseCaps = helpers.GetStringSet(value.Array())
+		data.LicenseCapabilities = helpers.GetStringSet(value.Array())
 	} else {
-		data.LicenseCaps = types.SetNull(types.StringType)
+		data.LicenseCapabilities = types.SetNull(types.StringType)
 	}
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
@@ -137,10 +137,10 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.HostName = types.StringNull()
 	}
-	if value := res.Get("license_caps"); value.Exists() && !data.LicenseCaps.IsNull() {
-		data.LicenseCaps = helpers.GetStringSet(value.Array())
+	if value := res.Get("license_caps"); value.Exists() && !data.LicenseCapabilities.IsNull() {
+		data.LicenseCapabilities = helpers.GetStringSet(value.Array())
 	} else {
-		data.LicenseCaps = types.SetNull(types.StringType)
+		data.LicenseCapabilities = types.SetNull(types.StringType)
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
@@ -218,10 +218,10 @@ func (data *Device) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.NatId.IsNull() {
 		return false
 	}
-	if !data.LicenseCaps.IsNull() {
+	if !data.LicenseCapabilities.IsNull() {
 		return false
 	}
-	if !data.RegKey.IsNull() {
+	if !data.RegistrationKey.IsNull() {
 		return false
 	}
 	if !data.Type.IsNull() {
