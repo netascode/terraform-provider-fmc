@@ -36,3 +36,13 @@ data "fmc_access_control_policy" "example" {
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `default_action_send_syslog` (Boolean) Indicating whether the device will send events to a syslog server.
 - `description` (String) Description
+- `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. (see [below for nested schema](#nestedatt--rules))
+
+<a id="nestedatt--rules"></a>
+### Nested Schema for `rules`
+
+Read-Only:
+
+- `action` (String) What to do when the conditions defined by the rule are met.
+- `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
+- `name` (String) User-specified unique string.

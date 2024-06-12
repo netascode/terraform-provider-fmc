@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -30,16 +31,23 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type AccessControlPolicy struct {
-	Id                           types.String `tfsdk:"id"`
-	Domain                       types.String `tfsdk:"domain"`
-	Name                         types.String `tfsdk:"name"`
-	Description                  types.String `tfsdk:"description"`
-	DefaultAction                types.String `tfsdk:"default_action"`
-	DefaultActionId              types.String `tfsdk:"default_action_id"`
-	DefaultActionLogBegin        types.Bool   `tfsdk:"default_action_log_begin"`
-	DefaultActionLogEnd          types.Bool   `tfsdk:"default_action_log_end"`
-	DefaultActionSendEventsToFmc types.Bool   `tfsdk:"default_action_send_events_to_fmc"`
-	DefaultActionSendSyslog      types.Bool   `tfsdk:"default_action_send_syslog"`
+	Id                           types.String               `tfsdk:"id"`
+	Domain                       types.String               `tfsdk:"domain"`
+	Name                         types.String               `tfsdk:"name"`
+	Description                  types.String               `tfsdk:"description"`
+	DefaultAction                types.String               `tfsdk:"default_action"`
+	DefaultActionId              types.String               `tfsdk:"default_action_id"`
+	DefaultActionLogBegin        types.Bool                 `tfsdk:"default_action_log_begin"`
+	DefaultActionLogEnd          types.Bool                 `tfsdk:"default_action_log_end"`
+	DefaultActionSendEventsToFmc types.Bool                 `tfsdk:"default_action_send_events_to_fmc"`
+	DefaultActionSendSyslog      types.Bool                 `tfsdk:"default_action_send_syslog"`
+	Rules                        []AccessControlPolicyRules `tfsdk:"rules"`
+}
+
+type AccessControlPolicyRules struct {
+	Action  types.String `tfsdk:"action"`
+	Name    types.String `tfsdk:"name"`
+	Enabled types.Bool   `tfsdk:"enabled"`
 }
 
 // End of section. //template:end types
@@ -80,6 +88,22 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.enableSyslog", data.DefaultActionSendSyslog.ValueBool())
+	}
+	if len(data.Rules) > 0 {
+		body, _ = sjson.Set(body, "dummy_rules", []interface{}{})
+		for _, item := range data.Rules {
+			itemBody := ""
+			if !item.Action.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "action", item.Action.ValueString())
+			}
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
+			}
+			if !item.Enabled.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "enabled", item.Enabled.ValueBool())
+			}
+			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
+		}
 	}
 	return body
 }
@@ -128,11 +152,33 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 	} else {
 		data.DefaultActionSendSyslog = types.BoolValue(false)
 	}
+	if value := res.Get("dummy_rules"); value.Exists() {
+		data.Rules = make([]AccessControlPolicyRules, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := AccessControlPolicyRules{}
+			if cValue := v.Get("action"); cValue.Exists() {
+				item.Action = types.StringValue(cValue.String())
+			} else {
+				item.Action = types.StringNull()
+			}
+			if cValue := v.Get("name"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
+			} else {
+				item.Name = types.StringNull()
+			}
+			if cValue := v.Get("enabled"); cValue.Exists() {
+				item.Enabled = types.BoolValue(cValue.Bool())
+			} else {
+				item.Enabled = types.BoolValue(true)
+			}
+			data.Rules = append(data.Rules, item)
+			return true
+		})
+	}
 }
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
@@ -174,9 +220,34 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 	} else if data.DefaultActionSendSyslog.ValueBool() != false {
 		data.DefaultActionSendSyslog = types.BoolNull()
 	}
-}
 
-// End of section. //template:end updateFromBody
+	resLen := len(res.Get("dummy_rules").Array())
+	for i := len(data.Rules); i < resLen; i++ {
+		data.Rules = append(data.Rules, AccessControlPolicyRules{})
+	}
+	if len(data.Rules) > resLen {
+		data.Rules = data.Rules[:resLen]
+	}
+
+	for i := range data.Rules {
+		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
+		if value := r.Get("action"); value.Exists() && !data.Rules[i].Action.IsNull() {
+			data.Rules[i].Action = types.StringValue(value.String())
+		} else {
+			data.Rules[i].Action = types.StringNull()
+		}
+		if value := r.Get("name"); value.Exists() && !data.Rules[i].Name.IsNull() {
+			data.Rules[i].Name = types.StringValue(value.String())
+		} else {
+			data.Rules[i].Name = types.StringNull()
+		}
+		if value := r.Get("enabled"); value.Exists() && !data.Rules[i].Enabled.IsNull() {
+			data.Rules[i].Enabled = types.BoolValue(value.Bool())
+		} else if data.Rules[i].Enabled.ValueBool() != true {
+			data.Rules[i].Enabled = types.BoolNull()
+		}
+	}
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) bool {
@@ -202,6 +273,9 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 		return false
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
+		return false
+	}
+	if len(data.Rules) > 0 {
 		return false
 	}
 	return true

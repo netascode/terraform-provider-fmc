@@ -6,4 +6,10 @@ resource "fmc_access_control_policy" "example" {
   default_action_log_end            = true
   default_action_send_events_to_fmc = true
   default_action_send_syslog        = true
+  rules = [
+    {
+      action = "ALLOW"
+      name   = "rule1"
+    }
+  ]
 }

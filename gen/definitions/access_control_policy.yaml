@@ -55,5 +55,31 @@ attributes:
     description: Indicating whether the device will send events to a syslog server.
     default_value: false
     example: true
-
-
+  - model_name: dummy_rules
+    tf_name: rules
+    type: List
+    description: The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.
+    attributes:
+      - model_name: action
+        type: String
+        description: What to do when the conditions defined by the rule are met.
+        mandatory: true
+        enum_values:
+          - ALLOW
+          - TRUST
+          - BLOCK
+          - MONITOR
+          - BLOCK_RESET
+          - BLOCK_INTERACTIVE
+          - BLOCK_RESET_INTERACTIVE
+        example: ALLOW
+      - model_name: name
+        type: String
+        description: User-specified unique string.
+        mandatory: true
+        example: rule1
+      - model_name: enabled
+        type: Bool
+        description: Indicates whether the access rule is in effect (true) or not (false). Default is true.
+        default_value: "true"
+        exclude_example: true

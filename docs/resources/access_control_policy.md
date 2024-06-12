@@ -21,6 +21,12 @@ resource "fmc_access_control_policy" "example" {
   default_action_log_end            = true
   default_action_send_events_to_fmc = true
   default_action_send_syslog        = true
+  rules = [
+    {
+      action = "ALLOW"
+      name   = "rule1"
+    }
+  ]
 }
 ```
 
@@ -45,11 +51,26 @@ resource "fmc_access_control_policy" "example" {
   - Default value: `false`
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
+- `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only
 
 - `default_action_id` (String) Default action ID.
 - `id` (String) The id of the object
+
+<a id="nestedatt--rules"></a>
+### Nested Schema for `rules`
+
+Required:
+
+- `action` (String) What to do when the conditions defined by the rule are met.
+  - Choices: `ALLOW`, `TRUST`, `BLOCK`, `MONITOR`, `BLOCK_RESET`, `BLOCK_INTERACTIVE`, `BLOCK_RESET_INTERACTIVE`
+- `name` (String) User-specified unique string.
+
+Optional:
+
+- `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
+  - Default value: `true`
 
 ## Import
 

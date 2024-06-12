@@ -103,6 +103,26 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "Indicating whether the device will send events to a syslog server.",
 				Computed:            true,
 			},
+			"rules": schema.ListNestedAttribute{
+				MarkdownDescription: "The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							MarkdownDescription: "What to do when the conditions defined by the rule are met.",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "User-specified unique string.",
+							Computed:            true,
+						},
+						"enabled": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the access rule is in effect (true) or not (false). Default is true.",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
