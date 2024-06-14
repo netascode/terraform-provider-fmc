@@ -193,9 +193,9 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 
 	resRules, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?bulk=true", bodyRules, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, resRules.String()))
 
-		_, err = r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		res, err = r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 		if err != nil {
 			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
 		}
@@ -269,7 +269,6 @@ func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.Rea
 	resp.Diagnostics.Append(diags...)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state AccessControlPolicy
 
@@ -295,16 +294,61 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
+	bodyRules := gjson.Parse(body).Get("dummy_rules").String()
+	body, _ = sjson.Delete(body, "dummy_rules")
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
+
+	b := strings.Builder{}
+	var bulks []string
+	res.Get("items").ForEach(func(_, value gjson.Result) bool {
+		if !value.Get("id").Exists() {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Malformed rule, id field is missing: %s", value))
+			return false
+		}
+		if b.Len() != 0 {
+			b.WriteString(",")
+		}
+		b.WriteString(value.Get("id").String())
+		if b.Len() > 4000 {
+			bulks = append(bulks, b.String())
+			b.Reset()
+		}
+		return true
+	})
+	if b.Len() > 0 {
+		bulks = append(bulks, b.String())
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for _, bulk := range bulks {
+		res, err = r.client.Delete(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()) +
+			"/accessrules?bulk=true&filter=ids:" + url.QueryEscape(bulk))
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to bulk-delete rules, got error: %s, %s", err, res.String()))
+		}
+	}
+
+	resRules, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?bulk=true", bodyRules, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, resRules.String()))
+		return
+	}
+
 	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
+
+	replace, _ := sjson.SetRaw(res.String(), "dummy_rules", resRules.Get("items").String())
+	res = gjson.Parse(replace)
+
 	plan.updateFromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -313,7 +357,9 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	resp.Diagnostics.Append(diags...)
 }
 
-// End of section. //template:end update
+func (r *AccessControlPolicyResource) deleteAllRules(ctx context.Context) {
+
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AccessControlPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
