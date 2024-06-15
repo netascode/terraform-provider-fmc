@@ -71,6 +71,7 @@ Optional:
 
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
+- `id` (String) Identifier of the rule.
 
 ## Import
 

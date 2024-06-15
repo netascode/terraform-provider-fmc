@@ -60,6 +60,10 @@ attributes:
     type: List
     description: The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.
     attributes:
+      - model_name: id
+        type: String
+        description: Identifier of the rule.
+        exclude_example: true
       - model_name: action
         type: String
         description: What to do when the conditions defined by the rule are met.

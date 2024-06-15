@@ -128,6 +128,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Identifier of the rule.").String,
+							Optional:            true,
+						},
 						"action": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("What to do when the conditions defined by the rule are met.").AddStringEnumDescription("ALLOW", "TRUST", "BLOCK", "MONITOR", "BLOCK_RESET", "BLOCK_INTERACTIVE", "BLOCK_RESET_INTERACTIVE").String,
 							Required:            true,

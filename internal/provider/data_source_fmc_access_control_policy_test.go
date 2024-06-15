@@ -36,6 +36,7 @@ func TestAccDataSourceFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "default_action_log_end", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "default_action_send_events_to_fmc", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "default_action_send_syslog", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.id", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.action", "ALLOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.name", "rule1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.enabled", ""))
@@ -67,6 +68,7 @@ func testAccDataSourceFmcAccessControlPolicyConfig() string {
 	config += `	default_action_send_events_to_fmc = true` + "\n"
 	config += `	default_action_send_syslog = true` + "\n"
 	config += `	rules = [{` + "\n"
+	config += `	  id = ""` + "\n"
 	config += `	  action = "ALLOW"` + "\n"
 	config += `	  name = "rule1"` + "\n"
 	config += `	  enabled = ` + "\n"

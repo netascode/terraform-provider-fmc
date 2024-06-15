@@ -45,6 +45,7 @@ type AccessControlPolicy struct {
 }
 
 type AccessControlPolicyRules struct {
+	Id      types.String `tfsdk:"id"`
 	Action  types.String `tfsdk:"action"`
 	Name    types.String `tfsdk:"name"`
 	Enabled types.Bool   `tfsdk:"enabled"`
@@ -93,6 +94,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 		body, _ = sjson.Set(body, "dummy_rules", []interface{}{})
 		for _, item := range data.Rules {
 			itemBody := ""
+			if !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
 			if !item.Action.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "action", item.Action.ValueString())
 			}
@@ -156,6 +160,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 		data.Rules = make([]AccessControlPolicyRules, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
 			item := AccessControlPolicyRules{}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
 			if cValue := v.Get("action"); cValue.Exists() {
 				item.Action = types.StringValue(cValue.String())
 			} else {

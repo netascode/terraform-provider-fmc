@@ -45,4 +45,5 @@ Read-Only:
 
 - `action` (String) What to do when the conditions defined by the rule are met.
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
+- `id` (String) Identifier of the rule.
 - `name` (String) User-specified unique string.

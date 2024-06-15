@@ -108,6 +108,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Identifier of the rule.",
+							Computed:            true,
+						},
 						"action": schema.StringAttribute{
 							MarkdownDescription: "What to do when the conditions defined by the rule are met.",
 							Computed:            true,
