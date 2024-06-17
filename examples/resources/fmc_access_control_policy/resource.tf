@@ -20,10 +20,6 @@ resource "fmc_access_control_policy" "example" {
           value = "10.1.1.0/24"
         }
       ]
-      source_network_objects = [
-        {
-        }
-      ]
     }
   ]
 }

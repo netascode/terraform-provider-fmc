@@ -189,18 +189,6 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 						// 	ElementType:         types.StringType,
 						// 	Optional:            true,
 						// },
-						"source_network_objects": schema.ListNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("").String,
-							Optional:            true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
-										Optional:            true,
-									},
-								},
-							},
-						},
 					},
 				},
 			},

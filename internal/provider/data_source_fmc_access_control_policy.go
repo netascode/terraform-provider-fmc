@@ -160,18 +160,6 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
-						"source_network_objects": schema.ListNestedAttribute{
-							MarkdownDescription: "List of the identifiers of the fmc_network resources.",
-							Computed:            true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID of an fmc_network resource.",
-										Computed:            true,
-									},
-								},
-							},
-						},
 					},
 				},
 			},

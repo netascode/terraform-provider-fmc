@@ -108,9 +108,6 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `	  source_network_literals = [{` + "\n"
 	config += `		value = "10.1.1.0/24"` + "\n"
 	config += `	}]` + "\n"
-	config += `	  source_network_objects = [{` + "\n"
-	config += `		id = fmc_network.this.id` + "\n"
-	config += `	}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

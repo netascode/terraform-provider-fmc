@@ -60,7 +60,6 @@ Read-Only:
 - `id` (String) Identifier of the rule.
 - `name` (String) User-specified unique string.
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
-- `source_network_objects` (Attributes List) List of the identifiers of the fmc_network resources. (see [below for nested schema](#nestedatt--rules--source_network_objects))
 
 <a id="nestedatt--rules--source_network_literals"></a>
 ### Nested Schema for `rules.source_network_literals`
@@ -68,11 +67,3 @@ Read-Only:
 Read-Only:
 
 - `value` (String)
-
-
-<a id="nestedatt--rules--source_network_objects"></a>
-### Nested Schema for `rules.source_network_objects`
-
-Read-Only:
-
-- `id` (String) UUID of an fmc_network resource.
