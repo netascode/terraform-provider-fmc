@@ -120,10 +120,15 @@ attributes:
             example: Host
           - model_name: value
             type: String
-            example: 10.1.1.1
+            example: 10.1.1.0/24
       - model_name: objects
         data_path: [sourceNetworks]
         tf_name: source_network_objects
+        description: List of the identifiers of the fmc_network resources.
         type: List
-        element_type: String
-        description: List of UUIDs of the fmc_network resources.
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of an fmc_network resource.
+            exclude_example: true
+            test_value: fmc_network.this.id

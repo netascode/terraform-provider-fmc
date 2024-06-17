@@ -32,11 +32,13 @@ resource "fmc_access_control_policy" "example" {
       name   = "rule1"
       source_network_literals = [
         {
-          type  = "Host"
-          value = "10.1.1.1"
+          value = "10.1.1.0/24"
         }
       ]
-      source_network_objects = [""]
+      source_network_objects = [
+        {
+        }
+      ]
     }
   ]
 }
@@ -102,7 +104,7 @@ Optional:
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
-- `source_network_objects` (List of String) List of UUIDs of the fmc_network resources.
+- `source_network_objects` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_objects))
 
 Read-Only:
 
@@ -113,8 +115,15 @@ Read-Only:
 
 Optional:
 
-- `type` (String)
 - `value` (String)
+
+
+<a id="nestedatt--rules--source_network_objects"></a>
+### Nested Schema for `rules.source_network_objects`
+
+Optional:
+
+- `id` (String)
 
 ## Import
 

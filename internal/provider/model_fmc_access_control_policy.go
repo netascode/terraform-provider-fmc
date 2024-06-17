@@ -24,7 +24,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
@@ -60,12 +59,15 @@ type AccessControlPolicyRules struct {
 	CategoryName          types.String                                    `tfsdk:"category_name"`
 	Enabled               types.Bool                                      `tfsdk:"enabled"`
 	SourceNetworkLiterals []AccessControlPolicyRulesSourceNetworkLiterals `tfsdk:"source_network_literals"`
-	SourceNetworkObjects  types.List                                      `tfsdk:"source_network_objects"`
+	SourceNetworkObjects  []AccessControlPolicyRulesSourceNetworkObjects  `tfsdk:"source_network_objects"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
 	Type  types.String `tfsdk:"type"`
 	Value types.String `tfsdk:"value"`
+}
+type AccessControlPolicyRulesSourceNetworkObjects struct {
+	Id types.String `tfsdk:"id"`
 }
 
 // End of section. //template:end types
@@ -155,10 +157,15 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.literals.-1", itemChildBody)
 				}
 			}
-			if !item.SourceNetworkObjects.IsNull() {
-				var values []string
-				item.SourceNetworkObjects.ElementsAs(ctx, &values, false)
-				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.objects", values)
+			if len(item.SourceNetworkObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.objects", []interface{}{})
+				for _, childItem := range item.SourceNetworkObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.objects.-1", itemChildBody)
+				}
 			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
@@ -281,9 +288,17 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				})
 			}
 			if cValue := v.Get("sourceNetworks.objects"); cValue.Exists() {
-				item.SourceNetworkObjects = helpers.GetStringList(cValue.Array())
-			} else {
-				item.SourceNetworkObjects = types.ListNull(types.StringType)
+				item.SourceNetworkObjects = make([]AccessControlPolicyRulesSourceNetworkObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesSourceNetworkObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					item.SourceNetworkObjects = append(item.SourceNetworkObjects, cItem)
+					return true
+				})
 			}
 			data.Rules = append(data.Rules, item)
 			return true
@@ -293,7 +308,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 
 // End of section. //template:end fromBody
 
-// FIXME //template:begin updateFromBody
 func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
 	tflog.Debug(ctx, fmt.Sprintf("updateFromBody: %s", res))
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
@@ -338,6 +352,7 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 	}
 
 	resLen := len(res.Get("dummy_categories").Array())
+	tflog.Debug(ctx, fmt.Sprintf("categories array: tf len %d, body len %d", len(data.Categories), resLen))
 	for i := len(data.Categories); i < resLen; i++ {
 		data.Categories = append(data.Categories, AccessControlPolicyCategories{})
 	}
@@ -370,6 +385,7 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 	}
 
 	resLen = len(res.Get("dummy_rules").Array())
+	tflog.Debug(ctx, fmt.Sprintf("rules array: tf len %d, body len %d", len(data.Rules), resLen))
 	for i := len(data.Rules); i < resLen; i++ {
 		data.Rules = append(data.Rules, AccessControlPolicyRules{})
 	}
@@ -379,6 +395,11 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 
 	for i := range data.Rules {
 		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
+		if value := r.Get("id"); value.Exists() {
+			data.Rules[i].Id = types.StringValue(value.String())
+		} else {
+			data.Rules[i].Id = types.StringNull()
+		}
 		if value := r.Get("action"); value.Exists() && !data.Rules[i].Action.IsNull() {
 			data.Rules[i].Action = types.StringValue(value.String())
 		} else {
@@ -394,10 +415,72 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		} else if data.Rules[i].Enabled.ValueBool() != true {
 			data.Rules[i].Enabled = types.BoolNull()
 		}
+		for ci := range data.Rules[i].SourceNetworkLiterals {
+			keys := [...]string{"value"}
+			keyValues := [...]string{data.Rules[i].SourceNetworkLiterals[ci].Value.ValueString()}
+
+			var cr gjson.Result
+			r.Get("sourceNetworks.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("value"); value.Exists() && !data.Rules[i].SourceNetworkLiterals[ci].Value.IsNull() {
+				data.Rules[i].SourceNetworkLiterals[ci].Value = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceNetworkLiterals[ci].Value = types.StringNull()
+			}
+		}
+		// if value := r.Get("sourceNetworks.literals"); value.Exists() && !data.Rules[i].SourceNetworkLiterals.IsNull() {
+		// 	data.Rules[i].SourceNetworkLiterals = helpers.GetStringList(value.Array())
+		// } else {
+		// 	data.Rules[i].SourceNetworkLiterals = types.ListNull(types.StringType)
+		// }
+		for ci := range data.Rules[i].SourceNetworkObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].SourceNetworkObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("sourceNetworks.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceNetworkObjects[ci].Id.IsNull() {
+				data.Rules[i].SourceNetworkObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceNetworkObjects[ci].Id = types.StringNull()
+			}
+		}
+
 	}
 }
-
-// FIXME //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) bool {

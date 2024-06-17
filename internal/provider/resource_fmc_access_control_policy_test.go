@@ -44,9 +44,7 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.action", "ALLOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.name", "rule1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.enabled", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.source_network_literals.0.type", "Host"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.source_network_objects.0", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.0/24"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -108,10 +106,11 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `	  category_name = "cat1"` + "\n"
 	config += `	  enabled = ` + "\n"
 	config += `	  source_network_literals = [{` + "\n"
-	config += `		type = "Host"` + "\n"
-	config += `		value = "10.1.1.1"` + "\n"
+	config += `		value = "10.1.1.0/24"` + "\n"
 	config += `	}]` + "\n"
-	config += `	  source_network_objects = [""]` + "\n"
+	config += `	  source_network_objects = [{` + "\n"
+	config += `		id = fmc_network.this.id` + "\n"
+	config += `	}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

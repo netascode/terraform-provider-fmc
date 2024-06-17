@@ -17,11 +17,13 @@ resource "fmc_access_control_policy" "example" {
       name   = "rule1"
       source_network_literals = [
         {
-          type  = "Host"
-          value = "10.1.1.1"
+          value = "10.1.1.0/24"
         }
       ]
-      source_network_objects = [""]
+      source_network_objects = [
+        {
+        }
+      ]
     }
   ]
 }

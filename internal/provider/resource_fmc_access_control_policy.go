@@ -188,10 +188,22 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"source_network_objects": schema.ListAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("List of UUIDs of the fmc_network resources.").String,
-							ElementType:         types.StringType,
+						// "source_network_literals": schema.ListAttribute{
+						// 	MarkdownDescription: helpers.NewAttributeDescription("List of CIDRs.").String,
+						// 	ElementType:         types.StringType,
+						// 	Optional:            true,
+						// },
+						"source_network_objects": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -528,8 +540,14 @@ func (r *AccessControlPolicyResource) createRules(ctx context.Context, plan Acce
 			return nil, fmt.Errorf("Failed to configure object (POST), got error: %s, %s", err, res.String())
 		}
 
-		gathered, _ = sjson.Set(gathered, "items",
-			append(gjson.Parse(gathered).Get("items").Array(), res.Get("items").Array()...))
+		for _, rule := range res.Get("items").Array() {
+			// POST usually reports a fake item with a non-existing UUID. Shake fist at the sky.
+			if !rule.Get("name").Exists() {
+				continue
+			}
+
+			gathered, _ = sjson.SetRaw(gathered, "items.-1", rule.String())
+		}
 	}
 
 	ret := gjson.Parse(gathered)
