@@ -44,7 +44,6 @@ data "fmc_access_control_policy" "example" {
 
 Read-Only:
 
-- `description` (String) User-specified description string.
 - `id` (String) Identifier of the category.
 - `name` (String) User-specified unique string.
 

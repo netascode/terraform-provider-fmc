@@ -76,10 +76,6 @@ Required:
 
 - `name` (String) User-specified unique string.
 
-Optional:
-
-- `description` (String) User-specified description string.
-
 Read-Only:
 
 - `id` (String) Identifier of the category.
@@ -110,7 +106,6 @@ Read-Only:
 
 Optional:
 
-- `type` (String)
 - `value` (String)
 
 ## Import

@@ -69,10 +69,6 @@ attributes:
         description: User-specified unique string.
         mandatory: true
         example: cat1
-      - model_name: description
-        type: String
-        description: User-specified description string.
-        exclude_example: true
   - model_name: dummy_rules
     tf_name: rules
     type: List

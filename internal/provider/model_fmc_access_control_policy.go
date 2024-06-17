@@ -47,9 +47,8 @@ type AccessControlPolicy struct {
 }
 
 type AccessControlPolicyCategories struct {
-	Id          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
+	Id   types.String `tfsdk:"id"`
+	Name types.String `tfsdk:"name"`
 }
 
 type AccessControlPolicyRules struct {
@@ -113,9 +112,6 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			}
 			if !item.Name.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
-			}
-			if !item.Description.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "dummy_categories.-1", itemBody)
 		}
@@ -213,11 +209,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				item.Name = types.StringValue(cValue.String())
 			} else {
 				item.Name = types.StringNull()
-			}
-			if cValue := v.Get("description"); cValue.Exists() {
-				item.Description = types.StringValue(cValue.String())
-			} else {
-				item.Description = types.StringNull()
 			}
 			data.Categories = append(data.Categories, item)
 			return true
@@ -336,11 +327,6 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			data.Categories[i].Name = types.StringValue(value.String())
 		} else {
 			data.Categories[i].Name = types.StringNull()
-		}
-		if value := r.Get("description"); value.Exists() && !data.Categories[i].Description.IsNull() {
-			data.Categories[i].Description = types.StringValue(value.String())
-		} else {
-			data.Categories[i].Description = types.StringNull()
 		}
 		// if value := r.Get("mandatory_section"); value.Exists() && !data.Categories[i].MandatorySection.IsNull() {
 		// 	data.Categories[i].MandatorySection = types.BoolValue(value.Bool())

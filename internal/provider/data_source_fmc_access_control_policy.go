@@ -116,10 +116,6 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							MarkdownDescription: "User-specified unique string.",
 							Computed:            true,
 						},
-						"description": schema.StringAttribute{
-							MarkdownDescription: "User-specified description string.",
-							Computed:            true,
-						},
 					},
 				},
 			},

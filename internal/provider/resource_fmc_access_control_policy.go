@@ -135,10 +135,6 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified unique string.").String,
 							Required:            true,
 						},
-						"description": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("User-specified description string.").String,
-							Optional:            true,
-						},
 					},
 				},
 			},
@@ -304,13 +300,28 @@ func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
+	resCats, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/categories?expanded=true&offset=0&limit=1000", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
 	resRules, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
 
-	replace, _ := sjson.SetRaw(res.String(), "dummy_rules", resRules.Get("items").String())
+	replaceCats := resCats.Get("items").String()
+	if replaceCats == "" {
+		replaceCats = "[]"
+	}
+	replaceRules := resRules.Get("items").String()
+	if replaceRules == "" {
+		replaceRules = "[]"
+	}
+	replace, _ := sjson.SetRaw(res.String(), "dummy_categories", replaceCats)
+	replace, _ = sjson.SetRaw(replace, "dummy_rules", replaceRules)
 	res = gjson.Parse(replace)
 
 	// If every attribute is set to null we are dealing with an import operation and therefore reading all attributes
