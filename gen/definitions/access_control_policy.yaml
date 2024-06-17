@@ -72,7 +72,7 @@ attributes:
   - model_name: dummy_rules
     tf_name: rules
     type: List
-    description: The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.
+    description: The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules.
     attributes:
       - model_name: id
         type: String

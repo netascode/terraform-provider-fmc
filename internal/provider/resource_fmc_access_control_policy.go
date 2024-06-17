@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -33,6 +34,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
@@ -139,7 +141,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules.").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -204,7 +206,7 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 	var plan AccessControlPolicy
 
 	// Read plan
-	diags := req.Plan.Get(ctx, &plan)
+	plan, diags := newModelFromValidatedPlan(ctx, req.Plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -273,6 +275,45 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 	resp.Diagnostics.Append(diags...)
 }
 
+// newModelFromValidatedPlan validates the terraform plan and converts it to a new AccessControlPolicy object.
+func newModelFromValidatedPlan(ctx context.Context, tfplan tfsdk.Plan) (AccessControlPolicy, diag.Diagnostics) {
+	var plan AccessControlPolicy
+	diags := tfplan.Get(ctx, &plan)
+	if diags.HasError() {
+		return plan, diags
+	}
+
+	done := map[string]bool{}
+	good := 0
+	i := 0
+	for _, cat := range plan.Categories {
+		for i < len(plan.Rules) && cat.Name.Equal(plan.Rules[i].CategoryName) {
+			good = i
+			i++
+		}
+		if i == len(plan.Rules) {
+			break // all good
+		}
+		if done[plan.Rules[i].CategoryName.ValueString()] {
+
+			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
+				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
+					"This is because the rules must be sorted in the same sequential order as the corresponding categories.\n"+
+					"  - rule %s has category_name %s\n"+
+					"  - rule %s has category_name %s\n\n"+
+					// TODO: "Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
+					"Uncategorized non-mandatory rules must be below all other rules.\n",
+					plan.Rules[i].Name, plan.Rules[good].Name,
+					plan.Rules[good].Name, plan.Rules[good].CategoryName, plan.Rules[i].Name, plan.Rules[i].CategoryName))
+
+			return plan, diags
+		}
+		done[cat.Name.ValueString()] = true
+	}
+
+	return plan, diags
+}
+
 func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state AccessControlPolicy
 
@@ -338,10 +379,10 @@ func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.Rea
 }
 
 func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state AccessControlPolicy
+	var state AccessControlPolicy
 
 	// Read plan
-	diags := req.Plan.Get(ctx, &plan)
+	plan, diags := newModelFromValidatedPlan(ctx, req.Plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -362,6 +403,7 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
+
 	bodyCats := gjson.Parse(body).Get("dummy_categories").Array()
 	body, _ = sjson.Delete(body, "dummy_categories")
 

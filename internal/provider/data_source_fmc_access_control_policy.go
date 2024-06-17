@@ -120,7 +120,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				},
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: "The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.",
+				MarkdownDescription: "The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{

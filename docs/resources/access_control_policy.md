@@ -62,7 +62,7 @@ resource "fmc_access_control_policy" "example" {
   - Default value: `false`
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
-- `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. (see [below for nested schema](#nestedatt--rules))
+- `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only
 
