@@ -81,6 +81,9 @@ Required:
 Optional:
 
 - `description` (String) User-specified description string.
+
+Read-Only:
+
 - `id` (String) Identifier of the category.
 
 
@@ -98,9 +101,12 @@ Optional:
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
-- `id` (String) Identifier of the rule.
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (List of String) List of UUIDs of the fmc_network resources.
+
+Read-Only:
+
+- `id` (String) Identifier of the rule.
 
 <a id="nestedatt--rules--source_network_literals"></a>
 ### Nested Schema for `rules.source_network_literals`

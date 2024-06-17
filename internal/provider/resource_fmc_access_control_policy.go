@@ -43,8 +43,6 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin model
-
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &AccessControlPolicyResource{}
 var _ resource.ResourceWithImportState = &AccessControlPolicyResource{}
@@ -131,7 +129,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Identifier of the category.").String,
-							Optional:            true,
+							Computed:            true,
 						},
 						"name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified unique string.").String,
@@ -151,7 +149,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Identifier of the rule.").String,
-							Optional:            true,
+							Computed:            true,
 						},
 						"action": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("What to do when the conditions defined by the rule are met.").AddStringEnumDescription("ALLOW", "TRUST", "BLOCK", "MONITOR", "BLOCK_RESET", "BLOCK_INTERACTIVE", "BLOCK_RESET_INTERACTIVE").String,
@@ -209,8 +207,6 @@ func (r *AccessControlPolicyResource) Configure(_ context.Context, req resource.
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
 }
-
-// End of section. //template:end model
 
 func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan AccessControlPolicy
@@ -393,6 +389,16 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	resCats, err := r.createCats(ctx, plan, bodyCats, keptCats, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
+
+		// We've did some DELETE/POST calls, determine the current tfstate.
+		readResp := resource.ReadResponse{}
+		r.Read(ctx, resource.ReadRequest{
+			State:        req.State,
+			Private:      req.Private,
+			ProviderMeta: req.ProviderMeta,
+		}, &readResp)
+		resp.State = readResp.State
+		resp.Diagnostics.Append(readResp.Diagnostics...)
 		return
 	}
 
@@ -504,14 +510,18 @@ func (r *AccessControlPolicyResource) createRules(ctx context.Context, plan Acce
 				i--
 				break
 			}
-			bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", body[i].String())
+			rule := body[i].String()
+			rule, _ = sjson.Delete(rule, "id")
+			rule, _ = sjson.Delete(rule, "category_name")
+
+			bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", rule)
 		}
 
 		param := "?bulk=true"
 		if cat != "" {
-			param += "category=" + url.QueryEscape(cat)
+			param += "&category=" + url.QueryEscape(cat)
 		}
-		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules",
+		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules"+param,
 			gjson.Parse(bulk).Get("dummy_rules").String(),
 			reqMods...)
 		if err != nil {

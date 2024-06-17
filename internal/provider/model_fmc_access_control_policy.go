@@ -23,6 +23,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -292,7 +293,9 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 
 // End of section. //template:end fromBody
 
+// FIXME //template:begin updateFromBody
 func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
+	tflog.Debug(ctx, fmt.Sprintf("updateFromBody: %s", res))
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -393,6 +396,8 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		}
 	}
 }
+
+// FIXME //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) bool {
