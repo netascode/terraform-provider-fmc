@@ -106,6 +106,7 @@ attributes:
         description: Indicates whether the access rule is in effect (true) or not (false). Default is true.
         default_value: "true"
         exclude_example: true
+        test_value: "true"
       - model_name: literals
         data_path: [sourceNetworks]
         tf_name: source_network_literals
