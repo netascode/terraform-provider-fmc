@@ -31,24 +31,32 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type AccessControlPolicy struct {
-	Id                           types.String               `tfsdk:"id"`
-	Domain                       types.String               `tfsdk:"domain"`
-	Name                         types.String               `tfsdk:"name"`
-	Description                  types.String               `tfsdk:"description"`
-	DefaultAction                types.String               `tfsdk:"default_action"`
-	DefaultActionId              types.String               `tfsdk:"default_action_id"`
-	DefaultActionLogBegin        types.Bool                 `tfsdk:"default_action_log_begin"`
-	DefaultActionLogEnd          types.Bool                 `tfsdk:"default_action_log_end"`
-	DefaultActionSendEventsToFmc types.Bool                 `tfsdk:"default_action_send_events_to_fmc"`
-	DefaultActionSendSyslog      types.Bool                 `tfsdk:"default_action_send_syslog"`
-	Rules                        []AccessControlPolicyRules `tfsdk:"rules"`
+	Id                           types.String                    `tfsdk:"id"`
+	Domain                       types.String                    `tfsdk:"domain"`
+	Name                         types.String                    `tfsdk:"name"`
+	Description                  types.String                    `tfsdk:"description"`
+	DefaultAction                types.String                    `tfsdk:"default_action"`
+	DefaultActionId              types.String                    `tfsdk:"default_action_id"`
+	DefaultActionLogBegin        types.Bool                      `tfsdk:"default_action_log_begin"`
+	DefaultActionLogEnd          types.Bool                      `tfsdk:"default_action_log_end"`
+	DefaultActionSendEventsToFmc types.Bool                      `tfsdk:"default_action_send_events_to_fmc"`
+	DefaultActionSendSyslog      types.Bool                      `tfsdk:"default_action_send_syslog"`
+	Categories                   []AccessControlPolicyCategories `tfsdk:"categories"`
+	Rules                        []AccessControlPolicyRules      `tfsdk:"rules"`
+}
+
+type AccessControlPolicyCategories struct {
+	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	Description types.String `tfsdk:"description"`
 }
 
 type AccessControlPolicyRules struct {
-	Id      types.String `tfsdk:"id"`
-	Action  types.String `tfsdk:"action"`
-	Name    types.String `tfsdk:"name"`
-	Enabled types.Bool   `tfsdk:"enabled"`
+	Id           types.String `tfsdk:"id"`
+	Action       types.String `tfsdk:"action"`
+	Name         types.String `tfsdk:"name"`
+	CategoryName types.String `tfsdk:"category_name"`
+	Enabled      types.Bool   `tfsdk:"enabled"`
 }
 
 // End of section. //template:end types
@@ -90,6 +98,22 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 	if !data.DefaultActionSendSyslog.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.enableSyslog", data.DefaultActionSendSyslog.ValueBool())
 	}
+	if len(data.Categories) > 0 {
+		body, _ = sjson.Set(body, "dummy_categories", []interface{}{})
+		for _, item := range data.Categories {
+			itemBody := ""
+			if !item.Id.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
+			}
+			if !item.Description.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
+			}
+			body, _ = sjson.SetRaw(body, "dummy_categories.-1", itemBody)
+		}
+	}
 	if len(data.Rules) > 0 {
 		body, _ = sjson.Set(body, "dummy_rules", []interface{}{})
 		for _, item := range data.Rules {
@@ -102,6 +126,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			}
 			if !item.Name.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
+			}
+			if !item.CategoryName.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "category_name", item.CategoryName.ValueString())
 			}
 			if !item.Enabled.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "enabled", item.Enabled.ValueBool())
@@ -156,6 +183,29 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 	} else {
 		data.DefaultActionSendSyslog = types.BoolValue(false)
 	}
+	if value := res.Get("dummy_categories"); value.Exists() {
+		data.Categories = make([]AccessControlPolicyCategories, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := AccessControlPolicyCategories{}
+			if cValue := v.Get("id"); cValue.Exists() {
+				item.Id = types.StringValue(cValue.String())
+			} else {
+				item.Id = types.StringNull()
+			}
+			if cValue := v.Get("name"); cValue.Exists() {
+				item.Name = types.StringValue(cValue.String())
+			} else {
+				item.Name = types.StringNull()
+			}
+			if cValue := v.Get("description"); cValue.Exists() {
+				item.Description = types.StringValue(cValue.String())
+			} else {
+				item.Description = types.StringNull()
+			}
+			data.Categories = append(data.Categories, item)
+			return true
+		})
+	}
 	if value := res.Get("dummy_rules"); value.Exists() {
 		data.Rules = make([]AccessControlPolicyRules, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
@@ -174,6 +224,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				item.Name = types.StringValue(cValue.String())
 			} else {
 				item.Name = types.StringNull()
+			}
+			if cValue := v.Get("category_name"); cValue.Exists() {
+				item.CategoryName = types.StringValue(cValue.String())
+			} else {
+				item.CategoryName = types.StringNull()
 			}
 			if cValue := v.Get("enabled"); cValue.Exists() {
 				item.Enabled = types.BoolValue(cValue.Bool())
@@ -282,6 +337,9 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 		return false
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
+		return false
+	}
+	if len(data.Categories) > 0 {
 		return false
 	}
 	if len(data.Rules) > 0 {

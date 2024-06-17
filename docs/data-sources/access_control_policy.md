@@ -29,6 +29,7 @@ data "fmc_access_control_policy" "example" {
 
 ### Read-Only
 
+- `categories` (Attributes List) The ordered list of categories. (see [below for nested schema](#nestedatt--categories))
 - `default_action` (String) Specifies the action to take when the conditions defined by the rule are met.
 - `default_action_id` (String) Default action ID.
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
@@ -38,12 +39,23 @@ data "fmc_access_control_policy" "example" {
 - `description` (String) Description
 - `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. (see [below for nested schema](#nestedatt--rules))
 
+<a id="nestedatt--categories"></a>
+### Nested Schema for `categories`
+
+Read-Only:
+
+- `description` (String) User-specified description string.
+- `id` (String) Identifier of the category.
+- `name` (String) User-specified unique string.
+
+
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
 
 Read-Only:
 
 - `action` (String) What to do when the conditions defined by the rule are met.
+- `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
 - `id` (String) Identifier of the rule.
 - `name` (String) User-specified unique string.

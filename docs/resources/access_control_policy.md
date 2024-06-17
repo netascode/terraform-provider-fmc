@@ -21,6 +21,11 @@ resource "fmc_access_control_policy" "example" {
   default_action_log_end            = true
   default_action_send_events_to_fmc = true
   default_action_send_syslog        = true
+  categories = [
+    {
+      name = "cat1"
+    }
+  ]
   rules = [
     {
       action = "ALLOW"
@@ -41,6 +46,7 @@ resource "fmc_access_control_policy" "example" {
 
 ### Optional
 
+- `categories` (Attributes List) The ordered list of categories. (see [below for nested schema](#nestedatt--categories))
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
   - Default value: `false`
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
@@ -58,6 +64,19 @@ resource "fmc_access_control_policy" "example" {
 - `default_action_id` (String) Default action ID.
 - `id` (String) The id of the object
 
+<a id="nestedatt--categories"></a>
+### Nested Schema for `categories`
+
+Required:
+
+- `name` (String) User-specified unique string.
+
+Optional:
+
+- `description` (String) User-specified description string.
+- `id` (String) Identifier of the category.
+
+
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
 
@@ -69,6 +88,7 @@ Required:
 
 Optional:
 
+- `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
 - `id` (String) Identifier of the rule.

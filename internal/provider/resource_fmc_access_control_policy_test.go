@@ -37,6 +37,9 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "default_action_log_end", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "default_action_send_events_to_fmc", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "default_action_send_syslog", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "categories.0.id", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "categories.0.name", "cat1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "categories.0.description", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.id", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.action", "ALLOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.name", "rule1"))
@@ -90,10 +93,16 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `	default_action_log_end = true` + "\n"
 	config += `	default_action_send_events_to_fmc = true` + "\n"
 	config += `	default_action_send_syslog = true` + "\n"
+	config += `	categories = [{` + "\n"
+	config += `	  id = ""` + "\n"
+	config += `	  name = "cat1"` + "\n"
+	config += `	  description = ""` + "\n"
+	config += `	}]` + "\n"
 	config += `	rules = [{` + "\n"
 	config += `	  id = ""` + "\n"
 	config += `	  action = "ALLOW"` + "\n"
 	config += `	  name = "rule1"` + "\n"
+	config += `	  category_name = "cat1"` + "\n"
 	config += `	  enabled = ` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"

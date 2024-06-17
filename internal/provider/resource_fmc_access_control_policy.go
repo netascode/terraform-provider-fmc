@@ -123,6 +123,26 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
+			"categories": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of categories.").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Identifier of the category.").String,
+							Optional:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("User-specified unique string.").String,
+							Required:            true,
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("User-specified description string.").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
 			"rules": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.").String,
 				Optional:            true,
@@ -142,6 +162,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 						"name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified unique string.").String,
 							Required:            true,
+						},
+						"category_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the category that owns this rule (a `name` from `categories` list).").String,
+							Optional:            true,
 						},
 						"enabled": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the access rule is in effect (true) or not (false). Default is true.").AddDefaultValueDescription("true").String,

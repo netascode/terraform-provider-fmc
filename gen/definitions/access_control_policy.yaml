@@ -55,6 +55,24 @@ attributes:
     description: Indicating whether the device will send events to a syslog server.
     default_value: false
     example: true
+  - model_name: dummy_categories
+    tf_name: categories
+    type: List
+    description: The ordered list of categories.
+    attributes:
+      - model_name: id
+        type: String
+        description: Identifier of the category.
+        exclude_example: true
+      - model_name: name
+        type: String
+        description: User-specified unique string.
+        mandatory: true
+        example: cat1
+      - model_name: description
+        type: String
+        description: User-specified description string.
+        exclude_example: true
   - model_name: dummy_rules
     tf_name: rules
     type: List
@@ -82,6 +100,11 @@ attributes:
         description: User-specified unique string.
         mandatory: true
         example: rule1
+      - model_name: category_name
+        type: String
+        description: Name of the category that owns this rule (a `name` from `categories` list).
+        exclude_example: true
+        test_value: '"cat1"'
       - model_name: enabled
         type: Bool
         description: Indicates whether the access rule is in effect (true) or not (false). Default is true.

@@ -103,6 +103,26 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "Indicating whether the device will send events to a syslog server.",
 				Computed:            true,
 			},
+			"categories": schema.ListNestedAttribute{
+				MarkdownDescription: "The ordered list of categories.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Identifier of the category.",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "User-specified unique string.",
+							Computed:            true,
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: "User-specified description string.",
+							Computed:            true,
+						},
+					},
+				},
+			},
 			"rules": schema.ListNestedAttribute{
 				MarkdownDescription: "The ordered list of rules. The first matching rule overshadows all the matching rules which follow it.",
 				Computed:            true,
@@ -118,6 +138,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 						},
 						"name": schema.StringAttribute{
 							MarkdownDescription: "User-specified unique string.",
+							Computed:            true,
+						},
+						"category_name": schema.StringAttribute{
+							MarkdownDescription: "Name of the category that owns this rule (a `name` from `categories` list).",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{
