@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -231,7 +232,9 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 
 	// Create object
 	body := plan.toBody(ctx, AccessControlPolicy{})
-	bodyRules := gjson.Parse(body).Get("dummy_rules").String()
+	bodyCats := gjson.Parse(body).Get("dummy_categories").Array()
+	body, _ = sjson.Delete(body, "dummy_categories")
+	bodyRules := gjson.Parse(body).Get("dummy_rules").Array()
 	body, _ = sjson.Delete(body, "dummy_rules")
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
@@ -240,9 +243,21 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
-	resRules, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?bulk=true", bodyRules, reqMods...)
+	resCats, err := r.createCats(ctx, plan, bodyCats, 0, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, resRules.String()))
+		resp.Diagnostics.AddError("Client Error", err.Error())
+
+		res, err = r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
+		}
+
+		return
+	}
+
+	resRules, err := r.createRules(ctx, plan, bodyRules, 0, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
 
 		res, err = r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 		if err != nil {
@@ -258,7 +273,8 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	replace, _ := sjson.SetRaw(res.String(), "dummy_rules", resRules.Get("items").String())
+	replace, _ := sjson.SetRaw(res.String(), "dummy_categories", resCats.Get("items").String())
+	replace, _ = sjson.SetRaw(replace, "dummy_rules", resRules.Get("items").String())
 	res = gjson.Parse(replace)
 
 	plan.updateFromBody(ctx, res)
@@ -343,7 +359,10 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
-	bodyRules := gjson.Parse(body).Get("dummy_rules").String()
+	bodyCats := gjson.Parse(body).Get("dummy_categories").Array()
+	body, _ = sjson.Delete(body, "dummy_categories")
+
+	bodyRules := gjson.Parse(body).Get("dummy_rules")
 	body, _ = sjson.Delete(body, "dummy_rules")
 
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
@@ -358,15 +377,34 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 		return
 	}
 
-	resRules, err := r.replaceRules(ctx, bodyRules, plan, reqMods...)
+	keptCats, keptRules := r.countKept(ctx, state, plan)
+
+	_, err = r.truncateRules(ctx, state, keptRules, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
+		return
+	}
+	_, err = r.truncateCats(ctx, state, keptCats, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	replace, _ := sjson.SetRaw(res.String(), "dummy_rules", resRules.Get("items").String())
-	res = gjson.Parse(replace)
+	resCats, err := r.createCats(ctx, plan, bodyCats, keptCats, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
+		return
+	}
 
+	resRules, err := r.createRules(ctx, plan, bodyRules.Array(), keptRules, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", err.Error())
+		return
+	}
+
+	replace, _ := sjson.SetRaw(res.String(), "dummy_categories", resCats.Get("items").String())
+	replace, _ = sjson.SetRaw(replace, "dummy_rules", resRules.Get("items").String())
+	res = gjson.Parse(replace)
 	plan.updateFromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -375,51 +413,129 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *AccessControlPolicyResource) replaceRules(ctx context.Context, newBody string, plan AccessControlPolicy, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
+// countKept compares the state with the plan starting from index 0, and returns:
+//
+// how many categories to keep: they remain identical as to content and order
+//
+// how many rules to keep:
+//
+// - kept rules must belong to some category that is itself kept,
+//
+// - and must themselves remain identical as to id, content, and order
+func (r *AccessControlPolicyResource) countKept(ctx context.Context, state, plan AccessControlPolicy) (int, int) {
+	return 0, 0
+}
+
+func (r *AccessControlPolicyResource) truncateRules(ctx context.Context, state AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
 	var err error
 	var b strings.Builder
 	var bulks []string
 
-	deletable, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to bulk-get rules, got error: %s, %s", err, deletable.String())
-	}
-
-	deletable.Get("items").ForEach(func(_, value gjson.Result) bool {
-		if !value.Get("id").Exists() {
-			err = fmt.Errorf("Malformed rule, id field is missing: %s", value)
-			return false
-		}
+	for i := kept; i < len(state.Rules); i++ {
 		if b.Len() != 0 {
 			b.WriteString(",")
 		}
-		b.WriteString(value.Get("id").String())
+		b.WriteString(state.Rules[i].Id.ValueString())
 		if b.Len() > 4000 {
 			bulks = append(bulks, b.String())
 			b.Reset()
 		}
-		return true
-	})
+	}
 	if b.Len() > 0 {
 		bulks = append(bulks, b.String())
 	}
-	if err != nil {
-		return nil, err
-	}
 
 	for _, bulk := range bulks {
-		res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+
 			"/accessrules?bulk=true&filter=ids:"+url.QueryEscape(bulk), reqMods...)
 		if err != nil {
 			return nil, fmt.Errorf("Failed to bulk-delete rules, got error: %v, %s", err, res.String())
 		}
 	}
 
-	// Apparently, the bulk DELETE is not race-free? Gather logs:
-	troubleshoot, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
+	// Apparently, the bulk DELETE has a race. Gather logs:
+	troubleshoot, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to bulk-get rules, got error: %s, %s", err, troubleshoot.String())
 	}
+
+	// Apparently, the bulk DELETE has a race. Stabilize:
+	time.Sleep(time.Second)
+
+	return nil, nil
+}
+
+func (r *AccessControlPolicyResource) truncateCats(ctx context.Context, state AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
+	for i := kept; i < len(state.Categories); i++ {
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+
+			"/categories/"+url.QueryEscape(state.Categories[i].Id.ValueString()), reqMods...)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to delete a category, got error: %v, %s", err, res)
+		}
+	}
+	return nil, nil
+}
+
+func (r *AccessControlPolicyResource) createCats(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, kept int, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
+	gathered := `{"items":[]}`
+
+	for i := kept; i < len(plan.Categories); i++ {
+		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+
+			"/categories", body[i].String(), reqMods...)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create (POST) a category, got error: %v, %s", err, res)
+		}
+
+		gathered, _ = sjson.SetRaw(gathered, "items.-1", res.String())
+	}
+
+	ret := gjson.Parse(gathered)
+	return &ret, nil
+}
+
+func (r *AccessControlPolicyResource) createRules(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, kept int, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
+	gathered := `{"items":[]}`
+
+	for i := kept; i < len(body); i++ {
+		bulk := `{"dummy_rules":[]}`
+		cat := body[i].Get("category_name").String()
+		for ; i < len(body); i++ {
+			if cat != body[i].Get("category_name").String() {
+				i--
+				break
+			}
+			bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", body[i].String())
+		}
+
+		param := "?bulk=true"
+		if cat != "" {
+			param += "category=" + url.QueryEscape(cat)
+		}
+		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules",
+			gjson.Parse(bulk).Get("dummy_rules").String(),
+			reqMods...)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to configure object (POST), got error: %s, %s", err, res.String())
+		}
+
+		gathered, _ = sjson.Set(gathered, "items",
+			append(gjson.Parse(gathered).Get("items").Array(), res.Get("items").Array()...))
+	}
+
+	ret := gjson.Parse(gathered)
+	return &ret, nil
+}
+
+func (r *AccessControlPolicyResource) replaceRules(ctx context.Context, newBody string, plan AccessControlPolicy, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
+	deletable, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to bulk-get rules, got error: %s, %s", err, deletable.String())
+	}
+
+	deletable.Get("items").ForEach(func(_, value gjson.Result) bool {
+
+		return true
+	})
 
 	if newBody == "[]" {
 		empty := gjson.Parse("{}")
@@ -432,6 +548,8 @@ func (r *AccessControlPolicyResource) replaceRules(ctx context.Context, newBody 
 
 	return &resRules, err
 }
+
+// FIXME rm above func
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AccessControlPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

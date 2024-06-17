@@ -334,7 +334,39 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		data.DefaultActionSendSyslog = types.BoolNull()
 	}
 
-	resLen := len(res.Get("dummy_rules").Array())
+	resLen := len(res.Get("dummy_categories").Array())
+	for i := len(data.Categories); i < resLen; i++ {
+		data.Categories = append(data.Categories, AccessControlPolicyCategories{})
+	}
+	if len(data.Categories) > resLen {
+		data.Categories = data.Categories[:resLen]
+	}
+
+	for i := range data.Categories {
+		r := res.Get(fmt.Sprintf("dummy_categories.%d", i))
+		if value := r.Get("id"); value.Exists() {
+			data.Categories[i].Id = types.StringValue(value.String())
+		} else {
+			data.Categories[i].Id = types.StringNull()
+		}
+		if value := r.Get("name"); value.Exists() && !data.Categories[i].Name.IsNull() {
+			data.Categories[i].Name = types.StringValue(value.String())
+		} else {
+			data.Categories[i].Name = types.StringNull()
+		}
+		if value := r.Get("description"); value.Exists() && !data.Categories[i].Description.IsNull() {
+			data.Categories[i].Description = types.StringValue(value.String())
+		} else {
+			data.Categories[i].Description = types.StringNull()
+		}
+		// if value := r.Get("mandatory_section"); value.Exists() && !data.Categories[i].MandatorySection.IsNull() {
+		// 	data.Categories[i].MandatorySection = types.BoolValue(value.Bool())
+		// } else if data.Categories[i].MandatorySection.ValueBool() != true {
+		// 	data.Categories[i].MandatorySection = types.BoolNull()
+		// }
+	}
+
+	resLen = len(res.Get("dummy_rules").Array())
 	for i := len(data.Rules); i < resLen; i++ {
 		data.Rules = append(data.Rules, AccessControlPolicyRules{})
 	}
