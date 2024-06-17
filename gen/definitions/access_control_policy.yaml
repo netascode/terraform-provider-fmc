@@ -110,3 +110,20 @@ attributes:
         description: Indicates whether the access rule is in effect (true) or not (false). Default is true.
         default_value: "true"
         exclude_example: true
+      - model_name: literals
+        data_path: [sourceNetworks]
+        tf_name: source_network_literals
+        type: List
+        attributes:
+          - model_name: type
+            type: String
+            example: Host
+          - model_name: value
+            type: String
+            example: 10.1.1.1
+      - model_name: objects
+        data_path: [sourceNetworks]
+        tf_name: source_network_objects
+        type: List
+        element_type: String
+        description: List of UUIDs of the fmc_network resources.

@@ -15,6 +15,13 @@ resource "fmc_access_control_policy" "example" {
     {
       action = "ALLOW"
       name   = "rule1"
+      source_network_literals = [
+        {
+          type  = "Host"
+          value = "10.1.1.1"
+        }
+      ]
+      source_network_objects = [""]
     }
   ]
 }

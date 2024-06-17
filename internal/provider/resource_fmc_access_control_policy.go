@@ -173,6 +173,27 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Computed:            true,
 							Default:             booldefault.StaticBool(true),
 						},
+						"source_network_literals": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"value": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"source_network_objects": schema.ListAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("List of UUIDs of the fmc_network resources.").String,
+							ElementType:         types.StringType,
+							Optional:            true,
+						},
 					},
 				},
 			},

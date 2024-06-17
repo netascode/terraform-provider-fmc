@@ -43,6 +43,9 @@ func TestAccDataSourceFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.action", "ALLOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.name", "rule1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.enabled", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.source_network_literals.0.type", "Host"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.source_network_objects.0", ""))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -81,6 +84,11 @@ func testAccDataSourceFmcAccessControlPolicyConfig() string {
 	config += `	  name = "rule1"` + "\n"
 	config += `	  category_name = "cat1"` + "\n"
 	config += `	  enabled = ` + "\n"
+	config += `	  source_network_literals = [{` + "\n"
+	config += `		type = "Host"` + "\n"
+	config += `		value = "10.1.1.1"` + "\n"
+	config += `	}]` + "\n"
+	config += `	  source_network_objects = [""]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

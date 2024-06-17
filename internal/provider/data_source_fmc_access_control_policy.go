@@ -148,6 +148,27 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							MarkdownDescription: "Indicates whether the access rule is in effect (true) or not (false). Default is true.",
 							Computed:            true,
 						},
+						"source_network_literals": schema.ListNestedAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"value": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_network_objects": schema.ListAttribute{
+							MarkdownDescription: "List of UUIDs of the fmc_network resources.",
+							ElementType:         types.StringType,
+							Computed:            true,
+						},
 					},
 				},
 			},
