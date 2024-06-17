@@ -63,7 +63,6 @@ type AccessControlPolicyRules struct {
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
-	Type  types.String `tfsdk:"type"`
 	Value types.String `tfsdk:"value"`
 }
 type AccessControlPolicyRulesSourceNetworkObjects struct {
@@ -148,9 +147,7 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.literals", []interface{}{})
 				for _, childItem := range item.SourceNetworkLiterals {
 					itemChildBody := ""
-					if !childItem.Type.IsNull() {
-						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
-					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
 					if !childItem.Value.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "value", childItem.Value.ValueString())
 					}
@@ -273,11 +270,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				item.SourceNetworkLiterals = make([]AccessControlPolicyRulesSourceNetworkLiterals, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
 					cItem := AccessControlPolicyRulesSourceNetworkLiterals{}
-					if ccValue := cv.Get("type"); ccValue.Exists() {
-						cItem.Type = types.StringValue(ccValue.String())
-					} else {
-						cItem.Type = types.StringNull()
-					}
 					if ccValue := cv.Get("value"); ccValue.Exists() {
 						cItem.Value = types.StringValue(ccValue.String())
 					} else {

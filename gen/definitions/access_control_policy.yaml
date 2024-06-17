@@ -117,7 +117,7 @@ attributes:
         attributes:
           - model_name: type
             type: String
-            example: Host
+            value: AnyNonEmptyString
           - model_name: value
             type: String
             example: 10.1.1.0/24

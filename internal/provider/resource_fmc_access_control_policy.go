@@ -177,10 +177,6 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
-										Optional:            true,
-									},
 									"value": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
 										Optional:            true,
@@ -501,7 +497,7 @@ func (r *AccessControlPolicyResource) createCats(ctx context.Context, plan Acces
 		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+
 			"/categories", body[i].String(), reqMods...)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to create (POST) a category, got error: %v, %s", err, res)
+			return nil, fmt.Errorf("Failed to create a category (POST), got error: %v, %s", err, res)
 		}
 
 		gathered, _ = sjson.SetRaw(gathered, "items.-1", res.String())

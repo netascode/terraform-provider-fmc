@@ -115,6 +115,7 @@ Read-Only:
 
 Optional:
 
+- `type` (String)
 - `value` (String)
 
 
