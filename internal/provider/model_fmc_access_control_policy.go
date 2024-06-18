@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -50,8 +51,9 @@ type AccessControlPolicy struct {
 }
 
 type AccessControlPolicyCategories struct {
-	Id   types.String `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
+	Id      types.String `tfsdk:"id"`
+	Name    types.String `tfsdk:"name"`
+	Section types.String `tfsdk:"section"`
 }
 
 type AccessControlPolicyRules struct {
@@ -59,6 +61,7 @@ type AccessControlPolicyRules struct {
 	Action                types.String                                    `tfsdk:"action"`
 	Name                  types.String                                    `tfsdk:"name"`
 	CategoryName          types.String                                    `tfsdk:"category_name"`
+	Section               types.String                                    `tfsdk:"section"`
 	Enabled               types.Bool                                      `tfsdk:"enabled"`
 	SourceNetworkLiterals []AccessControlPolicyRulesSourceNetworkLiterals `tfsdk:"source_network_literals"`
 }
@@ -116,6 +119,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			if !item.Name.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
+			if !item.Section.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "metadata.section", item.Section.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "dummy_categories.-1", itemBody)
 		}
 	}
@@ -134,6 +140,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			}
 			if !item.CategoryName.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "metadata.category", item.CategoryName.ValueString())
+			}
+			if !item.Section.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "metadata.section", item.Section.ValueString())
 			}
 			if !item.Enabled.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "enabled", item.Enabled.ValueBool())
@@ -241,6 +250,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 			} else {
 				item.CategoryName = types.StringNull()
 			}
+			if cValue := v.Get("metadata.section"); cValue.Exists() {
+				item.Section = types.StringValue(cValue.String())
+			} else {
+				item.Section = types.StringValue("default")
+			}
 			if cValue := v.Get("enabled"); cValue.Exists() {
 				item.Enabled = types.BoolValue(cValue.Bool())
 			} else {
@@ -331,11 +345,6 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		} else {
 			data.Categories[i].Name = types.StringNull()
 		}
-		// if value := r.Get("mandatory_section"); value.Exists() && !data.Categories[i].MandatorySection.IsNull() {
-		// 	data.Categories[i].MandatorySection = types.BoolValue(value.Bool())
-		// } else if data.Categories[i].MandatorySection.ValueBool() != true {
-		// 	data.Categories[i].MandatorySection = types.BoolNull()
-		// }
 	}
 
 	resLen = len(res.Get("dummy_rules").Array())
@@ -368,6 +377,13 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			data.Rules[i].CategoryName = types.StringValue(value.String())
 		} else {
 			data.Rules[i].CategoryName = types.StringNull()
+		}
+		if value := r.Get("metadata.section"); !data.Rules[i].CategoryName.IsNull() {
+			data.Rules[i].Section = types.StringNull()
+		} else if value.Exists() && !data.Rules[i].Section.IsNull() {
+			data.Rules[i].Section = types.StringValue(strings.ToLower(value.String()))
+		} else if data.Rules[i].Section.ValueString() != "default" {
+			data.Rules[i].Section = types.StringValue("default")
 		}
 		if value := r.Get("enabled"); value.Exists() && !data.Rules[i].Enabled.IsNull() {
 			data.Rules[i].Enabled = types.BoolValue(value.Bool())

@@ -117,6 +117,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							MarkdownDescription: "User-specified unique string.",
 							Computed:            true,
 						},
+						"section": schema.StringAttribute{
+							MarkdownDescription: "The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.",
+							Computed:            true,
+						},
 					},
 				},
 			},
@@ -139,6 +143,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 						},
 						"category_name": schema.StringAttribute{
 							MarkdownDescription: "Name of the category that owns this rule (a `name` from `categories` list).",
+							Computed:            true,
+						},
+						"section": schema.StringAttribute{
+							MarkdownDescription: "The section of the policy to which the rule belongs. Can only be set when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'.",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{

@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -137,6 +138,15 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified unique string.").String,
 							Required:            true,
 						},
+						"section": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.").AddStringEnumDescription("default", "mandatory").AddDefaultValueDescription("default").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("default", "mandatory"),
+							},
+							Default: stringdefault.StaticString("default"),
+						},
 					},
 				},
 			},
@@ -163,6 +173,15 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 						"category_name": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Name of the category that owns this rule (a `name` from `categories` list).").String,
 							Optional:            true,
+						},
+						"section": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the rule belongs. Can only be set when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'.").AddStringEnumDescription("default", "mandatory").AddDefaultValueDescription("default").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("default", "mandatory"),
+							},
+							Default: stringdefault.StaticString("default"),
 						},
 						"enabled": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the access rule is in effect (true) or not (false). Default is true.").AddDefaultValueDescription("true").String,
@@ -503,8 +522,11 @@ func (r *AccessControlPolicyResource) truncateCatsAt(ctx context.Context, state 
 
 func (r *AccessControlPolicyResource) createCatsAt(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, startIndex int, reqMods ...func(*fmc.Req)) error {
 	for i := startIndex; i < len(plan.Categories); i++ {
+		cat := body[i].String()
+		cat, _ = sjson.Delete(cat, "id")
+		cat, _ = sjson.Delete(cat, "metadata.section")
 		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+
-			"/categories", body[i].String(), reqMods...)
+			"/categories", cat, reqMods...)
 		if err != nil {
 			return fmt.Errorf("Failed to create a category (POST), got error: %v, %s", err, res)
 		}
@@ -525,6 +547,7 @@ func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan Ac
 			rule := body[i].String()
 			rule, _ = sjson.Delete(rule, "id")
 			rule, _ = sjson.Delete(rule, "metadata.category")
+			rule, _ = sjson.Delete(rule, "metadata.section")
 
 			bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", rule)
 		}

@@ -46,6 +46,7 @@ Read-Only:
 
 - `id` (String) Identifier of the category.
 - `name` (String) User-specified unique string.
+- `section` (String) The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.
 
 
 <a id="nestedatt--rules"></a>
@@ -58,6 +59,7 @@ Read-Only:
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
 - `id` (String) Identifier of the rule.
 - `name` (String) User-specified unique string.
+- `section` (String) The section of the policy to which the rule belongs. Can only be set when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'.
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 
 <a id="nestedatt--rules--source_network_literals"></a>
