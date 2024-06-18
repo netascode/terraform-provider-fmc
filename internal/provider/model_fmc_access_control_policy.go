@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -71,6 +72,34 @@ type AccessControlPolicyRulesSourceNetworkLiterals struct {
 }
 
 // End of section. //template:end types
+
+func (c AccessControlPolicyCategories) GetSection() string {
+	if s := c.Section.ValueString(); s != "" {
+		return s
+	}
+
+	if c.Section.IsUnknown() {
+		panic(c.Section)
+	}
+
+	return "default"
+}
+
+func (r AccessControlPolicyRules) GetSection() string {
+	if s := r.Section.ValueString(); s != "" && s != "default" {
+		return s
+	}
+
+	if r.CategoryName.ValueString() != "" {
+		return ""
+	}
+
+	if r.Section.IsUnknown() {
+		panic(r.Section)
+	}
+
+	return "default"
+}
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 func (data AccessControlPolicy) getPath() string {
@@ -460,6 +489,7 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 // End of section. //template:end isNull
 
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
+// If it sees unknown values (which means it is not apply phase yet) it tries to at least partially validate.
 func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (AccessControlPolicy, diag.Diagnostics) {
 	var plan AccessControlPolicy
 	diags := tfplan.Get(ctx, &plan)
@@ -467,32 +497,112 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		return plan, diags
 	}
 
-	done := map[string]bool{}
+	// Categories: attribute section
+	def := types.StringNull()
+	insertion := len(plan.Categories)
+	for i, cat := range plan.Categories {
+		switch {
+		case cat.Section.IsUnknown() || cat.Name.IsUnknown():
+			// ignore
+		case !def.IsNull() && cat.Section.Equal(types.StringValue("mandatory")):
+			diags.AddAttributeError(path.Root("categories"), "Wrong order of categories",
+				fmt.Sprintf("Category %s must be somewhere above category %s, not below it.\n"+
+					"This is because the section=\"mandatory\" categories must precede all other categories.\n",
+					cat.Name, def))
+			return plan, diags
+		case !def.IsNull():
+			continue
+		case !cat.Section.Equal(types.StringValue("mandatory")):
+			def = cat.Name
+			insertion = i
+		}
+	}
+
+	// Rules: attribute category_name precludes section
+	for _, rule := range plan.Rules {
+		switch {
+		case rule.CategoryName.IsUnknown() || rule.Section.IsUnknown() || rule.Name.IsUnknown():
+			// ignore
+		case !rule.CategoryName.IsNull() && rule.GetSection() != "":
+			diags.AddAttributeError(path.Root("rules"), "Cannot use section together with category_name",
+				fmt.Sprintf("Rule %s cannot have both section and category_name specified.", rule.Name))
+			return plan, diags
+		}
+	}
+
+	// Rules: with unknown values we cannot proceed further, but we can return partial result
+	for _, rule := range plan.Rules {
+		if rule.CategoryName.IsUnknown() ||
+			rule.Section.IsUnknown() ||
+			rule.Name.IsUnknown() {
+			return plan, diags // this means we are not in apply phase
+		}
+	}
+
+	// Rules: order per section/category_name
+	cats := map[string]bool{}
+	secs := map[string]bool{}
 	good := 0
 	i := 0
-	for _, cat := range plan.Categories {
-		for i < len(plan.Rules) && cat.Name.Equal(plan.Rules[i].CategoryName) {
-			good = i
-			i++
+	inputWithSentinels := slices.Insert(slices.Clone(plan.Categories), insertion, AccessControlPolicyCategories{
+		Section: types.StringValue("mandatory"),
+	})
+	inputWithSentinels = append(inputWithSentinels, AccessControlPolicyCategories{
+		Section: types.StringValue("default"),
+	})
+	for _, cat := range inputWithSentinels {
+		if cat.Name.IsUnknown() ||
+			cat.Section.IsUnknown() {
+			return plan, diags // this means we are not in apply phase
 		}
+
+		switch cat.Name.ValueString() {
+		case "": // sentinel
+			for i < len(plan.Rules) && cat.GetSection() == plan.Rules[i].GetSection() {
+				good = i
+				i++
+			}
+		default:
+			for i < len(plan.Rules) && cat.Name.Equal(plan.Rules[i].CategoryName) {
+				good = i
+				i++
+			}
+		}
+
 		if i == len(plan.Rules) {
 			break // all good
 		}
-		if done[plan.Rules[i].CategoryName.ValueString()] {
 
+		tflog.Debug(ctx, fmt.Sprintf("rule %s, does not fit into %s, done sections %+v, done categories %+v",
+			plan.Rules[i], cat, secs, cats))
+
+		if cats[plan.Rules[i].CategoryName.ValueString()] && plan.Rules[i].CategoryName.ValueString() != "" {
 			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
 				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
 					"This is because the rules must be sorted in the same sequential order as the corresponding categories.\n"+
 					"  - rule %s has category_name %s\n"+
 					"  - rule %s has category_name %s\n\n"+
-					// TODO: "Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
+					"Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
 					"Uncategorized non-mandatory rules must be below all other rules.\n",
 					plan.Rules[i].Name, plan.Rules[good].Name,
 					plan.Rules[good].Name, plan.Rules[good].CategoryName, plan.Rules[i].Name, plan.Rules[i].CategoryName))
-
 			return plan, diags
 		}
-		done[cat.Name.ValueString()] = true
+
+		if cat.Name.ValueString() != "" {
+			cats[cat.Name.ValueString()] = true // done
+		}
+		if cat.GetSection() != "mandatory" {
+			secs["mandatory"] = true // done
+		}
+
+		if s := plan.Rules[i].GetSection(); secs[s] {
+			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
+				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
+					"This is because the uncategorized %s rules must be directly below categorized %s rules.\n",
+					plan.Rules[i].Name, plan.Rules[good].Name, s, s))
+			return plan, diags
+		}
 	}
 
 	return plan, diags

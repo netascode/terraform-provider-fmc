@@ -525,8 +525,12 @@ func (r *AccessControlPolicyResource) createCatsAt(ctx context.Context, plan Acc
 		cat := body[i].String()
 		cat, _ = sjson.Delete(cat, "id")
 		cat, _ = sjson.Delete(cat, "metadata.section")
+		params := ""
+		if s := plan.Categories[i].Section.ValueString(); s != "" {
+			params = "?section=" + url.QueryEscape(s)
+		}
 		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+
-			"/categories", cat, reqMods...)
+			"/categories"+params, cat, reqMods...)
 		if err != nil {
 			return fmt.Errorf("Failed to create a category (POST), got error: %v, %s", err, res)
 		}

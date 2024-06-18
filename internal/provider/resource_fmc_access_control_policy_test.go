@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -107,3 +108,173 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 }
 
 // End of section. //template:end testAccConfigAll
+
+func TestNewValidAccessControlPolicy(t *testing.T) {
+
+	steps := []resource.TestStep{{
+		Config: `resource fmc_access_control_policy step1 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+	}, {
+		Config: `resource fmc_access_control_policy step2 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1" },` + "\n" +
+			`		{ name = "cat2" }` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+	}, {
+		Config: `resource fmc_access_control_policy step3 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "catd" },` + "\n" +
+			`		{ name = "catm", section = "mandatory" }` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`"catm" must be somewhere above category "catd"`),
+	}, {
+		Config: `resource fmc_access_control_policy step4 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [{ name = "cat1", section = "" }]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`value must be one of`),
+	}, {
+		Config: `resource fmc_access_control_policy step5 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1", section = "mandatory" },` + "\n" +
+			`		{ name = "cat2", section = "mandatory" },` + "\n" +
+			`		{ name = "cat3", section = "default"   },` + "\n" +
+			`		{ name = "cat4", section = "default"   }` + "\n" +
+			`	]` + "\n" +
+			`	rules = [` + "\n" +
+			`		{ category_name = "cat1",      name = "r1", action = "ALLOW"},` + "\n" +
+			`		{ section = "mandatory",       name = "r2", action = "ALLOW"},` + "\n" +
+			`		{ category_name = "cat3",      name = "r3", action = "ALLOW"},` + "\n" +
+			`		{ category_name = "cat4",      name = "r4", action = "ALLOW"},` + "\n" +
+			`		{ section = "default",         name = "r5", action = "ALLOW"},` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+	}, {
+		Config: `resource fmc_access_control_policy step6 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1", section = "mandatory" },` + "\n" +
+			`		{ name = "cat2", section = "default"   }` + "\n" +
+			`	]` + "\n" +
+			`	rules = [` + "\n" +
+			`		{ category_name = "cat2",    name = "step6r2", action = "ALLOW"},` + "\n" +
+			`		{ section = "mandatory",     name = "step6r1", action = "ALLOW"}` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`"step6r1" must be somewhere above rule "step6r2"`),
+	}, {
+		Config: `resource fmc_access_control_policy step7 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1" },` + "\n" +
+			`		{ name = "cat2" }` + "\n" +
+			`	]` + "\n" +
+			`	rules = [` + "\n" +
+			`		{ category_name = "cat2",      name = "r2", action = "ALLOW"},` + "\n" +
+			`		{ section = "mandatory",       name = "r1", action = "ALLOW"}` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`"r1" must be somewhere above rule "r2"`),
+	}, {
+		Config: `resource fmc_access_control_policy step8 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1" },` + "\n" +
+			`		{ name = "cat2" }` + "\n" +
+			`	]` + "\n" +
+			`	rules = [` + "\n" +
+			`		{ category_name = "cat2",      name = "r2", action = "ALLOW"},` + "\n" +
+			`		{ category_name = "cat1",      name = "r1", action = "ALLOW"}` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`"r1" must be somewhere above rule "r2"`),
+	}, {
+		Config: `resource fmc_access_control_policy step9 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1", section = "default"   }` + "\n" +
+			`	]` + "\n" +
+			`	rules = [` + "\n" +
+			`		{                              name = "step9r2", action = "ALLOW"},` + "\n" +
+			`		{ category_name = "cat1",      name = "step9r1", action = "ALLOW"}` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`"step9r1" must be somewhere above rule "step9r2"`),
+	}, {
+		Config: `resource fmc_access_control_policy step10 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [` + "\n" +
+			`		{                              name = "step10r2", action = "ALLOW"},` + "\n" +
+			`		{ section = "mandatory",       name = "step10r1", action = "ALLOW"}` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`the uncategorized mandatory rules must be directly below`),
+	}, {
+		Config: `resource fmc_access_control_policy step11 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [` + "\n" +
+			`		{ name = "cat1" }` + "\n" +
+			`	]` + "\n" +
+			`	rules = [` + "\n" +
+			`		{ category_name = "cat1",      name = "step11r2", action = "ALLOW"},` + "\n" +
+			`		{ section = "mandatory",       name = "step11r1", action = "ALLOW"}` + "\n" +
+			`	]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`the uncategorized mandatory rules must be directly below`),
+	}, {
+		Config: `resource fmc_access_control_policy step12 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [{ name = "cat1", section = "mandatory" }]` + "\n" +
+			`	rules = [{ category_name = "cat1", section = "mandatory", name = "r1", action = "ALLOW"}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`Cannot use section together with category_name`),
+	}}
+
+	resource.Test(t, resource.TestCase{
+		// If you see "Step 7/x, expected an error" look above for the name "step7".
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
