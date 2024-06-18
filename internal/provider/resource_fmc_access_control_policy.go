@@ -526,31 +526,6 @@ func (r *AccessControlPolicyResource) createRules(ctx context.Context, plan Acce
 	return &ret, nil
 }
 
-func (r *AccessControlPolicyResource) replaceRules(ctx context.Context, newBody string, plan AccessControlPolicy, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
-	deletable, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to bulk-get rules, got error: %s, %s", err, deletable.String())
-	}
-
-	deletable.Get("items").ForEach(func(_, value gjson.Result) bool {
-
-		return true
-	})
-
-	if newBody == "[]" {
-		empty := gjson.Parse("{}")
-		return &empty, nil
-	}
-	resRules, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules?bulk=true", newBody, reqMods...)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to configure object (POST), got error: %v, %s", err, resRules.String())
-	}
-
-	return &resRules, err
-}
-
-// FIXME rm above func
-
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *AccessControlPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state AccessControlPolicy
