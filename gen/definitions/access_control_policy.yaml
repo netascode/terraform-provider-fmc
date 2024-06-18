@@ -63,6 +63,7 @@ attributes:
       - model_name: id
         type: String
         description: Identifier of the category.
+        resource_id: true
         exclude_example: true
         exclude_test: true
       - model_name: name
@@ -78,6 +79,7 @@ attributes:
       - model_name: id
         type: String
         description: Identifier of the rule.
+        resource_id: true
         exclude_example: true
         exclude_test: true
       - model_name: action

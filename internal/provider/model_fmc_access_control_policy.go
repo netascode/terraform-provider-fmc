@@ -400,11 +400,6 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].SourceNetworkLiterals[ci].Value = types.StringNull()
 			}
 		}
-		// if value := r.Get("sourceNetworks.literals"); value.Exists() && !data.Rules[i].SourceNetworkLiterals.IsNull() {
-		// 	data.Rules[i].SourceNetworkLiterals = helpers.GetStringList(value.Array())
-		// } else {
-		// 	data.Rules[i].SourceNetworkLiterals = types.ListNull(types.StringType)
-		// }
 	}
 }
 

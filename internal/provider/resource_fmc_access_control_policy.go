@@ -45,6 +45,8 @@ import (
 
 // End of section. //template:end imports
 
+// Section below is generated&owned by "gen/generator.go". //template:begin model
+
 // Ensure provider defined types fully satisfy framework interfaces
 var _ resource.Resource = &AccessControlPolicyResource{}
 var _ resource.ResourceWithImportState = &AccessControlPolicyResource{}
@@ -182,11 +184,6 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						// "source_network_literals": schema.ListAttribute{
-						// 	MarkdownDescription: helpers.NewAttributeDescription("List of CIDRs.").String,
-						// 	ElementType:         types.StringType,
-						// 	Optional:            true,
-						// },
 					},
 				},
 			},
@@ -201,6 +198,8 @@ func (r *AccessControlPolicyResource) Configure(_ context.Context, req resource.
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
 }
+
+// End of section. //template:end model
 
 func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan AccessControlPolicy
