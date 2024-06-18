@@ -511,15 +511,15 @@ func (r *AccessControlPolicyResource) createRules(ctx context.Context, plan Acce
 
 	for i := kept; i < len(body); i++ {
 		bulk := `{"dummy_rules":[]}`
-		cat := body[i].Get("category_name").String()
+		cat := body[i].Get("metadata.category").String()
 		for ; i < len(body); i++ {
-			if cat != body[i].Get("category_name").String() {
+			if cat != body[i].Get("metadata.category").String() {
 				i--
 				break
 			}
 			rule := body[i].String()
 			rule, _ = sjson.Delete(rule, "id")
-			rule, _ = sjson.Delete(rule, "category_name")
+			rule, _ = sjson.Delete(rule, "metadata.category")
 
 			bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", rule)
 		}

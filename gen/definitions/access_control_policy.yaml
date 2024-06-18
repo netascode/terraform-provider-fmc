@@ -96,7 +96,9 @@ attributes:
         description: User-specified unique string.
         mandatory: true
         example: rule1
-      - model_name: category_name
+      - model_name: category
+        data_path: [metadata]
+        tf_name: category_name
         type: String
         description: Name of the category that owns this rule (a `name` from `categories` list).
         exclude_example: true

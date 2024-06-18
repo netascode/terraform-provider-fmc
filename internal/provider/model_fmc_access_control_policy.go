@@ -130,7 +130,7 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
 			if !item.CategoryName.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "category_name", item.CategoryName.ValueString())
+				itemBody, _ = sjson.Set(itemBody, "metadata.category", item.CategoryName.ValueString())
 			}
 			if !item.Enabled.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "enabled", item.Enabled.ValueBool())
@@ -233,7 +233,7 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 			} else {
 				item.Name = types.StringNull()
 			}
-			if cValue := v.Get("category_name"); cValue.Exists() {
+			if cValue := v.Get("metadata.category"); cValue.Exists() {
 				item.CategoryName = types.StringValue(cValue.String())
 			} else {
 				item.CategoryName = types.StringNull()
@@ -360,6 +360,11 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			data.Rules[i].Name = types.StringValue(value.String())
 		} else {
 			data.Rules[i].Name = types.StringNull()
+		}
+		if value := r.Get("metadata.category"); value.Exists() && value.String() != "--Undefined--" {
+			data.Rules[i].CategoryName = types.StringValue(value.String())
+		} else {
+			data.Rules[i].CategoryName = types.StringNull()
 		}
 		if value := r.Get("enabled"); value.Exists() && !data.Rules[i].Enabled.IsNull() {
 			data.Rules[i].Enabled = types.BoolValue(value.Bool())
