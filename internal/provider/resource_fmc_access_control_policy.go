@@ -317,6 +317,8 @@ func newModelFromValidatedPlan(ctx context.Context, tfplan tfsdk.Plan) (AccessCo
 func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state AccessControlPolicy
 
+	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
+
 	// Read state
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -329,8 +331,6 @@ func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.Rea
 	if !state.Domain.IsNull() && state.Domain.ValueString() != "" {
 		reqMods = append(reqMods, fmc.DomainName(state.Domain.ValueString()))
 	}
-
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
@@ -427,33 +427,27 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 	_, err = r.truncateRules(ctx, state, keptRules, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
+		r.readAfterUpdate(ctx, req, resp)
 		return
 	}
 	_, err = r.truncateCats(ctx, state, keptCats, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
+		r.readAfterUpdate(ctx, req, resp)
 		return
 	}
 
 	resCats, err := r.createCats(ctx, plan, bodyCats, keptCats, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
-
-		// We've did some DELETE/POST calls, determine the current tfstate.
-		readResp := resource.ReadResponse{}
-		r.Read(ctx, resource.ReadRequest{
-			State:        req.State,
-			Private:      req.Private,
-			ProviderMeta: req.ProviderMeta,
-		}, &readResp)
-		resp.State = readResp.State
-		resp.Diagnostics.Append(readResp.Diagnostics...)
+		r.readAfterUpdate(ctx, req, resp)
 		return
 	}
 
 	resRules, err := r.createRules(ctx, plan, bodyRules.Array(), keptRules, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
+		r.readAfterUpdate(ctx, req, resp)
 		return
 	}
 
@@ -478,7 +472,7 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 //
 // - and must themselves remain identical as to id, content, and order
 func (r *AccessControlPolicyResource) countKept(ctx context.Context, state, plan AccessControlPolicy) (int, int) {
-	return 0, 0
+	return 0, 0 // TODO
 }
 
 func (r *AccessControlPolicyResource) truncateRules(ctx context.Context, state AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) (*gjson.Result, error) {
@@ -589,6 +583,23 @@ func (r *AccessControlPolicyResource) createRules(ctx context.Context, plan Acce
 
 	ret := gjson.Parse(gathered)
 	return &ret, nil
+}
+
+// readAfterUpdate calls Read method from inside the Update method, in order to read the actual State into the resp.
+func (r *AccessControlPolicyResource) readAfterUpdate(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	readReq := resource.ReadRequest{
+		State:        req.State,
+		Private:      req.Private,
+		ProviderMeta: req.ProviderMeta,
+	}
+	readResp := resource.ReadResponse{
+		State:   resp.State,
+		Private: resp.Private,
+	}
+	r.Read(ctx, readReq, &readResp)
+	resp.Diagnostics.Append(readResp.Diagnostics...)
+
+	resp.State = readResp.State
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete

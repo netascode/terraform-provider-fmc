@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -181,7 +182,6 @@ func (d *AccessControlPolicyDataSource) Configure(_ context.Context, req datasou
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 func (d *AccessControlPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config AccessControlPolicy
 
@@ -237,6 +237,30 @@ func (d *AccessControlPolicyDataSource) Read(ctx context.Context, req datasource
 		return
 	}
 
+	resCats, err := d.client.Get(config.getPath()+"/"+url.QueryEscape(config.Id.ValueString())+"/categories?expanded=true&offset=0&limit=1000", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	resRules, err := d.client.Get(config.getPath()+"/"+url.QueryEscape(config.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	replaceCats := resCats.Get("items").String()
+	if replaceCats == "" {
+		replaceCats = "[]"
+	}
+	replaceRules := resRules.Get("items").String()
+	if replaceRules == "" {
+		replaceRules = "[]"
+	}
+	replace, _ := sjson.SetRaw(res.String(), "dummy_categories", replaceCats)
+	replace, _ = sjson.SetRaw(replace, "dummy_rules", replaceRules)
+	res = gjson.Parse(replace)
+
 	config.fromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
@@ -244,5 +268,3 @@ func (d *AccessControlPolicyDataSource) Read(ctx context.Context, req datasource
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

@@ -64,6 +64,7 @@ attributes:
         type: String
         description: Identifier of the category.
         exclude_example: true
+        exclude_test: true
       - model_name: name
         type: String
         description: User-specified unique string.
@@ -78,6 +79,7 @@ attributes:
         type: String
         description: Identifier of the rule.
         exclude_example: true
+        exclude_test: true
       - model_name: action
         type: String
         description: What to do when the conditions defined by the rule are met.
