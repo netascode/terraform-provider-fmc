@@ -22,6 +22,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/tidwall/gjson"
@@ -439,3 +442,42 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 }
 
 // End of section. //template:end isNull
+
+// NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
+func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (AccessControlPolicy, diag.Diagnostics) {
+	var plan AccessControlPolicy
+	diags := tfplan.Get(ctx, &plan)
+	if diags.HasError() {
+		return plan, diags
+	}
+
+	done := map[string]bool{}
+	good := 0
+	i := 0
+	for _, cat := range plan.Categories {
+		for i < len(plan.Rules) && cat.Name.Equal(plan.Rules[i].CategoryName) {
+			good = i
+			i++
+		}
+		if i == len(plan.Rules) {
+			break // all good
+		}
+		if done[plan.Rules[i].CategoryName.ValueString()] {
+
+			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
+				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
+					"This is because the rules must be sorted in the same sequential order as the corresponding categories.\n"+
+					"  - rule %s has category_name %s\n"+
+					"  - rule %s has category_name %s\n\n"+
+					// TODO: "Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
+					"Uncategorized non-mandatory rules must be below all other rules.\n",
+					plan.Rules[i].Name, plan.Rules[good].Name,
+					plan.Rules[good].Name, plan.Rules[good].CategoryName, plan.Rules[i].Name, plan.Rules[i].CategoryName))
+
+			return plan, diags
+		}
+		done[cat.Name.ValueString()] = true
+	}
+
+	return plan, diags
+}
