@@ -54,6 +54,6 @@ func (x *AccessControlPolicyResourceValidator) MarkdownDescription(ctx context.C
 // interface ValidateDataSource method name and provider.ConfigValidator
 // interface ValidateProvider method name to allow generic validators.
 func (x *AccessControlPolicyResourceValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	_, diags := newModelFromValidatedPlan(ctx, tfsdk.Plan(req.Config))
+	_, diags := NewValidAccessControlPolicy(ctx, tfsdk.Plan(req.Config))
 	resp.Diagnostics.Append(diags...)
 }
