@@ -61,6 +61,7 @@ Read-Only:
 - `name` (String) User-specified unique string.
 - `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
+- `source_networks` (Attributes List) List of the fmc_network resources combined with fmc_host resources that represent sources of traffic. (see [below for nested schema](#nestedatt--rules--source_networks))
 
 <a id="nestedatt--rules--source_network_literals"></a>
 ### Nested Schema for `rules.source_network_literals`
@@ -68,3 +69,12 @@ Read-Only:
 Read-Only:
 
 - `value` (String)
+
+
+<a id="nestedatt--rules--source_networks"></a>
+### Nested Schema for `rules.source_networks`
+
+Read-Only:
+
+- `id` (String) UUID value of fmc_network.this.id or fmc_host.this.id.
+- `type` (String) String value of fmc_network.this.type or fmc_host.this.type.

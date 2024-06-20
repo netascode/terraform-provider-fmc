@@ -199,6 +199,22 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
+						"source_networks": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("List of the fmc_network resources combined with fmc_host resources that represent sources of traffic.").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID value of fmc_network.this.id or fmc_host.this.id.").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("String value of fmc_network.this.type or fmc_host.this.type.").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

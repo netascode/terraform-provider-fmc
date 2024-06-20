@@ -65,10 +65,15 @@ type AccessControlPolicyRules struct {
 	Section               types.String                                    `tfsdk:"section"`
 	Enabled               types.Bool                                      `tfsdk:"enabled"`
 	SourceNetworkLiterals []AccessControlPolicyRulesSourceNetworkLiterals `tfsdk:"source_network_literals"`
+	SourceNetworks        []AccessControlPolicyRulesSourceNetworks        `tfsdk:"source_networks"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
 	Value types.String `tfsdk:"value"`
+}
+type AccessControlPolicyRulesSourceNetworks struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
 }
 
 // End of section. //template:end types
@@ -187,6 +192,19 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.literals.-1", itemChildBody)
 				}
 			}
+			if len(item.SourceNetworks) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.objects", []interface{}{})
+				for _, childItem := range item.SourceNetworks {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.objects.-1", itemChildBody)
+				}
+			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
 	}
@@ -299,6 +317,24 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 						cItem.Value = types.StringNull()
 					}
 					item.SourceNetworkLiterals = append(item.SourceNetworkLiterals, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("sourceNetworks.objects"); cValue.Exists() {
+				item.SourceNetworks = make([]AccessControlPolicyRulesSourceNetworks, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesSourceNetworks{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					item.SourceNetworks = append(item.SourceNetworks, cItem)
 					return true
 				})
 			}
@@ -444,6 +480,35 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].SourceNetworkLiterals[ci].Value = types.StringValue(value.String())
 			} else {
 				data.Rules[i].SourceNetworkLiterals[ci].Value = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].SourceNetworks {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].SourceNetworks[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("sourceNetworks.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceNetworks[ci].Id.IsNull() {
+				data.Rules[i].SourceNetworks[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceNetworks[ci].Id = types.StringNull()
 			}
 		}
 	}

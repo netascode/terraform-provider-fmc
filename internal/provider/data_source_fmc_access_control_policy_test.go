@@ -45,7 +45,7 @@ func TestAccDataSourceFmcAccessControlPolicy(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcAccessControlPolicyConfig(),
+				Config: testAccDataSourceFmcAccessControlPolicyPrerequisitesConfig + testAccDataSourceFmcAccessControlPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -55,6 +55,14 @@ func TestAccDataSourceFmcAccessControlPolicy(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccDataSourceFmcAccessControlPolicyPrerequisitesConfig = `
+resource "fmc_network" "this" {
+  name = "network1"
+  prefix = "10.0.0.0/24"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
@@ -77,6 +85,10 @@ func testAccDataSourceFmcAccessControlPolicyConfig() string {
 	config += `	  enabled = true` + "\n"
 	config += `	  source_network_literals = [{` + "\n"
 	config += `		value = "10.1.1.0/24"` + "\n"
+	config += `	}]` + "\n"
+	config += `	  source_networks = [{` + "\n"
+	config += `		id = fmc_network.this.id` + "\n"
+	config += `		type = fmc_network.this.type` + "\n"
 	config += `	}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"

@@ -46,11 +46,11 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcAccessControlPolicyConfig_minimum(),
+			Config: testAccFmcAccessControlPolicyPrerequisitesConfig + testAccFmcAccessControlPolicyConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcAccessControlPolicyConfig_all(),
+		Config: testAccFmcAccessControlPolicyPrerequisitesConfig + testAccFmcAccessControlPolicyConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -68,6 +68,14 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+const testAccFmcAccessControlPolicyPrerequisitesConfig = `
+resource "fmc_network" "this" {
+  name = "network1"
+  prefix = "10.0.0.0/24"
+}
+
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
@@ -101,6 +109,10 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `	  enabled = true` + "\n"
 	config += `	  source_network_literals = [{` + "\n"
 	config += `		value = "10.1.1.0/24"` + "\n"
+	config += `	}]` + "\n"
+	config += `	  source_networks = [{` + "\n"
+	config += `		id = fmc_network.this.id` + "\n"
+	config += `		type = fmc_network.this.type` + "\n"
 	config += `	}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"

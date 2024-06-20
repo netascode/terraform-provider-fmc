@@ -144,3 +144,25 @@ attributes:
           - model_name: value
             type: String
             example: 10.1.1.0/24
+      - model_name: objects
+        data_path: [sourceNetworks]
+        tf_name: source_networks
+        description: List of the fmc_network resources combined with fmc_host resources that represent sources of traffic.
+        type: List
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID value of fmc_network.this.id or fmc_host.this.id.
+            exclude_example: true
+            test_value: fmc_network.this.id
+          - model_name: type
+            type: String
+            description: String value of fmc_network.this.type or fmc_host.this.type.
+            exclude_example: true
+            test_value: fmc_network.this.type
+
+test_prerequisites: |
+  resource "fmc_network" "this" {
+    name = "network1"
+    prefix = "10.0.0.0/24"
+  }

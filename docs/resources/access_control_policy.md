@@ -35,6 +35,10 @@ resource "fmc_access_control_policy" "example" {
           value = "10.1.1.0/24"
         }
       ]
+      source_networks = [
+        {
+        }
+      ]
     }
   ]
 }
@@ -104,6 +108,7 @@ Optional:
 - `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.
   - Choices: `default`, `mandatory`
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
+- `source_networks` (Attributes List) List of the fmc_network resources combined with fmc_host resources that represent sources of traffic. (see [below for nested schema](#nestedatt--rules--source_networks))
 
 Read-Only:
 
@@ -115,6 +120,15 @@ Read-Only:
 Optional:
 
 - `value` (String)
+
+
+<a id="nestedatt--rules--source_networks"></a>
+### Nested Schema for `rules.source_networks`
+
+Optional:
+
+- `id` (String) UUID value of fmc_network.this.id or fmc_host.this.id.
+- `type` (String) String value of fmc_network.this.type or fmc_host.this.type.
 
 ## Import
 
