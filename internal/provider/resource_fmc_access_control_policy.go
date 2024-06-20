@@ -540,9 +540,9 @@ func (r *AccessControlPolicyResource) createCatsAt(ctx context.Context, plan Acc
 func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, startIndex int, reqMods ...func(*fmc.Req)) error {
 	for i := startIndex; i < len(body); i++ {
 		bulk := `{"dummy_rules":[]}`
-		cat := body[i].Get("metadata.category").String()
+		head := plan.Rules[i]
 		for ; i < len(body); i++ {
-			if cat != body[i].Get("metadata.category").String() {
+			if !head.CategoryName.Equal(plan.Rules[i].CategoryName) || head.GetSection() != plan.Rules[i].GetSection() {
 				i--
 				break
 			}
@@ -555,8 +555,10 @@ func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan Ac
 		}
 
 		param := "?bulk=true"
-		if cat != "" {
+		if cat := head.CategoryName.ValueString(); cat != "" {
 			param += "&category=" + url.QueryEscape(cat)
+		} else if s := head.GetSection(); s != "default" {
+			param += "&section=" + url.QueryEscape(s)
 		}
 		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/accessrules"+param,
 			gjson.Parse(bulk).Get("dummy_rules").String(),
