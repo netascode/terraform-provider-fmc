@@ -495,7 +495,7 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		return plan, diags
 	}
 
-	// Categories: attribute section
+	// Validate categories.*.section
 	def := types.StringNull()
 	insertion := len(plan.Categories)
 	for i, cat := range plan.Categories {
@@ -516,7 +516,7 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		}
 	}
 
-	// Rules: attribute category_name precludes section
+	// Validate rules.*.category_name clash with rules.*.section
 	for _, rule := range plan.Rules {
 		switch {
 		case rule.CategoryName.IsUnknown() || rule.Section.IsUnknown() || rule.Name.IsUnknown():
@@ -528,7 +528,7 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		}
 	}
 
-	// Rules: with unknown values we cannot proceed further, but we can return partial result
+	// With unknown values we cannot proceed further, but we can return partial result.
 	for _, rule := range plan.Rules {
 		if rule.CategoryName.IsUnknown() ||
 			rule.Section.IsUnknown() ||
@@ -537,7 +537,86 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		}
 	}
 
-	// Rules: order per section/category_name
+	sections := map[string]string{}
+	ranking := map[string]int{}
+	for i, cat := range plan.Categories {
+		switch {
+		case cat.Section.IsUnknown() || cat.Name.IsUnknown():
+			// ignore
+		default:
+			n := cat.Name.ValueString()
+			ranking[n] = i
+
+			sections[n] = cat.Section.ValueString()
+			if sections[n] != "mandatory" {
+				sections[n] = "default"
+			}
+		}
+	}
+
+	// Validate rules.*.section (including derived)
+	mandatoryDone := false
+	var simplified []string
+	for i, rule := range plan.Rules {
+		simplified[i] = sections[rule.CategoryName.ValueString()]
+		reason := simplified[i] + " (derived from category_name)"
+		if simplified[i] == "" {
+			simplified[i] = rule.GetSection()
+			reason = simplified[i]
+		}
+		if mandatoryDone && simplified[i] == "mandatory" {
+			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
+				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
+					"  - rule %s is in section %s\n"+
+					"  - rule %s is in section %s\n\n"+
+					"Mandatory rules must be above the default rules.\n"+
+					"Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
+					"Uncategorized non-mandatory rules must be below all other rules.\n",
+					plan.Rules[i].Name, plan.Rules[i-1].Name,
+					plan.Rules[i-1].Name, "prev_reason", plan.Rules[i].Name, reason))
+			return plan, diags
+		}
+		if simplified[i] != "mandatory" {
+			mandatoryDone = true
+		}
+	}
+
+	for i, rule := range plan.Rules {
+		simplified[i] = sections[rule.CategoryName.ValueString()]
+		reason := simplified[i] + " (derived from category_name)"
+		if simplified[i] == "" {
+			simplified[i] = rule.GetSection()
+			reason = simplified[i]
+		}
+		if mandatoryDone && simplified[i] == "mandatory" {
+			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
+				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
+					"  - rule %s has category_name %s\n"+
+					"  - rule %s has category_name %s\n\n"+
+					"Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
+					"Uncategorized non-mandatory rules must be below all other rules.\n"+
+					"Mandatory rules must be above the non-mandatory rules.\n",
+					plan.Rules[i].Name, plan.Rules[i-1].Name,
+					plan.Rules[i-1].Name, plan.Rules[i-1].CategoryName, plan.Rules[i].Name, plan.Rules[i].CategoryName))
+			return plan, diags
+		}
+		if simplified[i] != "mandatory" {
+			mandatoryDone = true
+		}
+	}
+
+	for i := range plan.Rules {
+		if s := plan.Rules[i].GetSection(); mandatoryDone && s == "mandatory" {
+			if sections[plan.Rules[i].CategoryName.ValueString()] < reached {
+
+			}
+			if plan.Rules[i].GetSection() != "mandatory" {
+				mandatoryDone = true
+			}
+		}
+	}
+
+	// Validate rules.*.category_name
 	cats := map[string]bool{}
 	secs := map[string]bool{}
 	good := 0
@@ -595,11 +674,7 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		}
 
 		if s := plan.Rules[i].GetSection(); secs[s] {
-			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
-				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
-					"This is because the uncategorized %s rules must be directly below categorized %s rules.\n",
-					plan.Rules[i].Name, plan.Rules[good].Name, s, s))
-			return plan, diags
+			panic(s)
 		}
 	}
 
