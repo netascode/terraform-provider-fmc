@@ -175,13 +175,11 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Optional:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the rule belongs. Can only be set when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'.").AddStringEnumDescription("default", "mandatory").AddDefaultValueDescription("default").String,
+							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.").AddStringEnumDescription("default", "mandatory").String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("default", "mandatory"),
 							},
-							Default: stringdefault.StaticString("default"),
 						},
 						"enabled": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the access rule is in effect (true) or not (false). Default is true.").AddDefaultValueDescription("true").String,

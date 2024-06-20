@@ -264,8 +264,8 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 		Config: `resource fmc_access_control_policy step12 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
-			`	categories = [{ name = "cat1", section = "mandatory" }]` + "\n" +
-			`	rules = [{ category_name = "cat1", section = "mandatory", name = "r1", action = "ALLOW"}]` + "\n" +
+			`	categories = [{ name = "cat1", section = "default" }]` + "\n" +
+			`	rules = [{ category_name = "cat1", section = "default", name = "r1", action = "ALLOW"}]` + "\n" +
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,

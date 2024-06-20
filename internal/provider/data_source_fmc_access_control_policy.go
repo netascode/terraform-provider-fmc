@@ -146,7 +146,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							Computed:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: "The section of the policy to which the rule belongs. Can only be set when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'.",
+							MarkdownDescription: "The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{

@@ -101,9 +101,8 @@ Optional:
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
-- `section` (String) The section of the policy to which the rule belongs. Can only be set when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'.
+- `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.
   - Choices: `default`, `mandatory`
-  - Default value: `default`
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 
 Read-Only:

@@ -86,7 +86,7 @@ func (c AccessControlPolicyCategories) GetSection() string {
 }
 
 func (r AccessControlPolicyRules) GetSection() string {
-	if s := r.Section.ValueString(); s != "" && s != "default" {
+	if s := r.Section.ValueString(); s != "" {
 		return s
 	}
 
@@ -282,7 +282,7 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 			if cValue := v.Get("metadata.section"); cValue.Exists() {
 				item.Section = types.StringValue(cValue.String())
 			} else {
-				item.Section = types.StringValue("default")
+				item.Section = types.StringNull()
 			}
 			if cValue := v.Get("enabled"); cValue.Exists() {
 				item.Enabled = types.BoolValue(cValue.Bool())
@@ -407,12 +407,10 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		} else {
 			data.Rules[i].CategoryName = types.StringNull()
 		}
-		if value := r.Get("metadata.section"); !data.Rules[i].CategoryName.IsNull() {
-			data.Rules[i].Section = types.StringNull()
-		} else if value.Exists() && !data.Rules[i].Section.IsNull() {
+		if value := r.Get("metadata.section"); value.Exists() && !data.Rules[i].Section.IsNull() {
 			data.Rules[i].Section = types.StringValue(strings.ToLower(value.String()))
-		} else if data.Rules[i].Section.ValueString() != "default" {
-			data.Rules[i].Section = types.StringValue("default")
+		} else {
+			data.Rules[i].Section = types.StringNull()
 		}
 		if value := r.Get("enabled"); value.Exists() && !data.Rules[i].Enabled.IsNull() {
 			data.Rules[i].Enabled = types.BoolValue(value.Bool())
