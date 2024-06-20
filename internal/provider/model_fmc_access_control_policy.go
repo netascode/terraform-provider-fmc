@@ -21,7 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
-	"slices"
+	"math"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -487,7 +487,7 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 // End of section. //template:end isNull
 
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
-// If it sees unknown values (which means it is not apply phase yet) it tries to at least partially validate.
+// It might be called before the apply phase: unknown values do not fail it hard, it can still partially validate.
 func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (AccessControlPolicy, diag.Diagnostics) {
 	var plan AccessControlPolicy
 	diags := tfplan.Get(ctx, &plan)
@@ -528,154 +528,77 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		}
 	}
 
-	// With unknown values we cannot proceed further, but we can return partial result.
+	// With unknown values we cannot proceed further, but we can return partial result now.
+	for _, cat := range plan.Categories {
+		if cat.Section.IsUnknown() ||
+			cat.Name.IsUnknown() {
+			return plan, diags
+		}
+	}
+
 	for _, rule := range plan.Rules {
 		if rule.CategoryName.IsUnknown() ||
 			rule.Section.IsUnknown() ||
 			rule.Name.IsUnknown() {
-			return plan, diags // this means we are not in apply phase
+			return plan, diags
 		}
 	}
 
-	sections := map[string]string{}
-	ranking := map[string]int{}
-	for i, cat := range plan.Categories {
-		switch {
-		case cat.Section.IsUnknown() || cat.Name.IsUnknown():
-			// ignore
-		default:
-			n := cat.Name.ValueString()
-			ranking[n] = i
-
-			sections[n] = cat.Section.ValueString()
-			if sections[n] != "mandatory" {
-				sections[n] = "default"
-			}
-		}
+	// Validate rules.*.category_name relative order and rules.*.section relative order.
+	type Node struct {
+		sec string
+		cat string
 	}
 
-	// Validate rules.*.section (including derived)
-	mandatoryDone := false
-	var simplified []string
+	ranks := map[Node]int{}
+	cat2sec := map[string]string{}
+	count := 0
+	for _, cat := range plan.Categories {
+		if count == insertion {
+			ranks[Node{sec: "mandatory", cat: ""}] = count
+			count++
+		}
+
+		var node Node
+		node.cat = cat.Name.ValueString()
+		node.sec = cat.Section.ValueString()
+		if node.sec == "" {
+			node.sec = "default"
+		}
+		cat2sec[node.cat] = node.sec
+		ranks[node] = count
+		count++
+	}
+	ranks[Node{sec: "default", cat: ""}] = math.MaxInt
+
+	var prev Node
+	reached := 0
 	for i, rule := range plan.Rules {
-		simplified[i] = sections[rule.CategoryName.ValueString()]
-		reason := simplified[i] + " (derived from category_name)"
-		if simplified[i] == "" {
-			simplified[i] = rule.GetSection()
-			reason = simplified[i]
+		var node Node
+		node.cat = rule.CategoryName.ValueString()
+		node.sec = cat2sec[node.cat]
+		if node.sec == "" {
+			node.sec = rule.GetSection()
 		}
-		if mandatoryDone && simplified[i] == "mandatory" {
+
+		// Never return to earlier rank.
+		if ranks[node] < reached {
 			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
 				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
-					"  - rule %s is in section %s\n"+
-					"  - rule %s is in section %s\n\n"+
-					"Mandatory rules must be above the default rules.\n"+
-					"Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
-					"Uncategorized non-mandatory rules must be below all other rules.\n",
+					"  - rule %s: category_name=%s  section=%s\n"+
+					"  - rule %s: category_name=%s  section=%s\n\n"+
+					"That's because rules must be in this order (1->4):\n"+
+					"  1. All rules from \"mandatory\" categories, in the order of their categories,\n"+
+					"  2. then rules from \"mandatory\" section (uncategorized),\n"+
+					"  3. then rules from non-mandatory categories, in the order of their categories,\n"+
+					"  4. then rules from non-mandatory section (uncategorized).\n",
 					plan.Rules[i].Name, plan.Rules[i-1].Name,
-					plan.Rules[i-1].Name, "prev_reason", plan.Rules[i].Name, reason))
-			return plan, diags
-		}
-		if simplified[i] != "mandatory" {
-			mandatoryDone = true
-		}
-	}
-
-	for i, rule := range plan.Rules {
-		simplified[i] = sections[rule.CategoryName.ValueString()]
-		reason := simplified[i] + " (derived from category_name)"
-		if simplified[i] == "" {
-			simplified[i] = rule.GetSection()
-			reason = simplified[i]
-		}
-		if mandatoryDone && simplified[i] == "mandatory" {
-			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
-				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
-					"  - rule %s has category_name %s\n"+
-					"  - rule %s has category_name %s\n\n"+
-					"Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
-					"Uncategorized non-mandatory rules must be below all other rules.\n"+
-					"Mandatory rules must be above the non-mandatory rules.\n",
-					plan.Rules[i].Name, plan.Rules[i-1].Name,
-					plan.Rules[i-1].Name, plan.Rules[i-1].CategoryName, plan.Rules[i].Name, plan.Rules[i].CategoryName))
-			return plan, diags
-		}
-		if simplified[i] != "mandatory" {
-			mandatoryDone = true
-		}
-	}
-
-	for i := range plan.Rules {
-		if s := plan.Rules[i].GetSection(); mandatoryDone && s == "mandatory" {
-			if sections[plan.Rules[i].CategoryName.ValueString()] < reached {
-
-			}
-			if plan.Rules[i].GetSection() != "mandatory" {
-				mandatoryDone = true
-			}
-		}
-	}
-
-	// Validate rules.*.category_name
-	cats := map[string]bool{}
-	secs := map[string]bool{}
-	good := 0
-	i := 0
-	inputWithSentinels := slices.Insert(slices.Clone(plan.Categories), insertion, AccessControlPolicyCategories{
-		Section: types.StringValue("mandatory"),
-	})
-	inputWithSentinels = append(inputWithSentinels, AccessControlPolicyCategories{
-		Section: types.StringValue("default"),
-	})
-	for _, cat := range inputWithSentinels {
-		if cat.Name.IsUnknown() ||
-			cat.Section.IsUnknown() {
-			return plan, diags // this means we are not in apply phase
-		}
-
-		switch cat.Name.ValueString() {
-		case "": // sentinel
-			for i < len(plan.Rules) && cat.GetSection() == plan.Rules[i].GetSection() {
-				good = i
-				i++
-			}
-		default:
-			for i < len(plan.Rules) && cat.Name.Equal(plan.Rules[i].CategoryName) {
-				good = i
-				i++
-			}
-		}
-
-		if i == len(plan.Rules) {
-			break // all good
-		}
-
-		tflog.Debug(ctx, fmt.Sprintf("rule %s, does not fit into %s, done sections %+v, done categories %+v",
-			plan.Rules[i], cat, secs, cats))
-
-		if cats[plan.Rules[i].CategoryName.ValueString()] && plan.Rules[i].CategoryName.ValueString() != "" {
-			diags.AddAttributeError(path.Root("rules"), "Wrong order of rules",
-				fmt.Sprintf("Rule %s must be somewhere above rule %s, not directly below it.\n"+
-					"This is because the rules must be sorted in the same sequential order as the corresponding categories.\n"+
-					"  - rule %s has category_name %s\n"+
-					"  - rule %s has category_name %s\n\n"+
-					"Uncategorized mandatory rules must be directly below categorized mandatory rules.\n"+
-					"Uncategorized non-mandatory rules must be below all other rules.\n",
-					plan.Rules[i].Name, plan.Rules[good].Name,
-					plan.Rules[good].Name, plan.Rules[good].CategoryName, plan.Rules[i].Name, plan.Rules[i].CategoryName))
+					plan.Rules[i-1].Name, plan.Rules[i-1].CategoryName, prev.sec, plan.Rules[i].Name, plan.Rules[i].CategoryName, node.sec))
 			return plan, diags
 		}
 
-		if cat.Name.ValueString() != "" {
-			cats[cat.Name.ValueString()] = true // done
-		}
-		if cat.GetSection() != "mandatory" {
-			secs["mandatory"] = true // done
-		}
-
-		if s := plan.Rules[i].GetSection(); secs[s] {
-			panic(s)
-		}
+		reached = ranks[node]
+		prev = node
 	}
 
 	return plan, diags

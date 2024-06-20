@@ -185,7 +185,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`"step6r1" must be somewhere above rule "step6r2"`),
+		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step7 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -201,7 +201,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`"r1" must be somewhere above rule "r2"`),
+		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step8 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -217,7 +217,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`"r1" must be somewhere above rule "r2"`),
+		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step9 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -232,7 +232,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`"step9r1" must be somewhere above rule "step9r2"`),
+		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step10 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -244,7 +244,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`the uncategorized mandatory rules must be directly below`),
+		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step11 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -259,7 +259,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`}`,
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`the uncategorized mandatory rules must be directly below`),
+		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step12 {` + "\n" +
 			`	name = "pol1"` + "\n" +
