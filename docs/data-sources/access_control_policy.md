@@ -56,12 +56,31 @@ Read-Only:
 
 - `action` (String) What to do when the conditions defined by the rule are met.
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
+- `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
+- `destination_networks` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_networks))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
 - `id` (String) Identifier of the rule.
 - `name` (String) User-specified unique string.
 - `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
-- `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
-- `source_networks` (Attributes List) List of the fmc_network resources combined with fmc_host resources that represent sources of traffic. (see [below for nested schema](#nestedatt--rules--source_networks))
+- `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
+- `source_networks` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_networks))
+
+<a id="nestedatt--rules--destination_network_literals"></a>
+### Nested Schema for `rules.destination_network_literals`
+
+Read-Only:
+
+- `value` (String)
+
+
+<a id="nestedatt--rules--destination_networks"></a>
+### Nested Schema for `rules.destination_networks`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_network.this.id, etc.).
+- `type` (String) Type of the object (such as fmc_network.this.type, etc.).
+
 
 <a id="nestedatt--rules--source_network_literals"></a>
 ### Nested Schema for `rules.source_network_literals`
@@ -76,5 +95,5 @@ Read-Only:
 
 Read-Only:
 
-- `id` (String) UUID value of fmc_network.this.id or fmc_host.this.id.
-- `type` (String) String value of fmc_network.this.type or fmc_host.this.type.
+- `id` (String) UUID of the object (such as fmc_network.this.id, etc.).
+- `type` (String) Type of the object (such as fmc_network.this.type, etc.).

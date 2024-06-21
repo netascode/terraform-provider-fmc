@@ -42,6 +42,7 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.action", "ALLOW"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.name", "rule1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.0/24"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.destination_network_literals.0.value", "10.2.2.0/24"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -70,8 +71,13 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 const testAccFmcAccessControlPolicyPrerequisitesConfig = `
 resource "fmc_network" "this" {
-  name = "network1"
+  name   = "mynetwork1"
   prefix = "10.0.0.0/24"
+}
+
+resource "fmc_host" "this" {
+  name = "myhost1"
+  ip   = "10.1.1.1"
 }
 
 `
@@ -110,9 +116,16 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `	  source_network_literals = [{` + "\n"
 	config += `		value = "10.1.1.0/24"` + "\n"
 	config += `	}]` + "\n"
+	config += `	  destination_network_literals = [{` + "\n"
+	config += `		value = "10.2.2.0/24"` + "\n"
+	config += `	}]` + "\n"
 	config += `	  source_networks = [{` + "\n"
 	config += `		id = fmc_network.this.id` + "\n"
 	config += `		type = fmc_network.this.type` + "\n"
+	config += `	}]` + "\n"
+	config += `	  destination_networks = [{` + "\n"
+	config += `		id = fmc_host.this.id` + "\n"
+	config += `		type = fmc_host.this.type` + "\n"
 	config += `	}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
@@ -282,6 +295,25 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
 		ExpectError:        regexp.MustCompile(`Cannot use section together with category_name`),
+	}, {
+		Config: `resource fmc_access_control_policy step13 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [{ category_name = "--Undefined--", name = "r1", action = "ALLOW"}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`value is reserved`),
+	}, {
+		Config: `resource fmc_access_control_policy step14 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	categories = [{ name = "--Undefined--" }]` + "\n" +
+			`	rules = [{ category_name = "--Undefined--", name = "r1", action = "ALLOW"}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`value is reserved`),
 	}}
 
 	resource.Test(t, resource.TestCase{

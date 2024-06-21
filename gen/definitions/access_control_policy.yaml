@@ -147,33 +147,69 @@ attributes:
       - model_name: literals
         data_path: [sourceNetworks]
         tf_name: source_network_literals
-        type: List
+        type: Set
         attributes:
           - model_name: type
             type: String
             value: AnyNonEmptyString
           - model_name: value
             type: String
+            id: true
             example: 10.1.1.0/24
+      - model_name: literals
+        data_path: [destinationNetworks]
+        tf_name: destination_network_literals
+        type: Set
+        attributes:
+          - model_name: type
+            type: String
+            value: AnyNonEmptyString
+          - model_name: value
+            type: String
+            id: true
+            example: 10.2.2.0/24
       - model_name: objects
         data_path: [sourceNetworks]
         tf_name: source_networks
-        description: List of the fmc_network resources combined with fmc_host resources that represent sources of traffic.
-        type: List
+        description: Set of the objects that represent sources of traffic (fmc_network or similar).
+        type: Set
         attributes:
           - model_name: id
             type: String
-            description: UUID value of fmc_network.this.id or fmc_host.this.id.
-            exclude_example: true
+            description: UUID of the object (such as fmc_network.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
             test_value: fmc_network.this.id
           - model_name: type
             type: String
-            description: String value of fmc_network.this.type or fmc_host.this.type.
-            exclude_example: true
+            description: Type of the object (such as fmc_network.this.type, etc.).
+            example: Network
             test_value: fmc_network.this.type
+      - model_name: objects
+        data_path: [destinationNetworks]
+        tf_name: destination_networks
+        description: Set of the objects that represent destinations of traffic (fmc_network or similar).
+        type: Set
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_network.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            test_value: fmc_host.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_network.this.type, etc.).
+            example: Network
+            test_value: fmc_host.this.type
 
 test_prerequisites: |
   resource "fmc_network" "this" {
-    name = "network1"
+    name   = "mynetwork1"
     prefix = "10.0.0.0/24"
+  }
+
+  resource "fmc_host" "this" {
+    name = "myhost1"
+    ip   = "10.1.1.1"
   }

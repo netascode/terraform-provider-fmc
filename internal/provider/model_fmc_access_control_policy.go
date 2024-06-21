@@ -58,20 +58,29 @@ type AccessControlPolicyCategories struct {
 }
 
 type AccessControlPolicyRules struct {
-	Id                    types.String                                    `tfsdk:"id"`
-	Action                types.String                                    `tfsdk:"action"`
-	Name                  types.String                                    `tfsdk:"name"`
-	CategoryName          types.String                                    `tfsdk:"category_name"`
-	Section               types.String                                    `tfsdk:"section"`
-	Enabled               types.Bool                                      `tfsdk:"enabled"`
-	SourceNetworkLiterals []AccessControlPolicyRulesSourceNetworkLiterals `tfsdk:"source_network_literals"`
-	SourceNetworks        []AccessControlPolicyRulesSourceNetworks        `tfsdk:"source_networks"`
+	Id                         types.String                                         `tfsdk:"id"`
+	Action                     types.String                                         `tfsdk:"action"`
+	Name                       types.String                                         `tfsdk:"name"`
+	CategoryName               types.String                                         `tfsdk:"category_name"`
+	Section                    types.String                                         `tfsdk:"section"`
+	Enabled                    types.Bool                                           `tfsdk:"enabled"`
+	SourceNetworkLiterals      []AccessControlPolicyRulesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
+	DestinationNetworkLiterals []AccessControlPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
+	SourceNetworks             []AccessControlPolicyRulesSourceNetworks             `tfsdk:"source_networks"`
+	DestinationNetworks        []AccessControlPolicyRulesDestinationNetworks        `tfsdk:"destination_networks"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
 	Value types.String `tfsdk:"value"`
 }
+type AccessControlPolicyRulesDestinationNetworkLiterals struct {
+	Value types.String `tfsdk:"value"`
+}
 type AccessControlPolicyRulesSourceNetworks struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type AccessControlPolicyRulesDestinationNetworks struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
 }
@@ -192,6 +201,17 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.literals.-1", itemChildBody)
 				}
 			}
+			if len(item.DestinationNetworkLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationNetworks.literals", []interface{}{})
+				for _, childItem := range item.DestinationNetworkLiterals {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					if !childItem.Value.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "value", childItem.Value.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.literals.-1", itemChildBody)
+				}
+			}
 			if len(item.SourceNetworks) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.objects", []interface{}{})
 				for _, childItem := range item.SourceNetworks {
@@ -203,6 +223,19 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
 					}
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationNetworks) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationNetworks.objects", []interface{}{})
+				for _, childItem := range item.DestinationNetworks {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.objects.-1", itemChildBody)
 				}
 			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
@@ -320,6 +353,19 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					return true
 				})
 			}
+			if cValue := v.Get("destinationNetworks.literals"); cValue.Exists() {
+				item.DestinationNetworkLiterals = make([]AccessControlPolicyRulesDestinationNetworkLiterals, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesDestinationNetworkLiterals{}
+					if ccValue := cv.Get("value"); ccValue.Exists() {
+						cItem.Value = types.StringValue(ccValue.String())
+					} else {
+						cItem.Value = types.StringNull()
+					}
+					item.DestinationNetworkLiterals = append(item.DestinationNetworkLiterals, cItem)
+					return true
+				})
+			}
 			if cValue := v.Get("sourceNetworks.objects"); cValue.Exists() {
 				item.SourceNetworks = make([]AccessControlPolicyRulesSourceNetworks, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
@@ -338,6 +384,24 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					return true
 				})
 			}
+			if cValue := v.Get("destinationNetworks.objects"); cValue.Exists() {
+				item.DestinationNetworks = make([]AccessControlPolicyRulesDestinationNetworks, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesDestinationNetworks{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					item.DestinationNetworks = append(item.DestinationNetworks, cItem)
+					return true
+				})
+			}
 			data.Rules = append(data.Rules, item)
 			return true
 		})
@@ -347,7 +411,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 // End of section. //template:end fromBody
 
 func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
-	tflog.Debug(ctx, fmt.Sprintf("updateFromBody: %s", res))
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -438,13 +501,13 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		} else {
 			data.Rules[i].Name = types.StringNull()
 		}
-		if value := r.Get("metadata.category"); value.Exists() && value.String() != "--Undefined--" {
+		if value := r.Get("metadata.category"); value.Exists() && !data.Rules[i].CategoryName.IsNull() {
 			data.Rules[i].CategoryName = types.StringValue(value.String())
 		} else {
 			data.Rules[i].CategoryName = types.StringNull()
 		}
 		if value := r.Get("metadata.section"); value.Exists() && !data.Rules[i].Section.IsNull() {
-			data.Rules[i].Section = types.StringValue(strings.ToLower(value.String()))
+			data.Rules[i].Section = types.StringValue(value.String())
 		} else {
 			data.Rules[i].Section = types.StringNull()
 		}
@@ -482,6 +545,35 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].SourceNetworkLiterals[ci].Value = types.StringNull()
 			}
 		}
+		for ci := range data.Rules[i].DestinationNetworkLiterals {
+			keys := [...]string{"value"}
+			keyValues := [...]string{data.Rules[i].DestinationNetworkLiterals[ci].Value.ValueString()}
+
+			var cr gjson.Result
+			r.Get("destinationNetworks.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("value"); value.Exists() && !data.Rules[i].DestinationNetworkLiterals[ci].Value.IsNull() {
+				data.Rules[i].DestinationNetworkLiterals[ci].Value = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationNetworkLiterals[ci].Value = types.StringNull()
+			}
+		}
 		for ci := range data.Rules[i].SourceNetworks {
 			keys := [...]string{"id"}
 			keyValues := [...]string{data.Rules[i].SourceNetworks[ci].Id.ValueString()}
@@ -510,6 +602,68 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			} else {
 				data.Rules[i].SourceNetworks[ci].Id = types.StringNull()
 			}
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].SourceNetworks[ci].Type.IsNull() {
+				data.Rules[i].SourceNetworks[ci].Type = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceNetworks[ci].Type = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].DestinationNetworks {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].DestinationNetworks[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("destinationNetworks.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].DestinationNetworks[ci].Id.IsNull() {
+				data.Rules[i].DestinationNetworks[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationNetworks[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].DestinationNetworks[ci].Type.IsNull() {
+				data.Rules[i].DestinationNetworks[ci].Type = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationNetworks[ci].Type = types.StringNull()
+			}
+		}
+	}
+}
+
+// adjustFromBody applies a few corrections after an auto-generated fromBody/updateFromBody.
+func (data *AccessControlPolicy) adjustFromBody(ctx context.Context, res gjson.Result) {
+	for i := range data.Rules {
+		if data.Rules[i].CategoryName.Equal(types.StringValue("--Undefined--")) {
+			data.Rules[i].CategoryName = types.StringNull()
+		}
+		if !(data.Rules[i].Section.IsUnknown() || data.Rules[i].Section.IsNull()) {
+			// API has "Mandatory", OAS has "mandatory".
+			data.Rules[i].Section = types.StringValue(strings.ToLower(data.Rules[i].Section.ValueString()))
+
+			if data.Rules[i].CategoryName.ValueString() != "" {
+				data.Rules[i].Section = types.StringNull()
+			}
+		}
+	}
+
+	for i := range data.Categories {
+		if !(data.Categories[i].Section.IsUnknown() || data.Categories[i].Section.IsNull()) {
+			data.Categories[i].Section = types.StringValue(strings.ToLower(data.Categories[i].Section.ValueString()))
 		}
 	}
 }
@@ -589,6 +743,10 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		case !rule.CategoryName.IsNull() && rule.GetSection() != "":
 			diags.AddAttributeError(path.Root("rules"), "Cannot use section together with category_name",
 				fmt.Sprintf("Rule %s cannot have both section and category_name specified.", rule.Name))
+			return plan, diags
+		case rule.CategoryName.Equal(types.StringValue("--Undefined--")):
+			diags.AddAttributeError(path.Root("rules"), "Invalid category_name value",
+				fmt.Sprintf("Cannot use category_name=%s that value is reserved for internal use.", rule.CategoryName))
 			return plan, diags
 		}
 	}

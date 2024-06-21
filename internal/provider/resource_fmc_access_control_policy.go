@@ -187,7 +187,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Computed:            true,
 							Default:             booldefault.StaticBool(true),
 						},
-						"source_network_literals": schema.ListNestedAttribute{
+						"source_network_literals": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -199,17 +199,45 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"source_networks": schema.ListNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("List of the fmc_network resources combined with fmc_host resources that represent sources of traffic.").String,
+						"destination_network_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"value": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"source_networks": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent sources of traffic (fmc_network or similar).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID value of fmc_network.this.id or fmc_host.this.id.").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.this.id, etc.).").String,
 										Optional:            true,
 									},
 									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("String value of fmc_network.this.type or fmc_host.this.type.").String,
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_network.this.type, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_networks": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent destinations of traffic (fmc_network or similar).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.this.id, etc.).").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_network.this.type, etc.).").String,
 										Optional:            true,
 									},
 								},
@@ -372,6 +400,7 @@ func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.Rea
 	} else {
 		state.updateFromBody(ctx, res)
 	}
+	state.adjustFromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 

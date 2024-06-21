@@ -153,7 +153,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							MarkdownDescription: "Indicates whether the access rule is in effect (true) or not (false). Default is true.",
 							Computed:            true,
 						},
-						"source_network_literals": schema.ListNestedAttribute{
+						"source_network_literals": schema.SetNestedAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -165,17 +165,45 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
-						"source_networks": schema.ListNestedAttribute{
-							MarkdownDescription: "List of the fmc_network resources combined with fmc_host resources that represent sources of traffic.",
+						"destination_network_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"value": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_networks": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of the objects that represent sources of traffic (fmc_network or similar).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID value of fmc_network.this.id or fmc_host.this.id.",
+										MarkdownDescription: "UUID of the object (such as fmc_network.this.id, etc.).",
 										Computed:            true,
 									},
 									"type": schema.StringAttribute{
-										MarkdownDescription: "String value of fmc_network.this.type or fmc_host.this.type.",
+										MarkdownDescription: "Type of the object (such as fmc_network.this.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_networks": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of the objects that represent destinations of traffic (fmc_network or similar).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_network.this.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_network.this.type, etc.).",
 										Computed:            true,
 									},
 								},
@@ -286,6 +314,7 @@ func (d *AccessControlPolicyDataSource) Read(ctx context.Context, req datasource
 	res = gjson.Parse(replace)
 
 	config.fromBody(ctx, res)
+	config.adjustFromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
 
