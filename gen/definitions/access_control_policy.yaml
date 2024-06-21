@@ -40,7 +40,7 @@ attributes:
     type: Bool
     description: Indicating whether the device will log events at the end of the connection.
     default_value: "false"
-    example: "true"
+    example: "false"
   - model_name: sendEventsToFMC
     data_path: [defaultAction]
     tf_name: default_action_send_events_to_fmc
@@ -61,9 +61,25 @@ attributes:
     type: String
     description: >-
       UUID of the syslog config. Can be set only when default_action_send_syslog is true and either
-      default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.
+      default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration
+      in Access Control Logging applies.
     example: 35e197ca-33a8-11ef-b2d1-d98ae17766e7
     exclude_test: true
+  - model_name: syslogSeverity
+    data_path: [defaultAction]
+    tf_name: default_action_syslog_severity
+    type: String
+    description: Override the Severity of syslog alerts.
+    enum_values:
+      - ALERT
+      - CRIT
+      - DEBUG
+      - EMERG
+      - ERR
+      - INFO
+      - NOTICE
+      - WARNING
+    example: "DEBUG"
   - model_name: id
     data_path: [defaultAction, intrusionPolicy]
     tf_name: default_action_intrusion_policy_id
@@ -262,16 +278,14 @@ attributes:
           Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is
           selected for access rule, log_begin must be false or absent.
         default_value: "false"
-        exclude_example: true
-        test_value: "false"
+        example: "true"
       - model_name: logEnd
         type: Bool
         description: >-
           Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected
           for access rule, log_end must be true.
         default_value: "false"
-        exclude_example: true
-        test_value: "false"
+        example: "true"
       - model_name: logFiles
         type: Bool
         description: Indicates whether the device will log file events.
@@ -285,8 +299,38 @@ attributes:
           Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR'
           action is selected for access rule, send_events_to_fmc must be true.
         default_value: "false"
-        exclude_example: true
-        test_value: "false"
+        example: true
+      - model_name: enableSyslog
+        tf_name: send_syslog
+        type: Bool
+        description: Indicates whether the alerts associated with the access rule are sent to syslog.
+        default_value: "false"
+        example: "true"
+        exclude_test: true
+      - model_name: id
+        data_path: [syslogConfig]
+        tf_name: syslog_config_id
+        type: String
+        description: >-
+          UUID of the syslog config. Can be set only when send_syslog is true and either
+          log_begin or log_end is true. If not set, the default policy syslog configuration
+          in Access Control Logging applies.
+        example: 35e197ca-33a8-11ef-b2d1-d98ae17766e7
+        exclude_test: true
+      - model_name: syslogSeverity
+        type: String
+        description: Override the Severity of syslog alerts.
+        enum_values:
+          - ALERT
+          - CRIT
+          - DEBUG
+          - EMERG
+          - ERR
+          - INFO
+          - NOTICE
+          - WARNING
+        example: "DEBUG"
+        exclude_test: true
       - model_name: description
         type: String
         description: User-specified string.

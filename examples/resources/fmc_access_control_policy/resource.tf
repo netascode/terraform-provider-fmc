@@ -3,9 +3,10 @@ resource "fmc_access_control_policy" "example" {
   description                       = "My access control policy"
   default_action                    = "BLOCK"
   default_action_log_begin          = true
-  default_action_log_end            = true
+  default_action_log_end            = false
   default_action_send_events_to_fmc = true
   default_action_send_syslog        = true
+  default_action_syslog_severity    = "DEBUG"
   categories = [
     {
       name = "cat1"
@@ -37,6 +38,9 @@ resource "fmc_access_control_policy" "example" {
           type = "Network"
         }
       ]
+      log_begin          = true
+      log_end            = true
+      send_events_to_fmc = true
     }
   ]
 }
