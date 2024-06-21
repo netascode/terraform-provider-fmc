@@ -60,7 +60,9 @@ Read-Only:
 - `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_networks` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_networks))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
-- `id` (String) Identifier of the rule.
+- `file_policy_id` (String) Identifier (UUID) of the File Policy for the rule action.
+- `id` (String) Unique identifier (UUID) of the access rule.
+- `intrusion_policy_id` (String) Identifier of the fmc_intrusion_policy for the rule action.
 - `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.
 - `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.
 - `log_files` (Boolean) Indicates whether the device will log file events.

@@ -156,7 +156,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Identifier of the rule.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Unique identifier (UUID) of the access rule.").String,
 							Computed:            true,
 						},
 						"action": schema.StringAttribute{
@@ -269,6 +269,14 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified string.").String,
+							Optional:            true,
+						},
+						"file_policy_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Identifier (UUID) of the File Policy for the rule action.").String,
+							Optional:            true,
+						},
+						"intrusion_policy_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Identifier of the fmc_intrusion_policy for the rule action.").String,
 							Optional:            true,
 						},
 					},

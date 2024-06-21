@@ -96,7 +96,7 @@ attributes:
     attributes:
       - model_name: id
         type: String
-        description: Identifier of the rule.
+        description: Unique identifier (UUID) of the access rule.
         resource_id: true
         exclude_example: true
         exclude_test: true
@@ -238,6 +238,20 @@ attributes:
         description: User-specified string.
         write_only: true # absent in GET
         exclude_example: true
+      - model_name: id
+        data_path: [filePolicy]
+        tf_name: file_policy_id
+        type: String
+        description: Identifier (UUID) of the File Policy for the rule action.
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        exclude_test: true
+      - model_name: id
+        data_path: [ipsPolicy]
+        type: String
+        tf_name: intrusion_policy_id
+        description: Identifier of the fmc_intrusion_policy for the rule action.
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        exclude_test: true
 
 test_prerequisites: |
   resource "fmc_network" "this" {

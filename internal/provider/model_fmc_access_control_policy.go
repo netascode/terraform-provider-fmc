@@ -73,6 +73,8 @@ type AccessControlPolicyRules struct {
 	LogFiles                   types.Bool                                           `tfsdk:"log_files"`
 	SendEventsToFmc            types.Bool                                           `tfsdk:"send_events_to_fmc"`
 	Description                types.String                                         `tfsdk:"description"`
+	FilePolicyId               types.String                                         `tfsdk:"file_policy_id"`
+	IntrusionPolicyId          types.String                                         `tfsdk:"intrusion_policy_id"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
@@ -258,6 +260,12 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			if !item.Description.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
 			}
+			if !item.FilePolicyId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "filePolicy.id", item.FilePolicyId.ValueString())
+			}
+			if !item.IntrusionPolicyId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "ipsPolicy.id", item.IntrusionPolicyId.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
 	}
@@ -441,6 +449,16 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				item.SendEventsToFmc = types.BoolValue(cValue.Bool())
 			} else {
 				item.SendEventsToFmc = types.BoolValue(false)
+			}
+			if cValue := v.Get("filePolicy.id"); cValue.Exists() {
+				item.FilePolicyId = types.StringValue(cValue.String())
+			} else {
+				item.FilePolicyId = types.StringNull()
+			}
+			if cValue := v.Get("ipsPolicy.id"); cValue.Exists() {
+				item.IntrusionPolicyId = types.StringValue(cValue.String())
+			} else {
+				item.IntrusionPolicyId = types.StringNull()
 			}
 			data.Rules = append(data.Rules, item)
 			return true
@@ -701,6 +719,16 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			data.Rules[i].SendEventsToFmc = types.BoolValue(value.Bool())
 		} else if data.Rules[i].SendEventsToFmc.ValueBool() != false {
 			data.Rules[i].SendEventsToFmc = types.BoolNull()
+		}
+		if value := r.Get("filePolicy.id"); value.Exists() && !data.Rules[i].FilePolicyId.IsNull() {
+			data.Rules[i].FilePolicyId = types.StringValue(value.String())
+		} else {
+			data.Rules[i].FilePolicyId = types.StringNull()
+		}
+		if value := r.Get("ipsPolicy.id"); value.Exists() && !data.Rules[i].IntrusionPolicyId.IsNull() {
+			data.Rules[i].IntrusionPolicyId = types.StringValue(value.String())
+		} else {
+			data.Rules[i].IntrusionPolicyId = types.StringNull()
 		}
 	}
 }
