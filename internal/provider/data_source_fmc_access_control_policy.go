@@ -118,14 +118,14 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							Computed:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: "The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.",
+							MarkdownDescription: "The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.",
 							Computed:            true,
 						},
 					},
 				},
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: "The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules.",
+				MarkdownDescription: "The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -146,7 +146,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							Computed:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: "The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.",
+							MarkdownDescription: "The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{

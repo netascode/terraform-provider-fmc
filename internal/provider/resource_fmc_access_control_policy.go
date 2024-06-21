@@ -139,7 +139,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Required:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.").AddStringEnumDescription("default", "mandatory").AddDefaultValueDescription("default").String,
+							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.").AddStringEnumDescription("default", "mandatory").AddDefaultValueDescription("default").String,
 							Optional:            true,
 							Computed:            true,
 							Validators: []validator.String{
@@ -151,7 +151,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule.").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -175,7 +175,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Optional:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.").AddStringEnumDescription("default", "mandatory").String,
+							MarkdownDescription: helpers.NewAttributeDescription("The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.").AddStringEnumDescription("default", "mandatory").String,
 							Optional:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("default", "mandatory"),

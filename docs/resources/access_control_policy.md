@@ -66,7 +66,7 @@ resource "fmc_access_control_policy" "example" {
   - Default value: `false`
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
-- `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. (see [below for nested schema](#nestedatt--rules))
+- `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only
 
@@ -82,7 +82,7 @@ Required:
 
 Optional:
 
-- `section` (String) The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.
+- `section` (String) The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
   - Choices: `default`, `mandatory`
   - Default value: `default`
 
@@ -105,7 +105,7 @@ Optional:
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
-- `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.
+- `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
   - Choices: `default`, `mandatory`
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_networks` (Attributes List) List of the fmc_network resources combined with fmc_host resources that represent sources of traffic. (see [below for nested schema](#nestedatt--rules--source_networks))

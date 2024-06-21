@@ -37,7 +37,7 @@ data "fmc_access_control_policy" "example" {
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `default_action_send_syslog` (Boolean) Indicating whether the device will send events to a syslog server.
 - `description` (String) Description
-- `rules` (Attributes List) The ordered list of rules. The first matching rule overshadows all the matching rules which follow it. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. (see [below for nested schema](#nestedatt--rules))
+- `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
 
 <a id="nestedatt--categories"></a>
 ### Nested Schema for `categories`
@@ -46,7 +46,7 @@ Read-Only:
 
 - `id` (String) Identifier of the category.
 - `name` (String) User-specified unique string.
-- `section` (String) The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'.
+- `section` (String) The section of the policy to which the category belongs. Categories must be ordered so that entire section 'mandatory' comes above the section 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
 
 
 <a id="nestedatt--rules"></a>
@@ -59,7 +59,7 @@ Read-Only:
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
 - `id` (String) Identifier of the rule.
 - `name` (String) User-specified unique string.
-- `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'.
+- `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
 - `source_network_literals` (Attributes List) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_networks` (Attributes List) List of the fmc_network resources combined with fmc_host resources that represent sources of traffic. (see [below for nested schema](#nestedatt--rules--source_networks))
 
