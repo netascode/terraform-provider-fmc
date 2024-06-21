@@ -105,7 +105,11 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				Computed:            true,
 			},
 			"default_action_syslog_config_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.",
+				MarkdownDescription: "UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.",
+				Computed:            true,
+			},
+			"default_action_syslog_severity": schema.StringAttribute{
+				MarkdownDescription: "Override the Severity of syslog alerts.",
 				Computed:            true,
 			},
 			"default_action_intrusion_policy_id": schema.StringAttribute{
@@ -263,6 +267,18 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 						},
 						"send_events_to_fmc": schema.BoolAttribute{
 							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.",
+							Computed:            true,
+						},
+						"send_syslog": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the alerts associated with the access rule are sent to syslog.",
+							Computed:            true,
+						},
+						"syslog_config_id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.",
+							Computed:            true,
+						},
+						"syslog_severity": schema.StringAttribute{
+							MarkdownDescription: "Override the Severity of syslog alerts.",
 							Computed:            true,
 						},
 						"description": schema.StringAttribute{

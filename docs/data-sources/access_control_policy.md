@@ -37,7 +37,8 @@ data "fmc_access_control_policy" "example" {
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `default_action_send_syslog` (Boolean) Indicating whether the device will send events to a syslog server.
-- `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.
+- `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
+- `default_action_syslog_severity` (String) Override the Severity of syslog alerts.
 - `description` (String) Description
 - `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
 
@@ -72,9 +73,12 @@ Read-Only:
 - `name` (String) User-specified unique string.
 - `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
 - `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
+- `send_syslog` (Boolean) Indicates whether the alerts associated with the access rule are sent to syslog.
 - `source_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic sources of traffic. (see [below for nested schema](#nestedatt--rules--source_dynamic_objects))
 - `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_network_objects))
+- `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
+- `syslog_severity` (String) Override the Severity of syslog alerts.
 
 <a id="nestedatt--rules--destination_dynamic_objects"></a>
 ### Nested Schema for `rules.destination_dynamic_objects`

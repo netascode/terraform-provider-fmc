@@ -126,8 +126,15 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				Default:             booldefault.StaticBool(false),
 			},
 			"default_action_syslog_config_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.").String,
 				Optional:            true,
+			},
+			"default_action_syslog_severity": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Override the Severity of syslog alerts.").AddStringEnumDescription("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING"),
+				},
 			},
 			"default_action_intrusion_policy_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when default action is BLOCK, TRUST, NETWORK_DISCOVERY.").String,
@@ -306,6 +313,23 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
+						},
+						"send_syslog": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the alerts associated with the access rule are sent to syslog.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"syslog_config_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.").String,
+							Optional:            true,
+						},
+						"syslog_severity": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Override the Severity of syslog alerts.").AddStringEnumDescription("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING").String,
+							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING"),
+							},
 						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified string.").String,
