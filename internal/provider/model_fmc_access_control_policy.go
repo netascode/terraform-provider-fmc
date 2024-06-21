@@ -68,6 +68,11 @@ type AccessControlPolicyRules struct {
 	DestinationNetworkLiterals []AccessControlPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
 	SourceNetworks             []AccessControlPolicyRulesSourceNetworks             `tfsdk:"source_networks"`
 	DestinationNetworks        []AccessControlPolicyRulesDestinationNetworks        `tfsdk:"destination_networks"`
+	LogBegin                   types.Bool                                           `tfsdk:"log_begin"`
+	LogEnd                     types.Bool                                           `tfsdk:"log_end"`
+	LogFiles                   types.Bool                                           `tfsdk:"log_files"`
+	SendEventsToFmc            types.Bool                                           `tfsdk:"send_events_to_fmc"`
+	Description                types.String                                         `tfsdk:"description"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
@@ -238,6 +243,21 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.objects.-1", itemChildBody)
 				}
 			}
+			if !item.LogBegin.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "logBegin", item.LogBegin.ValueBool())
+			}
+			if !item.LogEnd.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "logEnd", item.LogEnd.ValueBool())
+			}
+			if !item.LogFiles.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "logFiles", item.LogFiles.ValueBool())
+			}
+			if !item.SendEventsToFmc.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "sendEventsToFMC", item.SendEventsToFmc.ValueBool())
+			}
+			if !item.Description.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
 	}
@@ -401,6 +421,26 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					item.DestinationNetworks = append(item.DestinationNetworks, cItem)
 					return true
 				})
+			}
+			if cValue := v.Get("logBegin"); cValue.Exists() {
+				item.LogBegin = types.BoolValue(cValue.Bool())
+			} else {
+				item.LogBegin = types.BoolValue(false)
+			}
+			if cValue := v.Get("logEnd"); cValue.Exists() {
+				item.LogEnd = types.BoolValue(cValue.Bool())
+			} else {
+				item.LogEnd = types.BoolValue(false)
+			}
+			if cValue := v.Get("logFiles"); cValue.Exists() {
+				item.LogFiles = types.BoolValue(cValue.Bool())
+			} else {
+				item.LogFiles = types.BoolValue(false)
+			}
+			if cValue := v.Get("sendEventsToFMC"); cValue.Exists() {
+				item.SendEventsToFmc = types.BoolValue(cValue.Bool())
+			} else {
+				item.SendEventsToFmc = types.BoolValue(false)
 			}
 			data.Rules = append(data.Rules, item)
 			return true
@@ -642,6 +682,26 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].DestinationNetworks[ci].Type = types.StringNull()
 			}
 		}
+		if value := r.Get("logBegin"); value.Exists() && !data.Rules[i].LogBegin.IsNull() {
+			data.Rules[i].LogBegin = types.BoolValue(value.Bool())
+		} else if data.Rules[i].LogBegin.ValueBool() != false {
+			data.Rules[i].LogBegin = types.BoolNull()
+		}
+		if value := r.Get("logEnd"); value.Exists() && !data.Rules[i].LogEnd.IsNull() {
+			data.Rules[i].LogEnd = types.BoolValue(value.Bool())
+		} else if data.Rules[i].LogEnd.ValueBool() != false {
+			data.Rules[i].LogEnd = types.BoolNull()
+		}
+		if value := r.Get("logFiles"); value.Exists() && !data.Rules[i].LogFiles.IsNull() {
+			data.Rules[i].LogFiles = types.BoolValue(value.Bool())
+		} else if data.Rules[i].LogFiles.ValueBool() != false {
+			data.Rules[i].LogFiles = types.BoolNull()
+		}
+		if value := r.Get("sendEventsToFMC"); value.Exists() && !data.Rules[i].SendEventsToFmc.IsNull() {
+			data.Rules[i].SendEventsToFmc = types.BoolValue(value.Bool())
+		} else if data.Rules[i].SendEventsToFmc.ValueBool() != false {
+			data.Rules[i].SendEventsToFmc = types.BoolNull()
+		}
 	}
 }
 
@@ -747,6 +807,26 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		case rule.CategoryName.Equal(types.StringValue("--Undefined--")):
 			diags.AddAttributeError(path.Root("rules"), "Invalid category_name value",
 				fmt.Sprintf("Cannot use category_name=%s that value is reserved for internal use.", rule.CategoryName))
+			return plan, diags
+		}
+	}
+
+	// Validate rules.*.action==MONITOR clash
+	for _, rule := range plan.Rules {
+		switch {
+		case rule.LogEnd.IsUnknown() || rule.SendEventsToFmc.IsUnknown():
+			// ignore
+		case rule.Action.ValueString() == "MONITOR" && rule.LogBegin.ValueBool():
+			diags.AddAttributeError(path.Root("rules"), "Cannot use log_begin=true when action=\"MONITOR\"",
+				fmt.Sprintf("Rule %s has action=\"MONITOR\" so it must use:\n	log_begin=null/false,\n	log_end=true,\n	send_events_to_fmc=true,", rule.Name))
+			return plan, diags
+		case rule.Action.ValueString() == "MONITOR" && !rule.LogEnd.ValueBool():
+			diags.AddAttributeError(path.Root("rules"), "Cannot use log_end=false when action=\"MONITOR\"",
+				fmt.Sprintf("Rule %s has action=\"MONITOR\" so it must use:\n	log_begin=null/false,\n	log_end=true,\n	send_events_to_fmc=true,", rule.Name))
+			return plan, diags
+		case rule.Action.ValueString() == "MONITOR" && !rule.SendEventsToFmc.ValueBool():
+			diags.AddAttributeError(path.Root("rules"), "Cannot use send_events_to_fmc=false when action=\"MONITOR\"",
+				fmt.Sprintf("Rule %s has action=\"MONITOR\" so it must use:\n	log_begin=null/false,\n	log_end=true,\n	send_events_to_fmc=true,", rule.Name))
 			return plan, diags
 		}
 	}

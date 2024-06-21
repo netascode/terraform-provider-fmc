@@ -91,7 +91,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				Optional:            true,
 			},
 			"default_action": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Specifies the action to take when the conditions defined by the rule are met.").AddStringEnumDescription("BLOCK", "TRUST", "PERMIT", "NETWORK_DISCOVERY", "INHERIT_FROM_PARENT").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Specifies the default action to take when none of the rules meet the conditions.").AddStringEnumDescription("BLOCK", "TRUST", "PERMIT", "NETWORK_DISCOVERY", "INHERIT_FROM_PARENT").String,
 				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("BLOCK", "TRUST", "PERMIT", "NETWORK_DISCOVERY", "INHERIT_FROM_PARENT"),
@@ -242,6 +242,34 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 									},
 								},
 							},
+						},
+						"log_begin": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"log_end": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"log_files": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log file events.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"send_events_to_fmc": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("User-specified string.").String,
+							Optional:            true,
 						},
 					},
 				},

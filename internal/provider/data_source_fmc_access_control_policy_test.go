@@ -103,6 +103,11 @@ func testAccDataSourceFmcAccessControlPolicyConfig() string {
 	config += `		id = fmc_host.this.id` + "\n"
 	config += `		type = fmc_host.this.type` + "\n"
 	config += `	}]` + "\n"
+	config += `	  log_begin = false` + "\n"
+	config += `	  log_end = false` + "\n"
+	config += `	  log_files = false` + "\n"
+	config += `	  send_events_to_fmc = false` + "\n"
+	config += `	  description = ""` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

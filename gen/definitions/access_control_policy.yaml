@@ -19,7 +19,7 @@ attributes:
     type: String
     mandatory: true
     enum_values: [BLOCK, TRUST, PERMIT, NETWORK_DISCOVERY, INHERIT_FROM_PARENT]
-    description: Specifies the action to take when the conditions defined by the rule are met.
+    description: Specifies the default action to take when none of the rules meet the conditions.
     example: BLOCK
   - model_name: id
     data_path: [defaultAction]
@@ -202,6 +202,42 @@ attributes:
             description: Type of the object (such as fmc_network.this.type, etc.).
             example: Network
             test_value: fmc_host.this.type
+      - model_name: logBegin
+        type: Bool
+        description: >-
+          Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is
+          selected for access rule, log_begin must be false or absent.
+        default_value: "false"
+        exclude_example: true
+        test_value: "false"
+      - model_name: logEnd
+        type: Bool
+        description: >-
+          Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected
+          for access rule, log_end must be true.
+        default_value: "false"
+        exclude_example: true
+        test_value: "false"
+      - model_name: logFiles
+        type: Bool
+        description: Indicates whether the device will log file events.
+        default_value: "false"
+        exclude_example: true
+        test_value: "false"
+      - model_name: sendEventsToFMC
+        tf_name: send_events_to_fmc
+        type: Bool
+        description: >-
+          Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR'
+          action is selected for access rule, send_events_to_fmc must be true.
+        default_value: "false"
+        exclude_example: true
+        test_value: "false"
+      - model_name: description
+        type: String
+        description: User-specified string.
+        write_only: true # absent in GET
+        exclude_example: true
 
 test_prerequisites: |
   resource "fmc_network" "this" {

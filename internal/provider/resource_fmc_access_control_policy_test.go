@@ -127,6 +127,11 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `		id = fmc_host.this.id` + "\n"
 	config += `		type = fmc_host.this.type` + "\n"
 	config += `	}]` + "\n"
+	config += `	  log_begin = false` + "\n"
+	config += `	  log_end = false` + "\n"
+	config += `	  log_files = false` + "\n"
+	config += `	  send_events_to_fmc = false` + "\n"
+	config += `	  description = ""` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -314,6 +319,41 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 		PlanOnly:           true,
 		ExpectNonEmptyPlan: true,
 		ExpectError:        regexp.MustCompile(`value is reserved`),
+	}, {
+		Config: `resource fmc_access_control_policy step15 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [{ name = "r1", action = "MONITOR"}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`Cannot use log_end=false when action="MONITOR"`),
+	}, {
+		Config: `resource fmc_access_control_policy step16 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=null}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`Cannot use send_events_to_fmc=false when action="MONITOR"`),
+	}, {
+		Config: `resource fmc_access_control_policy step17 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=true}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+	}, {
+		Config: `resource fmc_access_control_policy step18 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [{ name = "r1", action = "MONITOR", log_begin=true, log_end=true, send_events_to_fmc=true}]` + "\n" +
+			`}`,
+		PlanOnly:           true,
+		ExpectNonEmptyPlan: true,
+		ExpectError:        regexp.MustCompile(`Cannot use log_begin=true when action="MONITOR"`),
 	}}
 
 	resource.Test(t, resource.TestCase{

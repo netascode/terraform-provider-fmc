@@ -62,7 +62,7 @@ resource "fmc_access_control_policy" "example" {
 
 ### Required
 
-- `default_action` (String) Specifies the action to take when the conditions defined by the rule are met.
+- `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
   - Choices: `BLOCK`, `TRUST`, `PERMIT`, `NETWORK_DISCOVERY`, `INHERIT_FROM_PARENT`
 - `name` (String) The name of the access control policy.
 
@@ -116,12 +116,21 @@ Required:
 Optional:
 
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
+- `description` (String) User-specified string.
 - `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_networks` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_networks))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
+- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.
+  - Default value: `false`
+- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.
+  - Default value: `false`
+- `log_files` (Boolean) Indicates whether the device will log file events.
+  - Default value: `false`
 - `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
   - Choices: `default`, `mandatory`
+- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
+  - Default value: `false`
 - `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_networks` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_networks))
 

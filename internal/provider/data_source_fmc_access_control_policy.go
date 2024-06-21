@@ -81,7 +81,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				Computed:            true,
 			},
 			"default_action": schema.StringAttribute{
-				MarkdownDescription: "Specifies the action to take when the conditions defined by the rule are met.",
+				MarkdownDescription: "Specifies the default action to take when none of the rules meet the conditions.",
 				Computed:            true,
 			},
 			"default_action_id": schema.StringAttribute{
@@ -208,6 +208,26 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 									},
 								},
 							},
+						},
+						"log_begin": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.",
+							Computed:            true,
+						},
+						"log_end": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.",
+							Computed:            true,
+						},
+						"log_files": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will log file events.",
+							Computed:            true,
+						},
+						"send_events_to_fmc": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.",
+							Computed:            true,
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: "User-specified string.",
+							Computed:            true,
 						},
 					},
 				},
