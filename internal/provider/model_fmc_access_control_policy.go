@@ -70,6 +70,8 @@ type AccessControlPolicyRules struct {
 	DestinationNetworkLiterals []AccessControlPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
 	SourceNetworkObjects       []AccessControlPolicyRulesSourceNetworkObjects       `tfsdk:"source_network_objects"`
 	DestinationNetworkObjects  []AccessControlPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
+	SourceDynamicObjects       []AccessControlPolicyRulesSourceDynamicObjects       `tfsdk:"source_dynamic_objects"`
+	DestinationDynamicObjects  []AccessControlPolicyRulesDestinationDynamicObjects  `tfsdk:"destination_dynamic_objects"`
 	LogBegin                   types.Bool                                           `tfsdk:"log_begin"`
 	LogEnd                     types.Bool                                           `tfsdk:"log_end"`
 	LogFiles                   types.Bool                                           `tfsdk:"log_files"`
@@ -90,6 +92,14 @@ type AccessControlPolicyRulesSourceNetworkObjects struct {
 	Type types.String `tfsdk:"type"`
 }
 type AccessControlPolicyRulesDestinationNetworkObjects struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type AccessControlPolicyRulesSourceDynamicObjects struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type AccessControlPolicyRulesDestinationDynamicObjects struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
 }
@@ -251,6 +261,32 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
 					}
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.SourceDynamicObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceDynamicObjects.objects", []interface{}{})
+				for _, childItem := range item.SourceDynamicObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceDynamicObjects.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationDynamicObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationDynamicObjects.objects", []interface{}{})
+				for _, childItem := range item.DestinationDynamicObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationDynamicObjects.objects.-1", itemChildBody)
 				}
 			}
 			if !item.LogBegin.IsNull() {
@@ -445,6 +481,42 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 						cItem.Type = types.StringNull()
 					}
 					item.DestinationNetworkObjects = append(item.DestinationNetworkObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("sourceDynamicObjects.objects"); cValue.Exists() {
+				item.SourceDynamicObjects = make([]AccessControlPolicyRulesSourceDynamicObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesSourceDynamicObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					item.SourceDynamicObjects = append(item.SourceDynamicObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("destinationDynamicObjects.objects"); cValue.Exists() {
+				item.DestinationDynamicObjects = make([]AccessControlPolicyRulesDestinationDynamicObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesDestinationDynamicObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					item.DestinationDynamicObjects = append(item.DestinationDynamicObjects, cItem)
 					return true
 				})
 			}
@@ -716,6 +788,74 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].DestinationNetworkObjects[ci].Type = types.StringValue(value.String())
 			} else {
 				data.Rules[i].DestinationNetworkObjects[ci].Type = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].SourceDynamicObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].SourceDynamicObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("sourceDynamicObjects.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceDynamicObjects[ci].Id.IsNull() {
+				data.Rules[i].SourceDynamicObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceDynamicObjects[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].SourceDynamicObjects[ci].Type.IsNull() {
+				data.Rules[i].SourceDynamicObjects[ci].Type = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceDynamicObjects[ci].Type = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].DestinationDynamicObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].DestinationDynamicObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("destinationDynamicObjects.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].DestinationDynamicObjects[ci].Id.IsNull() {
+				data.Rules[i].DestinationDynamicObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationDynamicObjects[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].DestinationDynamicObjects[ci].Type.IsNull() {
+				data.Rules[i].DestinationDynamicObjects[ci].Type = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationDynamicObjects[ci].Type = types.StringNull()
 			}
 		}
 		if value := r.Get("logBegin"); value.Exists() && !data.Rules[i].LogBegin.IsNull() {

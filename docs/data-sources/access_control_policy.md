@@ -59,6 +59,7 @@ Read-Only:
 - `action` (String) What to do when the conditions defined by the rule are met.
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `description` (String) User-specified string.
+- `destination_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic destinations of traffic. (see [below for nested schema](#nestedatt--rules--destination_dynamic_objects))
 - `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_network_objects` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
@@ -71,8 +72,18 @@ Read-Only:
 - `name` (String) User-specified unique string.
 - `section` (String) The section of the policy to which the rule belongs. Can only be used when the `category_name` is null. Rules must be ordered so that entire section 'mandatory' comes above the section 'default'. Null value means 'default'. If you use inheritance, the mandatory section applies before child policy's own rules, while the default section applies after child policy's own rules.
 - `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
+- `source_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic sources of traffic. (see [below for nested schema](#nestedatt--rules--source_dynamic_objects))
 - `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_network_objects))
+
+<a id="nestedatt--rules--destination_dynamic_objects"></a>
+### Nested Schema for `rules.destination_dynamic_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_dynamic_object.this.id, etc.).
+- `type` (String) Type of the object (such as fmc_dynamic_object.this.type, etc.).
+
 
 <a id="nestedatt--rules--destination_network_literals"></a>
 ### Nested Schema for `rules.destination_network_literals`
@@ -89,6 +100,15 @@ Read-Only:
 
 - `id` (String) UUID of the object (such as fmc_network.this.id, etc.).
 - `type` (String) Type of the object (such as fmc_network.this.type, etc.).
+
+
+<a id="nestedatt--rules--source_dynamic_objects"></a>
+### Nested Schema for `rules.source_dynamic_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_dynamic_object.this.id, etc.).
+- `type` (String) Type of the object (such as fmc_dynamic_object.this.type, etc.).
 
 
 <a id="nestedatt--rules--source_network_literals"></a>

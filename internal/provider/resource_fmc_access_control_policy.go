@@ -251,6 +251,38 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
+						"source_dynamic_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent dynamic sources of traffic.").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_dynamic_object.this.id, etc.).").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_dynamic_object.this.type, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_dynamic_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent dynamic destinations of traffic.").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_dynamic_object.this.id, etc.).").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_dynamic_object.this.type, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
 						"log_begin": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.").AddDefaultValueDescription("false").String,
 							Optional:            true,

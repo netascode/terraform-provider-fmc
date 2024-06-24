@@ -220,6 +220,42 @@ attributes:
             description: Type of the object (such as fmc_network.this.type, etc.).
             example: Network
             test_value: fmc_host.this.type
+      - model_name: objects
+        data_path: [sourceDynamicObjects]
+        tf_name: source_dynamic_objects
+        description: Set of the objects that represent dynamic sources of traffic.
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_dynamic_object.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_dynamic_object.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_dynamic_object.this.type, etc.).
+            example: DynamicObject
+            # test_value: fmc_dynamic_object.this.type
+      - model_name: objects
+        data_path: [destinationDynamicObjects]
+        tf_name: destination_dynamic_objects
+        description: Set of the objects that represent dynamic destinations of traffic.
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_dynamic_object.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_dynamic_object.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_dynamic_object.this.type, etc.).
+            example: DynamicObject
+            # test_value: fmc_dynamic_object.this.type
       - model_name: logBegin
         type: Bool
         description: >-

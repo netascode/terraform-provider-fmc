@@ -217,6 +217,38 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
+						"source_dynamic_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of the objects that represent dynamic sources of traffic.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_dynamic_object.this.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_dynamic_object.this.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_dynamic_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of the objects that represent dynamic destinations of traffic.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_dynamic_object.this.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_dynamic_object.this.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
 						"log_begin": schema.BoolAttribute{
 							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.",
 							Computed:            true,
