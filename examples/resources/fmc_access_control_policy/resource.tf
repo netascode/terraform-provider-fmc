@@ -25,13 +25,13 @@ resource "fmc_access_control_policy" "example" {
           value = "10.2.2.0/24"
         }
       ]
-      source_networks = [
+      source_network_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
           type = "Network"
         }
       ]
-      destination_networks = [
+      destination_network_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
           type = "Network"

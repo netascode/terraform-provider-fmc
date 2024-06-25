@@ -177,7 +177,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
-						"source_networks": schema.SetNestedAttribute{
+						"source_network_objects": schema.SetNestedAttribute{
 							MarkdownDescription: "Set of the objects that represent sources of traffic (fmc_network or similar).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -193,7 +193,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
-						"destination_networks": schema.SetNestedAttribute{
+						"destination_network_objects": schema.SetNestedAttribute{
 							MarkdownDescription: "Set of the objects that represent destinations of traffic (fmc_network or similar).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{

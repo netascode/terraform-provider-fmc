@@ -66,8 +66,8 @@ type AccessControlPolicyRules struct {
 	Enabled                    types.Bool                                           `tfsdk:"enabled"`
 	SourceNetworkLiterals      []AccessControlPolicyRulesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
 	DestinationNetworkLiterals []AccessControlPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
-	SourceNetworks             []AccessControlPolicyRulesSourceNetworks             `tfsdk:"source_networks"`
-	DestinationNetworks        []AccessControlPolicyRulesDestinationNetworks        `tfsdk:"destination_networks"`
+	SourceNetworkObjects       []AccessControlPolicyRulesSourceNetworkObjects       `tfsdk:"source_network_objects"`
+	DestinationNetworkObjects  []AccessControlPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
 	LogBegin                   types.Bool                                           `tfsdk:"log_begin"`
 	LogEnd                     types.Bool                                           `tfsdk:"log_end"`
 	LogFiles                   types.Bool                                           `tfsdk:"log_files"`
@@ -83,11 +83,11 @@ type AccessControlPolicyRulesSourceNetworkLiterals struct {
 type AccessControlPolicyRulesDestinationNetworkLiterals struct {
 	Value types.String `tfsdk:"value"`
 }
-type AccessControlPolicyRulesSourceNetworks struct {
+type AccessControlPolicyRulesSourceNetworkObjects struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
 }
-type AccessControlPolicyRulesDestinationNetworks struct {
+type AccessControlPolicyRulesDestinationNetworkObjects struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
 }
@@ -219,9 +219,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.literals.-1", itemChildBody)
 				}
 			}
-			if len(item.SourceNetworks) > 0 {
+			if len(item.SourceNetworkObjects) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.objects", []interface{}{})
-				for _, childItem := range item.SourceNetworks {
+				for _, childItem := range item.SourceNetworkObjects {
 					itemChildBody := ""
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
@@ -232,9 +232,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.objects.-1", itemChildBody)
 				}
 			}
-			if len(item.DestinationNetworks) > 0 {
+			if len(item.DestinationNetworkObjects) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "destinationNetworks.objects", []interface{}{})
-				for _, childItem := range item.DestinationNetworks {
+				for _, childItem := range item.DestinationNetworkObjects {
 					itemChildBody := ""
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
@@ -395,9 +395,9 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				})
 			}
 			if cValue := v.Get("sourceNetworks.objects"); cValue.Exists() {
-				item.SourceNetworks = make([]AccessControlPolicyRulesSourceNetworks, 0)
+				item.SourceNetworkObjects = make([]AccessControlPolicyRulesSourceNetworkObjects, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := AccessControlPolicyRulesSourceNetworks{}
+					cItem := AccessControlPolicyRulesSourceNetworkObjects{}
 					if ccValue := cv.Get("id"); ccValue.Exists() {
 						cItem.Id = types.StringValue(ccValue.String())
 					} else {
@@ -408,14 +408,14 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					} else {
 						cItem.Type = types.StringNull()
 					}
-					item.SourceNetworks = append(item.SourceNetworks, cItem)
+					item.SourceNetworkObjects = append(item.SourceNetworkObjects, cItem)
 					return true
 				})
 			}
 			if cValue := v.Get("destinationNetworks.objects"); cValue.Exists() {
-				item.DestinationNetworks = make([]AccessControlPolicyRulesDestinationNetworks, 0)
+				item.DestinationNetworkObjects = make([]AccessControlPolicyRulesDestinationNetworkObjects, 0)
 				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := AccessControlPolicyRulesDestinationNetworks{}
+					cItem := AccessControlPolicyRulesDestinationNetworkObjects{}
 					if ccValue := cv.Get("id"); ccValue.Exists() {
 						cItem.Id = types.StringValue(ccValue.String())
 					} else {
@@ -426,7 +426,7 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					} else {
 						cItem.Type = types.StringNull()
 					}
-					item.DestinationNetworks = append(item.DestinationNetworks, cItem)
+					item.DestinationNetworkObjects = append(item.DestinationNetworkObjects, cItem)
 					return true
 				})
 			}
@@ -632,9 +632,9 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].DestinationNetworkLiterals[ci].Value = types.StringNull()
 			}
 		}
-		for ci := range data.Rules[i].SourceNetworks {
+		for ci := range data.Rules[i].SourceNetworkObjects {
 			keys := [...]string{"id"}
-			keyValues := [...]string{data.Rules[i].SourceNetworks[ci].Id.ValueString()}
+			keyValues := [...]string{data.Rules[i].SourceNetworkObjects[ci].Id.ValueString()}
 
 			var cr gjson.Result
 			r.Get("sourceNetworks.objects").ForEach(
@@ -655,20 +655,20 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 					return true
 				},
 			)
-			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceNetworks[ci].Id.IsNull() {
-				data.Rules[i].SourceNetworks[ci].Id = types.StringValue(value.String())
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceNetworkObjects[ci].Id.IsNull() {
+				data.Rules[i].SourceNetworkObjects[ci].Id = types.StringValue(value.String())
 			} else {
-				data.Rules[i].SourceNetworks[ci].Id = types.StringNull()
+				data.Rules[i].SourceNetworkObjects[ci].Id = types.StringNull()
 			}
-			if value := cr.Get("type"); value.Exists() && !data.Rules[i].SourceNetworks[ci].Type.IsNull() {
-				data.Rules[i].SourceNetworks[ci].Type = types.StringValue(value.String())
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].SourceNetworkObjects[ci].Type.IsNull() {
+				data.Rules[i].SourceNetworkObjects[ci].Type = types.StringValue(value.String())
 			} else {
-				data.Rules[i].SourceNetworks[ci].Type = types.StringNull()
+				data.Rules[i].SourceNetworkObjects[ci].Type = types.StringNull()
 			}
 		}
-		for ci := range data.Rules[i].DestinationNetworks {
+		for ci := range data.Rules[i].DestinationNetworkObjects {
 			keys := [...]string{"id"}
-			keyValues := [...]string{data.Rules[i].DestinationNetworks[ci].Id.ValueString()}
+			keyValues := [...]string{data.Rules[i].DestinationNetworkObjects[ci].Id.ValueString()}
 
 			var cr gjson.Result
 			r.Get("destinationNetworks.objects").ForEach(
@@ -689,15 +689,15 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 					return true
 				},
 			)
-			if value := cr.Get("id"); value.Exists() && !data.Rules[i].DestinationNetworks[ci].Id.IsNull() {
-				data.Rules[i].DestinationNetworks[ci].Id = types.StringValue(value.String())
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].DestinationNetworkObjects[ci].Id.IsNull() {
+				data.Rules[i].DestinationNetworkObjects[ci].Id = types.StringValue(value.String())
 			} else {
-				data.Rules[i].DestinationNetworks[ci].Id = types.StringNull()
+				data.Rules[i].DestinationNetworkObjects[ci].Id = types.StringNull()
 			}
-			if value := cr.Get("type"); value.Exists() && !data.Rules[i].DestinationNetworks[ci].Type.IsNull() {
-				data.Rules[i].DestinationNetworks[ci].Type = types.StringValue(value.String())
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].DestinationNetworkObjects[ci].Type.IsNull() {
+				data.Rules[i].DestinationNetworkObjects[ci].Type = types.StringValue(value.String())
 			} else {
-				data.Rules[i].DestinationNetworks[ci].Type = types.StringNull()
+				data.Rules[i].DestinationNetworkObjects[ci].Type = types.StringNull()
 			}
 		}
 		if value := r.Get("logBegin"); value.Exists() && !data.Rules[i].LogBegin.IsNull() {

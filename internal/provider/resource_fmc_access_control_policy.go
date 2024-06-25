@@ -211,7 +211,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"source_networks": schema.SetNestedAttribute{
+						"source_network_objects": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent sources of traffic (fmc_network or similar).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -227,7 +227,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"destination_networks": schema.SetNestedAttribute{
+						"destination_network_objects": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent destinations of traffic (fmc_network or similar).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{

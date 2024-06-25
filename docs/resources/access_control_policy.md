@@ -40,13 +40,13 @@ resource "fmc_access_control_policy" "example" {
           value = "10.2.2.0/24"
         }
       ]
-      source_networks = [
+      source_network_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
           type = "Network"
         }
       ]
-      destination_networks = [
+      destination_network_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
           type = "Network"
@@ -118,7 +118,7 @@ Optional:
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `description` (String) User-specified string.
 - `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
-- `destination_networks` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_networks))
+- `destination_network_objects` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
 - `file_policy_id` (String) Identifier (UUID) of the File Policy for the rule action.
@@ -134,7 +134,7 @@ Optional:
 - `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
   - Default value: `false`
 - `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
-- `source_networks` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_networks))
+- `source_network_objects` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_network_objects))
 
 Read-Only:
 
@@ -148,8 +148,8 @@ Optional:
 - `value` (String)
 
 
-<a id="nestedatt--rules--destination_networks"></a>
-### Nested Schema for `rules.destination_networks`
+<a id="nestedatt--rules--destination_network_objects"></a>
+### Nested Schema for `rules.destination_network_objects`
 
 Optional:
 
@@ -165,8 +165,8 @@ Optional:
 - `value` (String)
 
 
-<a id="nestedatt--rules--source_networks"></a>
-### Nested Schema for `rules.source_networks`
+<a id="nestedatt--rules--source_network_objects"></a>
+### Nested Schema for `rules.source_network_objects`
 
 Optional:
 

@@ -170,7 +170,7 @@ attributes:
             example: 10.2.2.0/24
       - model_name: objects
         data_path: [sourceNetworks]
-        tf_name: source_networks
+        tf_name: source_network_objects
         description: Set of the objects that represent sources of traffic (fmc_network or similar).
         type: Set
         attributes:
@@ -187,7 +187,7 @@ attributes:
             test_value: fmc_network.this.type
       - model_name: objects
         data_path: [destinationNetworks]
-        tf_name: destination_networks
+        tf_name: destination_network_objects
         description: Set of the objects that represent destinations of traffic (fmc_network or similar).
         type: Set
         attributes:
