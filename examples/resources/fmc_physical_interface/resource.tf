@@ -3,4 +3,6 @@ resource "fmc_physical_interface" "example" {
   mode         = "NONE"
   name         = "GigabitEthernet0/1"
   logical_name = "myinterface-0-1"
+  description  = "my description"
+  mtu          = 9000
 }

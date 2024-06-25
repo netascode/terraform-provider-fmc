@@ -18,6 +18,8 @@ resource "fmc_physical_interface" "example" {
   mode         = "NONE"
   name         = "GigabitEthernet0/1"
   logical_name = "myinterface-0-1"
+  description  = "my description"
+  mtu          = 9000
 }
 ```
 
@@ -27,16 +29,19 @@ resource "fmc_physical_interface" "example" {
 ### Required
 
 - `device_id` (String) UUID of the parent device (fmc_device.example.id).
-- `mode` (String) Mode of the interface. Use INLINE if, and only if, the interface is part of inline set. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
+- `mode` (String) Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
   - Choices: `INLINE`, `PASSIVE`, `TAP`, `ERSPAN`, `NONE`, `SWITCHPORT`
+- `name` (String) Name of the interface.
 
 ### Optional
 
+- `description` (String)
 - `domain` (String) The name of the FMC domain
 - `enabled` (Boolean) Indicates whether to enable the interface.
   - Default value: `true`
 - `logical_name` (String) Customizable logical name of the interface, should not contain whitespace or slash characters.
-- `name` (String) Name of the interface.
+- `management_only` (Boolean)
+- `mtu` (Number)
 
 ### Read-Only
 

@@ -34,6 +34,8 @@ func TestAccFmcPhysicalInterface(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_physical_interface.test", "mode", "NONE"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_physical_interface.test", "name", "GigabitEthernet0/1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_physical_interface.test", "logical_name", "myinterface-0-1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_physical_interface.test", "description", "my description"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_physical_interface.test", "mtu", "9000"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -63,6 +65,9 @@ func testAccFmcPhysicalInterfaceConfig_minimum() string {
 	config := `resource "fmc_physical_interface" "test" {` + "\n"
 	config += `	device_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	mode = "NONE"` + "\n"
+	config += `	name = "GigabitEthernet0/1"` + "\n"
+	config += `	logical_name = "iface1min"` + "\n"
+	config += `	management_only = true` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -77,6 +82,9 @@ func testAccFmcPhysicalInterfaceConfig_all() string {
 	config += `	mode = "NONE"` + "\n"
 	config += `	name = "GigabitEthernet0/1"` + "\n"
 	config += `	logical_name = "myinterface-0-1"` + "\n"
+	config += `	description = "my description"` + "\n"
+	config += `	management_only = false` + "\n"
+	config += `	mtu = 9000` + "\n"
 	config += `}` + "\n"
 	return config
 }

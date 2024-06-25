@@ -32,13 +32,16 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type PhysicalInterface struct {
-	Id          types.String `tfsdk:"id"`
-	Domain      types.String `tfsdk:"domain"`
-	DeviceId    types.String `tfsdk:"device_id"`
-	Enabled     types.Bool   `tfsdk:"enabled"`
-	Mode        types.String `tfsdk:"mode"`
-	Name        types.String `tfsdk:"name"`
-	LogicalName types.String `tfsdk:"logical_name"`
+	Id             types.String `tfsdk:"id"`
+	Domain         types.String `tfsdk:"domain"`
+	DeviceId       types.String `tfsdk:"device_id"`
+	Enabled        types.Bool   `tfsdk:"enabled"`
+	Mode           types.String `tfsdk:"mode"`
+	Name           types.String `tfsdk:"name"`
+	LogicalName    types.String `tfsdk:"logical_name"`
+	Description    types.String `tfsdk:"description"`
+	ManagementOnly types.Bool   `tfsdk:"management_only"`
+	Mtu            types.Int64  `tfsdk:"mtu"`
 }
 
 // End of section. //template:end types
@@ -69,6 +72,15 @@ func (data PhysicalInterface) toBody(ctx context.Context, state PhysicalInterfac
 	if !data.LogicalName.IsNull() {
 		body, _ = sjson.Set(body, "ifname", data.LogicalName.ValueString())
 	}
+	if !data.Description.IsNull() {
+		body, _ = sjson.Set(body, "description", data.Description.ValueString())
+	}
+	if !data.ManagementOnly.IsNull() {
+		body, _ = sjson.Set(body, "managementOnly", data.ManagementOnly.ValueBool())
+	}
+	if !data.Mtu.IsNull() {
+		body, _ = sjson.Set(body, "MTU", data.Mtu.ValueInt64())
+	}
 	return body
 }
 
@@ -96,6 +108,21 @@ func (data *PhysicalInterface) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.LogicalName = types.StringNull()
 	}
+	if value := res.Get("description"); value.Exists() {
+		data.Description = types.StringValue(value.String())
+	} else {
+		data.Description = types.StringNull()
+	}
+	if value := res.Get("managementOnly"); value.Exists() {
+		data.ManagementOnly = types.BoolValue(value.Bool())
+	} else {
+		data.ManagementOnly = types.BoolNull()
+	}
+	if value := res.Get("MTU"); value.Exists() {
+		data.Mtu = types.Int64Value(value.Int())
+	} else {
+		data.Mtu = types.Int64Null()
+	}
 }
 
 // End of section. //template:end fromBody
@@ -122,6 +149,21 @@ func (data *PhysicalInterface) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.LogicalName = types.StringNull()
 	}
+	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
+		data.Description = types.StringValue(value.String())
+	} else {
+		data.Description = types.StringNull()
+	}
+	if value := res.Get("managementOnly"); value.Exists() && !data.ManagementOnly.IsNull() {
+		data.ManagementOnly = types.BoolValue(value.Bool())
+	} else {
+		data.ManagementOnly = types.BoolNull()
+	}
+	if value := res.Get("MTU"); value.Exists() && !data.Mtu.IsNull() {
+		data.Mtu = types.Int64Value(value.Int())
+	} else {
+		data.Mtu = types.Int64Null()
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -141,6 +183,15 @@ func (data *PhysicalInterface) isNull(ctx context.Context, res gjson.Result) boo
 		return false
 	}
 	if !data.LogicalName.IsNull() {
+		return false
+	}
+	if !data.Description.IsNull() {
+		return false
+	}
+	if !data.ManagementOnly.IsNull() {
+		return false
+	}
+	if !data.Mtu.IsNull() {
 		return false
 	}
 	return true

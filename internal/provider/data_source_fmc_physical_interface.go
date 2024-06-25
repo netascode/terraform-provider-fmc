@@ -79,7 +79,7 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 				Computed:            true,
 			},
 			"mode": schema.StringAttribute{
-				MarkdownDescription: "Mode of the interface. Use INLINE if, and only if, the interface is part of inline set. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.",
+				MarkdownDescription: "Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.",
 				Computed:            true,
 			},
 			"name": schema.StringAttribute{
@@ -89,6 +89,18 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: "Customizable logical name of the interface, should not contain whitespace or slash characters.",
+				Computed:            true,
+			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"management_only": schema.BoolAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"mtu": schema.Int64Attribute{
+				MarkdownDescription: "",
 				Computed:            true,
 			},
 		},

@@ -33,6 +33,8 @@ func TestAccDataSourceFmcPhysicalInterface(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "mode", "NONE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "name", "GigabitEthernet0/1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "logical_name", "myinterface-0-1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "description", "my description"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "mtu", "9000"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -58,6 +60,9 @@ func testAccDataSourceFmcPhysicalInterfaceConfig() string {
 	config += `	mode = "NONE"` + "\n"
 	config += `	name = "GigabitEthernet0/1"` + "\n"
 	config += `	logical_name = "myinterface-0-1"` + "\n"
+	config += `	description = "my description"` + "\n"
+	config += `	management_only = false` + "\n"
+	config += `	mtu = 9000` + "\n"
 	config += `}` + "\n"
 
 	config += `

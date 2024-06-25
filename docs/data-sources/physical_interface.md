@@ -34,6 +34,9 @@ data "fmc_physical_interface" "example" {
 
 ### Read-Only
 
+- `description` (String)
 - `enabled` (Boolean) Indicates whether to enable the interface.
 - `logical_name` (String) Customizable logical name of the interface, should not contain whitespace or slash characters.
-- `mode` (String) Mode of the interface. Use INLINE if, and only if, the interface is part of inline set. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
+- `management_only` (Boolean)
+- `mode` (String) Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
+- `mtu` (Number)
