@@ -1,6 +1,6 @@
 ---
-name: PhysicalInterface
-rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces/%v
+name: Physical Interface
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces
 put_create: true
 data_source_name_query: true
 doc_category: Devices
@@ -8,24 +8,23 @@ attributes:
   - tf_name: device_id
     type: String
     reference: true
-    description: ID of the device whose interface is being configured.
-    example: <Device_ID>
-  - model_name: id
-    tf_name: phy_interface_id
-    reference: true
-    resource_id: true
-    type: String
-    description: ID of the interface.
-    example: <PhysinterID>
+    description: UUID of the parent device (fmc_device.example.id).
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
   - model_name: enabled
     type: Bool
-    description: To enable the interface of not. 
-    example: true
-    default_value: true
+    description: Indicates whether to enable the interface.
+    default_value: "true"
+    test_value: "true"
+    exclude_example: true
   - model_name: mode
     type: String
     mandatory: true
-    description: Mode of the interface.
+    description: >-
+      Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with
+      tap_mode=false or tap_mode unset.
+      Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true.
+      Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
+    enum_values: [INLINE, PASSIVE, TAP, ERSPAN, NONE, SWITCHPORT]
     example: NONE
   - model_name: name
     type: String
@@ -36,6 +35,7 @@ attributes:
     value: PhysicalInterface
     description: Type of the resource.
   - model_name: ifname
+    tf_name: logical_name
     type: String
-    description: Name of the interface.
-    example: interface_name
+    description: Customizable logical name of the interface, should not contain whitespace or slash characters.
+    example: myinterface-0-1
