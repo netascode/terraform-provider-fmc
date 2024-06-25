@@ -30,13 +30,33 @@ data "fmc_physical_interface" "example" {
 
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
-- `name` (String) Name of the interface.
+- `name` (String) Name of the interface; it must already be present on the device.
 
 ### Read-Only
 
 - `description` (String)
 - `enabled` (Boolean) Indicates whether to enable the interface.
-- `logical_name` (String) Customizable logical name of the interface, should not contain whitespace or slash characters.
-- `management_only` (Boolean)
+- `ipv4_static_address` (String) Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.
+- `ipv4_static_netmask` (String) Netmask (width) for ipv4_static_address.
+- `ipv6_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_addresses))
+- `ipv6_enable` (Boolean) Indicates whether to enable IPv6.
+- `ipv6_enable_auto_config` (Boolean) Indicates whether to enable IPv6 autoconfiguration.
+- `ipv6_enable_dhcp_address` (Boolean) Indicates whether to enable DHCP for IPv6 address config.
+- `ipv6_enable_dhcp_nonaddress` (Boolean) Indicates whether to enable DHCP for IPv6 non-address config.
+- `ipv6_enable_ra` (Boolean) Indicates whether to enable IPv6 router advertisement (RA).
+- `ipv6_enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
+- `logical_name` (String) Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.
+- `management_only` (Boolean) Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.
 - `mode` (String) Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
 - `mtu` (Number)
+- `priority` (Number) Priority 0-65535. Can only be set for routed interfaces.
+- `security_zone_id` (String) UUID of the assigned security zone (fmc_security_zone.example.id).
+
+<a id="nestedatt--ipv6_addresses"></a>
+### Nested Schema for `ipv6_addresses`
+
+Read-Only:
+
+- `address` (String) IPv6 address without a slash and prefix.
+- `enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
+- `prefix` (String) Prefix width for the IPv6 address.

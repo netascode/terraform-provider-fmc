@@ -100,11 +100,11 @@ func (r *PhysicalInterfaceResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the interface.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the interface; it must already be present on the device.").String,
 				Required:            true,
 			},
 			"logical_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, should not contain whitespace or slash characters.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.").String,
 				Optional:            true,
 			},
 			"description": schema.StringAttribute{
@@ -112,12 +112,72 @@ func (r *PhysicalInterfaceResource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 			},
 			"management_only": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.").String,
 				Optional:            true,
 			},
 			"mtu": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
+			},
+			"priority": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Priority 0-65535. Can only be set for routed interfaces.").String,
+				Optional:            true,
+			},
+			"security_zone_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the assigned security zone (fmc_security_zone.example.id).").String,
+				Optional:            true,
+			},
+			"ipv4_static_address": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.").String,
+				Optional:            true,
+			},
+			"ipv4_static_netmask": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Netmask (width) for ipv4_static_address.").String,
+				Optional:            true,
+			},
+			"ipv6_enable": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6.").String,
+				Optional:            true,
+			},
+			"ipv6_enforce_eui": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).").String,
+				Optional:            true,
+			},
+			"ipv6_enable_auto_config": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6 autoconfiguration.").String,
+				Optional:            true,
+			},
+			"ipv6_enable_dhcp_address": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCP for IPv6 address config.").String,
+				Optional:            true,
+			},
+			"ipv6_enable_dhcp_nonaddress": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCP for IPv6 non-address config.").String,
+				Optional:            true,
+			},
+			"ipv6_enable_ra": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6 router advertisement (RA).").String,
+				Optional:            true,
+			},
+			"ipv6_addresses": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IPv6 address without a slash and prefix.").String,
+							Optional:            true,
+						},
+						"prefix": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Prefix width for the IPv6 address.").String,
+							Optional:            true,
+						},
+						"enforce_eui": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).").String,
+							Optional:            true,
+						},
+					},
+				},
 			},
 		},
 	}

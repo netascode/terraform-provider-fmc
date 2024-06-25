@@ -83,12 +83,12 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 				Computed:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the interface.",
+				MarkdownDescription: "Name of the interface; it must already be present on the device.",
 				Optional:            true,
 				Computed:            true,
 			},
 			"logical_name": schema.StringAttribute{
-				MarkdownDescription: "Customizable logical name of the interface, should not contain whitespace or slash characters.",
+				MarkdownDescription: "Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.",
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
@@ -96,12 +96,72 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 				Computed:            true,
 			},
 			"management_only": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.",
 				Computed:            true,
 			},
 			"mtu": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
+			},
+			"priority": schema.Int64Attribute{
+				MarkdownDescription: "Priority 0-65535. Can only be set for routed interfaces.",
+				Computed:            true,
+			},
+			"security_zone_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the assigned security zone (fmc_security_zone.example.id).",
+				Computed:            true,
+			},
+			"ipv4_static_address": schema.StringAttribute{
+				MarkdownDescription: "Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.",
+				Computed:            true,
+			},
+			"ipv4_static_netmask": schema.StringAttribute{
+				MarkdownDescription: "Netmask (width) for ipv4_static_address.",
+				Computed:            true,
+			},
+			"ipv6_enable": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable IPv6.",
+				Computed:            true,
+			},
+			"ipv6_enforce_eui": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).",
+				Computed:            true,
+			},
+			"ipv6_enable_auto_config": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable IPv6 autoconfiguration.",
+				Computed:            true,
+			},
+			"ipv6_enable_dhcp_address": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable DHCP for IPv6 address config.",
+				Computed:            true,
+			},
+			"ipv6_enable_dhcp_nonaddress": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable DHCP for IPv6 non-address config.",
+				Computed:            true,
+			},
+			"ipv6_enable_ra": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable IPv6 router advertisement (RA).",
+				Computed:            true,
+			},
+			"ipv6_addresses": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"address": schema.StringAttribute{
+							MarkdownDescription: "IPv6 address without a slash and prefix.",
+							Computed:            true,
+						},
+						"prefix": schema.StringAttribute{
+							MarkdownDescription: "Prefix width for the IPv6 address.",
+							Computed:            true,
+						},
+						"enforce_eui": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).",
+							Computed:            true,
+						},
+					},
+				},
 			},
 		},
 	}

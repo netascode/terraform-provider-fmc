@@ -32,16 +32,33 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type PhysicalInterface struct {
-	Id             types.String `tfsdk:"id"`
-	Domain         types.String `tfsdk:"domain"`
-	DeviceId       types.String `tfsdk:"device_id"`
-	Enabled        types.Bool   `tfsdk:"enabled"`
-	Mode           types.String `tfsdk:"mode"`
-	Name           types.String `tfsdk:"name"`
-	LogicalName    types.String `tfsdk:"logical_name"`
-	Description    types.String `tfsdk:"description"`
-	ManagementOnly types.Bool   `tfsdk:"management_only"`
-	Mtu            types.Int64  `tfsdk:"mtu"`
+	Id                       types.String                     `tfsdk:"id"`
+	Domain                   types.String                     `tfsdk:"domain"`
+	DeviceId                 types.String                     `tfsdk:"device_id"`
+	Enabled                  types.Bool                       `tfsdk:"enabled"`
+	Mode                     types.String                     `tfsdk:"mode"`
+	Name                     types.String                     `tfsdk:"name"`
+	LogicalName              types.String                     `tfsdk:"logical_name"`
+	Description              types.String                     `tfsdk:"description"`
+	ManagementOnly           types.Bool                       `tfsdk:"management_only"`
+	Mtu                      types.Int64                      `tfsdk:"mtu"`
+	Priority                 types.Int64                      `tfsdk:"priority"`
+	SecurityZoneId           types.String                     `tfsdk:"security_zone_id"`
+	Ipv4StaticAddress        types.String                     `tfsdk:"ipv4_static_address"`
+	Ipv4StaticNetmask        types.String                     `tfsdk:"ipv4_static_netmask"`
+	Ipv6Enable               types.Bool                       `tfsdk:"ipv6_enable"`
+	Ipv6EnforceEui           types.Bool                       `tfsdk:"ipv6_enforce_eui"`
+	Ipv6EnableAutoConfig     types.Bool                       `tfsdk:"ipv6_enable_auto_config"`
+	Ipv6EnableDhcpAddress    types.Bool                       `tfsdk:"ipv6_enable_dhcp_address"`
+	Ipv6EnableDhcpNonaddress types.Bool                       `tfsdk:"ipv6_enable_dhcp_nonaddress"`
+	Ipv6EnableRa             types.Bool                       `tfsdk:"ipv6_enable_ra"`
+	Ipv6Addresses            []PhysicalInterfaceIpv6Addresses `tfsdk:"ipv6_addresses"`
+}
+
+type PhysicalInterfaceIpv6Addresses struct {
+	Address    types.String `tfsdk:"address"`
+	Prefix     types.String `tfsdk:"prefix"`
+	EnforceEui types.Bool   `tfsdk:"enforce_eui"`
 }
 
 // End of section. //template:end types
@@ -80,6 +97,53 @@ func (data PhysicalInterface) toBody(ctx context.Context, state PhysicalInterfac
 	}
 	if !data.Mtu.IsNull() {
 		body, _ = sjson.Set(body, "MTU", data.Mtu.ValueInt64())
+	}
+	if !data.Priority.IsNull() {
+		body, _ = sjson.Set(body, "priority", data.Priority.ValueInt64())
+	}
+	if !data.SecurityZoneId.IsNull() {
+		body, _ = sjson.Set(body, "securityZone.id", data.SecurityZoneId.ValueString())
+	}
+	body, _ = sjson.Set(body, "securityZone.type", "SecurityZone")
+	if !data.Ipv4StaticAddress.IsNull() {
+		body, _ = sjson.Set(body, "ipv4.static.address", data.Ipv4StaticAddress.ValueString())
+	}
+	if !data.Ipv4StaticNetmask.IsNull() {
+		body, _ = sjson.Set(body, "ipv4.static.netmask", data.Ipv4StaticNetmask.ValueString())
+	}
+	if !data.Ipv6Enable.IsNull() {
+		body, _ = sjson.Set(body, "ipv6.enableIPV6", data.Ipv6Enable.ValueBool())
+	}
+	if !data.Ipv6EnforceEui.IsNull() {
+		body, _ = sjson.Set(body, "ipv6.enforceEUI64", data.Ipv6EnforceEui.ValueBool())
+	}
+	if !data.Ipv6EnableAutoConfig.IsNull() {
+		body, _ = sjson.Set(body, "ipv6.enableAutoConfig", data.Ipv6EnableAutoConfig.ValueBool())
+	}
+	if !data.Ipv6EnableDhcpAddress.IsNull() {
+		body, _ = sjson.Set(body, "ipv6.enableDHCPAddrConfig", data.Ipv6EnableDhcpAddress.ValueBool())
+	}
+	if !data.Ipv6EnableDhcpNonaddress.IsNull() {
+		body, _ = sjson.Set(body, "ipv6.enableDHCPNonAddrConfig", data.Ipv6EnableDhcpNonaddress.ValueBool())
+	}
+	if !data.Ipv6EnableRa.IsNull() {
+		body, _ = sjson.Set(body, "ipv6.enableRA", data.Ipv6EnableRa.ValueBool())
+	}
+	if len(data.Ipv6Addresses) > 0 {
+		body, _ = sjson.Set(body, "ipv6.addresses", []interface{}{})
+		for _, item := range data.Ipv6Addresses {
+			itemBody := ""
+			if !item.Address.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "address", item.Address.ValueString())
+			}
+			if !item.Prefix.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "prefix", item.Prefix.ValueString())
+			}
+			if !item.EnforceEui.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "enforceEUI64", item.EnforceEui.ValueBool())
+			}
+			body, _ = sjson.SetRaw(body, "ipv6.addresses.-1", itemBody)
+		}
 	}
 	return body
 }
@@ -123,6 +187,79 @@ func (data *PhysicalInterface) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Mtu = types.Int64Null()
 	}
+	if value := res.Get("priority"); value.Exists() {
+		data.Priority = types.Int64Value(value.Int())
+	} else {
+		data.Priority = types.Int64Null()
+	}
+	if value := res.Get("securityZone.id"); value.Exists() {
+		data.SecurityZoneId = types.StringValue(value.String())
+	} else {
+		data.SecurityZoneId = types.StringNull()
+	}
+	if value := res.Get("ipv4.static.address"); value.Exists() {
+		data.Ipv4StaticAddress = types.StringValue(value.String())
+	} else {
+		data.Ipv4StaticAddress = types.StringNull()
+	}
+	if value := res.Get("ipv4.static.netmask"); value.Exists() {
+		data.Ipv4StaticNetmask = types.StringValue(value.String())
+	} else {
+		data.Ipv4StaticNetmask = types.StringNull()
+	}
+	if value := res.Get("ipv6.enableIPV6"); value.Exists() {
+		data.Ipv6Enable = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6Enable = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enforceEUI64"); value.Exists() {
+		data.Ipv6EnforceEui = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnforceEui = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableAutoConfig"); value.Exists() {
+		data.Ipv6EnableAutoConfig = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableAutoConfig = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableDHCPAddrConfig"); value.Exists() {
+		data.Ipv6EnableDhcpAddress = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableDhcpAddress = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableDHCPNonAddrConfig"); value.Exists() {
+		data.Ipv6EnableDhcpNonaddress = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableDhcpNonaddress = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableRA"); value.Exists() {
+		data.Ipv6EnableRa = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableRa = types.BoolNull()
+	}
+	if value := res.Get("ipv6.addresses"); value.Exists() {
+		data.Ipv6Addresses = make([]PhysicalInterfaceIpv6Addresses, 0)
+		value.ForEach(func(k, v gjson.Result) bool {
+			item := PhysicalInterfaceIpv6Addresses{}
+			if cValue := v.Get("address"); cValue.Exists() {
+				item.Address = types.StringValue(cValue.String())
+			} else {
+				item.Address = types.StringNull()
+			}
+			if cValue := v.Get("prefix"); cValue.Exists() {
+				item.Prefix = types.StringValue(cValue.String())
+			} else {
+				item.Prefix = types.StringNull()
+			}
+			if cValue := v.Get("enforceEUI64"); cValue.Exists() {
+				item.EnforceEui = types.BoolValue(cValue.Bool())
+			} else {
+				item.EnforceEui = types.BoolNull()
+			}
+			data.Ipv6Addresses = append(data.Ipv6Addresses, item)
+			return true
+		})
+	}
 }
 
 // End of section. //template:end fromBody
@@ -164,6 +301,95 @@ func (data *PhysicalInterface) updateFromBody(ctx context.Context, res gjson.Res
 	} else {
 		data.Mtu = types.Int64Null()
 	}
+	if value := res.Get("priority"); value.Exists() && !data.Priority.IsNull() {
+		data.Priority = types.Int64Value(value.Int())
+	} else {
+		data.Priority = types.Int64Null()
+	}
+	if value := res.Get("securityZone.id"); value.Exists() && !data.SecurityZoneId.IsNull() {
+		data.SecurityZoneId = types.StringValue(value.String())
+	} else {
+		data.SecurityZoneId = types.StringNull()
+	}
+	if value := res.Get("ipv4.static.address"); value.Exists() && !data.Ipv4StaticAddress.IsNull() {
+		data.Ipv4StaticAddress = types.StringValue(value.String())
+	} else {
+		data.Ipv4StaticAddress = types.StringNull()
+	}
+	if value := res.Get("ipv4.static.netmask"); value.Exists() && !data.Ipv4StaticNetmask.IsNull() {
+		data.Ipv4StaticNetmask = types.StringValue(value.String())
+	} else {
+		data.Ipv4StaticNetmask = types.StringNull()
+	}
+	if value := res.Get("ipv6.enableIPV6"); value.Exists() && !data.Ipv6Enable.IsNull() {
+		data.Ipv6Enable = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6Enable = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enforceEUI64"); value.Exists() && !data.Ipv6EnforceEui.IsNull() {
+		data.Ipv6EnforceEui = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnforceEui = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableAutoConfig"); value.Exists() && !data.Ipv6EnableAutoConfig.IsNull() {
+		data.Ipv6EnableAutoConfig = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableAutoConfig = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableDHCPAddrConfig"); value.Exists() && !data.Ipv6EnableDhcpAddress.IsNull() {
+		data.Ipv6EnableDhcpAddress = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableDhcpAddress = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableDHCPNonAddrConfig"); value.Exists() && !data.Ipv6EnableDhcpNonaddress.IsNull() {
+		data.Ipv6EnableDhcpNonaddress = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableDhcpNonaddress = types.BoolNull()
+	}
+	if value := res.Get("ipv6.enableRA"); value.Exists() && !data.Ipv6EnableRa.IsNull() {
+		data.Ipv6EnableRa = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv6EnableRa = types.BoolNull()
+	}
+	for i := range data.Ipv6Addresses {
+		keys := [...]string{"address", "prefix"}
+		keyValues := [...]string{data.Ipv6Addresses[i].Address.ValueString(), data.Ipv6Addresses[i].Prefix.ValueString()}
+
+		var r gjson.Result
+		res.Get("ipv6.addresses").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() == keyValues[ik] {
+						found = true
+						continue
+					}
+					found = false
+					break
+				}
+				if found {
+					r = v
+					return false
+				}
+				return true
+			},
+		)
+		if value := r.Get("address"); value.Exists() && !data.Ipv6Addresses[i].Address.IsNull() {
+			data.Ipv6Addresses[i].Address = types.StringValue(value.String())
+		} else {
+			data.Ipv6Addresses[i].Address = types.StringNull()
+		}
+		if value := r.Get("prefix"); value.Exists() && !data.Ipv6Addresses[i].Prefix.IsNull() {
+			data.Ipv6Addresses[i].Prefix = types.StringValue(value.String())
+		} else {
+			data.Ipv6Addresses[i].Prefix = types.StringNull()
+		}
+		if value := r.Get("enforceEUI64"); value.Exists() && !data.Ipv6Addresses[i].EnforceEui.IsNull() {
+			data.Ipv6Addresses[i].EnforceEui = types.BoolValue(value.Bool())
+		} else {
+			data.Ipv6Addresses[i].EnforceEui = types.BoolNull()
+		}
+	}
 }
 
 // End of section. //template:end updateFromBody
@@ -192,6 +418,39 @@ func (data *PhysicalInterface) isNull(ctx context.Context, res gjson.Result) boo
 		return false
 	}
 	if !data.Mtu.IsNull() {
+		return false
+	}
+	if !data.Priority.IsNull() {
+		return false
+	}
+	if !data.SecurityZoneId.IsNull() {
+		return false
+	}
+	if !data.Ipv4StaticAddress.IsNull() {
+		return false
+	}
+	if !data.Ipv4StaticNetmask.IsNull() {
+		return false
+	}
+	if !data.Ipv6Enable.IsNull() {
+		return false
+	}
+	if !data.Ipv6EnforceEui.IsNull() {
+		return false
+	}
+	if !data.Ipv6EnableAutoConfig.IsNull() {
+		return false
+	}
+	if !data.Ipv6EnableDhcpAddress.IsNull() {
+		return false
+	}
+	if !data.Ipv6EnableDhcpNonaddress.IsNull() {
+		return false
+	}
+	if !data.Ipv6EnableRa.IsNull() {
+		return false
+	}
+	if len(data.Ipv6Addresses) > 0 {
 		return false
 	}
 	return true

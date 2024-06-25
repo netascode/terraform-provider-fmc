@@ -14,12 +14,26 @@ This resource can manage a Physical Interface.
 
 ```terraform
 resource "fmc_physical_interface" "example" {
-  device_id    = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  mode         = "NONE"
-  name         = "GigabitEthernet0/1"
-  logical_name = "myinterface-0-1"
-  description  = "my description"
-  mtu          = 9000
+  device_id                   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  mode                        = "NONE"
+  name                        = "GigabitEthernet0/1"
+  logical_name                = "myinterface-0-1"
+  description                 = "my description"
+  mtu                         = 9000
+  ipv4_static_address         = "10.1.1.1"
+  ipv4_static_netmask         = "24"
+  ipv6_enable                 = true
+  ipv6_enforce_eui            = true
+  ipv6_enable_auto_config     = true
+  ipv6_enable_dhcp_address    = true
+  ipv6_enable_dhcp_nonaddress = true
+  ipv6_enable_ra              = false
+  ipv6_addresses = [
+    {
+      address = "2004::"
+      prefix  = "124"
+    }
+  ]
 }
 ```
 
@@ -31,7 +45,7 @@ resource "fmc_physical_interface" "example" {
 - `device_id` (String) UUID of the parent device (fmc_device.example.id).
 - `mode` (String) Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.
   - Choices: `INLINE`, `PASSIVE`, `TAP`, `ERSPAN`, `NONE`, `SWITCHPORT`
-- `name` (String) Name of the interface.
+- `name` (String) Name of the interface; it must already be present on the device.
 
 ### Optional
 
@@ -39,13 +53,33 @@ resource "fmc_physical_interface" "example" {
 - `domain` (String) The name of the FMC domain
 - `enabled` (Boolean) Indicates whether to enable the interface.
   - Default value: `true`
-- `logical_name` (String) Customizable logical name of the interface, should not contain whitespace or slash characters.
-- `management_only` (Boolean)
+- `ipv4_static_address` (String) Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.
+- `ipv4_static_netmask` (String) Netmask (width) for ipv4_static_address.
+- `ipv6_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_addresses))
+- `ipv6_enable` (Boolean) Indicates whether to enable IPv6.
+- `ipv6_enable_auto_config` (Boolean) Indicates whether to enable IPv6 autoconfiguration.
+- `ipv6_enable_dhcp_address` (Boolean) Indicates whether to enable DHCP for IPv6 address config.
+- `ipv6_enable_dhcp_nonaddress` (Boolean) Indicates whether to enable DHCP for IPv6 non-address config.
+- `ipv6_enable_ra` (Boolean) Indicates whether to enable IPv6 router advertisement (RA).
+- `ipv6_enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
+- `logical_name` (String) Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.
+- `management_only` (Boolean) Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.
 - `mtu` (Number)
+- `priority` (Number) Priority 0-65535. Can only be set for routed interfaces.
+- `security_zone_id` (String) UUID of the assigned security zone (fmc_security_zone.example.id).
 
 ### Read-Only
 
 - `id` (String) The id of the object
+
+<a id="nestedatt--ipv6_addresses"></a>
+### Nested Schema for `ipv6_addresses`
+
+Optional:
+
+- `address` (String) IPv6 address without a slash and prefix.
+- `enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
+- `prefix` (String) Prefix width for the IPv6 address.
 
 ## Import
 
