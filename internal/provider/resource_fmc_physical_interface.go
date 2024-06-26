@@ -209,12 +209,12 @@ func (r *PhysicalInterfaceResource) Create(ctx context.Context, req resource.Cre
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s:%s: Querying UUID", plan.DeviceId.ValueString(), plan.Name.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
 
 	// TODO: same code as data_source_name_query, templatize it under put_create&data_source_name_query.
 	// Reason: if the first thing is PUT, then by REST practice we can infer the id is already known. Since we
 	// are already told that we should query by name from GETALL, assume the same method works here.
-	if plan.Id.IsUnknown() && !plan.Name.IsNull() {
+	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
@@ -228,19 +228,19 @@ func (r *PhysicalInterfaceResource) Create(ctx context.Context, req resource.Cre
 				value.ForEach(func(k, v gjson.Result) bool {
 					if plan.Name.ValueString() == v.Get("name").String() {
 						plan.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", plan.Id.String(), plan.Name.ValueString(), plan.Id.String()))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%s', id: %s", plan.Id, plan.Name.ValueString(), plan.Id))
 						return false
 					}
 					return true
 				})
 			}
-			if !plan.Id.IsUnknown() || !res.Get("paging.next.0").Exists() {
+			if plan.Id.ValueString() != "" || !res.Get("paging.next.0").Exists() {
 				break
 			}
 			offset += limit
 		}
 
-		if plan.Id.IsUnknown() {
+		if plan.Id.ValueString() == "" {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.Name.ValueString()))
 			return
 		}
