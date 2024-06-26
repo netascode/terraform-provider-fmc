@@ -104,8 +104,12 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "Indicating whether the device will send events to a syslog server.",
 				Computed:            true,
 			},
+			"default_action_syslog_config_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.",
+				Computed:            true,
+			},
 			"default_action_intrusion_policy_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when policy group action is BLOCK, TRUST, BLOCK_RESET or NETWORK_DISCOVERY.",
+				MarkdownDescription: "UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when default action is BLOCK, TRUST, NETWORK_DISCOVERY.",
 				Computed:            true,
 			},
 			"categories": schema.ListNestedAttribute{

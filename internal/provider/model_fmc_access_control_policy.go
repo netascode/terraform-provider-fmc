@@ -47,6 +47,7 @@ type AccessControlPolicy struct {
 	DefaultActionLogEnd            types.Bool                      `tfsdk:"default_action_log_end"`
 	DefaultActionSendEventsToFmc   types.Bool                      `tfsdk:"default_action_send_events_to_fmc"`
 	DefaultActionSendSyslog        types.Bool                      `tfsdk:"default_action_send_syslog"`
+	DefaultActionSyslogConfigId    types.String                    `tfsdk:"default_action_syslog_config_id"`
 	DefaultActionIntrusionPolicyId types.String                    `tfsdk:"default_action_intrusion_policy_id"`
 	Categories                     []AccessControlPolicyCategories `tfsdk:"categories"`
 	Rules                          []AccessControlPolicyRules      `tfsdk:"rules"`
@@ -159,6 +160,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.enableSyslog", data.DefaultActionSendSyslog.ValueBool())
+	}
+	if !data.DefaultActionSyslogConfigId.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.syslogConfig.id", data.DefaultActionSyslogConfigId.ValueString())
 	}
 	if !data.DefaultActionIntrusionPolicyId.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.intrusionPolicy.id", data.DefaultActionIntrusionPolicyId.ValueString())
@@ -319,6 +323,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 		data.DefaultActionSendSyslog = types.BoolValue(value.Bool())
 	} else {
 		data.DefaultActionSendSyslog = types.BoolValue(false)
+	}
+	if value := res.Get("defaultAction.syslogConfig.id"); value.Exists() {
+		data.DefaultActionSyslogConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSyslogConfigId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.intrusionPolicy.id"); value.Exists() {
 		data.DefaultActionIntrusionPolicyId = types.StringValue(value.String())
@@ -789,6 +798,9 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 		return false
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
+		return false
+	}
+	if !data.DefaultActionSyslogConfigId.IsNull() {
 		return false
 	}
 	if !data.DefaultActionIntrusionPolicyId.IsNull() {

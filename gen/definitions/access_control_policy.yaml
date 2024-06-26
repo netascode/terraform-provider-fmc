@@ -56,6 +56,15 @@ attributes:
     default_value: "false"
     example: "true"
   - model_name: id
+    data_path: [defaultAction, syslogConfig]
+    tf_name: default_action_syslog_config_id
+    type: String
+    description: >-
+      UUID of the syslog config. Can be set only when default_action_send_syslog is true and either
+      default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.
+    example: 35e197ca-33a8-11ef-b2d1-d98ae17766e7
+    exclude_test: true
+  - model_name: id
     data_path: [defaultAction, intrusionPolicy]
     tf_name: default_action_intrusion_policy_id
     type: String

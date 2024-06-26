@@ -69,7 +69,7 @@ resource "fmc_access_control_policy" "example" {
 ### Optional
 
 - `categories` (Attributes List) The ordered list of categories. (see [below for nested schema](#nestedatt--categories))
-- `default_action_intrusion_policy_id` (String) UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when policy group action is BLOCK, TRUST, BLOCK_RESET or NETWORK_DISCOVERY.
+- `default_action_intrusion_policy_id` (String) UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when default action is BLOCK, TRUST, NETWORK_DISCOVERY.
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
   - Default value: `false`
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
@@ -78,6 +78,7 @@ resource "fmc_access_control_policy" "example" {
   - Default value: `false`
 - `default_action_send_syslog` (Boolean) Indicating whether the device will send events to a syslog server.
   - Default value: `false`
+- `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy logging applies.
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
 - `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
