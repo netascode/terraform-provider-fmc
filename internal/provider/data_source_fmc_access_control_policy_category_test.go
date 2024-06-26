@@ -38,6 +38,10 @@ func TestAccDataSourceFmcAccessControlPolicyCategory(t *testing.T) {
 				Config: testAccDataSourceFmcAccessControlPolicyCategoryPrerequisitesConfig + testAccDataSourceFmcAccessControlPolicyCategoryConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
+			{
+				Config: testAccDataSourceFmcAccessControlPolicyCategoryPrerequisitesConfig + testAccNamedDataSourceFmcAccessControlPolicyCategoryConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
 		},
 	})
 }
@@ -65,6 +69,21 @@ func testAccDataSourceFmcAccessControlPolicyCategoryConfig() string {
 	config += `
 		data "fmc_access_control_policy_category" "test" {
 			id = fmc_access_control_policy_category.test.id
+			access_control_policy_id = fmc_access_control_policy.test.id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcAccessControlPolicyCategoryConfig() string {
+	config := `resource "fmc_access_control_policy_category" "test" {` + "\n"
+	config += `	access_control_policy_id = fmc_access_control_policy.test.id` + "\n"
+	config += `	name = "Category1"` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_access_control_policy_category" "test" {
+			name = fmc_access_control_policy_category.test.name
 			access_control_policy_id = fmc_access_control_policy.test.id
 		}
 	`
