@@ -193,6 +193,7 @@ func (r *DevicePhysicalInterfaceResource) Configure(_ context.Context, req resou
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DevicePhysicalInterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan DevicePhysicalInterface
 
@@ -208,12 +209,8 @@ func (r *DevicePhysicalInterfaceResource) Create(ctx context.Context, req resour
 	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
 
-	// TODO: same code as data_source_name_query, templatize it under put_create&data_source_name_query.
-	// Reason: if the first thing is PUT, then by REST practice we can infer the id is already known. Since we
-	// are already told that we should query by name from GETALL, assume the same method works here.
 	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
 		offset := 0
 		limit := 1000
@@ -252,7 +249,7 @@ func (r *DevicePhysicalInterfaceResource) Create(ctx context.Context, req resour
 	body := plan.toBody(ctx, DevicePhysicalInterface{})
 	res, err := r.client.Put(plan.getPath()+"/"+url.PathEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
@@ -262,6 +259,8 @@ func (r *DevicePhysicalInterfaceResource) Create(ctx context.Context, req resour
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DevicePhysicalInterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
