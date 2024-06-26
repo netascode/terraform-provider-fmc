@@ -42,6 +42,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 )
+
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin model
@@ -401,6 +402,7 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
 }
+
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
@@ -450,6 +452,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
@@ -492,6 +495,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
+
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
@@ -542,6 +546,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
@@ -575,10 +580,12 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 
 	resp.State.RemoveResource(ctx)
 }
+
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
+
 // End of section. //template:end import

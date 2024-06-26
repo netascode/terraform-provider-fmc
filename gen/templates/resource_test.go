@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
+
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
@@ -135,6 +136,7 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 		Steps: steps,
 	})
 }
+
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
@@ -143,6 +145,7 @@ const testAccFmc{{camelCase .Name}}PrerequisitesConfig = `
 {{.TestPrerequisites}}
 `
 {{- end}}
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
@@ -228,6 +231,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 	config += `}` + "\n"
 	return config
 }
+
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
@@ -313,4 +317,5 @@ func testAccFmc{{camelCase .Name}}Config_all() string {
 	config += `}` + "\n"
 	return config
 }
+
 // End of section. //template:end testAccConfigAll
