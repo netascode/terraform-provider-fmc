@@ -384,12 +384,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
-						found = true
-						continue
+					if v.Get(keys[ik]).String() != keyValues[ik] {
+						found = false
+						break
 					}
-					found = false
-					break
+					found = true
 				}
 				if found {
 					r = v
@@ -424,12 +423,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
-						if v.Get(keys[ik]).String() == keyValues[ik] {
-							found = true
-							continue
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
 						}
-						found = false
-						break
+						found = true
 					}
 					if found {
 						cr = v
@@ -464,12 +462,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 					func(_, v gjson.Result) bool {
 						found := false
 						for ik := range keys {
-							if v.Get(keys[ik]).String() == keyValues[ik] {
-								found = true
-								continue
+							if v.Get(keys[ik]).String() != keyValues[ik] {
+								found = false
+								break
 							}
-							found = false
-							break
+							found = true
 						}
 						if found {
 							ccr = v
