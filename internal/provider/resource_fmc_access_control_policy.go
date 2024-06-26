@@ -125,6 +125,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
+			"default_action_intrusion_policy_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when policy group action is BLOCK, TRUST, BLOCK_RESET or NETWORK_DISCOVERY.").String,
+				Optional:            true,
+			},
 			"categories": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of categories.").String,
 				Optional:            true,

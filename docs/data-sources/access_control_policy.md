@@ -32,6 +32,7 @@ data "fmc_access_control_policy" "example" {
 - `categories` (Attributes List) The ordered list of categories. (see [below for nested schema](#nestedatt--categories))
 - `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
 - `default_action_id` (String) Default action ID.
+- `default_action_intrusion_policy_id` (String) UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when policy group action is BLOCK, TRUST, BLOCK_RESET or NETWORK_DISCOVERY.
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.

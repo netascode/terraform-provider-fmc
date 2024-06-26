@@ -69,6 +69,7 @@ resource "fmc_access_control_policy" "example" {
 ### Optional
 
 - `categories` (Attributes List) The ordered list of categories. (see [below for nested schema](#nestedatt--categories))
+- `default_action_intrusion_policy_id` (String) UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when policy group action is BLOCK, TRUST, BLOCK_RESET or NETWORK_DISCOVERY.
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
   - Default value: `false`
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.

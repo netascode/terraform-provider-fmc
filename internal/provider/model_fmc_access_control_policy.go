@@ -37,18 +37,19 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 type AccessControlPolicy struct {
-	Id                           types.String                    `tfsdk:"id"`
-	Domain                       types.String                    `tfsdk:"domain"`
-	Name                         types.String                    `tfsdk:"name"`
-	Description                  types.String                    `tfsdk:"description"`
-	DefaultAction                types.String                    `tfsdk:"default_action"`
-	DefaultActionId              types.String                    `tfsdk:"default_action_id"`
-	DefaultActionLogBegin        types.Bool                      `tfsdk:"default_action_log_begin"`
-	DefaultActionLogEnd          types.Bool                      `tfsdk:"default_action_log_end"`
-	DefaultActionSendEventsToFmc types.Bool                      `tfsdk:"default_action_send_events_to_fmc"`
-	DefaultActionSendSyslog      types.Bool                      `tfsdk:"default_action_send_syslog"`
-	Categories                   []AccessControlPolicyCategories `tfsdk:"categories"`
-	Rules                        []AccessControlPolicyRules      `tfsdk:"rules"`
+	Id                             types.String                    `tfsdk:"id"`
+	Domain                         types.String                    `tfsdk:"domain"`
+	Name                           types.String                    `tfsdk:"name"`
+	Description                    types.String                    `tfsdk:"description"`
+	DefaultAction                  types.String                    `tfsdk:"default_action"`
+	DefaultActionId                types.String                    `tfsdk:"default_action_id"`
+	DefaultActionLogBegin          types.Bool                      `tfsdk:"default_action_log_begin"`
+	DefaultActionLogEnd            types.Bool                      `tfsdk:"default_action_log_end"`
+	DefaultActionSendEventsToFmc   types.Bool                      `tfsdk:"default_action_send_events_to_fmc"`
+	DefaultActionSendSyslog        types.Bool                      `tfsdk:"default_action_send_syslog"`
+	DefaultActionIntrusionPolicyId types.String                    `tfsdk:"default_action_intrusion_policy_id"`
+	Categories                     []AccessControlPolicyCategories `tfsdk:"categories"`
+	Rules                          []AccessControlPolicyRules      `tfsdk:"rules"`
 }
 
 type AccessControlPolicyCategories struct {
@@ -158,6 +159,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.enableSyslog", data.DefaultActionSendSyslog.ValueBool())
+	}
+	if !data.DefaultActionIntrusionPolicyId.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.intrusionPolicy.id", data.DefaultActionIntrusionPolicyId.ValueString())
 	}
 	if len(data.Categories) > 0 {
 		body, _ = sjson.Set(body, "dummy_categories", []interface{}{})
@@ -315,6 +319,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 		data.DefaultActionSendSyslog = types.BoolValue(value.Bool())
 	} else {
 		data.DefaultActionSendSyslog = types.BoolValue(false)
+	}
+	if value := res.Get("defaultAction.intrusionPolicy.id"); value.Exists() {
+		data.DefaultActionIntrusionPolicyId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionIntrusionPolicyId = types.StringNull()
 	}
 	if value := res.Get("dummy_categories"); value.Exists() {
 		data.Categories = make([]AccessControlPolicyCategories, 0)
@@ -780,6 +789,9 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 		return false
 	}
 	if !data.DefaultActionSendSyslog.IsNull() {
+		return false
+	}
+	if !data.DefaultActionIntrusionPolicyId.IsNull() {
 		return false
 	}
 	if len(data.Categories) > 0 {
