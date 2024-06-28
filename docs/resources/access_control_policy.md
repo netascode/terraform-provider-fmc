@@ -14,14 +14,16 @@ This resource can manage an Access Control Policy.
 
 ```terraform
 resource "fmc_access_control_policy" "example" {
-  name                              = "POLICY1"
-  description                       = "My access control policy"
-  default_action                    = "BLOCK"
-  default_action_log_begin          = true
-  default_action_log_end            = false
-  default_action_send_events_to_fmc = true
-  default_action_send_syslog        = true
-  default_action_syslog_severity    = "DEBUG"
+  name                               = "POLICY1"
+  description                        = "My access control policy"
+  default_action                     = "BLOCK"
+  default_action_log_begin           = true
+  default_action_log_end             = false
+  default_action_send_events_to_fmc  = true
+  default_action_send_syslog         = true
+  default_action_syslog_config_id    = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+  default_action_syslog_severity     = "DEBUG"
+  default_action_intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   categories = [
     {
       name = "cat1"
@@ -53,9 +55,26 @@ resource "fmc_access_control_policy" "example" {
           type = "Network"
         }
       ]
-      log_begin          = true
-      log_end            = true
-      send_events_to_fmc = true
+      source_dynamic_objects = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "DynamicObject"
+        }
+      ]
+      destination_dynamic_objects = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "DynamicObject"
+        }
+      ]
+      log_begin           = true
+      log_end             = true
+      send_events_to_fmc  = true
+      send_syslog         = true
+      syslog_config_id    = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+      syslog_severity     = "DEBUG"
+      file_policy_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
   ]
 }
