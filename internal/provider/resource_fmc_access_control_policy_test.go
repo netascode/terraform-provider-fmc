@@ -146,8 +146,6 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
 	}, {
 		Config: `resource fmc_access_control_policy step2 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -157,8 +155,6 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ name = "cat2" }` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
 	}, {
 		Config: `resource fmc_access_control_policy step3 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -168,18 +164,14 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ name = "catm", section = "mandatory" }` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`"catm" must be somewhere above category "catd"`),
+		ExpectError: regexp.MustCompile(`"catm" must be somewhere above category "catd"`),
 	}, {
 		Config: `resource fmc_access_control_policy step4 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	categories = [{ name = "cat1", section = "" }]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`value must be one of`),
+		ExpectError: regexp.MustCompile(`value must be one of`),
 	}, {
 		Config: `resource fmc_access_control_policy step5 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -198,8 +190,6 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ section = "default",         name = "r5", action = "ALLOW"},` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
 	}, {
 		Config: `resource fmc_access_control_policy step6 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -213,9 +203,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ section = "mandatory",     name = "step6r1", action = "ALLOW"}` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
+		ExpectError: regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step7 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -229,9 +217,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ section = "mandatory",       name = "r1", action = "ALLOW"}` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
+		ExpectError: regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step8 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -245,9 +231,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ category_name = "cat1",      name = "r1", action = "ALLOW"}` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
+		ExpectError: regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step9 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -260,9 +244,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ category_name = "cat1",      name = "step9r1", action = "ALLOW"}` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
+		ExpectError: regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step10 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -272,9 +254,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ section = "mandatory",       name = "step10r1", action = "ALLOW"}` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
+		ExpectError: regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step11 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -287,9 +267,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`		{ section = "mandatory",       name = "step11r1", action = "ALLOW"}` + "\n" +
 			`	]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Rule .* must be somewhere above rule`),
+		ExpectError: regexp.MustCompile(`Rule .* must be somewhere above rule`),
 	}, {
 		Config: `resource fmc_access_control_policy step12 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -297,18 +275,14 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`	categories = [{ name = "cat1", section = "default" }]` + "\n" +
 			`	rules = [{ category_name = "cat1", section = "default", name = "r1", action = "ALLOW"}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Cannot use section together with category_name`),
+		ExpectError: regexp.MustCompile(`Cannot use section together with category_name`),
 	}, {
 		Config: `resource fmc_access_control_policy step13 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ category_name = "--Undefined--", name = "r1", action = "ALLOW"}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`value is reserved`),
+		ExpectError: regexp.MustCompile(`value is reserved`),
 	}, {
 		Config: `resource fmc_access_control_policy step14 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -316,44 +290,34 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`	categories = [{ name = "--Undefined--" }]` + "\n" +
 			`	rules = [{ category_name = "--Undefined--", name = "r1", action = "ALLOW"}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`value is reserved`),
+		ExpectError: regexp.MustCompile(`value is reserved`),
 	}, {
 		Config: `resource fmc_access_control_policy step15 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ name = "r1", action = "MONITOR"}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Cannot use log_end=false when action="MONITOR"`),
+		ExpectError: regexp.MustCompile(`Cannot use log_end=false when action="MONITOR"`),
 	}, {
 		Config: `resource fmc_access_control_policy step16 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=null}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Cannot use send_events_to_fmc=false when action="MONITOR"`),
+		ExpectError: regexp.MustCompile(`Cannot use send_events_to_fmc=false when action="MONITOR"`),
 	}, {
 		Config: `resource fmc_access_control_policy step17 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=true}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
 	}, {
 		Config: `resource fmc_access_control_policy step18 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ name = "r1", action = "MONITOR", log_begin=true, log_end=true, send_events_to_fmc=true}]` + "\n" +
 			`}`,
-		PlanOnly:           true,
-		ExpectNonEmptyPlan: true,
-		ExpectError:        regexp.MustCompile(`Cannot use log_begin=true when action="MONITOR"`),
+		ExpectError: regexp.MustCompile(`Cannot use log_begin=true when action="MONITOR"`),
 	}}
 
 	resource.Test(t, resource.TestCase{
