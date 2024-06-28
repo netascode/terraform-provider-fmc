@@ -286,11 +286,11 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							Computed:            true,
 						},
 						"file_policy_id": schema.StringAttribute{
-							MarkdownDescription: "Identifier (UUID) of the File Policy for the rule action.",
+							MarkdownDescription: "Identifier (UUID) of the File Policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.",
 							Computed:            true,
 						},
 						"intrusion_policy_id": schema.StringAttribute{
-							MarkdownDescription: "Identifier of the fmc_intrusion_policy for the rule action.",
+							MarkdownDescription: "Identifier (UUID) of the fmc_intrusion_policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.",
 							Computed:            true,
 						},
 					},
