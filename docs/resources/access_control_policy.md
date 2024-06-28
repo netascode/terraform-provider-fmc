@@ -14,16 +14,15 @@ This resource can manage an Access Control Policy.
 
 ```terraform
 resource "fmc_access_control_policy" "example" {
-  name                               = "POLICY1"
-  description                        = "My access control policy"
-  default_action                     = "BLOCK"
-  default_action_log_begin           = true
-  default_action_log_end             = false
-  default_action_send_events_to_fmc  = true
-  default_action_send_syslog         = true
-  default_action_syslog_config_id    = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
-  default_action_syslog_severity     = "DEBUG"
-  default_action_intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  name                              = "POLICY1"
+  description                       = "My access control policy"
+  default_action                    = "BLOCK"
+  default_action_log_begin          = true
+  default_action_log_end            = false
+  default_action_send_events_to_fmc = true
+  default_action_send_syslog        = true
+  default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+  default_action_syslog_severity    = "DEBUG"
   categories = [
     {
       name = "cat1"
@@ -149,8 +148,8 @@ Optional:
 - `destination_network_objects` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
-- `file_policy_id` (String) Identifier (UUID) of the File Policy for the rule action.
-- `intrusion_policy_id` (String) Identifier of the fmc_intrusion_policy for the rule action.
+- `file_policy_id` (String) Identifier (UUID) of the File Policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.
+- `intrusion_policy_id` (String) Identifier (UUID) of the fmc_intrusion_policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.
 - `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.
   - Default value: `false`
 - `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.
