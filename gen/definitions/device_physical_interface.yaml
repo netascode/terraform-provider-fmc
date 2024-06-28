@@ -1,5 +1,5 @@
 ---
-name: Physical Interface
+name: Device Physical Interface
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces
 put_create: true
 no_delete: true
@@ -58,6 +58,7 @@ attributes:
   - model_name: MTU
     tf_name: mtu
     type: Int64
+    description: Maximum transmission unit. Can only be used when logical_name is set.
     example: 9000
   - model_name: priority
     type: Int64
@@ -68,7 +69,9 @@ attributes:
     data_path: [securityZone]
     tf_name: security_zone_id
     type: String
-    description: UUID of the assigned security zone (fmc_security_zone.example.id).
+    description: >-
+      UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name
+      is set.
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
     exclude_test: true
   - model_name: type

@@ -27,30 +27,30 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceFmcPhysicalInterface(t *testing.T) {
+func TestAccDataSourceFmcDevicePhysicalInterface(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "device_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "mode", "NONE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "name", "GigabitEthernet0/1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "logical_name", "myinterface-0-1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "description", "my description"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "mtu", "9000"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv4_static_address", "10.1.1.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv4_static_netmask", "24"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_enable", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_enforce_eui", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_enable_auto_config", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_enable_dhcp_address", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_enable_dhcp_nonaddress", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_enable_ra", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_addresses.0.address", "2004::"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_physical_interface.test", "ipv6_addresses.0.prefix", "124"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "device_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "mode", "NONE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "name", "GigabitEthernet0/1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "logical_name", "myinterface-0-1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "description", "my description"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "mtu", "9000"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv4_static_address", "10.1.1.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv4_static_netmask", "24"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_enable", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_enforce_eui", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_enable_auto_config", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_enable_dhcp_address", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_enable_dhcp_nonaddress", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_enable_ra", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_addresses.0.address", "2004::"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_physical_interface.test", "ipv6_addresses.0.prefix", "124"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcPhysicalInterfaceConfig(),
+				Config: testAccDataSourceFmcDevicePhysicalInterfaceConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -63,8 +63,8 @@ func TestAccDataSourceFmcPhysicalInterface(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceFmcPhysicalInterfaceConfig() string {
-	config := `resource "fmc_physical_interface" "test" {` + "\n"
+func testAccDataSourceFmcDevicePhysicalInterfaceConfig() string {
+	config := `resource "fmc_device_physical_interface" "test" {` + "\n"
 	config += `	device_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	enabled = true` + "\n"
 	config += `	mode = "NONE"` + "\n"
@@ -89,8 +89,8 @@ func testAccDataSourceFmcPhysicalInterfaceConfig() string {
 	config += `}` + "\n"
 
 	config += `
-		data "fmc_physical_interface" "test" {
-			id = fmc_physical_interface.test.id
+		data "fmc_device_physical_interface" "test" {
+			id = fmc_device_physical_interface.test.id
 			device_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 		}
 	`

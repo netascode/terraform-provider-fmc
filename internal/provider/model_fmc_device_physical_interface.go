@@ -31,31 +31,31 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type PhysicalInterface struct {
-	Id                       types.String                     `tfsdk:"id"`
-	Domain                   types.String                     `tfsdk:"domain"`
-	DeviceId                 types.String                     `tfsdk:"device_id"`
-	Enabled                  types.Bool                       `tfsdk:"enabled"`
-	Mode                     types.String                     `tfsdk:"mode"`
-	Name                     types.String                     `tfsdk:"name"`
-	LogicalName              types.String                     `tfsdk:"logical_name"`
-	Description              types.String                     `tfsdk:"description"`
-	ManagementOnly           types.Bool                       `tfsdk:"management_only"`
-	Mtu                      types.Int64                      `tfsdk:"mtu"`
-	Priority                 types.Int64                      `tfsdk:"priority"`
-	SecurityZoneId           types.String                     `tfsdk:"security_zone_id"`
-	Ipv4StaticAddress        types.String                     `tfsdk:"ipv4_static_address"`
-	Ipv4StaticNetmask        types.String                     `tfsdk:"ipv4_static_netmask"`
-	Ipv6Enable               types.Bool                       `tfsdk:"ipv6_enable"`
-	Ipv6EnforceEui           types.Bool                       `tfsdk:"ipv6_enforce_eui"`
-	Ipv6EnableAutoConfig     types.Bool                       `tfsdk:"ipv6_enable_auto_config"`
-	Ipv6EnableDhcpAddress    types.Bool                       `tfsdk:"ipv6_enable_dhcp_address"`
-	Ipv6EnableDhcpNonaddress types.Bool                       `tfsdk:"ipv6_enable_dhcp_nonaddress"`
-	Ipv6EnableRa             types.Bool                       `tfsdk:"ipv6_enable_ra"`
-	Ipv6Addresses            []PhysicalInterfaceIpv6Addresses `tfsdk:"ipv6_addresses"`
+type DevicePhysicalInterface struct {
+	Id                       types.String                           `tfsdk:"id"`
+	Domain                   types.String                           `tfsdk:"domain"`
+	DeviceId                 types.String                           `tfsdk:"device_id"`
+	Enabled                  types.Bool                             `tfsdk:"enabled"`
+	Mode                     types.String                           `tfsdk:"mode"`
+	Name                     types.String                           `tfsdk:"name"`
+	LogicalName              types.String                           `tfsdk:"logical_name"`
+	Description              types.String                           `tfsdk:"description"`
+	ManagementOnly           types.Bool                             `tfsdk:"management_only"`
+	Mtu                      types.Int64                            `tfsdk:"mtu"`
+	Priority                 types.Int64                            `tfsdk:"priority"`
+	SecurityZoneId           types.String                           `tfsdk:"security_zone_id"`
+	Ipv4StaticAddress        types.String                           `tfsdk:"ipv4_static_address"`
+	Ipv4StaticNetmask        types.String                           `tfsdk:"ipv4_static_netmask"`
+	Ipv6Enable               types.Bool                             `tfsdk:"ipv6_enable"`
+	Ipv6EnforceEui           types.Bool                             `tfsdk:"ipv6_enforce_eui"`
+	Ipv6EnableAutoConfig     types.Bool                             `tfsdk:"ipv6_enable_auto_config"`
+	Ipv6EnableDhcpAddress    types.Bool                             `tfsdk:"ipv6_enable_dhcp_address"`
+	Ipv6EnableDhcpNonaddress types.Bool                             `tfsdk:"ipv6_enable_dhcp_nonaddress"`
+	Ipv6EnableRa             types.Bool                             `tfsdk:"ipv6_enable_ra"`
+	Ipv6Addresses            []DevicePhysicalInterfaceIpv6Addresses `tfsdk:"ipv6_addresses"`
 }
 
-type PhysicalInterfaceIpv6Addresses struct {
+type DevicePhysicalInterfaceIpv6Addresses struct {
 	Address    types.String `tfsdk:"address"`
 	Prefix     types.String `tfsdk:"prefix"`
 	EnforceEui types.Bool   `tfsdk:"enforce_eui"`
@@ -64,14 +64,14 @@ type PhysicalInterfaceIpv6Addresses struct {
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data PhysicalInterface) getPath() string {
+func (data DevicePhysicalInterface) getPath() string {
 	return fmt.Sprintf("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces", url.QueryEscape(data.DeviceId.ValueString()))
 }
 
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data PhysicalInterface) toBody(ctx context.Context, state PhysicalInterface) string {
+func (data DevicePhysicalInterface) toBody(ctx context.Context, state DevicePhysicalInterface) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
@@ -151,7 +151,7 @@ func (data PhysicalInterface) toBody(ctx context.Context, state PhysicalInterfac
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *PhysicalInterface) fromBody(ctx context.Context, res gjson.Result) {
+func (data *DevicePhysicalInterface) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("enabled"); value.Exists() {
 		data.Enabled = types.BoolValue(value.Bool())
 	} else {
@@ -238,9 +238,9 @@ func (data *PhysicalInterface) fromBody(ctx context.Context, res gjson.Result) {
 		data.Ipv6EnableRa = types.BoolNull()
 	}
 	if value := res.Get("ipv6.addresses"); value.Exists() {
-		data.Ipv6Addresses = make([]PhysicalInterfaceIpv6Addresses, 0)
+		data.Ipv6Addresses = make([]DevicePhysicalInterfaceIpv6Addresses, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := PhysicalInterfaceIpv6Addresses{}
+			item := DevicePhysicalInterfaceIpv6Addresses{}
 			if cValue := v.Get("address"); cValue.Exists() {
 				item.Address = types.StringValue(cValue.String())
 			} else {
@@ -265,7 +265,7 @@ func (data *PhysicalInterface) fromBody(ctx context.Context, res gjson.Result) {
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *PhysicalInterface) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *DevicePhysicalInterface) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("enabled"); value.Exists() && !data.Enabled.IsNull() {
 		data.Enabled = types.BoolValue(value.Bool())
 	} else if data.Enabled.ValueBool() != true {
@@ -395,7 +395,7 @@ func (data *PhysicalInterface) updateFromBody(ctx context.Context, res gjson.Res
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *PhysicalInterface) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *DevicePhysicalInterface) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.DeviceId.IsNull() {
 		return false
 	}

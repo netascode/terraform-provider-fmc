@@ -44,25 +44,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &PhysicalInterfaceResource{}
-var _ resource.ResourceWithImportState = &PhysicalInterfaceResource{}
+var _ resource.Resource = &DevicePhysicalInterfaceResource{}
+var _ resource.ResourceWithImportState = &DevicePhysicalInterfaceResource{}
 
-func NewPhysicalInterfaceResource() resource.Resource {
-	return &PhysicalInterfaceResource{}
+func NewDevicePhysicalInterfaceResource() resource.Resource {
+	return &DevicePhysicalInterfaceResource{}
 }
 
-type PhysicalInterfaceResource struct {
+type DevicePhysicalInterfaceResource struct {
 	client *fmc.Client
 }
 
-func (r *PhysicalInterfaceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_physical_interface"
+func (r *DevicePhysicalInterfaceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_physical_interface"
 }
 
-func (r *PhysicalInterfaceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DevicePhysicalInterfaceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Physical Interface.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device Physical Interface.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -116,7 +116,7 @@ func (r *PhysicalInterfaceResource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 			},
 			"mtu": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Maximum transmission unit. Can only be used when logical_name is set.").String,
 				Optional:            true,
 			},
 			"priority": schema.Int64Attribute{
@@ -124,7 +124,7 @@ func (r *PhysicalInterfaceResource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 			},
 			"security_zone_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("UUID of the assigned security zone (fmc_security_zone.example.id).").String,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.").String,
 				Optional:            true,
 			},
 			"ipv4_static_address": schema.StringAttribute{
@@ -183,7 +183,7 @@ func (r *PhysicalInterfaceResource) Schema(ctx context.Context, req resource.Sch
 	}
 }
 
-func (r *PhysicalInterfaceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *DevicePhysicalInterfaceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -193,8 +193,8 @@ func (r *PhysicalInterfaceResource) Configure(_ context.Context, req resource.Co
 
 // End of section. //template:end model
 
-func (r *PhysicalInterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan PhysicalInterface
+func (r *DevicePhysicalInterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan DevicePhysicalInterface
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -249,7 +249,7 @@ func (r *PhysicalInterfaceResource) Create(ctx context.Context, req resource.Cre
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, PhysicalInterface{})
+	body := plan.toBody(ctx, DevicePhysicalInterface{})
 	res, err := r.client.Put(plan.getPath()+"/"+url.PathEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
@@ -264,8 +264,8 @@ func (r *PhysicalInterfaceResource) Create(ctx context.Context, req resource.Cre
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *PhysicalInterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state PhysicalInterface
+func (r *DevicePhysicalInterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state DevicePhysicalInterface
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -307,8 +307,8 @@ func (r *PhysicalInterfaceResource) Read(ctx context.Context, req resource.ReadR
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *PhysicalInterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state PhysicalInterface
+func (r *DevicePhysicalInterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state DevicePhysicalInterface
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -347,8 +347,8 @@ func (r *PhysicalInterfaceResource) Update(ctx context.Context, req resource.Upd
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *PhysicalInterfaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state PhysicalInterface
+func (r *DevicePhysicalInterfaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state DevicePhysicalInterface
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -373,7 +373,7 @@ func (r *PhysicalInterfaceResource) Delete(ctx context.Context, req resource.Del
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *PhysicalInterfaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *DevicePhysicalInterfaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 

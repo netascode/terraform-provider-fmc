@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &PhysicalInterfaceDataSource{}
-	_ datasource.DataSourceWithConfigure = &PhysicalInterfaceDataSource{}
+	_ datasource.DataSource              = &DevicePhysicalInterfaceDataSource{}
+	_ datasource.DataSourceWithConfigure = &DevicePhysicalInterfaceDataSource{}
 )
 
-func NewPhysicalInterfaceDataSource() datasource.DataSource {
-	return &PhysicalInterfaceDataSource{}
+func NewDevicePhysicalInterfaceDataSource() datasource.DataSource {
+	return &DevicePhysicalInterfaceDataSource{}
 }
 
-type PhysicalInterfaceDataSource struct {
+type DevicePhysicalInterfaceDataSource struct {
 	client *fmc.Client
 }
 
-func (d *PhysicalInterfaceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_physical_interface"
+func (d *DevicePhysicalInterfaceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_physical_interface"
 }
 
-func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Physical Interface.",
+		MarkdownDescription: "This data source can read the Device Physical Interface.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -100,7 +100,7 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 				Computed:            true,
 			},
 			"mtu": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Maximum transmission unit. Can only be used when logical_name is set.",
 				Computed:            true,
 			},
 			"priority": schema.Int64Attribute{
@@ -108,7 +108,7 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 				Computed:            true,
 			},
 			"security_zone_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the assigned security zone (fmc_security_zone.example.id).",
+				MarkdownDescription: "UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.",
 				Computed:            true,
 			},
 			"ipv4_static_address": schema.StringAttribute{
@@ -166,7 +166,7 @@ func (d *PhysicalInterfaceDataSource) Schema(ctx context.Context, req datasource
 		},
 	}
 }
-func (d *PhysicalInterfaceDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *DevicePhysicalInterfaceDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -175,7 +175,7 @@ func (d *PhysicalInterfaceDataSource) ConfigValidators(ctx context.Context) []da
 	}
 }
 
-func (d *PhysicalInterfaceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *DevicePhysicalInterfaceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -186,8 +186,8 @@ func (d *PhysicalInterfaceDataSource) Configure(_ context.Context, req datasourc
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *PhysicalInterfaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config PhysicalInterface
+func (d *DevicePhysicalInterfaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config DevicePhysicalInterface
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
