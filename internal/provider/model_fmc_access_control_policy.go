@@ -958,7 +958,8 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 // End of section. //template:end isNull
 
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
-// It might be called before the apply phase: unknown values do not fail it hard, it can still partially validate.
+// Does not tolerate unknown values (IsUnknown), primarily because tfplan.Get cannot unmarshal unknown lists to []T
+// and `.rules` and `.categories` attributes have type []T.
 func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (AccessControlPolicy, diag.Diagnostics) {
 	var plan AccessControlPolicy
 	diags := tfplan.Get(ctx, &plan)
@@ -971,8 +972,6 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 	insertion := len(plan.Categories)
 	for i, cat := range plan.Categories {
 		switch {
-		case cat.Section.IsUnknown() || cat.Name.IsUnknown():
-			// ignore
 		case !def.IsNull() && cat.Section.Equal(types.StringValue("mandatory")):
 			diags.AddAttributeError(path.Root("categories"), "Wrong order of categories",
 				fmt.Sprintf("Category %s must be somewhere above category %s, not below it.\n"+
@@ -990,8 +989,6 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 	// Validate rules.*.category_name clash with rules.*.section
 	for _, rule := range plan.Rules {
 		switch {
-		case rule.CategoryName.IsUnknown() || rule.Section.IsUnknown() || rule.Name.IsUnknown():
-			// ignore
 		case !rule.CategoryName.IsNull() && rule.GetSection() != "":
 			diags.AddAttributeError(path.Root("rules"), "Cannot use section together with category_name",
 				fmt.Sprintf("Rule %s cannot have both section and category_name specified.", rule.Name))
@@ -1006,8 +1003,6 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 	// Validate rules.*.action==MONITOR clash
 	for _, rule := range plan.Rules {
 		switch {
-		case rule.LogEnd.IsUnknown() || rule.SendEventsToFmc.IsUnknown():
-			// ignore
 		case rule.Action.ValueString() == "MONITOR" && rule.LogBegin.ValueBool():
 			diags.AddAttributeError(path.Root("rules"), "Cannot use log_begin=true when action=\"MONITOR\"",
 				fmt.Sprintf("Rule %s has action=\"MONITOR\" so it must use:\n	log_begin=null/false,\n	log_end=true,\n	send_events_to_fmc=true,", rule.Name))
@@ -1019,22 +1014,6 @@ func NewValidAccessControlPolicy(ctx context.Context, tfplan tfsdk.Plan) (Access
 		case rule.Action.ValueString() == "MONITOR" && !rule.SendEventsToFmc.ValueBool():
 			diags.AddAttributeError(path.Root("rules"), "Cannot use send_events_to_fmc=false when action=\"MONITOR\"",
 				fmt.Sprintf("Rule %s has action=\"MONITOR\" so it must use:\n	log_begin=null/false,\n	log_end=true,\n	send_events_to_fmc=true,", rule.Name))
-			return plan, diags
-		}
-	}
-
-	// With unknown values we cannot proceed further, but we can return partial result now.
-	for _, cat := range plan.Categories {
-		if cat.Section.IsUnknown() ||
-			cat.Name.IsUnknown() {
-			return plan, diags
-		}
-	}
-
-	for _, rule := range plan.Rules {
-		if rule.CategoryName.IsUnknown() ||
-			rule.Section.IsUnknown() ||
-			rule.Name.IsUnknown() {
 			return plan, diags
 		}
 	}
