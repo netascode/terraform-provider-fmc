@@ -120,7 +120,7 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				Computed:            true,
 			},
 			"ipv4_dhcp_obtain_route": schema.BoolAttribute{
-				MarkdownDescription: "Any non-null value here indicates to enable DHCPv4. Value `false` indicates to enable DHCPv4 without obtaining from there the default IPv4 route. Value `true` indicates to enable DHCPv4 and obtain the route. Must be null when using ipv4_static_netmask.",
+				MarkdownDescription: "Any non-null value here indicates to enable DHCPv4. Value `false` indicates to enable DHCPv4 without obtaining from there the default IPv4 route but anyway requires also ipv4_dhcp_route_metric to be set to exactly 1. Value `true` indicates to enable DHCPv4 and obtain the route and also requires ipv4_dhcp_route_metric to be non-null. The ipv4_dhcp_obtain_route must be null when using ipv4_static_netmask.",
 				Computed:            true,
 			},
 			"ipv4_dhcp_route_metric": schema.Int64Attribute{
