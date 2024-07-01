@@ -41,6 +41,10 @@ func TestAccDataSourceFmcNetwork(t *testing.T) {
 				Config: testAccDataSourceFmcNetworkConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
+			{
+				Config: testAccNamedDataSourceFmcNetworkConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
 		},
 	})
 }
@@ -48,6 +52,7 @@ func TestAccDataSourceFmcNetwork(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
@@ -62,6 +67,22 @@ func testAccDataSourceFmcNetworkConfig() string {
 	config += `
 		data "fmc_network" "test" {
 			id = fmc_network.test.id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcNetworkConfig() string {
+	config := `resource "fmc_network" "test" {` + "\n"
+	config += `	name = "NET1"` + "\n"
+	config += `	description = "My network object"` + "\n"
+	config += `	prefix = "10.1.2.0/24"` + "\n"
+	config += `	overridable = true` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_network" "test" {
+			name = fmc_network.test.name
 		}
 	`
 	return config

@@ -304,4 +304,5 @@ func New(version string) func() provider.Provider {
 		}
 	}
 }
+
 // End of section. //template:end provider
