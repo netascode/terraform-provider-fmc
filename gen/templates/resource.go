@@ -420,7 +420,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	{{- if and .PutCreate .DataSourceNameQuery}}
+	{{- if .PutCreate}}
 	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
 
 	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
@@ -462,7 +462,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	body := plan.toBody(ctx, {{camelCase .Name}}{})
 
 	{{- if .PutCreate}}
-	res, err := r.client.Put(plan.getPath(){{if .DataSourceNameQuery}}+"/"+url.PathEscape(plan.Id.ValueString()){{end}}, body, reqMods...)
+	res, err := r.client.Put(plan.getPath()+"/"+url.PathEscape(plan.Id.ValueString()), body, reqMods...)
 	{{- else}}
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	{{- end}}
