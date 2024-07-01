@@ -148,11 +148,11 @@ func (r *DevicePhysicalInterfaceResource) Schema(ctx context.Context, req resour
 				Optional:            true,
 			},
 			"ipv6_enable_dhcp_address": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCP for IPv6 address config.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCPv6 for address config.").String,
 				Optional:            true,
 			},
 			"ipv6_enable_dhcp_nonaddress": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCP for IPv6 non-address config.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCPv6 for non-address config.").String,
 				Optional:            true,
 			},
 			"ipv6_enable_ra": schema.BoolAttribute{

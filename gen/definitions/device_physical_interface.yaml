@@ -111,13 +111,13 @@ attributes:
   - model_name: enableDHCPAddrConfig
     data_path: [ipv6]
     tf_name: ipv6_enable_dhcp_address
-    description: Indicates whether to enable DHCP for IPv6 address config.
+    description: Indicates whether to enable DHCPv6 for address config.
     type: Bool
     example: "true"
   - model_name: enableDHCPNonAddrConfig
     data_path: [ipv6]
     tf_name: ipv6_enable_dhcp_nonaddress
-    description: Indicates whether to enable DHCP for IPv6 non-address config.
+    description: Indicates whether to enable DHCPv6 for non-address config.
     type: Bool
     example: "true"
   - model_name: enableRA

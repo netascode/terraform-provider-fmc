@@ -132,11 +132,11 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				Computed:            true,
 			},
 			"ipv6_enable_dhcp_address": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to enable DHCP for IPv6 address config.",
+				MarkdownDescription: "Indicates whether to enable DHCPv6 for address config.",
 				Computed:            true,
 			},
 			"ipv6_enable_dhcp_nonaddress": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to enable DHCP for IPv6 non-address config.",
+				MarkdownDescription: "Indicates whether to enable DHCPv6 for non-address config.",
 				Computed:            true,
 			},
 			"ipv6_enable_ra": schema.BoolAttribute{

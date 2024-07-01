@@ -58,8 +58,8 @@ resource "fmc_device_physical_interface" "example" {
 - `ipv6_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_addresses))
 - `ipv6_enable` (Boolean) Indicates whether to enable IPv6.
 - `ipv6_enable_auto_config` (Boolean) Indicates whether to enable IPv6 autoconfiguration.
-- `ipv6_enable_dhcp_address` (Boolean) Indicates whether to enable DHCP for IPv6 address config.
-- `ipv6_enable_dhcp_nonaddress` (Boolean) Indicates whether to enable DHCP for IPv6 non-address config.
+- `ipv6_enable_dhcp_address` (Boolean) Indicates whether to enable DHCPv6 for address config.
+- `ipv6_enable_dhcp_nonaddress` (Boolean) Indicates whether to enable DHCPv6 for non-address config.
 - `ipv6_enable_ra` (Boolean) Indicates whether to enable IPv6 router advertisement (RA).
 - `ipv6_enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
 - `logical_name` (String) Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.
