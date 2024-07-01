@@ -36,6 +36,8 @@ data "fmc_device_physical_interface" "example" {
 
 - `description` (String)
 - `enabled` (Boolean) Indicates whether to enable the interface.
+- `ipv4_dhcp_obtain_route` (Boolean) Any non-null value here indicates to enable DHCPv4. Value `false` indicates to enable DHCPv4 without obtaining from there the default IPv4 route. Value `true` indicates to enable DHCPv4 and obtain the route. Must be null when using ipv4_static_netmask.
+- `ipv4_dhcp_route_metric` (Number) The metric for ipv4_dhcp_obtain_route. Any non-null value enables DHCP as a side effect. Must be null when using ipv4_static_netmask.
 - `ipv4_static_address` (String) Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.
 - `ipv4_static_netmask` (String) Netmask (width) for ipv4_static_address.
 - `ipv6_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_addresses))

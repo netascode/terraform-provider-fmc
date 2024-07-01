@@ -135,6 +135,14 @@ func (r *DevicePhysicalInterfaceResource) Schema(ctx context.Context, req resour
 				MarkdownDescription: helpers.NewAttributeDescription("Netmask (width) for ipv4_static_address.").String,
 				Optional:            true,
 			},
+			"ipv4_dhcp_obtain_route": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Any non-null value here indicates to enable DHCPv4. Value `false` indicates to enable DHCPv4 without obtaining from there the default IPv4 route. Value `true` indicates to enable DHCPv4 and obtain the route. Must be null when using ipv4_static_netmask.").String,
+				Optional:            true,
+			},
+			"ipv4_dhcp_route_metric": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The metric for ipv4_dhcp_obtain_route. Any non-null value enables DHCP as a side effect. Must be null when using ipv4_static_netmask.").String,
+				Optional:            true,
+			},
 			"ipv6_enable": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6.").String,
 				Optional:            true,

@@ -90,6 +90,25 @@ attributes:
     type: String
     description: Netmask (width) for ipv4_static_address.
     example: "24"
+  - model_name: enableDefaultRouteDHCP
+    data_path: [ipv4, dhcp]
+    tf_name: ipv4_dhcp_obtain_route
+    type: Bool
+    description: >-
+      Any non-null value here indicates to enable DHCPv4. Value `false` indicates to enable DHCPv4 without obtaining
+      from there the default IPv4 route. Value `true` indicates to enable DHCPv4 and obtain the route. Must be null
+      when using ipv4_static_netmask.
+    exclude_example: true
+    exclude_test: true
+  - model_name: dhcpRouteMetric
+    data_path: [ipv4, dhcp]
+    tf_name: ipv4_dhcp_route_metric
+    type: Int64
+    description: >-
+      The metric for ipv4_dhcp_obtain_route. Any non-null value enables DHCP as a side effect. Must be null
+      when using ipv4_static_netmask.
+    exclude_example: true
+    exclude_test: true
   - model_name: enableIPV6
     data_path: [ipv6]
     tf_name: ipv6_enable

@@ -46,6 +46,8 @@ type DevicePhysicalInterface struct {
 	SecurityZoneId           types.String                           `tfsdk:"security_zone_id"`
 	Ipv4StaticAddress        types.String                           `tfsdk:"ipv4_static_address"`
 	Ipv4StaticNetmask        types.String                           `tfsdk:"ipv4_static_netmask"`
+	Ipv4DhcpObtainRoute      types.Bool                             `tfsdk:"ipv4_dhcp_obtain_route"`
+	Ipv4DhcpRouteMetric      types.Int64                            `tfsdk:"ipv4_dhcp_route_metric"`
 	Ipv6Enable               types.Bool                             `tfsdk:"ipv6_enable"`
 	Ipv6EnforceEui           types.Bool                             `tfsdk:"ipv6_enforce_eui"`
 	Ipv6EnableAutoConfig     types.Bool                             `tfsdk:"ipv6_enable_auto_config"`
@@ -110,6 +112,12 @@ func (data DevicePhysicalInterface) toBody(ctx context.Context, state DevicePhys
 	}
 	if !data.Ipv4StaticNetmask.IsNull() {
 		body, _ = sjson.Set(body, "ipv4.static.netmask", data.Ipv4StaticNetmask.ValueString())
+	}
+	if !data.Ipv4DhcpObtainRoute.IsNull() {
+		body, _ = sjson.Set(body, "ipv4.dhcp.enableDefaultRouteDHCP", data.Ipv4DhcpObtainRoute.ValueBool())
+	}
+	if !data.Ipv4DhcpRouteMetric.IsNull() {
+		body, _ = sjson.Set(body, "ipv4.dhcp.dhcpRouteMetric", data.Ipv4DhcpRouteMetric.ValueInt64())
 	}
 	if !data.Ipv6Enable.IsNull() {
 		body, _ = sjson.Set(body, "ipv6.enableIPV6", data.Ipv6Enable.ValueBool())
@@ -206,6 +214,16 @@ func (data *DevicePhysicalInterface) fromBody(ctx context.Context, res gjson.Res
 		data.Ipv4StaticNetmask = types.StringValue(value.String())
 	} else {
 		data.Ipv4StaticNetmask = types.StringNull()
+	}
+	if value := res.Get("ipv4.dhcp.enableDefaultRouteDHCP"); value.Exists() {
+		data.Ipv4DhcpObtainRoute = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv4DhcpObtainRoute = types.BoolNull()
+	}
+	if value := res.Get("ipv4.dhcp.dhcpRouteMetric"); value.Exists() {
+		data.Ipv4DhcpRouteMetric = types.Int64Value(value.Int())
+	} else {
+		data.Ipv4DhcpRouteMetric = types.Int64Null()
 	}
 	if value := res.Get("ipv6.enableIPV6"); value.Exists() {
 		data.Ipv6Enable = types.BoolValue(value.Bool())
@@ -321,6 +339,16 @@ func (data *DevicePhysicalInterface) updateFromBody(ctx context.Context, res gjs
 	} else {
 		data.Ipv4StaticNetmask = types.StringNull()
 	}
+	if value := res.Get("ipv4.dhcp.enableDefaultRouteDHCP"); value.Exists() && !data.Ipv4DhcpObtainRoute.IsNull() {
+		data.Ipv4DhcpObtainRoute = types.BoolValue(value.Bool())
+	} else {
+		data.Ipv4DhcpObtainRoute = types.BoolNull()
+	}
+	if value := res.Get("ipv4.dhcp.dhcpRouteMetric"); value.Exists() && !data.Ipv4DhcpRouteMetric.IsNull() {
+		data.Ipv4DhcpRouteMetric = types.Int64Value(value.Int())
+	} else {
+		data.Ipv4DhcpRouteMetric = types.Int64Null()
+	}
 	if value := res.Get("ipv6.enableIPV6"); value.Exists() && !data.Ipv6Enable.IsNull() {
 		data.Ipv6Enable = types.BoolValue(value.Bool())
 	} else {
@@ -430,6 +458,12 @@ func (data *DevicePhysicalInterface) isNull(ctx context.Context, res gjson.Resul
 		return false
 	}
 	if !data.Ipv4StaticNetmask.IsNull() {
+		return false
+	}
+	if !data.Ipv4DhcpObtainRoute.IsNull() {
+		return false
+	}
+	if !data.Ipv4DhcpRouteMetric.IsNull() {
 		return false
 	}
 	if !data.Ipv6Enable.IsNull() {
