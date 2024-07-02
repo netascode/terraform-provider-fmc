@@ -1532,20 +1532,6 @@ func (data *AccessControlPolicy) computeFromBody(ctx context.Context, res gjson.
 	} else {
 		data.DefaultActionId = types.StringNull()
 	}
-	for i := range data.Categories {
-		if value := res.Get(fmt.Sprintf("dummy_categories.%d.id", i)); value.Exists() {
-			data.Categories[i].Id = types.StringValue(value.String())
-		} else {
-			data.Categories[i].Id = types.StringNull()
-		}
-	}
-	for i := range data.Rules {
-		if value := res.Get(fmt.Sprintf("dummy_rules.%d.id", i)); value.Exists() {
-			data.Rules[i].Id = types.StringValue(value.String())
-		} else {
-			data.Rules[i].Id = types.StringNull()
-		}
-	}
 }
 
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
