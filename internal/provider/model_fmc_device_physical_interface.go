@@ -496,3 +496,6 @@ func (data *DevicePhysicalInterface) isNull(ctx context.Context, res gjson.Resul
 }
 
 // End of section. //template:end isNull
+
+// Section below is generated&owned by "gen/generator.go". //template:begin computeFromBody
+// End of section. //template:end computeFromBody

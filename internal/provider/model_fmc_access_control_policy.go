@@ -1523,16 +1523,8 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 
 // End of section. //template:end isNull
 
-// computeFromBody updates the Computed tfstate attributes from a JSON.
-// It excludes Default+Computed attributes as changes to these during Create/Update would fail Terraform run.
-// It excludes UseStateForUnknown+Computed attributes as changes to these during Create/Update would fail Terraform run.
-func (data *AccessControlPolicy) computeFromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("defaultAction.id"); value.Exists() {
-		data.DefaultActionId = types.StringValue(value.String())
-	} else {
-		data.DefaultActionId = types.StringNull()
-	}
-}
+// Section below is generated&owned by "gen/generator.go". //template:begin computeFromBody
+// End of section. //template:end computeFromBody
 
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
 // Does not tolerate unknown values (IsUnknown), primarily because tfplan.Get cannot unmarshal unknown lists to []T
