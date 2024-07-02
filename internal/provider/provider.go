@@ -283,6 +283,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 	return []func() resource.Resource{
 		NewAccessControlPolicyResource,
 		NewDeviceResource,
+		NewDevicePhysicalInterfaceResource,
 		NewHostResource,
 		NewNetworkResource,
 	}
@@ -292,6 +293,7 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 	return []func() datasource.DataSource{
 		NewAccessControlPolicyDataSource,
 		NewDeviceDataSource,
+		NewDevicePhysicalInterfaceDataSource,
 		NewHostDataSource,
 		NewNetworkDataSource,
 	}

@@ -420,13 +420,49 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
+	{{- if .PutCreate}}
+	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
+
+	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
+		offset := 0
+		limit := 1000
+		for page := 1; ; page++ {
+			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			res, err := r.client.Get(plan.getPath()+queryString, reqMods...)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
+				return
+			}
+			if value := res.Get("items"); len(value.Array()) > 0 {
+				value.ForEach(func(k, v gjson.Result) bool {
+					if plan.Name.ValueString() == v.Get("name").String() {
+						plan.Id = types.StringValue(v.Get("id").String())
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%s', id: %s", plan.Id, plan.Name.ValueString(), plan.Id))
+						return false
+					}
+					return true
+				})
+			}
+			if plan.Id.ValueString() != "" || !res.Get("paging.next.0").Exists() {
+				break
+			}
+			offset += limit
+		}
+
+		if plan.Id.ValueString() == "" {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.Name.ValueString()))
+			return
+		}
+	}
+	{{- end}}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
 	body := plan.toBody(ctx, {{camelCase .Name}}{})
 
 	{{- if .PutCreate}}
-	res, err := r.client.Put(plan.getPath(), body, reqMods...)
+	res, err := r.client.Put(plan.getPath()+"/"+url.PathEscape(plan.Id.ValueString()), body, reqMods...)
 	{{- else}}
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	{{- end}}
@@ -579,6 +615,25 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	{{- if hasReference .Attributes}}
+	idParts := strings.Split(req.ID, ",")
+
+	if len(idParts) != {{importParts .Attributes}}{{range $index, $attr := .Attributes}}{{if $attr.Reference}} || idParts[{{$index}}] == ""{{end}}{{end}}  || idParts[{{subtract (importParts .Attributes) 1}}] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier with format: {{range $index, $attr := .Attributes}}{{if $attr.Reference}}{{if $index}},{{end}}<{{$attr.TfName}}>{{end}}{{end}},<id>. Got: %q", req.ID),
+		)
+		return
+	}
+
+	{{- range $index, $attr := .Attributes}}
+	{{- if or $attr.Reference $attr.Id}}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("{{$attr.TfName}}"), idParts[{{$index}}])...)
+	{{- end}}
+	{{- end}}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[{{subtract (importParts .Attributes) 1}}])...)
+	{{- else}}
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	{{- end}}
 }
 // End of section. //template:end import
