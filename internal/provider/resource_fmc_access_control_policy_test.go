@@ -323,6 +323,11 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`	rules = [{ name = "r1", action = "MONITOR", log_begin=true, log_end=true, send_events_to_fmc=true}]` + "\n" +
 			`}`,
 		ExpectError: regexp.MustCompile(`Cannot use log_begin=true when action="MONITOR"`),
+	}, {
+		Config: `resource fmc_access_control_policy step19 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`}`,
 	}}
 
 	resource.Test(t, resource.TestCase{

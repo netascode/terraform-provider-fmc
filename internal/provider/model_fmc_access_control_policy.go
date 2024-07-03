@@ -661,7 +661,7 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 
 	for i := range data.Categories {
 		r := res.Get(fmt.Sprintf("dummy_categories.%d", i))
-		if value := r.Get("id"); value.Exists() {
+		if value := r.Get("id"); value.Exists() && !data.Categories[i].Id.IsNull() {
 			data.Categories[i].Id = types.StringValue(value.String())
 		} else {
 			data.Categories[i].Id = types.StringNull()
@@ -684,7 +684,7 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 
 	for i := range data.Rules {
 		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
-		if value := r.Get("id"); value.Exists() {
+		if value := r.Get("id"); value.Exists() && !data.Rules[i].Id.IsNull() {
 			data.Rules[i].Id = types.StringValue(value.String())
 		} else {
 			data.Rules[i].Id = types.StringNull()
@@ -931,7 +931,7 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		if value := r.Get("enableSyslog"); value.Exists() && !data.Rules[i].SendSyslog.IsNull() {
 			data.Rules[i].SendSyslog = types.BoolValue(value.Bool())
 		} else if data.Rules[i].SendSyslog.ValueBool() != false {
-			data.Rules[i].SendSyslog = types.BoolValue(false)
+			data.Rules[i].SendSyslog = types.BoolNull()
 		}
 		if value := r.Get("syslogConfig.id"); value.Exists() && !data.Rules[i].SyslogConfigId.IsNull() {
 			data.Rules[i].SyslogConfigId = types.StringValue(value.String())
