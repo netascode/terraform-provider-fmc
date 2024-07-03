@@ -22,13 +22,13 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
@@ -966,20 +966,21 @@ func (data *AccessControlPolicy) adjustFromBody(ctx context.Context, res gjson.R
 		if data.Rules[i].CategoryName.Equal(types.StringValue("--Undefined--")) {
 			data.Rules[i].CategoryName = types.StringNull()
 		}
-		if !(data.Rules[i].Section.IsUnknown() || data.Rules[i].Section.IsNull()) {
-			// API has "Mandatory", OAS has "mandatory".
-			data.Rules[i].Section = types.StringValue(strings.ToLower(data.Rules[i].Section.ValueString()))
 
-			if data.Rules[i].CategoryName.ValueString() != "" {
+		switch data.Rules[i].CategoryName.ValueString() {
+		case "":
+			// API has "Mandatory", OAS has "mandatory".
+			data.Rules[i].Section = helpers.ToLower(data.Rules[i].Section)
+		default:
+			if !data.Rules[i].Section.IsUnknown() {
 				data.Rules[i].Section = types.StringNull()
 			}
 		}
 	}
 
 	for i := range data.Categories {
-		if !(data.Categories[i].Section.IsUnknown() || data.Categories[i].Section.IsNull()) {
-			data.Categories[i].Section = types.StringValue(strings.ToLower(data.Categories[i].Section.ValueString()))
-		}
+		// API has "Mandatory", OAS has "mandatory".
+		data.Categories[i].Section = helpers.ToLower(data.Categories[i].Section)
 	}
 }
 
