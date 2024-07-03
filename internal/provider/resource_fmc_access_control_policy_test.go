@@ -327,6 +327,7 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		// If you see "Step 7/x, expected an error" look above for the name "step7".
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps:                    steps,
 	})
