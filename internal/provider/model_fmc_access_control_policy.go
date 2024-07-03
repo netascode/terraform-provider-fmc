@@ -1025,6 +1025,30 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 
 // End of section. //template:end isNull
 
+// computeFromBody updates the Computed tfstate attributes from a JSON. It excludes Default+Computed
+// attributes as these should not be refreshed during Create/Update.
+func (data *AccessControlPolicy) computeFromBody(ctx context.Context, res gjson.Result) {
+	if value := res.Get("defaultAction.id"); value.Exists() {
+		data.DefaultActionId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionId = types.StringNull()
+	}
+	for i := range data.Categories {
+		if value := res.Get(fmt.Sprintf("dummy_categories.%d.id", i)); value.Exists() {
+			data.Categories[i].Id = types.StringValue(value.String())
+		} else {
+			data.Categories[i].Id = types.StringNull()
+		}
+	}
+	for i := range data.Rules {
+		if value := res.Get(fmt.Sprintf("dummy_rules.%d.id", i)); value.Exists() {
+			data.Rules[i].Id = types.StringValue(value.String())
+		} else {
+			data.Rules[i].Id = types.StringNull()
+		}
+	}
+}
+
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.
 // Does not tolerate unknown values (IsUnknown), primarily because tfplan.Get cannot unmarshal unknown lists to []T
 // and `.rules` and `.categories` attributes have type []T.

@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -391,11 +392,24 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
-	err = r.createCatsAt(ctx, plan, bodyCats, 0, reqMods...)
+	read, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, read.String()))
+
+		res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
+		}
+		return
+	}
+
+	plan.computeFromBody(ctx, read)
+
+	err = r.createCatsAt(ctx, plan, bodyCats, 0, &plan, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 
-		res, err = r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 		if err != nil {
 			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
 		}
@@ -403,11 +417,11 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	err = r.createRulesAt(ctx, plan, bodyRules, 0, reqMods...)
+	err = r.createRulesAt(ctx, plan, bodyRules, 0, &plan, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 
-		res, err = r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 		if err != nil {
 			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
 		}
@@ -421,22 +435,7 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully, starting implicit Read", plan.Id.ValueString()))
-
-	readReq := resource.ReadRequest{
-		State:        resp.State,
-		ProviderMeta: req.ProviderMeta,
-	}
-	readResp := resource.ReadResponse{
-		State:   resp.State,
-		Private: resp.Private,
-	}
-	r.Read(ctx, readReq, &readResp)
-	resp.Diagnostics.Append(readResp.Diagnostics...)
-
-	resp.State = readResp.State
-
-	tflog.Debug(ctx, fmt.Sprintf("%s: finished implicit Read", plan.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 }
 
 func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -546,58 +545,45 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 		return
 	}
 
-	diags = resp.State.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// We're going to DELETE and POST various subresources and might fail in the middle: ensure that
-	// the final State always matches reality.
-	defer func() {
-		readReq := resource.ReadRequest{
-			State:        resp.State,
-			Private:      req.Private,
-			ProviderMeta: req.ProviderMeta,
-		}
-		readResp := resource.ReadResponse{
-			State:   resp.State,
-			Private: resp.Private,
-		}
-		r.Read(ctx, readReq, &readResp)
-		resp.Diagnostics.Append(readResp.Diagnostics...)
-
-		resp.State = readResp.State
-
-		tflog.Debug(ctx, fmt.Sprintf("%s: finished implicit Read", plan.Id.ValueString()))
-	}()
+	plan.computeFromBody(ctx, res)
 
 	keptCats, keptRules := r.countKept(ctx, state, plan)
 
-	err = r.truncateRulesAt(ctx, state, keptRules, reqMods...)
+	// Most of attribs are set as planned, except Rules and Categories which we'll do below.
+	existingRules, existingCategories := state.Rules, state.Categories
+	state = plan
+	state.Rules, state.Categories = existingRules, existingCategories
+
+	// Whether we return error or success, the `state` var will be actually persisted by terraform:
+	defer func() {
+		diags = resp.State.Set(ctx, &state)
+		resp.Diagnostics.Append(diags...)
+	}()
+
+	err = r.truncateRulesAt(ctx, &state, keptRules, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
-	err = r.truncateCatsAt(ctx, state, keptCats, reqMods...)
+	err = r.truncateCatsAt(ctx, &state, keptCats, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	err = r.createCatsAt(ctx, plan, bodyCats, keptCats, reqMods...)
+	err = r.createCatsAt(ctx, plan, bodyCats, keptCats, &state, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	err = r.createRulesAt(ctx, plan, bodyRules.Array(), keptRules, reqMods...)
+	err = r.createRulesAt(ctx, plan, bodyRules.Array(), keptRules, &state, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully, starting implicit Read", plan.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 }
 
 // countKept compares the state with the plan starting from index 0, and returns:
@@ -613,57 +599,63 @@ func (r *AccessControlPolicyResource) countKept(ctx context.Context, state, plan
 	return 0, 0 // TODO
 }
 
-func (r *AccessControlPolicyResource) truncateRulesAt(ctx context.Context, state AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) error {
-	var err error
+func (r *AccessControlPolicyResource) truncateRulesAt(ctx context.Context, state *AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) error {
 	var b strings.Builder
 	var bulks []string
+	var counts []int
+	count := 0
 
 	for i := kept; i < len(state.Rules); i++ {
 		if b.Len() != 0 {
 			b.WriteString(",")
 		}
 		b.WriteString(state.Rules[i].Id.ValueString())
-		if b.Len() > 4000 {
+		count++
+		if b.Len() >= 3700-2 {
 			bulks = append(bulks, b.String())
 			b.Reset()
+			counts = append(counts, count)
+			count = 0
 		}
 	}
 	if b.Len() > 0 {
 		bulks = append(bulks, b.String())
+		counts = append(counts, count)
 	}
 
-	for _, bulk := range bulks {
+	defer func() {
+		// Apparently, the bulk DELETE has a race. Stabilize:
+		time.Sleep(2 * time.Second)
+	}()
+
+	for i, bulk := range bulks {
 		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+
 			"/accessrules?bulk=true&filter=ids:"+url.QueryEscape(bulk), reqMods...)
 		if err != nil {
 			return fmt.Errorf("Failed to bulk-delete rules, got error: %v, %s", err, res.String())
 		}
-	}
 
-	// Apparently, the bulk DELETE has a race. Gather logs:
-	troubleshoot, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/accessrules?expanded=true&offset=0&limit=1000", reqMods...)
-	if err != nil {
-		return fmt.Errorf("Failed to bulk-get rules, got error: %s, %s", err, troubleshoot.String())
+		state.Rules = slices.Delete(state.Rules, kept, kept+counts[i])
 	}
-
-	// Apparently, the bulk DELETE has a race. Stabilize:
-	time.Sleep(time.Second)
 
 	return nil
 }
 
-func (r *AccessControlPolicyResource) truncateCatsAt(ctx context.Context, state AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) error {
-	for i := kept; i < len(state.Categories); i++ {
+func (r *AccessControlPolicyResource) truncateCatsAt(ctx context.Context, state *AccessControlPolicy, kept int, reqMods ...func(*fmc.Req)) error {
+	for i := len(state.Categories) - 1; i >= kept; i-- {
 		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+
 			"/categories/"+url.QueryEscape(state.Categories[i].Id.ValueString()), reqMods...)
 		if err != nil {
 			return fmt.Errorf("Failed to delete a category, got error: %v, %s", err, res)
 		}
+
+		state.Categories[i] = AccessControlPolicyCategories{}
+		state.Categories = state.Categories[:i]
 	}
 	return nil
 }
 
-func (r *AccessControlPolicyResource) createCatsAt(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, startIndex int, reqMods ...func(*fmc.Req)) error {
+func (r *AccessControlPolicyResource) createCatsAt(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, startIndex int, state *AccessControlPolicy, reqMods ...func(*fmc.Req)) error {
 	for i := startIndex; i < len(plan.Categories); i++ {
 		cat := body[i].String()
 		cat, _ = sjson.Delete(cat, "id")
@@ -677,14 +669,28 @@ func (r *AccessControlPolicyResource) createCatsAt(ctx context.Context, plan Acc
 		if err != nil {
 			return fmt.Errorf("Failed to create a category (POST), got error: %v, %s", err, res)
 		}
+
+		item := plan.Categories[i]
+		item.Id = types.StringValue(res.Get("id").String())
+
+		if len(state.Categories) <= i {
+			state.Categories = append(state.Categories, item)
+		} else {
+			state.Categories[i] = item
+		}
 	}
 
 	return nil
 }
 
-func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, startIndex int, reqMods ...func(*fmc.Req)) error {
+// createRulesAt creates rules plan.Rules[startIndex:] (from startIndex to the end).
+// The `body` should be a marshalled `plan.Rules`.
+// Whether it succeeds fully or partially, it takes whatever has been really created and saves in the `state`.
+// The `state` and `&plan` might be either the same value or different.
+func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan AccessControlPolicy, body []gjson.Result, startIndex int, state *AccessControlPolicy, reqMods ...func(*fmc.Req)) error {
 	for i := startIndex; i < len(body); i++ {
 		bulk := `{"dummy_rules":[]}`
+		j := i
 		head := plan.Rules[i]
 		for ; i < len(body); i++ {
 			if !head.CategoryName.Equal(plan.Rules[i].CategoryName) || head.GetSection() != plan.Rules[i].GetSection() {
@@ -709,8 +715,26 @@ func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan Ac
 			gjson.Parse(bulk).Get("dummy_rules").String(),
 			reqMods...)
 		if err != nil {
-			// POST usually reports a fake item with a non-existing UUID, ignore it.
-			return fmt.Errorf("Failed to configure object (POST), got error: %s, %s", err, res.String())
+			return fmt.Errorf("Failed to configure object (POST), got error: %s, %s %s", err, res.String(),
+				"(above may include a bogus item, ignore it)")
+		}
+
+		for _, v := range res.Get("items").Array() {
+			if v.Get("name").String() == "" {
+				tflog.Debug(ctx, fmt.Sprintf("ignoring a bogus item in POST reply, it can happen: %s", v))
+				continue
+			}
+
+			item := plan.Rules[j]
+			item.Id = types.StringValue(v.Get("id").String())
+
+			if len(state.Rules) <= j {
+				state.Rules = append(state.Rules, item)
+			} else {
+				state.Rules[j] = item
+			}
+
+			j++
 		}
 	}
 
