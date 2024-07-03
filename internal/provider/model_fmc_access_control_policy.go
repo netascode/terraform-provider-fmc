@@ -1025,8 +1025,9 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 
 // End of section. //template:end isNull
 
-// computeFromBody updates the Computed tfstate attributes from a JSON. It excludes Default+Computed
-// attributes as these should not be refreshed during Create/Update.
+// computeFromBody updates the Computed tfstate attributes from a JSON.
+// It excludes Default+Computed attributes as changes to these during Create/Update would fail Terraform run.
+// It excludes UseStateForUnknown+Computed attributes as changes to these during Create/Update would fail Terraform run.
 func (data *AccessControlPolicy) computeFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("defaultAction.id"); value.Exists() {
 		data.DefaultActionId = types.StringValue(value.String())
