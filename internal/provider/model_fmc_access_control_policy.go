@@ -594,6 +594,7 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 
 // End of section. //template:end fromBody
 
+// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
 func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
@@ -650,15 +651,16 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 	} else {
 		data.DefaultActionIntrusionPolicyId = types.StringNull()
 	}
-	resLen := len(res.Get("dummy_categories").Array())
-	tflog.Debug(ctx, fmt.Sprintf("categories array: tf len %d, body len %d", len(data.Categories), resLen))
-	for i := len(data.Categories); i < resLen; i++ {
-		data.Categories = append(data.Categories, AccessControlPolicyCategories{})
+	{
+		l := len(res.Get("dummy_categories").Array())
+		tflog.Debug(ctx, fmt.Sprintf("dummy_categories array resizing from %d to %d", len(data.Categories), l))
+		for i := len(data.Categories); i < l; i++ {
+			data.Categories = append(data.Categories, AccessControlPolicyCategories{})
+		}
+		if len(data.Categories) > l {
+			data.Categories = data.Categories[:l]
+		}
 	}
-	if len(data.Categories) > resLen {
-		data.Categories = data.Categories[:resLen]
-	}
-
 	for i := range data.Categories {
 		r := res.Get(fmt.Sprintf("dummy_categories.%d", i))
 		if value := r.Get("id"); value.Exists() && !data.Categories[i].Id.IsNull() {
@@ -672,16 +674,16 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			data.Categories[i].Name = types.StringNull()
 		}
 	}
-
-	resLen = len(res.Get("dummy_rules").Array())
-	tflog.Debug(ctx, fmt.Sprintf("rules array: tf len %d, body len %d", len(data.Rules), resLen))
-	for i := len(data.Rules); i < resLen; i++ {
-		data.Rules = append(data.Rules, AccessControlPolicyRules{})
+	{
+		l := len(res.Get("dummy_rules").Array())
+		tflog.Debug(ctx, fmt.Sprintf("dummy_rules array resizing from %d to %d", len(data.Rules), l))
+		for i := len(data.Rules); i < l; i++ {
+			data.Rules = append(data.Rules, AccessControlPolicyRules{})
+		}
+		if len(data.Rules) > l {
+			data.Rules = data.Rules[:l]
+		}
 	}
-	if len(data.Rules) > resLen {
-		data.Rules = data.Rules[:resLen]
-	}
-
 	for i := range data.Rules {
 		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
 		if value := r.Get("id"); value.Exists() && !data.Rules[i].Id.IsNull() {
@@ -955,6 +957,8 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		}
 	}
 }
+
+// End of section. //template:end updateFromBody
 
 // adjustFromBody applies a few corrections after an auto-generated fromBody/updateFromBody.
 func (data *AccessControlPolicy) adjustFromBody(ctx context.Context, res gjson.Result) {
