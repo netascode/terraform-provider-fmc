@@ -571,6 +571,14 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 		return
 	}
 
+	if plan.Categories == nil {
+		state.Categories = nil
+	}
+
+	if plan.Rules == nil {
+		state.Rules = nil
+	}
+
 	err = r.createCatsAt(ctx, plan, bodyCats, keptCats, &state, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", err.Error())
