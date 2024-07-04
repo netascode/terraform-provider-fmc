@@ -245,6 +245,62 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
+						"source_port_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_port.this.id, fmc_port_group.this.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_port_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_port.this.id, fmc_port_group.this.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_security_group_tag_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing the source Security Group Tags (fmc_security_group_tag - part of the dynamic attributes).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_security_group_tag.this.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_security_group_tag.this.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_security_group_tag_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing the destination Security Group Tags (fmc_security_group_tag - part of the dynamic attributes).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_security_group_tag.this.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_security_group_tag.this.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
 						"source_zones": schema.SetNestedAttribute{
 							MarkdownDescription: "Set of objects representing source security zones associated with the access rule (fmc_security_zone).",
 							Computed:            true,

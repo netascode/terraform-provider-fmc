@@ -275,6 +275,78 @@ attributes:
             description: Type of the object (such as fmc_dynamic_object.this.type, etc.).
             value: DynamicObject
       - model_name: objects
+        data_path: [sourcePorts]
+        tf_name: source_port_objects
+        description: Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_port.this.id, fmc_port_group.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_port.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_port.this.type, fmc_port_group.this.type, etc.).
+            value: AnyNonEmptyString
+      - model_name: objects
+        data_path: [destinationPorts]
+        tf_name: destination_port_objects
+        description: Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_port.this.id, fmc_port_group.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_port.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_port.this.type, fmc_port_group.this.type, etc.).
+            value: AnyNonEmptyString
+      - model_name: objects
+        data_path: [sourceSecurityGroupTags]
+        tf_name: source_security_group_tag_objects
+        description: >-
+          Set of objects representing the source Security Group Tags (fmc_security_group_tag - part of the dynamic attributes).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_security_group_tag.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_security_group_tag.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_security_group_tag.this.type, etc.).
+            example: SecurityGroupTag
+            # test_value: fmc_security_group_tag.this.type
+      - model_name: objects
+        data_path: [destinationSecurityGroupTags]
+        tf_name: destination_security_group_tag_objects
+        description: >-
+          Set of objects representing the destination Security Group Tags (fmc_security_group_tag - part of the dynamic attributes).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_security_group_tag.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_security_group_tag.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_security_group_tag.this.type, etc.).
+            example: SecurityGroupTag
+            # test_value: fmc_security_group_tag.this.type
+      - model_name: objects
         data_path: [sourceZones]
         tf_name: source_zones
         description: Set of objects representing source security zones associated with the access rule (fmc_security_zone).

@@ -61,30 +61,34 @@ type AccessControlPolicyCategories struct {
 }
 
 type AccessControlPolicyRules struct {
-	Id                         types.String                                         `tfsdk:"id"`
-	Action                     types.String                                         `tfsdk:"action"`
-	Name                       types.String                                         `tfsdk:"name"`
-	CategoryName               types.String                                         `tfsdk:"category_name"`
-	Section                    types.String                                         `tfsdk:"section"`
-	Enabled                    types.Bool                                           `tfsdk:"enabled"`
-	SourceNetworkLiterals      []AccessControlPolicyRulesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
-	DestinationNetworkLiterals []AccessControlPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
-	SourceNetworkObjects       []AccessControlPolicyRulesSourceNetworkObjects       `tfsdk:"source_network_objects"`
-	DestinationNetworkObjects  []AccessControlPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
-	SourceDynamicObjects       []AccessControlPolicyRulesSourceDynamicObjects       `tfsdk:"source_dynamic_objects"`
-	DestinationDynamicObjects  []AccessControlPolicyRulesDestinationDynamicObjects  `tfsdk:"destination_dynamic_objects"`
-	SourceZones                []AccessControlPolicyRulesSourceZones                `tfsdk:"source_zones"`
-	DestinationZones           []AccessControlPolicyRulesDestinationZones           `tfsdk:"destination_zones"`
-	LogBegin                   types.Bool                                           `tfsdk:"log_begin"`
-	LogEnd                     types.Bool                                           `tfsdk:"log_end"`
-	LogFiles                   types.Bool                                           `tfsdk:"log_files"`
-	SendEventsToFmc            types.Bool                                           `tfsdk:"send_events_to_fmc"`
-	SendSyslog                 types.Bool                                           `tfsdk:"send_syslog"`
-	SyslogConfigId             types.String                                         `tfsdk:"syslog_config_id"`
-	SyslogSeverity             types.String                                         `tfsdk:"syslog_severity"`
-	Description                types.String                                         `tfsdk:"description"`
-	FilePolicyId               types.String                                         `tfsdk:"file_policy_id"`
-	IntrusionPolicyId          types.String                                         `tfsdk:"intrusion_policy_id"`
+	Id                                 types.String                                                 `tfsdk:"id"`
+	Action                             types.String                                                 `tfsdk:"action"`
+	Name                               types.String                                                 `tfsdk:"name"`
+	CategoryName                       types.String                                                 `tfsdk:"category_name"`
+	Section                            types.String                                                 `tfsdk:"section"`
+	Enabled                            types.Bool                                                   `tfsdk:"enabled"`
+	SourceNetworkLiterals              []AccessControlPolicyRulesSourceNetworkLiterals              `tfsdk:"source_network_literals"`
+	DestinationNetworkLiterals         []AccessControlPolicyRulesDestinationNetworkLiterals         `tfsdk:"destination_network_literals"`
+	SourceNetworkObjects               []AccessControlPolicyRulesSourceNetworkObjects               `tfsdk:"source_network_objects"`
+	DestinationNetworkObjects          []AccessControlPolicyRulesDestinationNetworkObjects          `tfsdk:"destination_network_objects"`
+	SourceDynamicObjects               []AccessControlPolicyRulesSourceDynamicObjects               `tfsdk:"source_dynamic_objects"`
+	DestinationDynamicObjects          []AccessControlPolicyRulesDestinationDynamicObjects          `tfsdk:"destination_dynamic_objects"`
+	SourcePortObjects                  []AccessControlPolicyRulesSourcePortObjects                  `tfsdk:"source_port_objects"`
+	DestinationPortObjects             []AccessControlPolicyRulesDestinationPortObjects             `tfsdk:"destination_port_objects"`
+	SourceSecurityGroupTagObjects      []AccessControlPolicyRulesSourceSecurityGroupTagObjects      `tfsdk:"source_security_group_tag_objects"`
+	DestinationSecurityGroupTagObjects []AccessControlPolicyRulesDestinationSecurityGroupTagObjects `tfsdk:"destination_security_group_tag_objects"`
+	SourceZones                        []AccessControlPolicyRulesSourceZones                        `tfsdk:"source_zones"`
+	DestinationZones                   []AccessControlPolicyRulesDestinationZones                   `tfsdk:"destination_zones"`
+	LogBegin                           types.Bool                                                   `tfsdk:"log_begin"`
+	LogEnd                             types.Bool                                                   `tfsdk:"log_end"`
+	LogFiles                           types.Bool                                                   `tfsdk:"log_files"`
+	SendEventsToFmc                    types.Bool                                                   `tfsdk:"send_events_to_fmc"`
+	SendSyslog                         types.Bool                                                   `tfsdk:"send_syslog"`
+	SyslogConfigId                     types.String                                                 `tfsdk:"syslog_config_id"`
+	SyslogSeverity                     types.String                                                 `tfsdk:"syslog_severity"`
+	Description                        types.String                                                 `tfsdk:"description"`
+	FilePolicyId                       types.String                                                 `tfsdk:"file_policy_id"`
+	IntrusionPolicyId                  types.String                                                 `tfsdk:"intrusion_policy_id"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
@@ -106,6 +110,20 @@ type AccessControlPolicyRulesSourceDynamicObjects struct {
 }
 type AccessControlPolicyRulesDestinationDynamicObjects struct {
 	Id types.String `tfsdk:"id"`
+}
+type AccessControlPolicyRulesSourcePortObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type AccessControlPolicyRulesDestinationPortObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type AccessControlPolicyRulesSourceSecurityGroupTagObjects struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type AccessControlPolicyRulesDestinationSecurityGroupTagObjects struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
 }
 type AccessControlPolicyRulesSourceZones struct {
 	Id types.String `tfsdk:"id"`
@@ -296,6 +314,54 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					}
 					itemChildBody, _ = sjson.Set(itemChildBody, "type", "DynamicObject")
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationDynamicObjects.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.SourcePortObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourcePorts.objects", []interface{}{})
+				for _, childItem := range item.SourcePortObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					itemBody, _ = sjson.SetRaw(itemBody, "sourcePorts.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationPortObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationPorts.objects", []interface{}{})
+				for _, childItem := range item.DestinationPortObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationPorts.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.SourceSecurityGroupTagObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceSecurityGroupTags.objects", []interface{}{})
+				for _, childItem := range item.SourceSecurityGroupTagObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceSecurityGroupTags.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationSecurityGroupTagObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationSecurityGroupTags.objects", []interface{}{})
+				for _, childItem := range item.DestinationSecurityGroupTagObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationSecurityGroupTags.objects.-1", itemChildBody)
 				}
 			}
 			if len(item.SourceZones) > 0 {
@@ -552,6 +618,68 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 						cItem.Id = types.StringNull()
 					}
 					item.DestinationDynamicObjects = append(item.DestinationDynamicObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("sourcePorts.objects"); cValue.Exists() {
+				item.SourcePortObjects = make([]AccessControlPolicyRulesSourcePortObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesSourcePortObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					item.SourcePortObjects = append(item.SourcePortObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("destinationPorts.objects"); cValue.Exists() {
+				item.DestinationPortObjects = make([]AccessControlPolicyRulesDestinationPortObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesDestinationPortObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					item.DestinationPortObjects = append(item.DestinationPortObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("sourceSecurityGroupTags.objects"); cValue.Exists() {
+				item.SourceSecurityGroupTagObjects = make([]AccessControlPolicyRulesSourceSecurityGroupTagObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesSourceSecurityGroupTagObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					item.SourceSecurityGroupTagObjects = append(item.SourceSecurityGroupTagObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("destinationSecurityGroupTags.objects"); cValue.Exists() {
+				item.DestinationSecurityGroupTagObjects = make([]AccessControlPolicyRulesDestinationSecurityGroupTagObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesDestinationSecurityGroupTagObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("type"); ccValue.Exists() {
+						cItem.Type = types.StringValue(ccValue.String())
+					} else {
+						cItem.Type = types.StringNull()
+					}
+					item.DestinationSecurityGroupTagObjects = append(item.DestinationSecurityGroupTagObjects, cItem)
 					return true
 				})
 			}
@@ -938,6 +1066,132 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].DestinationDynamicObjects[ci].Id = types.StringValue(value.String())
 			} else {
 				data.Rules[i].DestinationDynamicObjects[ci].Id = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].SourcePortObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].SourcePortObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("sourcePorts.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourcePortObjects[ci].Id.IsNull() {
+				data.Rules[i].SourcePortObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourcePortObjects[ci].Id = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].DestinationPortObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].DestinationPortObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("destinationPorts.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].DestinationPortObjects[ci].Id.IsNull() {
+				data.Rules[i].DestinationPortObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationPortObjects[ci].Id = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].SourceSecurityGroupTagObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].SourceSecurityGroupTagObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("sourceSecurityGroupTags.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceSecurityGroupTagObjects[ci].Id.IsNull() {
+				data.Rules[i].SourceSecurityGroupTagObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceSecurityGroupTagObjects[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].SourceSecurityGroupTagObjects[ci].Type.IsNull() {
+				data.Rules[i].SourceSecurityGroupTagObjects[ci].Type = types.StringValue(value.String())
+			} else {
+				data.Rules[i].SourceSecurityGroupTagObjects[ci].Type = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].DestinationSecurityGroupTagObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].DestinationSecurityGroupTagObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("destinationSecurityGroupTags.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].DestinationSecurityGroupTagObjects[ci].Id.IsNull() {
+				data.Rules[i].DestinationSecurityGroupTagObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationSecurityGroupTagObjects[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("type"); value.Exists() && !data.Rules[i].DestinationSecurityGroupTagObjects[ci].Type.IsNull() {
+				data.Rules[i].DestinationSecurityGroupTagObjects[ci].Type = types.StringValue(value.String())
+			} else {
+				data.Rules[i].DestinationSecurityGroupTagObjects[ci].Type = types.StringNull()
 			}
 		}
 		for ci := range data.Rules[i].SourceZones {
