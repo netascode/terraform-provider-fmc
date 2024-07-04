@@ -571,12 +571,12 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 		return
 	}
 
-	if plan.Categories == nil {
-		state.Categories = nil
+	if len(plan.Categories) == 0 {
+		state.Categories = plan.Categories
 	}
 
-	if plan.Rules == nil {
-		state.Rules = nil
+	if len(plan.Rules) == 0 {
+		state.Rules = plan.Rules
 	}
 
 	err = r.createCatsAt(ctx, plan, bodyCats, keptCats, &state, reqMods...)
