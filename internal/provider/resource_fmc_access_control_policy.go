@@ -723,8 +723,7 @@ func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan Ac
 			gjson.Parse(bulk).Get("dummy_rules").String(),
 			reqMods...)
 		if err != nil {
-			return fmt.Errorf("Failed to configure object (POST), got error: %s, %s %s", err, res.String(),
-				"(above may include a bogus item, ignore it)")
+			return fmt.Errorf("Failed to configure object (POST), got error: %s, %s", err, res.String())
 		}
 
 		for _, v := range res.Get("items").Array() {
