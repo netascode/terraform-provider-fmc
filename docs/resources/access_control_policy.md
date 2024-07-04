@@ -102,6 +102,7 @@ resource "fmc_access_control_policy" "example" {
       send_syslog         = true
       syslog_config_id    = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
       syslog_severity     = "DEBUG"
+      snmp_config_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       file_policy_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
@@ -195,6 +196,7 @@ Optional:
   - Default value: `false`
 - `send_syslog` (Boolean) Indicates whether the alerts associated with the access rule are sent to syslog.
   - Default value: `false`
+- `snmp_config_id` (String) UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.
 - `source_dynamic_objects` (Attributes Set) Set of objects that represent dynamic sources of traffic (fmc_dynamic_object). (see [below for nested schema](#nestedatt--rules--source_dynamic_objects))
 - `source_network_literals` (Attributes Set) Set of objects that represent sources of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (Attributes Set) Set of objects that represent sources of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--source_network_objects))

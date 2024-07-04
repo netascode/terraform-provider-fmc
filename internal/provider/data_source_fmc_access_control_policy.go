@@ -353,6 +353,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							MarkdownDescription: "Override the Severity of syslog alerts.",
 							Computed:            true,
 						},
+						"snmp_config_id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.",
+							Computed:            true,
+						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: "User-specified string.",
 							Computed:            true,

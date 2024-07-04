@@ -404,6 +404,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								stringvalidator.OneOf("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING"),
 							},
 						},
+						"snmp_config_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.").String,
+							Optional:            true,
+						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("User-specified string.").String,
 							Optional:            true,

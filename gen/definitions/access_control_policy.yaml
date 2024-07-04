@@ -439,6 +439,15 @@ attributes:
           - WARNING
         example: "DEBUG"
         exclude_test: true
+      - model_name: id
+        data_path: [snmpConfig]
+        tf_name: snmp_config_id
+        type: String
+        description: >-
+          UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end
+          is true.
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        exclude_test: true
       - model_name: description
         type: String
         description: User-specified string.

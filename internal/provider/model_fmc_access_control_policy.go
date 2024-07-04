@@ -86,6 +86,7 @@ type AccessControlPolicyRules struct {
 	SendSyslog                         types.Bool                                                   `tfsdk:"send_syslog"`
 	SyslogConfigId                     types.String                                                 `tfsdk:"syslog_config_id"`
 	SyslogSeverity                     types.String                                                 `tfsdk:"syslog_severity"`
+	SnmpConfigId                       types.String                                                 `tfsdk:"snmp_config_id"`
 	Description                        types.String                                                 `tfsdk:"description"`
 	FilePolicyId                       types.String                                                 `tfsdk:"file_policy_id"`
 	IntrusionPolicyId                  types.String                                                 `tfsdk:"intrusion_policy_id"`
@@ -406,6 +407,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			}
 			if !item.SyslogSeverity.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "syslogSeverity", item.SyslogSeverity.ValueString())
+			}
+			if !item.SnmpConfigId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "snmpConfig.id", item.SnmpConfigId.ValueString())
 			}
 			if !item.Description.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
@@ -743,6 +747,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				item.SyslogSeverity = types.StringValue(cValue.String())
 			} else {
 				item.SyslogSeverity = types.StringNull()
+			}
+			if cValue := v.Get("snmpConfig.id"); cValue.Exists() {
+				item.SnmpConfigId = types.StringValue(cValue.String())
+			} else {
+				item.SnmpConfigId = types.StringNull()
 			}
 			if cValue := v.Get("filePolicy.id"); cValue.Exists() {
 				item.FilePolicyId = types.StringValue(cValue.String())
@@ -1286,6 +1295,11 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			data.Rules[i].SyslogSeverity = types.StringValue(value.String())
 		} else {
 			data.Rules[i].SyslogSeverity = types.StringNull()
+		}
+		if value := r.Get("snmpConfig.id"); value.Exists() && !data.Rules[i].SnmpConfigId.IsNull() {
+			data.Rules[i].SnmpConfigId = types.StringValue(value.String())
+		} else {
+			data.Rules[i].SnmpConfigId = types.StringNull()
 		}
 		if value := r.Get("filePolicy.id"); value.Exists() && !data.Rules[i].FilePolicyId.IsNull() {
 			data.Rules[i].FilePolicyId = types.StringValue(value.String())
