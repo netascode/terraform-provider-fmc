@@ -342,7 +342,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							},
 						},
 						"url_categories": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing the URLs and categories associated with the rule (fmc_url_category).",
+							MarkdownDescription: "Set of objects representing the URL Categories associated with the rule (fmc_url_category).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
