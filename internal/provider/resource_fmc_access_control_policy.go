@@ -204,7 +204,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							Default:             booldefault.StaticBool(true),
 						},
 						"source_network_literals": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent sources of traffic (literally specified).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -216,7 +216,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							},
 						},
 						"destination_network_literals": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (literally specified).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -228,7 +228,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							},
 						},
 						"source_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent sources of traffic (fmc_network or similar).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -244,7 +244,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							},
 						},
 						"destination_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent destinations of traffic (fmc_network or similar).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -260,32 +260,24 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							},
 						},
 						"source_dynamic_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent dynamic sources of traffic.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent dynamic sources of traffic (fmc_dynamic_object).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_dynamic_object.this.id, etc.).").String,
-										Optional:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_dynamic_object.this.type, etc.).").String,
 										Optional:            true,
 									},
 								},
 							},
 						},
 						"destination_dynamic_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of the objects that represent dynamic destinations of traffic.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent dynamic destinations of traffic (fmc_dynamic_object).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_dynamic_object.this.id, etc.).").String,
-										Optional:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_dynamic_object.this.type, etc.).").String,
 										Optional:            true,
 									},
 								},

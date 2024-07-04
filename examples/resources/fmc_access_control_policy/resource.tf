@@ -41,14 +41,12 @@ resource "fmc_access_control_policy" "example" {
       ]
       source_dynamic_objects = [
         {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "DynamicObject"
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
       destination_dynamic_objects = [
         {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "DynamicObject"
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
       source_zones = [

@@ -166,7 +166,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							Computed:            true,
 						},
 						"source_network_literals": schema.SetNestedAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Set of objects that represent sources of traffic (literally specified).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -178,7 +178,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							},
 						},
 						"destination_network_literals": schema.SetNestedAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Set of objects that represent destinations of traffic (literally specified).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -190,7 +190,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							},
 						},
 						"source_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of the objects that represent sources of traffic (fmc_network or similar).",
+							MarkdownDescription: "Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -206,7 +206,7 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							},
 						},
 						"destination_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of the objects that represent destinations of traffic (fmc_network or similar).",
+							MarkdownDescription: "Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -222,32 +222,24 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 							},
 						},
 						"source_dynamic_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of the objects that represent dynamic sources of traffic.",
+							MarkdownDescription: "Set of objects that represent dynamic sources of traffic (fmc_dynamic_object).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: "UUID of the object (such as fmc_dynamic_object.this.id, etc.).",
-										Computed:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: "Type of the object (such as fmc_dynamic_object.this.type, etc.).",
 										Computed:            true,
 									},
 								},
 							},
 						},
 						"destination_dynamic_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of the objects that represent dynamic destinations of traffic.",
+							MarkdownDescription: "Set of objects that represent dynamic destinations of traffic (fmc_dynamic_object).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: "UUID of the object (such as fmc_dynamic_object.this.id, etc.).",
-										Computed:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: "Type of the object (such as fmc_dynamic_object.this.type, etc.).",
 										Computed:            true,
 									},
 								},

@@ -102,12 +102,10 @@ type AccessControlPolicyRulesDestinationNetworkObjects struct {
 	Type types.String `tfsdk:"type"`
 }
 type AccessControlPolicyRulesSourceDynamicObjects struct {
-	Id   types.String `tfsdk:"id"`
-	Type types.String `tfsdk:"type"`
+	Id types.String `tfsdk:"id"`
 }
 type AccessControlPolicyRulesDestinationDynamicObjects struct {
-	Id   types.String `tfsdk:"id"`
-	Type types.String `tfsdk:"type"`
+	Id types.String `tfsdk:"id"`
 }
 type AccessControlPolicyRulesSourceZones struct {
 	Id types.String `tfsdk:"id"`
@@ -285,9 +283,7 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
 					}
-					if !childItem.Type.IsNull() {
-						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
-					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "DynamicObject")
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceDynamicObjects.objects.-1", itemChildBody)
 				}
 			}
@@ -298,9 +294,7 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
 					}
-					if !childItem.Type.IsNull() {
-						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
-					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "DynamicObject")
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationDynamicObjects.objects.-1", itemChildBody)
 				}
 			}
@@ -544,11 +538,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					} else {
 						cItem.Id = types.StringNull()
 					}
-					if ccValue := cv.Get("type"); ccValue.Exists() {
-						cItem.Type = types.StringValue(ccValue.String())
-					} else {
-						cItem.Type = types.StringNull()
-					}
 					item.SourceDynamicObjects = append(item.SourceDynamicObjects, cItem)
 					return true
 				})
@@ -561,11 +550,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 						cItem.Id = types.StringValue(ccValue.String())
 					} else {
 						cItem.Id = types.StringNull()
-					}
-					if ccValue := cv.Get("type"); ccValue.Exists() {
-						cItem.Type = types.StringValue(ccValue.String())
-					} else {
-						cItem.Type = types.StringNull()
 					}
 					item.DestinationDynamicObjects = append(item.DestinationDynamicObjects, cItem)
 					return true
@@ -926,11 +910,6 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 			} else {
 				data.Rules[i].SourceDynamicObjects[ci].Id = types.StringNull()
 			}
-			if value := cr.Get("type"); value.Exists() && !data.Rules[i].SourceDynamicObjects[ci].Type.IsNull() {
-				data.Rules[i].SourceDynamicObjects[ci].Type = types.StringValue(value.String())
-			} else {
-				data.Rules[i].SourceDynamicObjects[ci].Type = types.StringNull()
-			}
 		}
 		for ci := range data.Rules[i].DestinationDynamicObjects {
 			keys := [...]string{"id"}
@@ -959,11 +938,6 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].DestinationDynamicObjects[ci].Id = types.StringValue(value.String())
 			} else {
 				data.Rules[i].DestinationDynamicObjects[ci].Id = types.StringNull()
-			}
-			if value := cr.Get("type"); value.Exists() && !data.Rules[i].DestinationDynamicObjects[ci].Type.IsNull() {
-				data.Rules[i].DestinationDynamicObjects[ci].Type = types.StringValue(value.String())
-			} else {
-				data.Rules[i].DestinationDynamicObjects[ci].Type = types.StringNull()
 			}
 		}
 		for ci := range data.Rules[i].SourceZones {

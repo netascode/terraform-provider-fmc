@@ -183,6 +183,7 @@ attributes:
       - model_name: literals
         data_path: [sourceNetworks]
         tf_name: source_network_literals
+        description: Set of objects that represent sources of traffic (literally specified).
         type: Set
         attributes:
           - model_name: type
@@ -195,6 +196,7 @@ attributes:
       - model_name: literals
         data_path: [destinationNetworks]
         tf_name: destination_network_literals
+        description: Set of objects that represent destinations of traffic (literally specified).
         type: Set
         attributes:
           - model_name: type
@@ -207,7 +209,7 @@ attributes:
       - model_name: objects
         data_path: [sourceNetworks]
         tf_name: source_network_objects
-        description: Set of the objects that represent sources of traffic (fmc_network or similar).
+        description: Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).
         type: Set
         attributes:
           - model_name: id
@@ -224,7 +226,7 @@ attributes:
       - model_name: objects
         data_path: [destinationNetworks]
         tf_name: destination_network_objects
-        description: Set of the objects that represent destinations of traffic (fmc_network or similar).
+        description: Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).
         type: Set
         attributes:
           - model_name: id
@@ -241,7 +243,7 @@ attributes:
       - model_name: objects
         data_path: [sourceDynamicObjects]
         tf_name: source_dynamic_objects
-        description: Set of the objects that represent dynamic sources of traffic.
+        description: Set of objects that represent dynamic sources of traffic (fmc_dynamic_object).
         type: Set
         exclude_test: true
         attributes:
@@ -254,12 +256,11 @@ attributes:
           - model_name: type
             type: String
             description: Type of the object (such as fmc_dynamic_object.this.type, etc.).
-            example: DynamicObject
-            # test_value: fmc_dynamic_object.this.type
+            value: DynamicObject
       - model_name: objects
         data_path: [destinationDynamicObjects]
         tf_name: destination_dynamic_objects
-        description: Set of the objects that represent dynamic destinations of traffic.
+        description: Set of objects that represent dynamic destinations of traffic (fmc_dynamic_object).
         type: Set
         exclude_test: true
         attributes:
@@ -272,8 +273,7 @@ attributes:
           - model_name: type
             type: String
             description: Type of the object (such as fmc_dynamic_object.this.type, etc.).
-            example: DynamicObject
-            # test_value: fmc_dynamic_object.this.type
+            value: DynamicObject
       - model_name: objects
         data_path: [sourceZones]
         tf_name: source_zones

@@ -56,14 +56,12 @@ resource "fmc_access_control_policy" "example" {
       ]
       source_dynamic_objects = [
         {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "DynamicObject"
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
       destination_dynamic_objects = [
         {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "DynamicObject"
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
       source_zones = [
@@ -153,9 +151,9 @@ Optional:
 
 - `category_name` (String) Name of the category that owns this rule (a `name` from `categories` list).
 - `description` (String) User-specified string.
-- `destination_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic destinations of traffic. (see [below for nested schema](#nestedatt--rules--destination_dynamic_objects))
-- `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
-- `destination_network_objects` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
+- `destination_dynamic_objects` (Attributes Set) Set of objects that represent dynamic destinations of traffic (fmc_dynamic_object). (see [below for nested schema](#nestedatt--rules--destination_dynamic_objects))
+- `destination_network_literals` (Attributes Set) Set of objects that represent destinations of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--destination_network_literals))
+- `destination_network_objects` (Attributes Set) Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
 - `destination_zones` (Attributes Set) Set of objects representing destination security zones associated with the access rule (fmc_security_zone). (see [below for nested schema](#nestedatt--rules--destination_zones))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
@@ -173,9 +171,9 @@ Optional:
   - Default value: `false`
 - `send_syslog` (Boolean) Indicates whether the alerts associated with the access rule are sent to syslog.
   - Default value: `false`
-- `source_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic sources of traffic. (see [below for nested schema](#nestedatt--rules--source_dynamic_objects))
-- `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
-- `source_network_objects` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_network_objects))
+- `source_dynamic_objects` (Attributes Set) Set of objects that represent dynamic sources of traffic (fmc_dynamic_object). (see [below for nested schema](#nestedatt--rules--source_dynamic_objects))
+- `source_network_literals` (Attributes Set) Set of objects that represent sources of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--source_network_literals))
+- `source_network_objects` (Attributes Set) Set of objects that represent sources of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--source_network_objects))
 - `source_zones` (Attributes Set) Set of objects representing source security zones associated with the access rule (fmc_security_zone). (see [below for nested schema](#nestedatt--rules--source_zones))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
@@ -191,7 +189,6 @@ Read-Only:
 Optional:
 
 - `id` (String) UUID of the object (such as fmc_dynamic_object.this.id, etc.).
-- `type` (String) Type of the object (such as fmc_dynamic_object.this.type, etc.).
 
 
 <a id="nestedatt--rules--destination_network_literals"></a>
@@ -225,7 +222,6 @@ Optional:
 Optional:
 
 - `id` (String) UUID of the object (such as fmc_dynamic_object.this.id, etc.).
-- `type` (String) Type of the object (such as fmc_dynamic_object.this.type, etc.).
 
 
 <a id="nestedatt--rules--source_network_literals"></a>
