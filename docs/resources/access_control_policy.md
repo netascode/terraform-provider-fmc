@@ -66,6 +66,16 @@ resource "fmc_access_control_policy" "example" {
           type = "DynamicObject"
         }
       ]
+      source_zones = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      destination_zones = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
       log_begin           = true
       log_end             = true
       send_events_to_fmc  = true
@@ -146,6 +156,7 @@ Optional:
 - `destination_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic destinations of traffic. (see [below for nested schema](#nestedatt--rules--destination_dynamic_objects))
 - `destination_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_network_objects` (Attributes Set) Set of the objects that represent destinations of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
+- `destination_zones` (Attributes Set) Set of objects representing destination security zones associated with the access rule (fmc_security_zone). (see [below for nested schema](#nestedatt--rules--destination_zones))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
 - `file_policy_id` (String) Identifier (UUID) of the File Policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.
@@ -165,6 +176,7 @@ Optional:
 - `source_dynamic_objects` (Attributes Set) Set of the objects that represent dynamic sources of traffic. (see [below for nested schema](#nestedatt--rules--source_dynamic_objects))
 - `source_network_literals` (Attributes Set) (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (Attributes Set) Set of the objects that represent sources of traffic (fmc_network or similar). (see [below for nested schema](#nestedatt--rules--source_network_objects))
+- `source_zones` (Attributes Set) Set of objects representing source security zones associated with the access rule (fmc_security_zone). (see [below for nested schema](#nestedatt--rules--source_zones))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
@@ -199,6 +211,14 @@ Optional:
 - `type` (String) Type of the object (such as fmc_network.this.type, etc.).
 
 
+<a id="nestedatt--rules--destination_zones"></a>
+### Nested Schema for `rules.destination_zones`
+
+Optional:
+
+- `id` (String) UUID of the object (such as fmc_security_zone.this.id, etc.).
+
+
 <a id="nestedatt--rules--source_dynamic_objects"></a>
 ### Nested Schema for `rules.source_dynamic_objects`
 
@@ -223,6 +243,14 @@ Optional:
 
 - `id` (String) UUID of the object (such as fmc_network.this.id, etc.).
 - `type` (String) Type of the object (such as fmc_network.this.type, etc.).
+
+
+<a id="nestedatt--rules--source_zones"></a>
+### Nested Schema for `rules.source_zones`
+
+Optional:
+
+- `id` (String) UUID of the object (such as fmc_security_zone.this.id, etc.).
 
 ## Import
 

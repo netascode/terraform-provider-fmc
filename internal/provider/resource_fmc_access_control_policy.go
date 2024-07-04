@@ -291,6 +291,30 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
+						"source_zones": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source security zones associated with the access rule (fmc_security_zone).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_security_zone.this.id, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_zones": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination security zones associated with the access rule (fmc_security_zone).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_security_zone.this.id, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
 						"log_begin": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.").AddDefaultValueDescription("false").String,
 							Optional:            true,

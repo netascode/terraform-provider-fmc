@@ -274,6 +274,40 @@ attributes:
             description: Type of the object (such as fmc_dynamic_object.this.type, etc.).
             example: DynamicObject
             # test_value: fmc_dynamic_object.this.type
+      - model_name: objects
+        data_path: [sourceZones]
+        tf_name: source_zones
+        description: Set of objects representing source security zones associated with the access rule (fmc_security_zone).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_security_zone.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_security_zone.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_security_zone.this.type, etc.).
+            value: SecurityZone
+      - model_name: objects
+        data_path: [destinationZones]
+        tf_name: destination_zones
+        description: Set of objects representing destination security zones associated with the access rule (fmc_security_zone).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_security_zone.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_security_zone.this.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_security_zone.this.type, etc.).
+            value: SecurityZone
       - model_name: logBegin
         type: Bool
         description: >-

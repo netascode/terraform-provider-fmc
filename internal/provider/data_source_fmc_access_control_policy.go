@@ -253,6 +253,30 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								},
 							},
 						},
+						"source_zones": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing source security zones associated with the access rule (fmc_security_zone).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_security_zone.this.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_zones": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing destination security zones associated with the access rule (fmc_security_zone).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_security_zone.this.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
 						"log_begin": schema.BoolAttribute{
 							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.",
 							Computed:            true,

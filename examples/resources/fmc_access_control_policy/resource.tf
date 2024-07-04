@@ -51,6 +51,16 @@ resource "fmc_access_control_policy" "example" {
           type = "DynamicObject"
         }
       ]
+      source_zones = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      destination_zones = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
       log_begin           = true
       log_end             = true
       send_events_to_fmc  = true
