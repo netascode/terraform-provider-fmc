@@ -152,6 +152,8 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`	default_action = "BLOCK"` + "\n" +
 			`}`,
 	}, {
+		// The previous step's Config is completely replaced. Since the created TF resource
+		// has a different name, it is going to be destroyed as usual with `terraform apply`.
 		Config: `resource fmc_access_control_policy step2 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
@@ -300,22 +302,22 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 		Config: `resource fmc_access_control_policy step15 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
+			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=true}]` + "\n" +
+			`}`,
+	}, {
+		Config: `resource fmc_access_control_policy step16 {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ name = "r1", action = "MONITOR"}]` + "\n" +
 			`}`,
 		ExpectError: regexp.MustCompile(`Cannot use log_end=false when action="MONITOR"`),
 	}, {
-		Config: `resource fmc_access_control_policy step16 {` + "\n" +
+		Config: `resource fmc_access_control_policy step17 {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=null}]` + "\n" +
 			`}`,
 		ExpectError: regexp.MustCompile(`Cannot use send_events_to_fmc=false when action="MONITOR"`),
-	}, {
-		Config: `resource fmc_access_control_policy step17 {` + "\n" +
-			`	name = "pol1"` + "\n" +
-			`	default_action = "BLOCK"` + "\n" +
-			`	rules = [{ name = "r1", action = "MONITOR", log_end=true, send_events_to_fmc=true}]` + "\n" +
-			`}`,
 	}, {
 		Config: `resource fmc_access_control_policy step18 {` + "\n" +
 			`	name = "pol1"` + "\n" +
@@ -323,15 +325,41 @@ func TestNewValidAccessControlPolicy(t *testing.T) {
 			`	rules = [{ name = "r1", action = "MONITOR", log_begin=true, log_end=true, send_events_to_fmc=true}]` + "\n" +
 			`}`,
 		ExpectError: regexp.MustCompile(`Cannot use log_begin=true when action="MONITOR"`),
+	}}
+
+	resource.Test(t, resource.TestCase{
+		// If you see "Step 7/x, expected an error" look above for the name "step7".
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
+
+// TestAccFmcAccessControlPolicy_EmptyNotNil migrates the same resource from null array to empty array
+// and back. Every step uses identical name `fmc_access_control_policy.test`, so that the resource itself
+// is not destroyed through the entire TestCase.
+func TestAccFmcAccessControlPolicy_EmptyNotNil(t *testing.T) {
+	steps := []resource.TestStep{{
+		Config: `resource fmc_access_control_policy test {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`}`,
 	}, {
-		Config: `resource fmc_access_control_policy step19 {` + "\n" +
+		Config: `resource fmc_access_control_policy test {` + "\n" +
+			`	name = "pol1"` + "\n" +
+			`	default_action = "BLOCK"` + "\n" +
+			`	                        ` + "\n" +
+			`	categories = []` + "\n" +
+			`	rules = []` + "\n" +
+			`}`,
+	}, {
+		Config: `resource fmc_access_control_policy test {` + "\n" +
 			`	name = "pol1"` + "\n" +
 			`	default_action = "BLOCK"` + "\n" +
 			`}`,
 	}}
 
 	resource.Test(t, resource.TestCase{
-		// If you see "Step 7/x, expected an error" look above for the name "step7".
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps:                    steps,
