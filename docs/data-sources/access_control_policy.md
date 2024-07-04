@@ -37,6 +37,7 @@ data "fmc_access_control_policy" "example" {
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `default_action_send_syslog` (Boolean) Indicating whether the device will send events to a syslog server.
+- `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `default_action_syslog_severity` (String) Override the Severity of syslog alerts.
 - `description` (String) Description
@@ -86,6 +87,8 @@ Read-Only:
 - `source_zones` (Attributes Set) Set of objects representing source security zones associated with the access rule (fmc_security_zone). (see [below for nested schema](#nestedatt--rules--source_zones))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
+- `url_categories` (Attributes Set) Set of objects representing the URLs and categories associated with the rule (fmc_url_category). (see [below for nested schema](#nestedatt--rules--url_categories))
+- `url_objects` (Attributes Set) Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group). (see [below for nested schema](#nestedatt--rules--url_objects))
 
 <a id="nestedatt--rules--destination_dynamic_objects"></a>
 ### Nested Schema for `rules.destination_dynamic_objects`
@@ -185,3 +188,20 @@ Read-Only:
 Read-Only:
 
 - `id` (String) UUID of the object (such as fmc_security_zone.this.id, etc.).
+
+
+<a id="nestedatt--rules--url_categories"></a>
+### Nested Schema for `rules.url_categories`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_url_category.this.id, etc.).
+- `reputation` (String) Reputation applicable to the category.
+
+
+<a id="nestedatt--rules--url_objects"></a>
+### Nested Schema for `rules.url_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_url.this.id, fmc_url_group.id, etc.).

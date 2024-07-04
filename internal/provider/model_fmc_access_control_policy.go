@@ -49,6 +49,7 @@ type AccessControlPolicy struct {
 	DefaultActionSendSyslog        types.Bool                      `tfsdk:"default_action_send_syslog"`
 	DefaultActionSyslogConfigId    types.String                    `tfsdk:"default_action_syslog_config_id"`
 	DefaultActionSyslogSeverity    types.String                    `tfsdk:"default_action_syslog_severity"`
+	DefaultActionSnmpConfigId      types.String                    `tfsdk:"default_action_snmp_config_id"`
 	DefaultActionIntrusionPolicyId types.String                    `tfsdk:"default_action_intrusion_policy_id"`
 	Categories                     []AccessControlPolicyCategories `tfsdk:"categories"`
 	Rules                          []AccessControlPolicyRules      `tfsdk:"rules"`
@@ -79,6 +80,8 @@ type AccessControlPolicyRules struct {
 	DestinationSecurityGroupTagObjects []AccessControlPolicyRulesDestinationSecurityGroupTagObjects `tfsdk:"destination_security_group_tag_objects"`
 	SourceZones                        []AccessControlPolicyRulesSourceZones                        `tfsdk:"source_zones"`
 	DestinationZones                   []AccessControlPolicyRulesDestinationZones                   `tfsdk:"destination_zones"`
+	UrlObjects                         []AccessControlPolicyRulesUrlObjects                         `tfsdk:"url_objects"`
+	UrlCategories                      []AccessControlPolicyRulesUrlCategories                      `tfsdk:"url_categories"`
 	LogBegin                           types.Bool                                                   `tfsdk:"log_begin"`
 	LogEnd                             types.Bool                                                   `tfsdk:"log_end"`
 	LogFiles                           types.Bool                                                   `tfsdk:"log_files"`
@@ -131,6 +134,13 @@ type AccessControlPolicyRulesSourceZones struct {
 }
 type AccessControlPolicyRulesDestinationZones struct {
 	Id types.String `tfsdk:"id"`
+}
+type AccessControlPolicyRulesUrlObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type AccessControlPolicyRulesUrlCategories struct {
+	Id         types.String `tfsdk:"id"`
+	Reputation types.String `tfsdk:"reputation"`
 }
 
 // End of section. //template:end types
@@ -205,6 +215,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 	}
 	if !data.DefaultActionSyslogSeverity.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.syslogSeverity", data.DefaultActionSyslogSeverity.ValueString())
+	}
+	if !data.DefaultActionSnmpConfigId.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.snmpConfig.id", data.DefaultActionSnmpConfigId.ValueString())
 	}
 	if !data.DefaultActionIntrusionPolicyId.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.intrusionPolicy.id", data.DefaultActionIntrusionPolicyId.ValueString())
@@ -387,6 +400,31 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationZones.objects.-1", itemChildBody)
 				}
 			}
+			if len(item.UrlObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "urls.objects", []interface{}{})
+				for _, childItem := range item.UrlObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					itemBody, _ = sjson.SetRaw(itemBody, "urls.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.UrlCategories) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "urls.urlCategoriesWithReputation", []interface{}{})
+				for _, childItem := range item.UrlCategories {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "category.id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "category.type", "AnyNonEmptyString")
+					if !childItem.Reputation.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "reputation", childItem.Reputation.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "urls.urlCategoriesWithReputation.-1", itemChildBody)
+				}
+			}
 			if !item.LogBegin.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "logBegin", item.LogBegin.ValueBool())
 			}
@@ -479,6 +517,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 		data.DefaultActionSyslogSeverity = types.StringValue(value.String())
 	} else {
 		data.DefaultActionSyslogSeverity = types.StringNull()
+	}
+	if value := res.Get("defaultAction.snmpConfig.id"); value.Exists() {
+		data.DefaultActionSnmpConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSnmpConfigId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.intrusionPolicy.id"); value.Exists() {
 		data.DefaultActionIntrusionPolicyId = types.StringValue(value.String())
@@ -713,6 +756,37 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					return true
 				})
 			}
+			if cValue := v.Get("urls.objects"); cValue.Exists() {
+				item.UrlObjects = make([]AccessControlPolicyRulesUrlObjects, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesUrlObjects{}
+					if ccValue := cv.Get("id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					item.UrlObjects = append(item.UrlObjects, cItem)
+					return true
+				})
+			}
+			if cValue := v.Get("urls.urlCategoriesWithReputation"); cValue.Exists() {
+				item.UrlCategories = make([]AccessControlPolicyRulesUrlCategories, 0)
+				cValue.ForEach(func(ck, cv gjson.Result) bool {
+					cItem := AccessControlPolicyRulesUrlCategories{}
+					if ccValue := cv.Get("category.id"); ccValue.Exists() {
+						cItem.Id = types.StringValue(ccValue.String())
+					} else {
+						cItem.Id = types.StringNull()
+					}
+					if ccValue := cv.Get("reputation"); ccValue.Exists() {
+						cItem.Reputation = types.StringValue(ccValue.String())
+					} else {
+						cItem.Reputation = types.StringNull()
+					}
+					item.UrlCategories = append(item.UrlCategories, cItem)
+					return true
+				})
+			}
 			if cValue := v.Get("logBegin"); cValue.Exists() {
 				item.LogBegin = types.BoolValue(cValue.Bool())
 			} else {
@@ -822,6 +896,11 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 		data.DefaultActionSyslogSeverity = types.StringValue(value.String())
 	} else {
 		data.DefaultActionSyslogSeverity = types.StringNull()
+	}
+	if value := res.Get("defaultAction.snmpConfig.id"); value.Exists() && !data.DefaultActionSnmpConfigId.IsNull() {
+		data.DefaultActionSnmpConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSnmpConfigId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.intrusionPolicy.id"); value.Exists() && !data.DefaultActionIntrusionPolicyId.IsNull() {
 		data.DefaultActionIntrusionPolicyId = types.StringValue(value.String())
@@ -1261,6 +1340,69 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 				data.Rules[i].DestinationZones[ci].Id = types.StringNull()
 			}
 		}
+		for ci := range data.Rules[i].UrlObjects {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.Rules[i].UrlObjects[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("urls.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("id"); value.Exists() && !data.Rules[i].UrlObjects[ci].Id.IsNull() {
+				data.Rules[i].UrlObjects[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].UrlObjects[ci].Id = types.StringNull()
+			}
+		}
+		for ci := range data.Rules[i].UrlCategories {
+			keys := [...]string{"category.id"}
+			keyValues := [...]string{data.Rules[i].UrlCategories[ci].Id.ValueString()}
+
+			var cr gjson.Result
+			r.Get("urls.urlCategoriesWithReputation").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() == keyValues[ik] {
+							found = true
+							continue
+						}
+						found = false
+						break
+					}
+					if found {
+						cr = v
+						return false
+					}
+					return true
+				},
+			)
+			if value := cr.Get("category.id"); value.Exists() && !data.Rules[i].UrlCategories[ci].Id.IsNull() {
+				data.Rules[i].UrlCategories[ci].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].UrlCategories[ci].Id = types.StringNull()
+			}
+			if value := cr.Get("reputation"); value.Exists() && !data.Rules[i].UrlCategories[ci].Reputation.IsNull() {
+				data.Rules[i].UrlCategories[ci].Reputation = types.StringValue(value.String())
+			} else {
+				data.Rules[i].UrlCategories[ci].Reputation = types.StringNull()
+			}
+		}
 		if value := r.Get("logBegin"); value.Exists() && !data.Rules[i].LogBegin.IsNull() {
 			data.Rules[i].LogBegin = types.BoolValue(value.Bool())
 		} else if data.Rules[i].LogBegin.ValueBool() != false {
@@ -1370,6 +1512,9 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 		return false
 	}
 	if !data.DefaultActionSyslogSeverity.IsNull() {
+		return false
+	}
+	if !data.DefaultActionSnmpConfigId.IsNull() {
 		return false
 	}
 	if !data.DefaultActionIntrusionPolicyId.IsNull() {

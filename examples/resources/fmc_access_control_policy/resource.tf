@@ -8,6 +8,7 @@ resource "fmc_access_control_policy" "example" {
   default_action_send_syslog        = true
   default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
   default_action_syslog_severity    = "DEBUG"
+  default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   categories = [
     {
       name = "cat1"
@@ -79,6 +80,17 @@ resource "fmc_access_control_policy" "example" {
       destination_zones = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      url_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      url_categories = [
+        {
+          id         = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          reputation = "QUESTIONABLE_AND_UNKNOWN"
         }
       ]
       log_begin           = true

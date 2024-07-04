@@ -137,6 +137,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 					stringvalidator.OneOf("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING"),
 				},
 			},
+			"default_action_snmp_config_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.").String,
+				Optional:            true,
+			},
 			"default_action_intrusion_policy_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when default action is BLOCK, TRUST, NETWORK_DISCOVERY.").String,
 				Optional:            true,
@@ -359,6 +363,37 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 									"id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_security_zone.this.id, etc.).").String,
 										Optional:            true,
+									},
+								},
+							},
+						},
+						"url_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_url.this.id, fmc_url_group.id, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"url_categories": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing the URLs and categories associated with the rule (fmc_url_category).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_url_category.this.id, etc.).").String,
+										Optional:            true,
+									},
+									"reputation": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Reputation applicable to the category.").AddStringEnumDescription("ANY_EXCEPT_UNKNOWN", "TRUSTED", "FAVORABLE", "NEUTRAL", "QUESTIONABLE", "UNTRUSTED", "ANY_AND_UNKNOWN", "TRUSTED_AND_UNKNOWN", "FAVORABLE_AND_UNKNOWN", "NEUTRAL_AND_UNKNOWN", "QUESTIONABLE_AND_UNKNOWN", "UNTRUSTED_AND_UNKNOWN").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("ANY_EXCEPT_UNKNOWN", "TRUSTED", "FAVORABLE", "NEUTRAL", "QUESTIONABLE", "UNTRUSTED", "ANY_AND_UNKNOWN", "TRUSTED_AND_UNKNOWN", "FAVORABLE_AND_UNKNOWN", "NEUTRAL_AND_UNKNOWN", "QUESTIONABLE_AND_UNKNOWN", "UNTRUSTED_AND_UNKNOWN"),
+										},
 									},
 								},
 							},

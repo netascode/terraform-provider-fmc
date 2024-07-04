@@ -112,6 +112,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "Override the Severity of syslog alerts.",
 				Computed:            true,
 			},
+			"default_action_snmp_config_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.",
+				Computed:            true,
+			},
 			"default_action_intrusion_policy_id": schema.StringAttribute{
 				MarkdownDescription: "UUID of the existing intrusion policy (e.g. fmc_intrusion_policy.example.id). Cannot be set when default action is BLOCK, TRUST, NETWORK_DISCOVERY.",
 				Computed:            true,
@@ -320,6 +324,34 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: "UUID of the object (such as fmc_security_zone.this.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"url_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_url.this.id, fmc_url_group.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"url_categories": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing the URLs and categories associated with the rule (fmc_url_category).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_url_category.this.id, etc.).",
+										Computed:            true,
+									},
+									"reputation": schema.StringAttribute{
+										MarkdownDescription: "Reputation applicable to the category.",
 										Computed:            true,
 									},
 								},

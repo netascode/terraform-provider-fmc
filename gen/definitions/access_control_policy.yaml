@@ -391,7 +391,7 @@ attributes:
       - model_name: objects
         data_path: [urls]
         tf_name: url_objects
-        description: Set of objects representing the URLs and categories associated with the rule (fmc_url or fmc_url_group).
+        description: Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group).
         type: Set
         exclude_test: true
         attributes:
@@ -405,6 +405,42 @@ attributes:
             type: String
             description: Type of the object (such as fmc_url.this.type, fmc_url_group.type, etc.).
             value: AnyNonEmptyString
+      - model_name: urlCategoriesWithReputation
+        data_path: [urls]
+        tf_name: url_categories
+        description: Set of objects representing the URL Categories associated with the rule (fmc_url_category).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            data_path: [category]
+            type: String
+            description: UUID of the object (such as fmc_url_category.this.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            # test_value: fmc_url_category.this.id
+          - model_name: type
+            data_path: [category]
+            type: String
+            description: Type of the object (such as fmc_url_category.this.type, etc.).
+            value: AnyNonEmptyString
+          - model_name: reputation
+            type: String
+            description: Reputation applicable to the category.
+            enum_values:
+              - ANY_EXCEPT_UNKNOWN
+              - TRUSTED
+              - FAVORABLE
+              - NEUTRAL
+              - QUESTIONABLE
+              - UNTRUSTED
+              - ANY_AND_UNKNOWN
+              - TRUSTED_AND_UNKNOWN
+              - FAVORABLE_AND_UNKNOWN
+              - NEUTRAL_AND_UNKNOWN
+              - QUESTIONABLE_AND_UNKNOWN
+              - UNTRUSTED_AND_UNKNOWN
+            example: QUESTIONABLE_AND_UNKNOWN
       - model_name: logBegin
         type: Bool
         description: >-

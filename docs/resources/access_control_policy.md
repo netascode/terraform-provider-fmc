@@ -23,6 +23,7 @@ resource "fmc_access_control_policy" "example" {
   default_action_send_syslog        = true
   default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
   default_action_syslog_severity    = "DEBUG"
+  default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   categories = [
     {
       name = "cat1"
@@ -96,6 +97,17 @@ resource "fmc_access_control_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
+      url_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      url_categories = [
+        {
+          id         = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          reputation = "QUESTIONABLE_AND_UNKNOWN"
+        }
+      ]
       log_begin           = true
       log_end             = true
       send_events_to_fmc  = true
@@ -131,6 +143,7 @@ resource "fmc_access_control_policy" "example" {
   - Default value: `false`
 - `default_action_send_syslog` (Boolean) Indicating whether the device will send events to a syslog server.
   - Default value: `false`
+- `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `default_action_syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
@@ -206,6 +219,8 @@ Optional:
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
+- `url_categories` (Attributes Set) Set of objects representing the URLs and categories associated with the rule (fmc_url_category). (see [below for nested schema](#nestedatt--rules--url_categories))
+- `url_objects` (Attributes Set) Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group). (see [below for nested schema](#nestedatt--rules--url_objects))
 
 Read-Only:
 
@@ -309,6 +324,24 @@ Optional:
 Optional:
 
 - `id` (String) UUID of the object (such as fmc_security_zone.this.id, etc.).
+
+
+<a id="nestedatt--rules--url_categories"></a>
+### Nested Schema for `rules.url_categories`
+
+Optional:
+
+- `id` (String) UUID of the object (such as fmc_url_category.this.id, etc.).
+- `reputation` (String) Reputation applicable to the category.
+  - Choices: `ANY_EXCEPT_UNKNOWN`, `TRUSTED`, `FAVORABLE`, `NEUTRAL`, `QUESTIONABLE`, `UNTRUSTED`, `ANY_AND_UNKNOWN`, `TRUSTED_AND_UNKNOWN`, `FAVORABLE_AND_UNKNOWN`, `NEUTRAL_AND_UNKNOWN`, `QUESTIONABLE_AND_UNKNOWN`, `UNTRUSTED_AND_UNKNOWN`
+
+
+<a id="nestedatt--rules--url_objects"></a>
+### Nested Schema for `rules.url_objects`
+
+Optional:
+
+- `id` (String) UUID of the object (such as fmc_url.this.id, fmc_url_group.id, etc.).
 
 ## Import
 
