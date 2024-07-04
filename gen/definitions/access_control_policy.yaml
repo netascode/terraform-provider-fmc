@@ -81,6 +81,14 @@ attributes:
       - WARNING
     example: "DEBUG"
   - model_name: id
+    data_path: [defaultAction, snmpConfig]
+    tf_name: default_action_snmp_config_id
+    type: String
+    description: >-
+      UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    exclude_test: true
+  - model_name: id
     data_path: [defaultAction, intrusionPolicy]
     tf_name: default_action_intrusion_policy_id
     type: String
