@@ -87,7 +87,7 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"parent_id": schema.StringAttribute{
+			"interface_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of the parent interface (fmc_device_physical_interface.example.id).").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
@@ -100,8 +100,8 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
 			},
-			"parent_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed resource.").String,
+			"interface_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `interface_id` attribute must be always set when creating this managed resource.").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -248,7 +248,7 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 	// Retrieve parent's name using parent's uuid.
 	parentPath := fmt.Sprintf("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces/%v",
 		url.QueryEscape(plan.DeviceId.ValueString()),
-		url.QueryEscape(plan.ParentId.ValueString()),
+		url.QueryEscape(plan.InterfaceId.ValueString()),
 	)
 	parent, err := r.client.Get(parentPath, reqMods...)
 	if err != nil {

@@ -81,7 +81,7 @@ variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 func testAccDataSourceFmcDeviceSubinterfaceConfig() string {
 	config := `resource "fmc_device_subinterface" "test" {` + "\n"
 	config += `	device_id = fmc_device_physical_interface.test.device_id` + "\n"
-	config += `	parent_id = fmc_device_physical_interface.test.id` + "\n"
+	config += `	interface_id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	enabled = true` + "\n"
 	config += `	index = 7` + "\n"
 	config += `	vlan_id = 4094` + "\n"

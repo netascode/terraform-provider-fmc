@@ -13,7 +13,7 @@ attributes:
     test_value: fmc_device_physical_interface.test.device_id
   - model_name: parent # dummy
     data_path: [links]
-    tf_name: parent_id
+    tf_name: interface_id
     type: String
     write_only: true
     mandatory: true
@@ -30,11 +30,11 @@ attributes:
     test_value: "true"
     exclude_example: true
   - model_name: name
-    tf_name: parent_name
+    tf_name: interface_name
     type: String
     description: >-
       Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate
-      dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed
+      dependency adequately on Terraform, the `interface_id` attribute must be always set when creating this managed
       resource.
     resource_id: true
     requires_replace: true
@@ -49,10 +49,6 @@ attributes:
     example: 7
     min_int: 0
     max_int: 4294967295 # per API and per UI, despite the spec says int32
-  - model_name: type
-    type: String
-    value: Subinterface
-    description: Type of the resource.
   - model_name: vlanId
     type: Int64
     description: >-

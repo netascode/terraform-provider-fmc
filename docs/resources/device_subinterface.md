@@ -15,7 +15,7 @@ This resource can manage a Device Subinterface.
 ```terraform
 resource "fmc_device_subinterface" "example" {
   device_id                   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  parent_id                   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  interface_id                = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   index                       = 7
   vlan_id                     = 4094
   logical_name                = "mysubinterface-0-1.7"
@@ -46,7 +46,7 @@ resource "fmc_device_subinterface" "example" {
 - `device_id` (String) UUID of the parent device (fmc_device.example.id).
 - `index` (Number) The numerical id of this subinterface, unique on the parent interface.
   - Range: `0`-`4294967295`
-- `parent_id` (String) UUID of the parent interface (fmc_device_physical_interface.example.id).
+- `interface_id` (String) UUID of the parent interface (fmc_device_physical_interface.example.id).
 
 ### Optional
 
@@ -77,7 +77,7 @@ resource "fmc_device_subinterface" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-- `parent_name` (String) Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed resource.
+- `interface_name` (String) Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `interface_id` attribute must be always set when creating this managed resource.
 
 <a id="nestedatt--ipv6_addresses"></a>
 ### Nested Schema for `ipv6_addresses`

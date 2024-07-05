@@ -35,9 +35,9 @@ type DeviceSubinterface struct {
 	Id                       types.String                      `tfsdk:"id"`
 	Domain                   types.String                      `tfsdk:"domain"`
 	DeviceId                 types.String                      `tfsdk:"device_id"`
-	ParentId                 types.String                      `tfsdk:"parent_id"`
+	InterfaceId              types.String                      `tfsdk:"interface_id"`
 	Enabled                  types.Bool                        `tfsdk:"enabled"`
-	ParentName               types.String                      `tfsdk:"parent_name"`
+	InterfaceName            types.String                      `tfsdk:"interface_name"`
 	Index                    types.Int64                       `tfsdk:"index"`
 	VlanId                   types.Int64                       `tfsdk:"vlan_id"`
 	LogicalName              types.String                      `tfsdk:"logical_name"`
@@ -80,19 +80,18 @@ func (data DeviceSubinterface) toBody(ctx context.Context, state DeviceSubinterf
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if !data.ParentId.IsNull() {
-		body, _ = sjson.Set(body, "links.parent", data.ParentId.ValueString())
+	if !data.InterfaceId.IsNull() {
+		body, _ = sjson.Set(body, "links.parent", data.InterfaceId.ValueString())
 	}
 	if !data.Enabled.IsNull() {
 		body, _ = sjson.Set(body, "enabled", data.Enabled.ValueBool())
 	}
-	if state.ParentName.ValueString() != "" {
-		body, _ = sjson.Set(body, "name", state.ParentName.ValueString())
+	if state.InterfaceName.ValueString() != "" {
+		body, _ = sjson.Set(body, "name", state.InterfaceName.ValueString())
 	}
 	if !data.Index.IsNull() {
 		body, _ = sjson.Set(body, "subIntfId", data.Index.ValueInt64())
 	}
-	body, _ = sjson.Set(body, "type", "Subinterface")
 	if !data.VlanId.IsNull() {
 		body, _ = sjson.Set(body, "vlanId", data.VlanId.ValueInt64())
 	}
@@ -174,9 +173,9 @@ func (data *DeviceSubinterface) fromBody(ctx context.Context, res gjson.Result) 
 		data.Enabled = types.BoolValue(true)
 	}
 	if value := res.Get("name"); value.Exists() {
-		data.ParentName = types.StringValue(value.String())
+		data.InterfaceName = types.StringValue(value.String())
 	} else {
-		data.ParentName = types.StringNull()
+		data.InterfaceName = types.StringNull()
 	}
 	if value := res.Get("subIntfId"); value.Exists() {
 		data.Index = types.Int64Value(value.Int())
@@ -303,9 +302,9 @@ func (data *DeviceSubinterface) updateFromBody(ctx context.Context, res gjson.Re
 		data.Enabled = types.BoolNull()
 	}
 	if value := res.Get("name"); value.Exists() {
-		data.ParentName = types.StringValue(value.String())
+		data.InterfaceName = types.StringValue(value.String())
 	} else {
-		data.ParentName = types.StringNull()
+		data.InterfaceName = types.StringNull()
 	}
 	if value := res.Get("subIntfId"); value.Exists() && !data.Index.IsNull() {
 		data.Index = types.Int64Value(value.Int())
@@ -445,13 +444,13 @@ func (data *DeviceSubinterface) isNull(ctx context.Context, res gjson.Result) bo
 	if !data.DeviceId.IsNull() {
 		return false
 	}
-	if !data.ParentId.IsNull() {
+	if !data.InterfaceId.IsNull() {
 		return false
 	}
 	if !data.Enabled.IsNull() {
 		return false
 	}
-	if !data.ParentName.IsNull() {
+	if !data.InterfaceName.IsNull() {
 		return false
 	}
 	if !data.Index.IsNull() {
