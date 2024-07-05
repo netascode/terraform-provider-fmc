@@ -37,7 +37,6 @@ type DeviceSubinterface struct {
 	DeviceId                 types.String                      `tfsdk:"device_id"`
 	ParentId                 types.String                      `tfsdk:"parent_id"`
 	Enabled                  types.Bool                        `tfsdk:"enabled"`
-	Mode                     types.String                      `tfsdk:"mode"`
 	ParentName               types.String                      `tfsdk:"parent_name"`
 	Index                    types.Int64                       `tfsdk:"index"`
 	VlanId                   types.Int64                       `tfsdk:"vlan_id"`
@@ -87,11 +86,8 @@ func (data DeviceSubinterface) toBody(ctx context.Context, state DeviceSubinterf
 	if !data.Enabled.IsNull() {
 		body, _ = sjson.Set(body, "enabled", data.Enabled.ValueBool())
 	}
-	if !data.Mode.IsNull() {
-		body, _ = sjson.Set(body, "mode", data.Mode.ValueString())
-	}
-	if !data.ParentName.IsNull() {
-		body, _ = sjson.Set(body, "name", data.ParentName.ValueString())
+	if state.ParentName.ValueString() != "" {
+		body, _ = sjson.Set(body, "name", state.ParentName.ValueString())
 	}
 	if !data.Index.IsNull() {
 		body, _ = sjson.Set(body, "subIntfId", data.Index.ValueInt64())
@@ -176,11 +172,6 @@ func (data *DeviceSubinterface) fromBody(ctx context.Context, res gjson.Result) 
 		data.Enabled = types.BoolValue(value.Bool())
 	} else {
 		data.Enabled = types.BoolValue(true)
-	}
-	if value := res.Get("mode"); value.Exists() {
-		data.Mode = types.StringValue(value.String())
-	} else {
-		data.Mode = types.StringNull()
 	}
 	if value := res.Get("name"); value.Exists() {
 		data.ParentName = types.StringValue(value.String())
@@ -311,12 +302,7 @@ func (data *DeviceSubinterface) updateFromBody(ctx context.Context, res gjson.Re
 	} else if data.Enabled.ValueBool() != true {
 		data.Enabled = types.BoolNull()
 	}
-	if value := res.Get("mode"); value.Exists() && !data.Mode.IsNull() {
-		data.Mode = types.StringValue(value.String())
-	} else {
-		data.Mode = types.StringNull()
-	}
-	if value := res.Get("name"); value.Exists() && !data.ParentName.IsNull() {
+	if value := res.Get("name"); value.Exists() {
 		data.ParentName = types.StringValue(value.String())
 	} else {
 		data.ParentName = types.StringNull()
@@ -463,9 +449,6 @@ func (data *DeviceSubinterface) isNull(ctx context.Context, res gjson.Result) bo
 		return false
 	}
 	if !data.Enabled.IsNull() {
-		return false
-	}
-	if !data.Mode.IsNull() {
 		return false
 	}
 	if !data.ParentName.IsNull() {

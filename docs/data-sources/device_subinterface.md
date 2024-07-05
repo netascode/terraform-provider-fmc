@@ -49,10 +49,9 @@ data "fmc_device_subinterface" "example" {
 - `ipv6_enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
 - `logical_name` (String) Customizable logical name of the subinterface, unique on the device. Should not contain whitespace or slash characters. Can only be set when vlan_id is set. Must be non-empty in order to set `security_zone_id` or `mtu`.
 - `management_only` (Boolean) Indicates whether this subinterface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.
-- `mode` (String)
 - `mtu` (Number) Maximum transmission unit. Can only be used when logical_name is set on the parent interface.
-- `parent_id` (String) Link to the parent interface (fmc_device_physical_interface.example.link). The attribute is actually used solely for dependency propagation and its value is ignored: you would still need to set the `parent_name`.
-- `parent_name` (String) Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, you additionally have to use `parent_id` attribute.
+- `parent_id` (String) UUID of the parent interface (fmc_device_physical_interface.example.id).
+- `parent_name` (String) Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed resource.
 - `priority` (Number) Priority 0-65535. Can only be set for routed subinterfaces.
 - `security_zone_id` (String) UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.
 - `vlan_id` (Number) VLAN identifier, unique per the parent interface. Must be non-empty in order to set `logical_name`, `security_zone_id`, `mtu`.

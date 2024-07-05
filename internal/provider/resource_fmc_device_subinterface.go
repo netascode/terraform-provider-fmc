@@ -37,6 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -87,8 +88,11 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				},
 			},
 			"parent_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Link to the parent interface (fmc_device_physical_interface.example.link). The attribute is actually used solely for dependency propagation and its value is ignored: you would still need to set the `parent_name`.").String,
-				Optional:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the parent interface (fmc_device_physical_interface.example.id).").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable the subinterface.").AddDefaultValueDescription("true").String,
@@ -96,13 +100,9 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
 			},
-			"mode": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
 			"parent_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, you additionally have to use `parent_id` attribute.").String,
-				Required:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed resource.").String,
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -225,7 +225,6 @@ func (r *DeviceSubinterfaceResource) Configure(_ context.Context, req resource.C
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan DeviceSubinterface
 
@@ -244,8 +243,22 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
 	body := plan.toBody(ctx, DeviceSubinterface{})
+
+	// Retrieve parent's name using parent's uuid.
+	parentPath := fmt.Sprintf("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces/%v",
+		url.QueryEscape(plan.DeviceId.ValueString()),
+		url.QueryEscape(plan.ParentId.ValueString()),
+	)
+	parent, err := r.client.Get(parentPath, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, parent.String()))
+		return
+	}
+
+	body, _ = sjson.Set(body, "name", parent.Get("name").String())
+
+	// Create object
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
@@ -253,13 +266,18 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
+	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.updateFromBody(ctx, res)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeviceSubinterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -335,6 +353,12 @@ func (r *DeviceSubinterfaceResource) Update(ctx context.Context, req resource.Up
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
+	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.updateFromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 

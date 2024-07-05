@@ -11,14 +11,15 @@ attributes:
     description: UUID of the parent device (fmc_device.example.id).
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
     test_value: fmc_device_physical_interface.test.device_id
-  - model_name: parent
+  - model_name: parent # dummy
     data_path: [links]
     tf_name: parent_id
     type: String
     write_only: true
+    mandatory: true
+    requires_replace: true
     description: >-
-      Link to the parent interface (fmc_device_physical_interface.example.link). The attribute is actually used solely
-      for dependency propagation and its value is ignored: you would still need to set the `parent_name`.
+      UUID of the parent interface (fmc_device_physical_interface.example.id).
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
     test_value: fmc_device_physical_interface.test.id
     minimum_test_value: fmc_device_physical_interface.test.id
@@ -28,20 +29,17 @@ attributes:
     default_value: "true"
     test_value: "true"
     exclude_example: true
-  - model_name: mode
-    type: String
-    exclude_example: true
-    exclude_test: true
   - model_name: name
     tf_name: parent_name
     type: String
     description: >-
       Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate
-      dependency adequately on Terraform, you additionally have to use `parent_id` attribute.
-    mandatory: true
+      dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed
+      resource.
+    resource_id: true
     requires_replace: true
-    example: GigabitEthernet0/1
-    test_value: fmc_device_physical_interface.test.name
+    exclude_example: true
+    exclude_test: true
   - model_name: subIntfId
     tf_name: index
     type: Int64
@@ -50,7 +48,7 @@ attributes:
     requires_replace: true
     example: 7
     min_int: 0
-    max_int: 4294967295 # per API and per UI, somehow the OAS has int32
+    max_int: 4294967295 # per API and per UI, despite the spec says int32
   - model_name: type
     type: String
     value: Subinterface

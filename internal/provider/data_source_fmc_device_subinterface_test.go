@@ -83,7 +83,6 @@ func testAccDataSourceFmcDeviceSubinterfaceConfig() string {
 	config += `	device_id = fmc_device_physical_interface.test.device_id` + "\n"
 	config += `	parent_id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	enabled = true` + "\n"
-	config += `	parent_name = fmc_device_physical_interface.test.name` + "\n"
 	config += `	index = 7` + "\n"
 	config += `	vlan_id = 4094` + "\n"
 	config += `	logical_name = "mysubinterface-0-1.7"` + "\n"

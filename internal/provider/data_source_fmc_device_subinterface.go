@@ -70,19 +70,15 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 				Required:            true,
 			},
 			"parent_id": schema.StringAttribute{
-				MarkdownDescription: "Link to the parent interface (fmc_device_physical_interface.example.link). The attribute is actually used solely for dependency propagation and its value is ignored: you would still need to set the `parent_name`.",
+				MarkdownDescription: "UUID of the parent interface (fmc_device_physical_interface.example.id).",
 				Computed:            true,
 			},
 			"enabled": schema.BoolAttribute{
 				MarkdownDescription: "Indicates whether to enable the subinterface.",
 				Computed:            true,
 			},
-			"mode": schema.StringAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
 			"parent_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, you additionally have to use `parent_id` attribute.",
+				MarkdownDescription: "Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `parent_id` attribute must be always set when creating this managed resource.",
 				Computed:            true,
 			},
 			"index": schema.Int64Attribute{

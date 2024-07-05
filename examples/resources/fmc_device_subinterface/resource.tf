@@ -1,7 +1,6 @@
 resource "fmc_device_subinterface" "example" {
   device_id                   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   parent_id                   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  parent_name                 = "GigabitEthernet0/1"
   index                       = 7
   vlan_id                     = 4094
   logical_name                = "mysubinterface-0-1.7"
