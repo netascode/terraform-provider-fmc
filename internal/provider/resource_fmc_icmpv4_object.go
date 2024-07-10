@@ -42,25 +42,25 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &Icmpv4ObjectResource{}
-var _ resource.ResourceWithImportState = &Icmpv4ObjectResource{}
+var _ resource.Resource = &ICMPv4ObjectResource{}
+var _ resource.ResourceWithImportState = &ICMPv4ObjectResource{}
 
-func NewIcmpv4ObjectResource() resource.Resource {
-	return &Icmpv4ObjectResource{}
+func NewICMPv4ObjectResource() resource.Resource {
+	return &ICMPv4ObjectResource{}
 }
 
-type Icmpv4ObjectResource struct {
+type ICMPv4ObjectResource struct {
 	client *fmc.Client
 }
 
-func (r *Icmpv4ObjectResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *ICMPv4ObjectResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_icmpv4_object"
 }
 
-func (r *Icmpv4ObjectResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ICMPv4ObjectResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an Icmpv4 Object.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an ICMPv4 Object.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -107,7 +107,7 @@ func (r *Icmpv4ObjectResource) Schema(ctx context.Context, req resource.SchemaRe
 	}
 }
 
-func (r *Icmpv4ObjectResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *ICMPv4ObjectResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -118,8 +118,8 @@ func (r *Icmpv4ObjectResource) Configure(_ context.Context, req resource.Configu
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
-func (r *Icmpv4ObjectResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan Icmpv4Object
+func (r *ICMPv4ObjectResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan ICMPv4Object
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -137,7 +137,7 @@ func (r *Icmpv4ObjectResource) Create(ctx context.Context, req resource.CreateRe
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, Icmpv4Object{})
+	body := plan.toBody(ctx, ICMPv4Object{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
@@ -154,8 +154,8 @@ func (r *Icmpv4ObjectResource) Create(ctx context.Context, req resource.CreateRe
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *Icmpv4ObjectResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state Icmpv4Object
+func (r *ICMPv4ObjectResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state ICMPv4Object
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -197,8 +197,8 @@ func (r *Icmpv4ObjectResource) Read(ctx context.Context, req resource.ReadReques
 // End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
-func (r *Icmpv4ObjectResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state Icmpv4Object
+func (r *ICMPv4ObjectResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state ICMPv4Object
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -237,8 +237,8 @@ func (r *Icmpv4ObjectResource) Update(ctx context.Context, req resource.UpdateRe
 // End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
-func (r *Icmpv4ObjectResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state Icmpv4Object
+func (r *ICMPv4ObjectResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state ICMPv4Object
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -268,7 +268,7 @@ func (r *Icmpv4ObjectResource) Delete(ctx context.Context, req resource.DeleteRe
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *Icmpv4ObjectResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *ICMPv4ObjectResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 

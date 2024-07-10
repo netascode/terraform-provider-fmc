@@ -3,12 +3,12 @@
 page_title: "fmc_icmpv4_object Data Source - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
-  This data source can read the Icmpv4 Object.
+  This data source can read the ICMPv4 Object.
 ---
 
 # fmc_icmpv4_object (Data Source)
 
-This data source can read the Icmpv4 Object.
+This data source can read the ICMPv4 Object.
 
 ## Example Usage
 

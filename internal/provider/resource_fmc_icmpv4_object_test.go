@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -27,7 +28,7 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-func TestAccFmcIcmpv4Object(t *testing.T) {
+func TestAccFmcICMPv4Object(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_icmpv4_object.test", "icmp_type", "3"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_icmpv4_object.test", "code", "0"))
@@ -35,8 +36,13 @@ func TestAccFmcIcmpv4Object(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_icmpv4_object.test", "description", "ICMPv4 network unreachable response, type 3, code 0"))
 
 	var steps []resource.TestStep
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccFmcICMPv4ObjectConfig_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcIcmpv4ObjectConfig_all(),
+		Config: testAccFmcICMPv4ObjectConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -57,7 +63,7 @@ func TestAccFmcIcmpv4Object(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-func testAccFmcIcmpv4ObjectConfig_minimum() string {
+func testAccFmcICMPv4ObjectConfig_minimum() string {
 	config := `resource "fmc_icmpv4_object" "test" {` + "\n"
 	config += `	name = "icmpv4_net_unreachable"` + "\n"
 	config += `}` + "\n"
@@ -67,7 +73,7 @@ func testAccFmcIcmpv4ObjectConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-func testAccFmcIcmpv4ObjectConfig_all() string {
+func testAccFmcICMPv4ObjectConfig_all() string {
 	config := `resource "fmc_icmpv4_object" "test" {` + "\n"
 	config += `	icmp_type = 3` + "\n"
 	config += `	code = 0` + "\n"

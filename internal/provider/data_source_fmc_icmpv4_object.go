@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &Icmpv4ObjectDataSource{}
-	_ datasource.DataSourceWithConfigure = &Icmpv4ObjectDataSource{}
+	_ datasource.DataSource              = &ICMPv4ObjectDataSource{}
+	_ datasource.DataSourceWithConfigure = &ICMPv4ObjectDataSource{}
 )
 
-func NewIcmpv4ObjectDataSource() datasource.DataSource {
-	return &Icmpv4ObjectDataSource{}
+func NewICMPv4ObjectDataSource() datasource.DataSource {
+	return &ICMPv4ObjectDataSource{}
 }
 
-type Icmpv4ObjectDataSource struct {
+type ICMPv4ObjectDataSource struct {
 	client *fmc.Client
 }
 
-func (d *Icmpv4ObjectDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *ICMPv4ObjectDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_icmpv4_object"
 }
 
-func (d *Icmpv4ObjectDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *ICMPv4ObjectDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Icmpv4 Object.",
+		MarkdownDescription: "This data source can read the ICMPv4 Object.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -94,7 +94,7 @@ func (d *Icmpv4ObjectDataSource) Schema(ctx context.Context, req datasource.Sche
 		},
 	}
 }
-func (d *Icmpv4ObjectDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *ICMPv4ObjectDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -103,7 +103,7 @@ func (d *Icmpv4ObjectDataSource) ConfigValidators(ctx context.Context) []datasou
 	}
 }
 
-func (d *Icmpv4ObjectDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *ICMPv4ObjectDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -114,8 +114,8 @@ func (d *Icmpv4ObjectDataSource) Configure(_ context.Context, req datasource.Con
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *Icmpv4ObjectDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config Icmpv4Object
+func (d *ICMPv4ObjectDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config ICMPv4Object
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

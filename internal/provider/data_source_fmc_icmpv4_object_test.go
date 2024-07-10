@@ -27,7 +27,7 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceFmcIcmpv4Object(t *testing.T) {
+func TestAccDataSourceFmcICMPv4Object(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_icmpv4_object.test", "icmp_type", "3"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_icmpv4_object.test", "code", "0"))
@@ -38,7 +38,7 @@ func TestAccDataSourceFmcIcmpv4Object(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcIcmpv4ObjectConfig(),
+				Config: testAccDataSourceFmcICMPv4ObjectConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -51,7 +51,7 @@ func TestAccDataSourceFmcIcmpv4Object(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceFmcIcmpv4ObjectConfig() string {
+func testAccDataSourceFmcICMPv4ObjectConfig() string {
 	config := `resource "fmc_icmpv4_object" "test" {` + "\n"
 	config += `	icmp_type = 3` + "\n"
 	config += `	code = 0` + "\n"

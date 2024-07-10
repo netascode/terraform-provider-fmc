@@ -3,12 +3,12 @@
 page_title: "fmc_icmpv4_object Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
-  This resource can manage an Icmpv4 Object.
+  This resource can manage an ICMPv4 Object.
 ---
 
 # fmc_icmpv4_object (Resource)
 
-This resource can manage an Icmpv4 Object.
+This resource can manage an ICMPv4 Object.
 
 ## Example Usage
 

@@ -29,7 +29,7 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type Icmpv4Object struct {
+type ICMPv4Object struct {
 	Id          types.String `tfsdk:"id"`
 	Domain      types.String `tfsdk:"domain"`
 	IcmpType    types.Int64  `tfsdk:"icmp_type"`
@@ -42,14 +42,14 @@ type Icmpv4Object struct {
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
-func (data Icmpv4Object) getPath() string {
+func (data ICMPv4Object) getPath() string {
 	return "/api/fmc_config/v1/domain/{DOMAIN_UUID}/object/icmpv4objects"
 }
 
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data Icmpv4Object) toBody(ctx context.Context, state Icmpv4Object) string {
+func (data ICMPv4Object) toBody(ctx context.Context, state ICMPv4Object) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
@@ -75,7 +75,7 @@ func (data Icmpv4Object) toBody(ctx context.Context, state Icmpv4Object) string 
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *Icmpv4Object) fromBody(ctx context.Context, res gjson.Result) {
+func (data *ICMPv4Object) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("icmpType"); value.Exists() {
 		data.IcmpType = types.Int64Value(value.Int())
 	} else {
@@ -106,7 +106,7 @@ func (data *Icmpv4Object) fromBody(ctx context.Context, res gjson.Result) {
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *Icmpv4Object) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *ICMPv4Object) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("icmpType"); value.Exists() && !data.IcmpType.IsNull() {
 		data.IcmpType = types.Int64Value(value.Int())
 	} else {
@@ -137,7 +137,7 @@ func (data *Icmpv4Object) updateFromBody(ctx context.Context, res gjson.Result) 
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *Icmpv4Object) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *ICMPv4Object) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.IcmpType.IsNull() {
 		return false
 	}
