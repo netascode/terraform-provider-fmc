@@ -45,10 +45,10 @@ attributes:
     attributes:
       - model_name: id
         type: String
-        description: UUID of the object (such as fmc_network.this.id, etc.).
+        description: UUID of the object (such as fmc_network.example.id, etc.).
         id: true
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
-        test_value: fmc_network.this.id
+        test_value: fmc_network.test.id
   - model_name: metricValue
     type: Int64
     description: >-
@@ -92,15 +92,15 @@ attributes:
 test_prerequisites: |
   variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 
-  resource fmc_network this {
+  resource "fmc_network" "test" {
     name   = "test1"
     prefix = "2023::/56"
   }
 
   resource "fmc_device_physical_interface" "test" {
-    device_id = var.device_id
-    enabled = true
-    mode = "NONE"
-    name = "GigabitEthernet0/1"
+    device_id    = var.device_id
+    name         = "GigabitEthernet0/1"
     logical_name = "myinterface-0-1"
+    mode         = "NONE"
+    enabled      = true
   }

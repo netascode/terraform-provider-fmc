@@ -53,17 +53,17 @@ func TestAccDataSourceFmcDeviceIpv6StaticRoute(t *testing.T) {
 const testAccDataSourceFmcDeviceIpv6StaticRoutePrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 
-resource fmc_network this {
+resource "fmc_network" "test" {
   name   = "test1"
   prefix = "2023::/56"
 }
 
 resource "fmc_device_physical_interface" "test" {
-  device_id = var.device_id
-  enabled = true
-  mode = "NONE"
-  name = "GigabitEthernet0/1"
+  device_id    = var.device_id
+  name         = "GigabitEthernet0/1"
   logical_name = "myinterface-0-1"
+  mode         = "NONE"
+  enabled      = true
 }
 
 `
@@ -77,7 +77,7 @@ func testAccDataSourceFmcDeviceIpv6StaticRouteConfig() string {
 	config += `	interface_logical_name = fmc_device_physical_interface.test.logical_name` + "\n"
 	config += `	interface_id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	destination_networks = [{` + "\n"
-	config += `	  id = fmc_network.this.id` + "\n"
+	config += `	  id = fmc_network.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `	metric_value = 254` + "\n"
 	config += `	gateway_literal = "2024::1"` + "\n"

@@ -46,4 +46,4 @@ data "fmc_device_ipv6_static_route" "example" {
 
 Read-Only:
 
-- `id` (String) UUID of the object (such as fmc_network.this.id, etc.).
+- `id` (String) UUID of the object (such as fmc_network.example.id, etc.).

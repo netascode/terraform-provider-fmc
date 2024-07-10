@@ -83,7 +83,7 @@ func (d *DeviceIpv6StaticRouteDataSource) Schema(ctx context.Context, req dataso
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "UUID of the object (such as fmc_network.this.id, etc.).",
+							MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
 							Computed:            true,
 						},
 					},
