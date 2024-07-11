@@ -33,7 +33,6 @@ func TestAccDataSourceFmcDeviceIpv6StaticRoute(t *testing.T) {
 		t.Skip("skipping test, set environment variable TF_VAR_device_id")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ipv6_static_route.test", "metric_value", "254"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ipv6_static_route.test", "gateway_literal", "2024::1"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -53,9 +52,8 @@ func TestAccDataSourceFmcDeviceIpv6StaticRoute(t *testing.T) {
 const testAccDataSourceFmcDeviceIpv6StaticRoutePrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 
-resource "fmc_network" "test" {
-  name   = "test1"
-  prefix = "2023::/56"
+data "fmc_host" "test" {
+  name = "any-ipv6"
 }
 
 resource "fmc_device_physical_interface" "test" {
@@ -77,11 +75,11 @@ func testAccDataSourceFmcDeviceIpv6StaticRouteConfig() string {
 	config += `	interface_logical_name = fmc_device_physical_interface.test.logical_name` + "\n"
 	config += `	interface_id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	destination_networks = [{` + "\n"
-	config += `	  id = fmc_network.test.id` + "\n"
+	config += `	  id = data.fmc_host.test.id` + "\n"
 	config += `	}]` + "\n"
-	config += `	metric_value = 254` + "\n"
+	config += `	metric_value = null` + "\n"
 	config += `	gateway_literal = "2024::1"` + "\n"
-	config += `	is_tunneled = "false"` + "\n"
+	config += `	is_tunneled = true` + "\n"
 	config += `}` + "\n"
 
 	config += `

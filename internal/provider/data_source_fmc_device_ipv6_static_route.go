@@ -74,7 +74,7 @@ func (d *DeviceIpv6StaticRouteDataSource) Schema(ctx context.Context, req dataso
 				Computed:            true,
 			},
 			"interface_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the interface which has been given by `interface_logical_name` (e.g. fmc_device_physical_interface.example.id or fmc_device_subinterface.example.id). The value is ignored, but the attribute itself is useful for ensuring that Terraform creates interface resource before the static route resource (and destroys the interface resource only after the static route has been destroyed).",
+				MarkdownDescription: "UUID of the same interface which has been given by `interface_logical_name` (e.g. fmc_device_physical_interface.example.id or fmc_device_subinterface.example.id). The value is ignored, but the attribute itself is useful for ensuring that Terraform creates interface resource before the static route resource (and destroys the interface resource only after the static route has been destroyed).",
 				Computed:            true,
 			},
 			"destination_networks": schema.SetNestedAttribute{
@@ -102,7 +102,7 @@ func (d *DeviceIpv6StaticRouteDataSource) Schema(ctx context.Context, req dataso
 				Computed:            true,
 			},
 			"is_tunneled": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether this route is a separate default route for VPN traffic. Should be used for default route only, such as when the destination_networks points to a builtin object 'any-ipv6' or 'any-ipv4'. Useful if you want VPN traffic to use a different default route than non-VPN traffic. When a tunnel terminates on the device all traffic from it that cannot be routed using learned or static routes is sent to this route. You can configure only one default tunneled gateway per device. ECMP for tunneled traffic is not supported.",
+				MarkdownDescription: "Indicates whether this route is a separate default route for VPN traffic. Should be used for default route only (such as when the destination_networks points to a builtin host 'any-ipv6'). Useful if you want VPN traffic to use a different default route than non-VPN traffic. When a tunnel terminates on the device, all traffic from it that cannot be routed using learned or static routes is sent to this route. You can configure only one default tunneled gateway per device. ECMP for tunneled traffic is not supported. This attribute conflicts with `metric_value` attribute.",
 				Computed:            true,
 			},
 		},
