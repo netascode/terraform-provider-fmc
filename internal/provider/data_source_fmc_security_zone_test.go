@@ -52,8 +52,6 @@ func TestAccDataSourceFmcSecurityZone(t *testing.T) {
 func testAccDataSourceFmcSecurityZoneConfig() string {
 	config := `resource "fmc_security_zone" "test" {` + "\n"
 	config += `	name = "security_zone_1"` + "\n"
-	config += `	description = "My description"` + "\n"
-	config += `	overridable = true` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `}` + "\n"
 

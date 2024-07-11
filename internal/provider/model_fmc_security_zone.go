@@ -33,8 +33,6 @@ type SecurityZone struct {
 	Id            types.String `tfsdk:"id"`
 	Domain        types.String `tfsdk:"domain"`
 	Name          types.String `tfsdk:"name"`
-	Description   types.String `tfsdk:"description"`
-	Overridable   types.Bool   `tfsdk:"overridable"`
 	InterfaceMode types.String `tfsdk:"interface_mode"`
 }
 
@@ -55,12 +53,6 @@ func (data SecurityZone) toBody(ctx context.Context, state SecurityZone) string 
 	}
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
-	}
-	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "description", data.Description.ValueString())
-	}
-	if !data.Overridable.IsNull() {
-		body, _ = sjson.Set(body, "overridable", data.Overridable.ValueBool())
 	}
 	if !data.InterfaceMode.IsNull() {
 		body, _ = sjson.Set(body, "interfaceMode", data.InterfaceMode.ValueString())
@@ -105,12 +97,6 @@ func (data *SecurityZone) updateFromBody(ctx context.Context, res gjson.Result) 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 func (data *SecurityZone) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Name.IsNull() {
-		return false
-	}
-	if !data.Description.IsNull() {
-		return false
-	}
-	if !data.Overridable.IsNull() {
 		return false
 	}
 	if !data.InterfaceMode.IsNull() {

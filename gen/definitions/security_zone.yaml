@@ -11,6 +11,7 @@ attributes:
     example: security_zone_1
   - model_name: interfaceMode
     type: String
+    mandatory: true
     description: >-
       The mode of the associated interfaces, with the exception of mode ROUTED that corresponds
       to mode NONE of associated interfaces.

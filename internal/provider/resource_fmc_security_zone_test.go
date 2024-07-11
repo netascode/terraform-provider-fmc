@@ -64,6 +64,7 @@ func TestAccFmcSecurityZone(t *testing.T) {
 func testAccFmcSecurityZoneConfig_minimum() string {
 	config := `resource "fmc_security_zone" "test" {` + "\n"
 	config += `	name = "security_zone_1"` + "\n"
+	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -74,8 +75,6 @@ func testAccFmcSecurityZoneConfig_minimum() string {
 func testAccFmcSecurityZoneConfig_all() string {
 	config := `resource "fmc_security_zone" "test" {` + "\n"
 	config += `	name = "security_zone_1"` + "\n"
-	config += `	description = "My description"` + "\n"
-	config += `	overridable = true` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `}` + "\n"
 	return config

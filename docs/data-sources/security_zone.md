@@ -29,6 +29,4 @@ data "fmc_security_zone" "example" {
 
 ### Read-Only
 
-- `description` (String) User-provided resource description.
 - `interface_mode` (String) The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.
-- `overridable` (Boolean) Indicates whether object values can be overridden.

@@ -81,19 +81,14 @@ func (r *SecurityZoneResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: helpers.NewAttributeDescription("User-provided resource name.").String,
 				Required:            true,
 			},
-			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-provided resource description.").String,
-				Optional:            true,
-			},
-			"overridable": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
-				Optional:            true,
-			},
 			"interface_mode": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.").AddStringEnumDescription("PASSIVE", "INLINE", "SWITCHED", "ROUTED", "ASA").String,
-				Optional:            true,
+				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("PASSIVE", "INLINE", "SWITCHED", "ROUTED", "ASA"),
+				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 		},

@@ -75,14 +75,6 @@ func (d *SecurityZoneDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            true,
 				Computed:            true,
 			},
-			"description": schema.StringAttribute{
-				MarkdownDescription: "User-provided resource description.",
-				Computed:            true,
-			},
-			"overridable": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether object values can be overridden.",
-				Computed:            true,
-			},
 			"interface_mode": schema.StringAttribute{
 				MarkdownDescription: "The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.",
 				Computed:            true,

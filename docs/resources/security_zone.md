@@ -15,7 +15,6 @@ This resource can manage a Security Zone.
 ```terraform
 resource "fmc_security_zone" "example" {
   name           = "security_zone_1"
-  description    = "My description"
   interface_mode = "ROUTED"
 }
 ```
@@ -25,15 +24,13 @@ resource "fmc_security_zone" "example" {
 
 ### Required
 
+- `interface_mode` (String) The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.
+  - Choices: `PASSIVE`, `INLINE`, `SWITCHED`, `ROUTED`, `ASA`
 - `name` (String) User-provided resource name.
 
 ### Optional
 
-- `description` (String) User-provided resource description.
 - `domain` (String) The name of the FMC domain
-- `interface_mode` (String) The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.
-  - Choices: `PASSIVE`, `INLINE`, `SWITCHED`, `ROUTED`, `ASA`
-- `overridable` (Boolean) Indicates whether object values can be overridden.
 
 ### Read-Only
 
