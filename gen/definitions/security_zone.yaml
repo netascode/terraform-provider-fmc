@@ -9,17 +9,6 @@ attributes:
     mandatory: true
     description: User-provided resource name.
     example: security_zone_1
-  - model_name: description
-    type: String
-    description: User-provided resource description.
-    write_only: true # absent in GET on FMC 7.2.5
-    example: My description
-  - model_name: overridable
-    type: Bool
-    description: Indicates whether object values can be overridden.
-    write_only: true # absent in GET on FMC 7.2.5
-    exclude_example: true
-    test_value: "true"
   - model_name: interfaceMode
     type: String
     description: >-
@@ -27,3 +16,4 @@ attributes:
       to mode NONE of associated interfaces.
     enum_values: [PASSIVE, INLINE, SWITCHED, ROUTED, ASA]
     example: ROUTED
+    requires_replace: true
