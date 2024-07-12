@@ -62,7 +62,7 @@ func (r *DeviceIPv6StaticRouteResource) Metadata(ctx context.Context, req resour
 func (r *DeviceIPv6StaticRouteResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device Ipv6 Static Route.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device IPv6 Static Route.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -118,7 +118,7 @@ func (r *DeviceIPv6StaticRouteResource) Schema(ctx context.Context, req resource
 				Optional:            true,
 			},
 			"gateway_literal": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The next hop for this route as an literal IPv6 address. Exactly one of `gateway_object_id` or `gateway_literal` must be present.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The next hop for this route as a literal IPv6 address. Exactly one of `gateway_object_id` or `gateway_literal` must be present.").String,
 				Optional:            true,
 			},
 			"is_tunneled": schema.BoolAttribute{
@@ -143,7 +143,7 @@ func (r *DeviceIPv6StaticRouteResource) Configure(_ context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 func (r *DeviceIPv6StaticRouteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan DeviceIpv6StaticRoute
+	var plan DeviceIPv6StaticRoute
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -161,7 +161,7 @@ func (r *DeviceIPv6StaticRouteResource) Create(ctx context.Context, req resource
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, DeviceIpv6StaticRoute{})
+	body := plan.toBody(ctx, DeviceIPv6StaticRoute{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()))
@@ -179,7 +179,7 @@ func (r *DeviceIPv6StaticRouteResource) Create(ctx context.Context, req resource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 func (r *DeviceIPv6StaticRouteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state DeviceIpv6StaticRoute
+	var state DeviceIPv6StaticRoute
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -222,7 +222,7 @@ func (r *DeviceIPv6StaticRouteResource) Read(ctx context.Context, req resource.R
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 func (r *DeviceIPv6StaticRouteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state DeviceIpv6StaticRoute
+	var plan, state DeviceIPv6StaticRoute
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -262,7 +262,7 @@ func (r *DeviceIPv6StaticRouteResource) Update(ctx context.Context, req resource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 func (r *DeviceIPv6StaticRouteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state DeviceIpv6StaticRoute
+	var state DeviceIPv6StaticRoute
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
