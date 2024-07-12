@@ -283,7 +283,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 	return []func() resource.Resource{
 		NewAccessControlPolicyResource,
 		NewDeviceResource,
-		NewDeviceIpv6StaticRouteResource,
+		NewDeviceIPv6StaticRouteResource,
 		NewDevicePhysicalInterfaceResource,
 		NewDeviceSubinterfaceResource,
 		NewHostResource,
