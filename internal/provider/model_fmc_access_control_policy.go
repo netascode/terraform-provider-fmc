@@ -851,6 +851,10 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
+// fromBodyPartial reads values from a gjson.Result into a tfstate model. It ignores null attributes in order to
+// uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
+// easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
+// "managed" elements, instead of all elements.
 func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
@@ -1524,6 +1528,39 @@ func (data *AccessControlPolicy) isNull(ctx context.Context, res gjson.Result) b
 // End of section. //template:end isNull
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *AccessControlPolicy) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.DefaultActionId.IsUnknown() {
+		if value := res.Get("defaultAction.id"); value.Exists() {
+			data.DefaultActionId = types.StringValue(value.String())
+		} else {
+			data.DefaultActionId = types.StringNull()
+		}
+	}
+	for i := range data.Categories {
+		r := res.Get(fmt.Sprintf("dummy_categories.%d", i))
+		if data.Categories[i].Id.IsUnknown() {
+			if value := r.Get("id"); value.Exists() {
+				data.Categories[i].Id = types.StringValue(value.String())
+			} else {
+				data.Categories[i].Id = types.StringNull()
+			}
+		}
+	}
+	for i := range data.Rules {
+		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
+		if data.Rules[i].Id.IsUnknown() {
+			if value := r.Get("id"); value.Exists() {
+				data.Rules[i].Id = types.StringValue(value.String())
+			} else {
+				data.Rules[i].Id = types.StringNull()
+			}
+		}
+	}
+}
+
 // End of section. //template:end fromBodyUnknowns
 
 // NewValidAccessControlPolicy validates the terraform Plan and converts it to a new AccessControlPolicy object.

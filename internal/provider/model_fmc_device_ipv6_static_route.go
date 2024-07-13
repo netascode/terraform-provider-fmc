@@ -146,6 +146,10 @@ func (data *DeviceIPv6StaticRoute) fromBody(ctx context.Context, res gjson.Resul
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
+// fromBodyPartial reads values from a gjson.Result into a tfstate model. It ignores null attributes in order to
+// uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
+// easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
+// "managed" elements, instead of all elements.
 func (data *DeviceIPv6StaticRoute) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("interfaceName"); value.Exists() && !data.InterfaceLogicalName.IsNull() {
 		data.InterfaceLogicalName = types.StringValue(value.String())
@@ -237,4 +241,10 @@ func (data *DeviceIPv6StaticRoute) isNull(ctx context.Context, res gjson.Result)
 // End of section. //template:end isNull
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *DeviceIPv6StaticRoute) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+}
+
 // End of section. //template:end fromBodyUnknowns

@@ -300,6 +300,10 @@ func (data *DeviceSubinterface) fromBody(ctx context.Context, res gjson.Result) 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
+// fromBodyPartial reads values from a gjson.Result into a tfstate model. It ignores null attributes in order to
+// uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
+// easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
+// "managed" elements, instead of all elements.
 func (data *DeviceSubinterface) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("enabled"); value.Exists() && !data.Enabled.IsNull() {
 		data.Enabled = types.BoolValue(value.Bool())
@@ -521,4 +525,17 @@ func (data *DeviceSubinterface) isNull(ctx context.Context, res gjson.Result) bo
 // End of section. //template:end isNull
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *DeviceSubinterface) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.InterfaceName.IsUnknown() {
+		if value := res.Get("name"); value.Exists() {
+			data.InterfaceName = types.StringValue(value.String())
+		} else {
+			data.InterfaceName = types.StringNull()
+		}
+	}
+}
+
 // End of section. //template:end fromBodyUnknowns
