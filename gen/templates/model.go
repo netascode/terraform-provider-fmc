@@ -559,8 +559,8 @@ func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) b
 // Section below is generated&owned by "gen/generator.go". //template:begin computeFromBody
 
 // computeFromBody updates the Computed tfstate attributes from a JSON.
-// It excludes Default+Computed attributes as changes to these during Create/Update would fail Terraform run.
-// It excludes UseStateForUnknown+Computed attributes as changes to these during Create/Update would fail Terraform run.
+// It an attribute has a Known value it goes unchanged, even when the attribute is Computed (frequent with
+// UseStateForUnknown or with Default).
 func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.Result) {
 	{{- range .Attributes}}
 	{{- if and .ResourceId (not .Reference)}}
@@ -570,8 +570,11 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 	} else {
 		data.{{toGoName .TfName}} = types.{{.Type}}Null()
 	}
-	{{- /* else if isListSet . unimplemented */}}
+	{{- else}}
+	{{- errorf "resource_id is not yet implemented for type %v" .Type}}
+	{{- end}}
 	{{- else if isNestedListSet .}}
+	{{- if hasResourceId .Attributes}}
 	{{- $list := (toGoName .TfName)}}
 	{{- if .OrderedList }}
 	for i := range data.{{toGoName .TfName}} {
@@ -609,81 +612,12 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 		} else {
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null()
 		}
+		{{- else}}
+		{{- errorf "resource_id is not yet implemented for type %v" .Type}}
+		{{- end}}
 		{{- else if isNestedListSet .}}
-		{{- $clist := (toGoName .TfName)}}
-		for ci := range data.{{$list}}[i].{{toGoName .TfName}} {
-			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
-			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
-
-			var cr gjson.Result
-			r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
-				func(_, v gjson.Result) bool {
-					found := false
-					for ik := range keys {
-						if v.Get(keys[ik]).String() != keyValues[ik] {
-							found = false
-							break
-						}
-						found = true
-					}
-					if found {
-						cr = v
-						return false
-					}
-					return true
-				},
-			)
-
-			{{- range .Attributes}}
-			{{- if and .ResourceId (not .Reference)}}
-			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-			if value := cr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
-				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-			} else {
-				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Null()
-			}
-			{{- else if isNestedListSet .}}
-			{{- $cclist := (toGoName .TfName)}}
-			for cci := range data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} {
-				keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
-				keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
-
-				var ccr gjson.Result
-				cr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
-					func(_, v gjson.Result) bool {
-						found := false
-						for ik := range keys {
-							if v.Get(keys[ik]).String() != keyValues[ik] {
-								found = false
-								break
-							}
-							found = true
-						}
-						if found {
-							ccr = v
-							return false
-						}
-						return true
-					},
-				)
-
-				{{- range .Attributes}}
-				{{- if and .ResourceId (not .Reference)}}
-				{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-				if value := ccr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
-					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-				} else {
-					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Null()
-				}
-				{{- end}}
-				{{- end}}
-				{{- end}}
-			}
-
-			{{- end}}
-			{{- end}}
-			{{- end}}
-		}
+		{{- if hasResourceId .Attributes}}
+		{{- errorf "nesting resource_id so deep is not yet implemented"}}
 		{{- end}}
 		{{- end}}
 		{{- end}}
