@@ -28,6 +28,7 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
+
 func TestAccFmcNetwork(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_network.test", "name", "NET1"))
@@ -60,10 +61,10 @@ func TestAccFmcNetwork(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
+
 func testAccFmcNetworkConfig_minimum() string {
 	config := `resource "fmc_network" "test" {` + "\n"
 	config += `	name = "NET1"` + "\n"
@@ -75,6 +76,7 @@ func testAccFmcNetworkConfig_minimum() string {
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
+
 func testAccFmcNetworkConfig_all() string {
 	config := `resource "fmc_network" "test" {` + "\n"
 	config += `	name = "NET1"` + "\n"

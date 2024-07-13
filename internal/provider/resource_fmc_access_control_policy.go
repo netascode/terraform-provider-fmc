@@ -48,8 +48,10 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &AccessControlPolicyResource{}
-var _ resource.ResourceWithImportState = &AccessControlPolicyResource{}
+var (
+	_ resource.Resource                = &AccessControlPolicyResource{}
+	_ resource.ResourceWithImportState = &AccessControlPolicyResource{}
+)
 
 func NewAccessControlPolicyResource() resource.Resource {
 	return &AccessControlPolicyResource{}
@@ -860,6 +862,7 @@ func (r *AccessControlPolicyResource) createRulesAt(ctx context.Context, plan Ac
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
+
 func (r *AccessControlPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state AccessControlPolicy
 
@@ -891,6 +894,7 @@ func (r *AccessControlPolicyResource) Delete(ctx context.Context, req resource.D
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
+
 func (r *AccessControlPolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
