@@ -556,19 +556,20 @@ func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) b
 
 // End of section. //template:end isNull
 
-// Section below is generated&owned by "gen/generator.go". //template:begin computeFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
 
-// computeFromBody updates the Computed tfstate attributes from a JSON.
-// It an attribute has a Known value it goes unchanged, even when the attribute is Computed (frequent with
-// UseStateForUnknown or with Default).
-func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.Result) {
+// fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
+// Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
+func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 	{{- range .Attributes}}
 	{{- if and .ResourceId (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-	if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
-		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-	} else {
-		data.{{toGoName .TfName}} = types.{{.Type}}Null()
+	if data.{{toGoName .TfName}}.IsUnknown() {
+		if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
+			data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+		} else {
+			data.{{toGoName .TfName}} = types.{{.Type}}Null()
+		}
 	}
 	{{- else}}
 	{{- errorf "resource_id is not yet implemented for type %v" .Type}}
@@ -607,10 +608,12 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 		{{- range .Attributes}}
 		{{- if and .ResourceId (not .Reference)}}
 		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-		if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
-			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-		} else {
-			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null()
+		if data.{{$list}}[i].{{toGoName .TfName}}.IsUnknown() {
+			if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
+				data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+			} else {
+				data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null()
+			}
 		}
 		{{- else}}
 		{{- errorf "resource_id is not yet implemented for type %v" .Type}}
@@ -627,4 +630,4 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 	{{- end}}
 }
 
-// End of section. //template:end computeFromBody
+// End of section. //template:end fromBodyUnknowns

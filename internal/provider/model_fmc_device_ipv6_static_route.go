@@ -236,5 +236,5 @@ func (data *DeviceIPv6StaticRoute) isNull(ctx context.Context, res gjson.Result)
 
 // End of section. //template:end isNull
 
-// Section below is generated&owned by "gen/generator.go". //template:begin computeFromBody
-// End of section. //template:end computeFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
+// End of section. //template:end fromBodyUnknowns
