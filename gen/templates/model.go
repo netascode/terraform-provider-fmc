@@ -563,7 +563,7 @@ func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) b
 // It excludes UseStateForUnknown+Computed attributes as changes to these during Create/Update would fail Terraform run.
 func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.Result) {
 	{{- range .Attributes}}
-	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+	{{- if and .ResourceId (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists(){{if not .ResourceId}} && !data.{{toGoName .TfName}}.IsNull(){{end}} {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
@@ -617,7 +617,7 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 	{{- end}}
 
 		{{- range .Attributes}}
-		{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+		{{- if and .ResourceId (not .Reference)}}
 		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 		if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
 			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
@@ -656,7 +656,7 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 			)
 
 			{{- range .Attributes}}
-			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+			{{- if and .ResourceId (not .Reference)}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 			if value := cr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
 				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
@@ -695,7 +695,7 @@ func (data *{{camelCase .Name}}) computeFromBody(ctx context.Context, res gjson.
 				)
 
 				{{- range .Attributes}}
-				{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
+				{{- if and .ResourceId (not .Reference)}}
 				{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 				if value := ccr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
 					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
