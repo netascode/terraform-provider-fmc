@@ -31,6 +31,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
+
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
@@ -121,6 +122,7 @@ type {{$name}}{{$childName}}{{$childChildName}}{{toGoName .TfName}} struct {
 {{- end}}
 {{- end}}
 {{ end}}
+
 // End of section. //template:end types
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
@@ -131,6 +133,7 @@ func (data {{camelCase .Name}}) getPath() string {
 		return "{{.RestEndpoint}}"
 	{{- end}}
 }
+
 // End of section. //template:end getPath
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
@@ -237,6 +240,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 	{{- end}}
 	return body
 }
+
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
@@ -355,6 +359,7 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	{{- end}}
 	{{- end}}
 }
+
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
@@ -398,12 +403,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
-					if v.Get(keys[ik]).String() == keyValues[ik] {
-						found = true
-						continue
+					if v.Get(keys[ik]).String() != keyValues[ik] {
+						found = false
+						break
 					}
-					found = false
-					break
+					found = true
 				}
 				if found {
 					r = v
@@ -439,12 +443,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
-						if v.Get(keys[ik]).String() == keyValues[ik] {
-							found = true
-							continue
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
 						}
-						found = false
-						break
+						found = true
 					}
 					if found {
 						cr = v
@@ -479,12 +482,11 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 					func(_, v gjson.Result) bool {
 						found := false
 						for ik := range keys {
-							if v.Get(keys[ik]).String() == keyValues[ik] {
-								found = true
-								continue
+							if v.Get(keys[ik]).String() != keyValues[ik] {
+								found = false
+								break
 							}
-							found = false
-							break
+							found = true
 						}
 						if found {
 							ccr = v
@@ -525,6 +527,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	{{- end}}
 	{{- end}}
 }
+
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
@@ -544,4 +547,5 @@ func (data *{{camelCase .Name}}) isNull(ctx context.Context, res gjson.Result) b
 	{{- end}}
 	return true
 }
+
 // End of section. //template:end isNull

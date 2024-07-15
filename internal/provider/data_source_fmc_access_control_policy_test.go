@@ -53,6 +53,10 @@ func TestAccDataSourceFmcAccessControlPolicy(t *testing.T) {
 				Config: testAccDataSourceFmcAccessControlPolicyPrerequisitesConfig + testAccDataSourceFmcAccessControlPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
+			{
+				Config: testAccNamedDataSourceFmcAccessControlPolicyConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
 		},
 	})
 }
@@ -119,6 +123,25 @@ func testAccDataSourceFmcAccessControlPolicyConfig() string {
 	config += `
 		data "fmc_access_control_policy" "test" {
 			id = fmc_access_control_policy.test.id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcAccessControlPolicyConfig() string {
+	config := `resource "fmc_access_control_policy" "test" {` + "\n"
+	config += `	name = "POLICY1"` + "\n"
+	config += `	description = "My access control policy"` + "\n"
+	config += `	default_action = "BLOCK"` + "\n"
+	config += `	default_action_log_begin = true` + "\n"
+	config += `	default_action_log_end = true` + "\n"
+	config += `	default_action_send_events_to_fmc = true` + "\n"
+	config += `	default_action_send_syslog = true` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_access_control_policy" "test" {
+			name = fmc_access_control_policy.test.name
 		}
 	`
 	return config
