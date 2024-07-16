@@ -298,9 +298,9 @@ func (data *DeviceSubinterface) fromBody(ctx context.Context, res gjson.Result) 
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *DeviceSubinterface) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *DeviceSubinterface) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("enabled"); value.Exists() && !data.Enabled.IsNull() {
 		data.Enabled = types.BoolValue(value.Bool())
 	} else if data.Enabled.ValueBool() != true {
@@ -441,7 +441,7 @@ func (data *DeviceSubinterface) updateFromBody(ctx context.Context, res gjson.Re
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 

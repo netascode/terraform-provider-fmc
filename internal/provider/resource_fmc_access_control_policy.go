@@ -610,7 +610,7 @@ func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.Rea
 	if state.isNull(ctx, res) {
 		state.fromBody(ctx, res)
 	} else {
-		state.updateFromBody(ctx, res)
+		state.fromBodyPartial(ctx, res)
 	}
 	state.adjustFromBody(ctx, res)
 

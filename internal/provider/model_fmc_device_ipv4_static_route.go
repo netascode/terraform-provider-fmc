@@ -144,9 +144,9 @@ func (data *DeviceIPv4StaticRoute) fromBody(ctx context.Context, res gjson.Resul
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *DeviceIPv4StaticRoute) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *DeviceIPv4StaticRoute) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("interfaceName"); value.Exists() && !data.InterfaceLogicalName.IsNull() {
 		data.InterfaceLogicalName = types.StringValue(value.String())
 	} else {
@@ -202,7 +202,7 @@ func (data *DeviceIPv4StaticRoute) updateFromBody(ctx context.Context, res gjson
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 

@@ -849,9 +849,9 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -1447,9 +1447,9 @@ func (data *AccessControlPolicy) updateFromBody(ctx context.Context, res gjson.R
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
-// adjustFromBody applies a few corrections after an auto-generated fromBody/updateFromBody.
+// adjustFromBody applies a few corrections after an auto-generated fromBody/fromBodyPartial.
 func (data *AccessControlPolicy) adjustFromBody(ctx context.Context, res gjson.Result) {
 	for i := range data.Rules {
 		if data.Rules[i].CategoryName.Equal(types.StringValue("--Undefined--")) {

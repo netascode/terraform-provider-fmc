@@ -82,9 +82,9 @@ func (data *SecurityZone) fromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *SecurityZone) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *SecurityZone) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -97,7 +97,7 @@ func (data *SecurityZone) updateFromBody(ctx context.Context, res gjson.Result) 
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 

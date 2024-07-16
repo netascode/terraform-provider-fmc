@@ -129,9 +129,9 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -154,7 +154,7 @@ func (data *Device) updateFromBody(ctx context.Context, res gjson.Result) {
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
 func (data *Device) fromPolicyBody(ctx context.Context, res gjson.Result) {
 	query := fmt.Sprintf(`items.#(targets.#(id=="%s"))#.policy`, data.Id.ValueString())

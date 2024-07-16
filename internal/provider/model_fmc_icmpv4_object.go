@@ -109,9 +109,9 @@ func (data *ICMPv4Object) fromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *ICMPv4Object) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *ICMPv4Object) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("icmpType"); value.Exists() && !data.IcmpType.IsNull() {
 		data.IcmpType = types.Int64Value(value.Int())
 	} else {
@@ -139,7 +139,7 @@ func (data *ICMPv4Object) updateFromBody(ctx context.Context, res gjson.Result) 
 	}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 

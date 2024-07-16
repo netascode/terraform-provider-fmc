@@ -366,9 +366,9 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 
 // End of section. //template:end fromBody
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
-func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
@@ -533,7 +533,7 @@ func (data *{{camelCase .Name}}) updateFromBody(ctx context.Context, res gjson.R
 	{{- end}}
 }
 
-// End of section. //template:end updateFromBody
+// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
 
