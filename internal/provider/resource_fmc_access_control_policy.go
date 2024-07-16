@@ -479,8 +479,7 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 
 	// Read plan
 	plan, diags := NewValidAccessControlPolicy(ctx, req.Plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -543,12 +542,13 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 	}
 
 	diags = resp.State.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+
+	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
 func (r *AccessControlPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -631,14 +631,12 @@ func (r *AccessControlPolicyResource) Update(ctx context.Context, req resource.U
 
 	// Read plan
 	plan, diags := NewValidAccessControlPolicy(ctx, req.Plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 	// Read state
 	diags = req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 

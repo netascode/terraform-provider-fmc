@@ -232,8 +232,7 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -279,6 +278,8 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+
+	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
