@@ -368,6 +368,10 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
+// fromBodyPartial reads values from a gjson.Result into a tfstate model. It ignores null attributes in order to
+// uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
+// easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
+// "managed" elements, instead of all elements.
 func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
