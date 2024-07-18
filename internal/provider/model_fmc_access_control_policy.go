@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -1215,7 +1216,7 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 				data.Rules[i].DestinationPortObjects[ci].Id = types.StringNull()
 			}
 		}
-		for ci := range data.Rules[i].SourceSecurityGroupTagObjects {
+		for ci := 0; ci < len(data.Rules[i].SourceSecurityGroupTagObjects); ci++ {
 			keys := [...]string{"id"}
 			keyValues := [...]string{data.Rules[i].SourceSecurityGroupTagObjects[ci].Id.ValueString()}
 
@@ -1237,6 +1238,16 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 					return true
 				},
 			)
+			if !cr.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("FIXME will remove items[%d] = %+v",
+					ci,
+					data.Rules[i].SourceSecurityGroupTagObjects[ci],
+				))
+				data.Rules[i].SourceSecurityGroupTagObjects = slices.Delete(data.Rules[i].SourceSecurityGroupTagObjects, ci, ci+1)
+				ci--
+
+				continue
+			}
 			if value := cr.Get("id"); value.Exists() && !data.Rules[i].SourceSecurityGroupTagObjects[ci].Id.IsNull() {
 				data.Rules[i].SourceSecurityGroupTagObjects[ci].Id = types.StringValue(value.String())
 			} else {
