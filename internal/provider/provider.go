@@ -287,11 +287,17 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewDeviceIPv6StaticRouteResource,
 		NewDevicePhysicalInterfaceResource,
 		NewDeviceSubinterfaceResource,
+		NewFQDNObjectResource,
 		NewHostResource,
 		NewICMPv4ObjectResource,
+		NewICMPv6ObjectResource,
+		NewIntrusionPolicyResource,
 		NewNetworkResource,
+		NewNetworkAnalysisPolicyResource,
+		NewRangeResource,
 		NewSecurityZoneResource,
 		NewStandardACLResource,
+		NewURLResource,
 	}
 }
 
@@ -303,11 +309,17 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewDeviceIPv6StaticRouteDataSource,
 		NewDevicePhysicalInterfaceDataSource,
 		NewDeviceSubinterfaceDataSource,
+		NewFQDNObjectDataSource,
 		NewHostDataSource,
 		NewICMPv4ObjectDataSource,
+		NewICMPv6ObjectDataSource,
+		NewIntrusionPolicyDataSource,
 		NewNetworkDataSource,
+		NewNetworkAnalysisPolicyDataSource,
+		NewRangeDataSource,
 		NewSecurityZoneDataSource,
 		NewStandardACLDataSource,
+		NewURLDataSource,
 	}
 }
 
