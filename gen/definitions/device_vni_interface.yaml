@@ -65,6 +65,7 @@ attributes:
     example: vni42
   - model_name: description
     type: String
+    description: Optional user-created description.
     example: my description
   - model_name: MTU
     tf_name: mtu

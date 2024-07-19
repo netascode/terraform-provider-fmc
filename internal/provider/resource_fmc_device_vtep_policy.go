@@ -66,7 +66,7 @@ func (r *DeviceVTEPPolicyResource) Metadata(ctx context.Context, req resource.Me
 func (r *DeviceVTEPPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage the Device VTEP Policy. Practicioners should ensure only one VTEP Policy resource exists per every Device, because the FMC API responds with the same singe UUID for every request to create a new VTEP Policy on the same Device. Thus with multiple resources, they would unexpectedly overwrite each others' settings.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same singe UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -84,7 +84,7 @@ func (r *DeviceVTEPPolicyResource) Schema(ctx context.Context, req resource.Sche
 				},
 			},
 			"device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("UUID of the parent device (fmc_device.example.id). Do not create any").String,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the parent device (fmc_device.example.id).").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -95,10 +95,6 @@ func (r *DeviceVTEPPolicyResource) Schema(ctx context.Context, req resource.Sche
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
-			},
-			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
-				Optional:            true,
 			},
 			"vteps": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List that can either be empty or contain one VTEP object.").String,
@@ -117,7 +113,7 @@ func (r *DeviceVTEPPolicyResource) Schema(ctx context.Context, req resource.Sche
 							},
 						},
 						"encapsulation_port": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Encapsulation port number.").AddIntegerRangeDescription(1024, 65535).AddDefaultValueDescription("4789").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Encapsulation port number. For VXLAN suggested 4789 (default), for GENEVE suggested 6081.").AddIntegerRangeDescription(1024, 65535).AddDefaultValueDescription("4789").String,
 							Optional:            true,
 							Computed:            true,
 							Validators: []validator.Int64{
@@ -133,20 +129,23 @@ func (r *DeviceVTEPPolicyResource) Schema(ctx context.Context, req resource.Sche
 								stringvalidator.OneOf("VXLAN", "GENEVE"),
 							},
 							Default: stringdefault.StaticString("VXLAN"),
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.RequiresReplace(),
+							},
 						},
 						"neighbor_discovery": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("How to discover addresses of the neighbor VTEPs for the VTEP-to-VTEP communication. For STATIC_PEER_IP and DEFAULT_MULTICAST_GROUP you must set `neighbor_address_literal` to a single IP address. For STATIC_PEER_GROUP you must set `neighbor_address_id` to a UUID of a network group (fmc_network_group.example.id), and such network group can contain only IPv4 Hosts and IPv4 Ranges (but not Networks, etc.).").AddStringEnumDescription("NONE", "STATIC_PEER_IP", "STATIC_PEER_GROUP", "DEFAULT_MULTICAST_GROUP").String,
+							MarkdownDescription: helpers.NewAttributeDescription("How to discover addresses of the neighbor VTEPs for the VTEP-to-VTEP communication. For STATIC_PEER_IP and DEFAULT_MULTICAST_GROUP you must set `neighbor_address_literal` to a single IP address. For STATIC_PEER_GROUP you must however set `neighbor_address_id` to a UUID of a network group and such network group can contain only IPv4 Hosts and IPv4 Ranges (but not Networks, etc.).").AddStringEnumDescription("NONE", "STATIC_PEER_IP", "STATIC_PEER_GROUP", "DEFAULT_MULTICAST_GROUP").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("NONE", "STATIC_PEER_IP", "STATIC_PEER_GROUP", "DEFAULT_MULTICAST_GROUP"),
 							},
 						},
 						"neighbor_address_literal": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Used for neighbor_discovery STATIC_PEER_IP, where it holds the IP address. Used for neighbor_discovery DEFAULT_MULTICAST_GROUP, where it holds the IP address (224.0.0.0 to 239.255.255.255).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Used for neighbor_discovery STATIC_PEER_IP, where it holds any unicast IP address. Used for neighbor_discovery DEFAULT_MULTICAST_GROUP, where it holds IP address in range 224.0.0.0 to 239.255.255.255.").String,
 							Optional:            true,
 						},
 						"neighbor_address_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Used for neighbor_discovery STATIC_PEER_GROUP, where it holds UUID of the network group (fmc_network_group.example.id) and such network group can contain only IPv4 Hosts and IPv4 Ranges (but not Networks, etc.).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Used for neighbor_discovery STATIC_PEER_GROUP, where it holds UUID of the network group and such network group can contain only IPv4 Hosts and IPv4 Ranges (but not Networks, etc.).").String,
 							Optional:            true,
 						},
 					},
