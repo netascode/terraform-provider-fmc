@@ -291,6 +291,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewICMPv4ObjectResource,
 		NewNetworkResource,
 		NewSecurityZoneResource,
+		NewStandardACLResource,
 	}
 }
 
@@ -306,6 +307,7 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewICMPv4ObjectDataSource,
 		NewNetworkDataSource,
 		NewSecurityZoneDataSource,
+		NewStandardACLDataSource,
 	}
 }
 
