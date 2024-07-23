@@ -225,7 +225,6 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 							if !childChildItem.{{toGoName .TfName}}.IsNull() {
 								itemChildChildBody, _ = sjson.Set(itemChildChildBody, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", childChildItem.{{toGoName .TfName}}.Value{{.Type}}())
 							}
-							{{- errorf "element_type is not yet implemented for type Map at this depth"}}
 							{{- else if isListSet .}}
 							if !childChildItem.{{toGoName .TfName}}.IsNull() {
 								var values []{{if isStringListSet .}}string{{else if isInt64ListSet .}}int64{{end}}
@@ -563,3 +562,43 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 }
 
 // End of section. //template:end fromBodyUnknowns
+{{- range .Attributes}}
+	{{- range .Attributes}}
+		{{- if isNestedMap .}}
+			{{- errorf "Map not yet implemented at this depth"}}
+		{{- end}}
+		{{- if .OrderedList }}
+			{{- errorf "ordered_list not yet implemented at this depth"}}
+		{{- end}}
+		{{- if hasResourceId .Attributes}}
+			{{- errorf "resource_id not yet implemented at this depth"}}
+		{{- end}}
+
+		{{- range .Attributes}}
+			{{- if isNestedMap .}}
+				{{- errorf "Map not yet implemented at this depth"}}
+			{{- end}}
+			{{- if .OrderedList }}
+				{{- errorf "ordered_list not yet implemented at this depth"}}
+			{{- end}}
+			{{- if hasResourceId .Attributes}}
+				{{- errorf "resource_id not yet implemented at this depth"}}
+			{{- end}}
+
+			{{- range .Attributes}}
+				{{- if isNestedMap .}}
+					{{- errorf "Map not yet implemented at this depth"}}
+				{{- end}}
+				{{- if .OrderedList }}
+					{{- errorf "ordered_list not yet implemented at this depth"}}
+				{{- end}}
+				{{- if hasResourceId .Attributes}}
+					{{- errorf "resource_id not yet implemented at this depth"}}
+				{{- end}}
+				{{- range .Attributes}}
+					{{- errorf "attributes not yet implemented at this depth"}}
+				{{- end}}
+			{{- end}}
+		{{- end}}
+	{{- end}}
+{{- end}}

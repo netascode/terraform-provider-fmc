@@ -258,14 +258,6 @@ func IsList(attribute YamlConfigAttribute) bool {
 	return false
 }
 
-// Templating helper function to return true if type is a map without nested elements
-func IsMap(attribute YamlConfigAttribute) bool {
-	if attribute.Type == "Map" && attribute.ElementType != "" {
-		return true
-	}
-	return false
-}
-
 // Templating helper function to return true if type is a set without nested elements
 func IsSet(attribute YamlConfigAttribute) bool {
 	if attribute.Type == "Set" && attribute.ElementType != "" {
@@ -362,7 +354,6 @@ var functions = template.FuncMap{
 	"hasResourceId":      HasResourceId,
 	"isListSet":          IsListSet,
 	"isList":             IsList,
-	"isMap":              IsMap,
 	"isSet":              IsSet,
 	"isStringListSet":    IsStringListSet,
 	"isInt64ListSet":     IsInt64ListSet,
@@ -375,7 +366,8 @@ var functions = template.FuncMap{
 	"subtract":           Subtract,
 }
 
-func augmentAttribute(attr *YamlConfigAttribute) {
+func (attr *YamlConfigAttribute) init() error {
+	// Augument
 	if attr.TfName == "" {
 		var words []string
 		l := 0
@@ -388,16 +380,58 @@ func augmentAttribute(attr *YamlConfigAttribute) {
 		}
 		attr.TfName = strings.Join(words, "_")
 	}
-	if IsNestedListMapSet(*attr) {
-		for a := range attr.Attributes {
-			augmentAttribute(&attr.Attributes[a])
+
+	// Validate
+	if len(attr.Attributes) > 0 && attr.Type != "List" && attr.Type != "Map" && attr.Type != "Set" {
+		return fmt.Errorf("%q has type %q which cannot have `attributes`: instead use type List, Map, Set",
+			attr.TfName, attr.Type)
+	}
+
+	if len(attr.Attributes) > 0 && attr.ElementType != "" {
+		return fmt.Errorf("%q: either `attributes` or `element_type` can be specified, but not both", attr.TfName)
+	}
+
+	if attr.Type == "Map" && attr.ElementType != "" {
+		return fmt.Errorf("%q: the `element_type` is not yet implemented for type Map", attr.TfName)
+	}
+
+	if attr.OrderedList {
+		if attr.Type != "List" {
+			return fmt.Errorf("%q has type %q which cannot use `ordered_list`: instead use type List",
+				attr.TfName, attr.Type)
+		}
+		if HasId(attr.Attributes) {
+			return fmt.Errorf("%q: the `ordered_list: true` conflicts with sub-attributes having `id: true`, as it treats list index ([i]) as the only unique id",
+				attr.TfName)
 		}
 	}
+
+	if attr.Type == "Map" && HasId(attr.Attributes) {
+		return fmt.Errorf("Map %q cannot contain sub-attributes with `id: true`, as it treats map key ([k]) as the only unique id",
+			attr.TfName)
+	}
+
+	// Recurse
+	for i := range attr.Attributes {
+		if err := attr.Attributes[i].init(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func augmentConfig(config *YamlConfig) {
-	for ia := range config.Attributes {
-		augmentAttribute(&config.Attributes[ia])
+func NewYamlConfig(bytes []byte) (YamlConfig, error) {
+	var config YamlConfig
+
+	if err := yaml.Unmarshal(bytes, &config); err != nil {
+		return config, err
+	}
+
+	for i := range config.Attributes {
+		if err := config.Attributes[i].init(); err != nil {
+			return YamlConfig{}, err
+		}
 	}
 	if config.DsDescription == "" {
 		config.DsDescription = fmt.Sprintf("This data source can read the %s.", config.Name)
@@ -413,6 +447,8 @@ func augmentConfig(config *YamlConfig) {
 	if config.TfName == "" {
 		config.TfName = strings.Replace(config.Name, " ", "_", -1)
 	}
+
+	return config, nil
 }
 
 func getTemplateSection(content, name string) string {
@@ -507,30 +543,26 @@ func renderTemplate(templatePath, outputPath string, config interface{}) {
 }
 
 func main() {
-	providerConfig := make([]string, 0)
-
-	files, _ := os.ReadDir(definitionsPath)
-	configs := make([]YamlConfig, len(files))
-
 	// Load configs
-	for i, filename := range files {
-		yamlFile, err := os.ReadFile(filepath.Join(definitionsPath, filename.Name()))
+	var configs []YamlConfig
+	files, _ := os.ReadDir(definitionsPath)
+
+	for _, filename := range files {
+		path := filepath.Join(definitionsPath, filename.Name())
+		bytes, err := os.ReadFile(path)
 		if err != nil {
-			log.Fatalf("Error reading file: %v", err)
+			log.Fatalf("Error reading file %q: %v", path, err)
 		}
 
-		config := YamlConfig{}
-		err = yaml.Unmarshal(yamlFile, &config)
+		config, err := NewYamlConfig(bytes)
 		if err != nil {
-			log.Fatalf("Error parsing yaml: %v", err)
+			log.Fatalf("Error parsing %q: %v", path, err)
 		}
-		configs[i] = config
+		configs = append(configs, config)
 	}
 
+	var providerConfig []string
 	for i := range configs {
-		// Augment config
-		augmentConfig(&configs[i])
-
 		// Iterate over templates and render files
 		for _, t := range templates {
 			renderTemplate(t.path, t.prefix+SnakeCase(configs[i].Name)+t.suffix, configs[i])
@@ -543,7 +575,7 @@ func main() {
 
 	changelog, err := os.ReadFile(changelogOriginal)
 	if err != nil {
-		log.Fatalf("Error reading changelog: %v", err)
+		log.Fatalf("Error reading %q: %v", changelogOriginal, err)
 	}
 	renderTemplate(changelogTemplate, changelogLocation, string(changelog))
 }
