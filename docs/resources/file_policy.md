@@ -45,7 +45,7 @@ resource "fmc_file_policy" "example" {
 - `domain` (String) The name of the FMC domain
 - `first_time_file_analysis` (Boolean)
 - `inspect_archives` (Boolean)
-- `threat_score` (String)
+- `threat_score` (String) - Choices: `DISABLED`, `MEDIUM`, `High`, `VERY_HIGH`
 
 ### Read-Only
 

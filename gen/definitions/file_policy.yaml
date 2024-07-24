@@ -54,5 +54,5 @@ attributes:
   - model_name: threatScore
     tf_name: threat_score
     type: String
-    enum_value: [DISABLED, MEDIUM, High, VERY_HIGH]
+    enum_values: [DISABLED, MEDIUM, High, VERY_HIGH]
     example: High

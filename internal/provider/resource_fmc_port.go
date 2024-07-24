@@ -24,13 +24,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
@@ -43,26 +41,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &FilePolicyResource{}
-	_ resource.ResourceWithImportState = &FilePolicyResource{}
+	_ resource.Resource                = &PortResource{}
+	_ resource.ResourceWithImportState = &PortResource{}
 )
 
-func NewFilePolicyResource() resource.Resource {
-	return &FilePolicyResource{}
+func NewPortResource() resource.Resource {
+	return &PortResource{}
 }
 
-type FilePolicyResource struct {
+type PortResource struct {
 	client *fmc.Client
 }
 
-func (r *FilePolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_file_policy"
+func (r *PortResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_port"
 }
 
-func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *PortResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a File Policy.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Port.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -79,54 +77,31 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"port": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Port number in decimal for TCP or UDP. Otherwise a protocol-specific value.").String,
+				Optional:            true,
+			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("the name of file policy").String,
+				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the resource.").String,
+				Required:            true,
+			},
+			"protocol": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("IANA protocol number or Ethertype. This is handled differently for Transport and Network layer protocols. Transport layer protocols are identified by the IANA protocol number (e.g. 6 means TCP, and 17 means UDP). Network layer protocols are identified by the decimal form of the IEEE Registration Authority Ethertype (e.g. 2048 means IP).").String,
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("description of the file policy").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
 				Optional:            true,
 			},
-			"archive_depth": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+			"overridable": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
 				Optional:            true,
-			},
-			"archive_depth_action": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"block_encrypted_archives": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"clean_list": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"custom_detection_list": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"first_time_file_analysis": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"inspect_archives": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"threat_score": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("DISABLED", "MEDIUM", "High", "VERY_HIGH").String,
-				Optional:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf("DISABLED", "MEDIUM", "High", "VERY_HIGH"),
-				},
 			},
 		},
 	}
 }
 
-func (r *FilePolicyResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *PortResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -138,8 +113,8 @@ func (r *FilePolicyResource) Configure(_ context.Context, req resource.Configure
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
-func (r *FilePolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan FilePolicy
+func (r *PortResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan Port
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -156,7 +131,7 @@ func (r *FilePolicyResource) Create(ctx context.Context, req resource.CreateRequ
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, FilePolicy{})
+	body := plan.toBody(ctx, Port{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -176,8 +151,8 @@ func (r *FilePolicyResource) Create(ctx context.Context, req resource.CreateRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state FilePolicy
+func (r *PortResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state Port
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -226,8 +201,8 @@ func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
-func (r *FilePolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state FilePolicy
+func (r *PortResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state Port
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -266,8 +241,8 @@ func (r *FilePolicyResource) Update(ctx context.Context, req resource.UpdateRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *FilePolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state FilePolicy
+func (r *PortResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state Port
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -297,7 +272,7 @@ func (r *FilePolicyResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *FilePolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *PortResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
