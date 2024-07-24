@@ -45,10 +45,6 @@ func TestAccDataSourceFmcFileRules(t *testing.T) {
 				Config: testAccDataSourceFmcFileRulesPrerequisitesConfig + testAccDataSourceFmcFileRulesConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
-			{
-				Config: testAccDataSourceFmcFileRulesPrerequisitesConfig + testAccNamedDataSourceFmcFileRulesConfig(),
-				Check:  resource.ComposeTestCheckFunc(checks...),
-			},
 		},
 	})
 }
@@ -96,31 +92,6 @@ func testAccDataSourceFmcFileRulesConfig() string {
 	config += `
 		data "fmc_file_rules" "test" {
 			id = fmc_file_rules.test.id
-			file_policy_id = fmc_file_policy.test.id
-		}
-	`
-	return config
-}
-
-func testAccNamedDataSourceFmcFileRulesConfig() string {
-	config := `resource "fmc_file_rules" "test" {` + "\n"
-	config += `	file_policy_id = fmc_file_policy.test.id` + "\n"
-	config += `	action = "DETECT"` + "\n"
-	config += `	protocol = "ANY"` + "\n"
-	config += `	direction = "ANY"` + "\n"
-	config += `	file_categories = [{` + "\n"
-	config += `		id = "2"` + "\n"
-	config += `		name = "Archive"` + "\n"
-	config += `	}]` + "\n"
-	config += `	file_types = [{` + "\n"
-	config += `		id = "19"` + "\n"
-	config += `		name = "7Z"` + "\n"
-	config += `	}]` + "\n"
-	config += `}` + "\n"
-
-	config += `
-		data "fmc_file_rules" "test" {
-			name = fmc_file_rules.test.name
 			file_policy_id = fmc_file_policy.test.id
 		}
 	`

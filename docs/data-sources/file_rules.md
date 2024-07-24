@@ -25,12 +25,11 @@ data "fmc_file_rules" "example" {
 ### Required
 
 - `file_policy_id` (String) ID of the file policy(container).
+- `id` (String) The id of the object
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `id` (String) The id of the object
-- `name` (String) The name of file rule (dummy)
 
 ### Read-Only
 
@@ -38,6 +37,7 @@ data "fmc_file_rules" "example" {
 - `direction` (String) The name of file rule
 - `file_categories` (Attributes List) The name of file rule (see [below for nested schema](#nestedatt--file_categories))
 - `file_types` (Attributes List) The name of file rule (see [below for nested schema](#nestedatt--file_types))
+- `name` (String) The name of file rule (dummy)
 - `protocol` (String) The name of file rule
 
 <a id="nestedatt--file_categories"></a>

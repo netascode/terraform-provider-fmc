@@ -1,7 +1,6 @@
 ---
 name: File Rules
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/filepolicies/%v/filerules
-data_source_name_query: true
 doc_category: Policy
 
 attributes:
