@@ -5,6 +5,7 @@ BINARY=terraform-provider-${NAME}
 VERSION=0.2
 OS_ARCH=$(shell go env GOOS)_$(shell go env GOARCH)
 PLATFORMS := linux/amd64 windows/amd64 darwin/amd64 darwin/arm64
+PROVIDER_DIR := ./internal/provider/.
 
 temp = $(subst /, ,$@)
 OS = $(word 1, $(temp))
@@ -36,12 +37,12 @@ gen:
 # Example: make testacc
 .PHONY: testacc
 testacc: gen
-	TF_ACC=1 go test ./... -v -timeout 120m
+	TF_ACC=1 go test -v ${PROVIDER_DIR} -timeout 120m
 
 
 # Run acceptance tests with specific test name
 # Example: make testspec ARGS="NetworkHost"
 .PHONY: testspec
 testspec: gen
-	TF_ACC=1 go test ./... -v -run ^TestAccFmc$(ARGS)$$ -timeout 120mefault: testacc
+	TF_ACC=1 go test -v ${PROVIDER_DIR} -run ^TestAccFmc$(ARGS)$$ -timeout 120
 
