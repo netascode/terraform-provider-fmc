@@ -1,0 +1,108 @@
+---
+name: File Rules
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/filepolicies/%v/filerules
+data_source_name_query: true
+doc_category: Policy
+
+attributes:
+  - tf_name: file_policy_id
+    type: String
+    reference: true
+    description: ID of the file policy(container).
+    test_value: fmc_file_policy.test.id
+    # example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+
+  - model_name: name
+    type: String
+    description: The name of file rule (dummy)
+    example: file_rule_1
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: action
+    type: String
+    enum_values:
+      [DETECT, BLOCK_WITH_RESET, DETECT_MALWARE, BLOCK_MALWARE_WITH_RESET]
+    mandatory: true
+    description: The name of file rule
+    example: DETECT
+
+  - model_name: protocol
+    type: String
+    enum_values: [ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB]
+    mandatory: true
+    description: The name of file rule
+    example: ANY
+
+  - model_name: direction
+    type: String
+    enum_values: [ANY, UPLOAD, DOWNLOAD]
+    mandatory: true
+    description: The name of file rule
+    example: ANY
+
+  - model_name: fileCategories
+    mandatory: true
+    tf_name: file_categories
+    type: List
+    description: The name of file rule
+    example: |
+      {
+      "id": "2",
+      "type": "FileCategory",
+      "name": "Archive"
+      }
+    attributes:
+      - model_name: id
+        type: String
+        mandatory: true
+        description: The name of file rule
+        example: 2
+      - model_name: name
+        type: String
+        mandatory: true
+        description: The name of file rule
+        example: Archive
+      - model_name: type
+        type: String
+        description: The name of file rule
+        value: FileCategory
+
+  - model_name: fileTypes
+    tf_name: file_types
+    type: List
+    description: The name of file rule
+    example: |
+      {
+      "id": "19",
+      "type": "FileType",
+      "name": "7Z"
+      }
+    attributes:
+      - model_name: id
+        type: String
+        mandatory: true
+        description: The name of file rule
+        example: 19
+      - model_name: name
+        type: String
+        mandatory: true
+        example: 7Z
+      - model_name: type
+        type: String
+        description: The name of file rule
+        value: FileType
+
+test_prerequisites: |
+  resource "fmc_file_policy" "test" {
+    name                     = "file_rule_test"
+    description              = "My file policy Test"
+    archive_depth            = "3"
+    archive_depth_action     = true
+    block_encrypted_archives = false
+    clean_list               = true
+    custom_detection_list    = true
+    first_time_file_analysis = true
+    inspect_archives         = false
+    threat_score             = "High"
+  }
