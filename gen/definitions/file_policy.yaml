@@ -1,0 +1,58 @@
+---
+name: File Policy
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/filepolicies
+data_source_name_query: true
+doc_category: policy
+# minimum_version: 7.4.0
+attributes:
+  - model_name: name
+    type: String
+    mandatory: true
+    description: the name of file policy
+    example: file_policy_1
+
+  - model_name: description
+    type: String
+    description: description of the file policy
+    example: My file policy
+
+  - model_name: archiveDepth
+    tf_name: archive_depth
+    type: String
+    example: 3
+
+  - model_name: archiveDepthAction
+    tf_name: archive_depth_action
+    type: Bool
+    example: true
+
+  - model_name: blockEncryptedArchives
+    tf_name: block_encrypted_archives
+    type: Bool
+    example: false
+
+  - model_name: cleanList
+    tf_name: clean_list
+    type: Bool
+    example: true
+
+  - model_name: customDetectionList
+    tf_name: custom_detection_list
+    type: Bool
+    example: true
+
+  - model_name: firstTimeFileAnalysis
+    tf_name: first_time_file_analysis
+    type: Bool
+    example: true
+
+  - model_name: inspectArchives
+    tf_name: inspect_archives
+    type: Bool
+    example: false
+
+  - model_name: threatScore
+    tf_name: threat_score
+    type: String
+    enum_value: [DISABLED, MEDIUM, High, VERY_HIGH]
+    example: High
