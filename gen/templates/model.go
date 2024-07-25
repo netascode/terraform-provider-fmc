@@ -404,14 +404,16 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		}
 	}
 	for i := range data.{{toGoName .TfName}} {
-		r := res.Get(fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}.%d", i))
+		parentR := res
+		res := parentR.Get(fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}.%d", i))
 	{{- else }}
 	for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
 		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 
-		var r gjson.Result
-		res.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
+		parentR := res
+		var res gjson.Result
+		parentR.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
@@ -422,14 +424,14 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 					found = true
 				}
 				if found {
-					r = v
+					res = v
 					return false
 				}
 				return true
 			},
 		)
-		if !r.Exists() {
-			tflog.Debug(ctx, fmt.Sprintf("removing data.{{toGoName .TfName}}[%d] = %+v",
+		if !res.Exists() {
+			tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
 				i,
 				data.{{toGoName .TfName}}[i],
 			))
@@ -440,31 +442,31 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		}
 	{{- end}}
 
+		parent := data
+		data := parent.{{$list}}[i]
 		{{- range .Attributes}}
 		{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-		if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
-			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-		} else {{if .DefaultValue}}if data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
-			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null()
+		if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+			data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+		} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+			data.{{toGoName .TfName}} = types.{{.Type}}Null()
 		}
 		{{- else if isListSet .}}
-		if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{toGoName .TfName}}.IsNull() {
-			data.{{$list}}[i].{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+		if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+			data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
 		} else {
-			data.{{$list}}[i].{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+			data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 		}
 		{{- else if isNestedListSet .}}
 		{{- $clist := (toGoName .TfName)}}
-		{{- if .OrderedList }}
-		{{- errorf "ordered_list cannot be nested that deep"}}
-		{{- end}}
-		for ci := 0; ci < len(data.{{$list}}[i].{{toGoName .TfName}}); ci++ {
+		for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
 			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
-			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$clist}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$clist}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$clist}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 
-			var cr gjson.Result
-			r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
+			parentR := res
+			var res gjson.Result
+			parentR.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
 				func(_, v gjson.Result) bool {
 					found := false
 					for ik := range keys {
@@ -475,48 +477,48 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 						found = true
 					}
 					if found {
-						cr = v
+						res = v
 						return false
 					}
 					return true
 				},
 			)
-			if !cr.Exists() {
-				tflog.Debug(ctx, fmt.Sprintf("removing data.{{$list}}[i].{{toGoName .TfName}}[%d] = %+v",
-					ci,
-					data.{{$list}}[i].{{toGoName .TfName}}[ci],
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
+					i,
+					data.{{$clist}}[i],
 				))
-				data.{{$list}}[i].{{toGoName .TfName}} = slices.Delete(data.{{$list}}[i].{{toGoName .TfName}}, ci, ci+1)
-				ci--
+				data.{{toGoName .TfName}} = slices.Delete(data.{{toGoName .TfName}}, i, i+1)
+				i--
 
 				continue
 			}
 
+			parent := data
+			data := parent.{{$clist}}[i]
 			{{- range .Attributes}}
 			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-			if value := cr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
-				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-			} else {{if .DefaultValue}}if data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
-				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Null()
+			if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+				data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+			} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+				data.{{toGoName .TfName}} = types.{{.Type}}Null()
 			}
 			{{- else if isListSet .}}
-			if value := cr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}.IsNull() {
-				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+			if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+				data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
 			} else {
-				data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+				data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 			}
 			{{- else if isNestedListSet .}}
 			{{- $cclist := (toGoName .TfName)}}
-			{{- if .OrderedList }}
-			{{- errorf "ordered_list cannot be nested that deep"}}
-			{{- end}}
-			for cci := 0; cci < len(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}); cci++ {
+			for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
 				keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
-				keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
+				keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$cclist}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$cclist}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$cclist}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 
-				var ccr gjson.Result
-				cr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
+				parentR := res
+				var res gjson.Result
+				parentR.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
 					func(_, v gjson.Result) bool {
 						found := false
 						for ik := range keys {
@@ -527,49 +529,53 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 							found = true
 						}
 						if found {
-							ccr = v
+							res = v
 							return false
 						}
 						return true
 					},
 				)
-				if !cr.Exists() {
-					tflog.Debug(ctx, fmt.Sprintf("removing data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}[%d] = %+v",
-						cci,
-						data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}[cci],
+				if !res.Exists() {
+					tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
+						i,
+						data.{{toGoName .TfName}}[i],
 					))
-					data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}} = slices.Delete(data.{{$list}}[i].{{$clist}}[ci].{{toGoName .TfName}}, cci, cci+1)
-					cci--
+					data.{{toGoName .TfName}} = slices.Delete(data.{{toGoName .TfName}}, i, i+1)
+					i--
 
 					continue
 				}
 
+				parent := data
+				data := parent.{{$cclist}}[i]
 				{{- range .Attributes}}
 				{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 				{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-				if value := ccr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
-					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-				} else {{if .DefaultValue}}if data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
-					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Null()
+				if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$cclist}}[i].{{toGoName .TfName}}.IsNull() {
+					data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
+				} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+					data.{{toGoName .TfName}} = types.{{.Type}}Null()
 				}
 				{{- else if isListSet .}}
-				if value := ccr.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}}.IsNull() {
-					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
+				if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
+					data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
 				} else {
-					data.{{$list}}[i].{{$clist}}[ci].{{$cclist}}[cci].{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
+					data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 				}
 				{{- end}}
 				{{- end}}
 				{{- end}}
+				parent.{{$cclist}}[i] = data
 			}
-
 			{{- end}}
 			{{- end}}
 			{{- end}}
+			parent.{{$clist}}[i] = data
 		}
 		{{- end}}
 		{{- end}}
 		{{- end}}
+		parent.{{$list}}[i] = data
 	}
 	{{- end}}
 	{{- end}}
