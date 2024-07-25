@@ -44,5 +44,5 @@ testacc: gen
 # Example: make testspec ARGS="NetworkHost"
 .PHONY: testspec
 testspec: gen
-	TF_ACC=1 go test -v ${PROVIDER_DIR} -run ^TestAccFmc$(ARGS)$$ -timeout 120
-
+	TF_ACC=1 go test ${PROVIDER_DIR} -v -run ^TestAccDataSourceFmc$(ARGS)$$ -timeout 120m -count=1
+	TF_ACC=1 go test ${PROVIDER_DIR} -v -run ^TestAccFmc$(ARGS)$$ -timeout 120m -count=1
