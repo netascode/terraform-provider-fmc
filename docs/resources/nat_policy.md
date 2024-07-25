@@ -28,7 +28,7 @@ resource "fmc_nat_policy" "example" {
 
 ### Optional
 
-- `description` (String) Description
+- `description` (String) Description of the NAT policy
 - `domain` (String) The name of the FMC domain
 
 ### Read-Only

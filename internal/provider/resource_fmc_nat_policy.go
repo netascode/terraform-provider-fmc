@@ -82,7 +82,7 @@ func (r *NatPolicyResource) Schema(ctx context.Context, req resource.SchemaReque
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Description of the NAT policy").String,
 				Optional:            true,
 			},
 		},

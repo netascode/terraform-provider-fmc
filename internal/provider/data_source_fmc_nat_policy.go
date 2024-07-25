@@ -76,7 +76,7 @@ func (d *NatPolicyDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Description",
+				MarkdownDescription: "Description of the NAT policy",
 				Computed:            true,
 			},
 		},

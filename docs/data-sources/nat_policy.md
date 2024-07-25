@@ -29,4 +29,4 @@ data "fmc_nat_policy" "example" {
 
 ### Read-Only
 
-- `description` (String) Description
+- `description` (String) Description of the NAT policy

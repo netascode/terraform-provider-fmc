@@ -60,7 +60,6 @@ func (data NatPolicy) toBody(ctx context.Context, state NatPolicy) string {
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "description", data.Description.ValueString())
 	}
-	body, _ = sjson.Set(body, "type", "FTDNatPolicy")
 	return body
 }
 
