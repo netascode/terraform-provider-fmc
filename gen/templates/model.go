@@ -373,6 +373,8 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
 func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.Result) {
+{{- define "fromBodyPartialTemplate"}}
+	{{- $name := (toGoName .TfName)}}
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
@@ -404,16 +406,21 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		}
 	}
 	for i := range data.{{toGoName .TfName}} {
-		parentR := res
-		res := parentR.Get(fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}.%d", i))
+		parent := data
+		data := parent.{{toGoName .TfName}}[i]
+		parentRes := res
+		res := parentRes.Get(fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}.%d", i))
 	{{- else }}
 	for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
 		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 
-		parentR := res
+		parent := data
+		data := parent.{{toGoName .TfName}}[i]
+		parentRes := res
 		var res gjson.Result
-		parentR.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
+
+		parentRes.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
 			func(_, v gjson.Result) bool {
 				found := false
 				for ik := range keys {
@@ -433,153 +440,23 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		if !res.Exists() {
 			tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
 				i,
-				data.{{toGoName .TfName}}[i],
+				parent.{{toGoName .TfName}}[i],
 			))
-			data.{{toGoName .TfName}} = slices.Delete(data.{{toGoName .TfName}}, i, i+1)
+			parent.{{toGoName .TfName}} = slices.Delete(parent.{{toGoName .TfName}}, i, i+1)
 			i--
 
 			continue
 		}
 	{{- end}}
 
-		parent := data
-		data := parent.{{$list}}[i]
-		{{- range .Attributes}}
-		{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-		if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
-			data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-		} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
-			data.{{toGoName .TfName}} = types.{{.Type}}Null()
-		}
-		{{- else if isListSet .}}
-		if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
-			data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
-		} else {
-			data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
-		}
-		{{- else if isNestedListSet .}}
-		{{- $clist := (toGoName .TfName)}}
-		for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
-			keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
-			keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$clist}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$clist}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$clist}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
-
-			parentR := res
-			var res gjson.Result
-			parentR.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
-				func(_, v gjson.Result) bool {
-					found := false
-					for ik := range keys {
-						if v.Get(keys[ik]).String() != keyValues[ik] {
-							found = false
-							break
-						}
-						found = true
-					}
-					if found {
-						res = v
-						return false
-					}
-					return true
-				},
-			)
-			if !res.Exists() {
-				tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
-					i,
-					data.{{$clist}}[i],
-				))
-				data.{{toGoName .TfName}} = slices.Delete(data.{{toGoName .TfName}}, i, i+1)
-				i--
-
-				continue
-			}
-
-			parent := data
-			data := parent.{{$clist}}[i]
-			{{- range .Attributes}}
-			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-			if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
-				data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-			} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
-				data.{{toGoName .TfName}} = types.{{.Type}}Null()
-			}
-			{{- else if isListSet .}}
-			if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
-				data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
-			} else {
-				data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
-			}
-			{{- else if isNestedListSet .}}
-			{{- $cclist := (toGoName .TfName)}}
-			for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
-				keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
-				keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$cclist}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$cclist}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$cclist}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
-
-				parentR := res
-				var res gjson.Result
-				parentR.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").ForEach(
-					func(_, v gjson.Result) bool {
-						found := false
-						for ik := range keys {
-							if v.Get(keys[ik]).String() != keyValues[ik] {
-								found = false
-								break
-							}
-							found = true
-						}
-						if found {
-							res = v
-							return false
-						}
-						return true
-					},
-				)
-				if !res.Exists() {
-					tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
-						i,
-						data.{{toGoName .TfName}}[i],
-					))
-					data.{{toGoName .TfName}} = slices.Delete(data.{{toGoName .TfName}}, i, i+1)
-					i--
-
-					continue
-				}
-
-				parent := data
-				data := parent.{{$cclist}}[i]
-				{{- range .Attributes}}
-				{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-				{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-				if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{$cclist}}[i].{{toGoName .TfName}}.IsNull() {
-					data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-				} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
-					data.{{toGoName .TfName}} = types.{{.Type}}Null()
-				}
-				{{- else if isListSet .}}
-				if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
-					data.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(value.Array())
-				} else {
-					data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
-				}
-				{{- end}}
-				{{- end}}
-				{{- end}}
-				parent.{{$cclist}}[i] = data
-			}
-			{{- end}}
-			{{- end}}
-			{{- end}}
-			parent.{{$clist}}[i] = data
-		}
-		{{- end}}
-		{{- end}}
-		{{- end}}
-		parent.{{$list}}[i] = data
+		{{- template "fromBodyPartialTemplate" .}}
+		parent.{{toGoName .TfName}}[i] = data
 	}
 	{{- end}}
 	{{- end}}
 	{{- end}}
+{{- end}}
+{{- template "fromBodyPartialTemplate" .}}
 }
 
 // End of section. //template:end fromBodyPartial

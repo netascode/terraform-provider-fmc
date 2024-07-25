@@ -95,6 +95,7 @@ var templates = []t{
 
 type YamlConfig struct {
 	Name                string                `yaml:"name"`
+	TfName              string                `yaml:"tf_name"`
 	RestEndpoint        string                `yaml:"rest_endpoint"`
 	PutCreate           bool                  `yaml:"put_create"`
 	NoUpdate            bool                  `yaml:"no_update"`
@@ -380,6 +381,9 @@ func augmentConfig(config *YamlConfig) {
 		} else {
 			config.ResDescription = fmt.Sprintf("This resource can manage a %s.", config.Name)
 		}
+	}
+	if config.TfName == "" {
+		config.TfName = strings.Replace(config.Name, " ", "_", -1)
 	}
 }
 
