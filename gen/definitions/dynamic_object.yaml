@@ -24,7 +24,7 @@ attributes:
     example: IP
   - model_name: agentId
     type: String
-    description: The agent ID Dynamic Object.
+    description: The agent ID of the Dynamic Object.
     exclude_test: true
     example: agent_007
   - model_name: topicName
