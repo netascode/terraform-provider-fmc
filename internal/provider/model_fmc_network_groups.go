@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/tidwall/gjson"
@@ -172,3 +173,10 @@ func (data *NetworkGroups) fromBodyUnknowns(ctx context.Context, res gjson.Resul
 }
 
 // End of section. //template:end fromBodyUnknowns
+
+func (data *NetworkGroups) Clone() NetworkGroups {
+	ret := *data
+	ret.Items = maps.Clone(data.Items)
+
+	return ret
+}

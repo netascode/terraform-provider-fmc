@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -168,10 +169,8 @@ func (r *NetworkGroupsResource) Create(ctx context.Context, req resource.CreateR
 	plan.Id = types.StringValue("00000000-0000-0000-0000-000000000000")
 
 	var res gjson.Result
-	// Create subobjects "Items"
-	// Subobjects can use bulk Post.
-	{
-		subbody := gjson.Parse(body).Get("items").String()
+	subbody := gjson.Parse(body).Get("items").String()
+	if gjson.Parse(body).Get("items").IsArray() {
 		// manual fixup
 		for i := range gjson.Parse(body).Get("items").Array() {
 			subbody, _ = sjson.Delete(subbody, fmt.Sprintf("%d.group_names", i))
@@ -185,6 +184,8 @@ func (r *NetworkGroupsResource) Create(ctx context.Context, req resource.CreateR
 		}
 
 		res = set(res, "items", subres.Get("items"))
+	} else {
+		res = set(res, "items", gjson.Parse(`[]`))
 	}
 
 	plan.fromBodyUnknowns(ctx, res)
@@ -223,28 +224,28 @@ func (r *NetworkGroupsResource) Read(ctx context.Context, req resource.ReadReque
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	var res gjson.Result
-	// Read subobjects from "items"
-	{
-		// TODO: >1000
-		params := "?expanded=true&limit=1000"
-		subres, err := r.client.Get(state.getPath()+params, reqMods...)
-		if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-			resp.State.RemoveResource(ctx)
-			return
-		} else if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, subres.String()))
-			return
-		}
-
-		res = set(res, "items", subres)
-	}
-
 	// Pseudo-resource, no Get.
 	if len(state.Items) == 0 {
 		resp.State.RemoveResource(ctx)
 		return
 	}
+
+	// Read subobjects from "items"
+
+	// TODO: >1000
+	params := "?expanded=true&limit=1000"
+	res, err := r.client.Get(state.getPath()+params, reqMods...)
+	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+		// TODO: no implicit removal for a pseudo-resource
+		resp.State.RemoveResource(ctx)
+		return
+	} else if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// Distill group_names
+	res = r.withAllGroupNames(ctx, res, &state)
 
 	imp, diags := helpers.IsFlagImporting(ctx, req)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
@@ -258,15 +259,44 @@ func (r *NetworkGroupsResource) Read(ctx context.Context, req resource.ReadReque
 		state.fromBodyPartial(ctx, res)
 	}
 
-	resp.Diagnostics.AddError("cannot Read", "not yet implemeneted")
-	return
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
+}
+
+func (r *NetworkGroupsResource) withAllGroupNames(ctx context.Context, res gjson.Result, state *NetworkGroups) gjson.Result {
+	items := `[]`
+	if !res.Get("items").IsArray() {
+		return res
+	}
+	for _, item := range res.Get("items").Array() {
+		item := r.withItemGroupNames(ctx, item, state)
+		items, _ = sjson.SetRaw(items, "-1", item)
+	}
+
+	return set(res, "items", gjson.Parse(items))
+}
+
+func (r *NetworkGroupsResource) withItemGroupNames(ctx context.Context, item gjson.Result, state *NetworkGroups) string {
+	ret := item.String()
+	name := item.Get("name").String()
+	if _, found := state.Items[name]; !found {
+		return ret
+	}
+
+	var arr []string
+	_ = state.Items[name].GroupNames.ElementsAs(ctx, &arr, false)
+	for _, sg := range arr {
+		for _, obj := range item.Get("objects").Array() {
+			if obj.Get("name").String() == sg && strings.ToLower(obj.Get("type").String()) == "networkgroup" {
+				ret, _ = sjson.Set(ret, "group_names.-1", sg)
+			}
+		}
+	}
+	return ret
 }
 
 func (r *NetworkGroupsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -290,146 +320,20 @@ func (r *NetworkGroupsResource) Update(ctx context.Context, req resource.UpdateR
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+	planBody := plan.toBody(ctx, state)
+	// Skip these for a pseudo-recource.
+	// body := planBody
+	// body, _ = sjson.Delete(body, "items")
 
-	body := plan.toBody(ctx, state)
+	existingItems := state.Items
+	state = plan
+	state.Items = existingItems
 
-	subbody := gjson.Parse(body).Get("items")
-
-	// TODO handle renames:
-	// keyByUUID := map[string]string{}
-	// for k := range plan.Items {
-	// 	keyByUUID[state.Items[k].Id.ValueString()] = k
-	// }
-	// for k := range plan.Items {
-	// 	delete(keyByUUID, plan.Items[k].Id.ValueString())
-	// }
-
-	// Subresources to Delete.
-	for k := range state.Items {
-		if _, found := plan.Items[k]; found {
-			continue
-		}
-
-		deleting := state.Items[k].Id.ValueString()
-		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", deleting))
-
-		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(deleting), reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
-			return
-		}
-
-		delete(state.Items, k)
-		diags = resp.State.Set(ctx, &state)
-		if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-			return
-		}
-
-		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", deleting))
-	}
-
-	// Subresources to Update.
-	for _, subelem := range subbody.Array() {
-		k := subelem.Get("name").String()
-		if k == "" {
-			resp.Diagnostics.AddError("Internal Error", "key not marshaled")
-			return
-		}
-
-		if plan.Items[k].Id.IsUnknown() {
-			continue
-		}
-
-		unchanged, diags := objectUnchangedAt(ctx, req, path.Root("items").AtMapKey(k))
-		if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-			return
-		}
-		if unchanged {
-			continue
-		}
-
-		// adjust
-		// TODO: why do we throw it away? Fail on any change?
-		tmp, _ := sjson.Delete(subelem.String(), "group_names")
-		subelem = gjson.Parse(tmp)
-
-		res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(subelem.Get("id").String()), subelem.String(), reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
-			return
-		}
-	}
-
-	// Subresources to Create: topological sort of a DAG
-	creating := `[]`
-	for {
-		for _, subelem := range subbody.Array() {
-			k := subelem.Get("name").String()
-			if k == "" {
-				resp.Diagnostics.AddError("Internal Error", "key not marshaled")
-				return
-			}
-
-			if !plan.Items[k].Id.IsUnknown() {
-				continue
-			}
-
-			children := subelem.Get("group_names")
-			known := true
-			for _, child := range children.Array() {
-				existing := plan.Items[child.String()].Id
-				if existing.IsUnknown() {
-					tflog.Debug(ctx, fmt.Sprintf("FIXME postpone %s until after %s", k, child))
-					known = false
-					break
-				}
-
-				obj, _ := sjson.Set("{}", "id", existing.ValueString())
-				obj, _ = sjson.Set(obj, "type", "AnyNonEmptyString")
-				subelem = set(subelem, "objects.-1", gjson.Parse(obj))
-			}
-			if known {
-				tmp, _ := sjson.Delete(subelem.String(), "group_names")
-				subelem = gjson.Parse(tmp)
-
-				creating, _ = sjson.SetRaw(creating, "-1", subelem.String())
-			}
-		}
-
-		if creating == `[]` {
-			break
-		}
-
-		tflog.Debug(ctx, fmt.Sprintf("FIXME bulk %s", creating))
-
-		resp.Diagnostics.AddError("cannot create new item during modification", "not yet implemeneted (cause: any uuid marked Unknown in the plan)")
-		return
-
-		// Post
-		// fromBodyUnknowns
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
+	plan, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, req.State, state, reqMods...)
+	resp.Diagnostics.Append(diags...)
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-}
-
-func objectUnchangedAt(ctx context.Context, req resource.UpdateRequest, where path.Path) (bool, diag.Diagnostics) {
-	var plan, state attr.Value
-
-	diags := req.Plan.GetAttribute(ctx, where, &plan)
-	if diags.HasError() {
-		return false, diags
-	}
-
-	diags = req.State.GetAttribute(ctx, where, &state)
-	if diags.HasError() {
-		return false, nil
-	}
-
-	return state.Equal(plan), diags
 }
 
 func (r *NetworkGroupsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -484,3 +388,264 @@ func (r *NetworkGroupsResource) ImportState(ctx context.Context, req resource.Im
 }
 
 // End of section. //template:end import
+
+// updateSubresources returns a coherent state whether it fails or succeeds. Caller should always persist that state
+// into the Response (UpdateResponse, CreateResponse, ...), otherwise the API's UUIDs may go out-of-sync with
+// terraform.tfstate, an immediate user-visible bug.
+func (r *NetworkGroupsResource) updateSubresources(ctx context.Context, tfsdkPlan tfsdk.Plan, plan NetworkGroups, planBody string, tfsdkState tfsdk.State, state NetworkGroups, reqMods ...func(*fmc.Req)) (NetworkGroups, diag.Diagnostics) {
+	seq, diags := graphTopologicalSeq(planBody)
+	if diags.HasError() {
+		return state, diags
+	}
+
+	// Subresources to bulk-Create.
+	bulks, seq := divideToBulks(ctx, seq, plan)
+	if diags.HasError() {
+		return state, diags
+	}
+
+	for _, bulk := range bulks {
+		readable := slices.Clone(bulk.groups)
+		for i := range readable {
+			readable[i].json = ""
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: bulk ordered for Create: %+v", plan.Id.ValueString(), readable))
+	}
+
+	for _, bulk := range bulks {
+		state, diags = bulk.Create(ctx, plan, state, r.client, reqMods...)
+		if diags.HasError() {
+			return state, diags
+		}
+	}
+
+	// Subresources to Update.
+	tflog.Debug(ctx, fmt.Sprintf("%s: considering remaining subresources for Update: %+v", plan.Id.ValueString(), seq))
+	for _, group := range seq {
+		ok, diags := isConfigUpdatingAt(ctx, tfsdkPlan, tfsdkState, path.Root("items").AtMapKey(group.name))
+		if diags.HasError() {
+			return state, diags
+		}
+
+		if !ok {
+			continue
+		}
+
+		updating := plan.Items[group.name].Id.ValueString()
+		tflog.Debug(ctx, fmt.Sprintf("%s: Subresource %s: Beginning Update", updating, group.name))
+
+		body, diags := group.Body(ctx, plan)
+		if diags.HasError() {
+			return state, diags
+		}
+
+		res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(updating), body, reqMods...)
+		if err != nil {
+			return state, diag.Diagnostics{
+				diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String())),
+			}
+		}
+
+		state.Items[group.name] = plan.Items[group.name]
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Subresource %s: Update finished successfully", updating, group.name))
+	}
+
+	// Subresources to Delete.
+	stateBody := state.toBody(ctx, NetworkGroups{})
+	delSeq, diags := graphTopologicalSeq(stateBody)
+	if diags.HasError() {
+		return state, diags
+	}
+
+	for i := len(delSeq) - 1; i >= 0; i-- {
+		gn := delSeq[i].name
+		if _, found := plan.Items[gn]; found {
+			// item present both in state and in plan, do not delete
+			continue
+		}
+
+		deleting := state.Items[gn].Id.ValueString()
+		tflog.Debug(ctx, fmt.Sprintf("%s: Subresource %s: Beginning Delete", deleting, gn))
+
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(deleting), reqMods...)
+		if err != nil {
+			return state, diag.Diagnostics{
+				diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String())),
+			}
+		}
+
+		delete(state.Items, gn)
+		tflog.Debug(ctx, fmt.Sprintf("%s: Subresource %s: Delete finished successfully", deleting, gn))
+	}
+
+	return state, nil
+}
+
+func isConfigUpdatingAt(ctx context.Context, tfsdkPlan tfsdk.Plan, tfsdkState tfsdk.State, where path.Path) (bool, diag.Diagnostics) {
+	var pv, sv attr.Value
+
+	diags := tfsdkPlan.GetAttribute(ctx, where, &pv)
+	if diags.HasError() {
+		return false, diags
+	}
+
+	diags = tfsdkState.GetAttribute(ctx, where, &sv)
+	if diags.HasError() {
+		return false, nil
+	}
+
+	return !sv.Equal(pv), diags
+}
+
+// group is an internal representation of a single fmc_network_group.
+type group struct {
+	name     string
+	children []string
+	json     string
+	bulk     int
+}
+
+// graphTopologicalSeq takes "items" of the body and parses their parent-child dependencies (attribute "group_names").
+// The goal is to ensure that any child is created before its parent.
+// Having the "items" as a graph the func runs the topological sort algorithm to convert it to a sequence:
+// https://en.wikipedia.org/wiki/Topological_sorting
+//
+// And if you iterate the result sequence in reverse, any parent is guaranteed to be placed before its children, which
+// is useful for delete operations.
+func graphTopologicalSeq(body string) ([]group, diag.Diagnostics) {
+	b := gjson.Parse(body).Get("items")
+	m := map[string]group{}
+	for _, item := range b.Array() {
+		g := group{
+			name: item.Get("name").String(),
+			json: item.String(),
+		}
+		for _, child := range item.Get("group_names").Array() {
+			g.children = append(g.children, child.String())
+		}
+		m[g.name] = g
+	}
+
+	marks := map[string]bool{}
+	gens := map[string]int{}
+
+	var diags diag.Diagnostics
+	var ret []group
+	var recurse func(n string, gen int)
+	recurse = func(n string, gen int) {
+		if gens[n] != 0 {
+			return
+		}
+		if marks[n] {
+			diags.AddAttributeError(path.Root("items"), "Cycle in group_names", "The children contained in group_names seem to be their own ancestors.")
+			gens[n] = gen
+			return
+		}
+		marks[n] = true
+		item := m[n]
+		for _, child := range item.children {
+			recurse(child, gen+1)
+		}
+		gens[n] = gen
+		item.bulk = gen
+		ret = append(ret, item)
+	}
+
+	found := true
+	for found {
+		found = false
+		for n := range m {
+			if _, done := gens[n]; !done {
+				recurse(n, 1)
+				found = true
+			}
+		}
+	}
+
+	return ret, diags
+}
+
+func (group *group) Body(ctx context.Context, state NetworkGroups) (string, diag.Diagnostics) {
+	ret := group.json
+	ret, _ = sjson.Delete(ret, "group_names")
+
+	for _, child := range group.children {
+		existing := state.Items[child].Id
+		if existing.IsUnknown() {
+			return "", diag.Diagnostics{
+				diag.NewErrorDiagnostic("Internal Error", "bug in topological sort"),
+			}
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: appending child group %s (%s) to objects", group.name, child, existing))
+
+		obj := "{}"
+		obj, _ = sjson.Set(obj, "id", existing.ValueString())
+		obj, _ = sjson.Set(obj, "type", "AnyNonEmptyString")
+
+		ret, _ = sjson.SetRaw(ret, "objects.-1", obj)
+	}
+
+	return ret, nil
+}
+
+type bulk struct {
+	groups []group
+}
+
+// divideToBulks takes seq and divides it into bulks to be created (bulk-POST), and leftovers (some of leftovers can
+// later become individual PUT requests, as there is no bulk-PUT in this API).
+func divideToBulks(ctx context.Context, seq []group, plan NetworkGroups) (ret []bulk, leftovers []group) {
+	var g []group
+	for _, group := range seq {
+		if !plan.Items[group.name].Id.IsUnknown() {
+			leftovers = append(leftovers, group)
+			continue
+		}
+		g = append(g, group)
+	}
+
+	b := bulk{}
+	for i := range g {
+		b.groups = append(b.groups, g[i])
+		if i == len(g)-1 || g[i].bulk != g[i+1].bulk || true { // FIXME: fix the bulk numbering bug
+			ret = append(ret, b)
+			b = bulk{}
+		}
+	}
+
+	return ret, leftovers
+}
+
+func (bulk *bulk) Create(ctx context.Context, plan, state NetworkGroups, client *fmc.Client, reqMods ...func(*fmc.Req)) (NetworkGroups, diag.Diagnostics) {
+	ret := state.Clone()
+	bodies := "[]"
+	for i := range bulk.groups {
+		body, diags := bulk.groups[i].Body(ctx, state)
+		if diags.HasError() {
+			return ret, diags
+		}
+
+		bodies, _ = sjson.SetRaw(bodies, "-1", body)
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Bulk of subresources: Beginning Create", plan.Id.ValueString()))
+
+	res, err := client.Post(plan.getPath()+"?bulk=true", bodies, reqMods...)
+	if err != nil {
+		return ret, diag.Diagnostics{
+			diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to create a bulk (POST), got error: %s, %s", err, res.String())),
+		}
+	}
+
+	// Bulk Create is all-or-nothing, so now persist all in the tfstate.
+	for _, g := range bulk.groups {
+		ret.Items[g.name] = plan.Items[g.name]
+	}
+
+	ret.fromBodyUnknowns(ctx, res)
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Bulk of subresources: Create finished successfully", plan.Id.ValueString()))
+
+	return ret, nil
+}

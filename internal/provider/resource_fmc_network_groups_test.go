@@ -20,6 +20,7 @@ package provider
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -27,26 +28,20 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-
 func TestAccFmcNetworkGroups(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_network_groups.test", "items", ""))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcNetworkGroupsConfig_minimum(),
+			Config: testAccFmcNetworkGroupsPrerequisitesConfig + testAccFmcNetworkGroupsConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcNetworkGroupsConfig_all(),
+		Config: testAccFmcNetworkGroupsPrerequisitesConfig + testAccFmcNetworkGroupsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "fmc_network_groups.test",
-		ImportState:  true,
-	})
+	// Do not test Import here, because Import is not yet implemented.
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -54,8 +49,6 @@ func TestAccFmcNetworkGroups(t *testing.T) {
 		Steps:                    steps,
 	})
 }
-
-// End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 // End of section. //template:end testPrerequisites
@@ -80,3 +73,93 @@ func testAccFmcNetworkGroupsConfig_all() string {
 }
 
 // End of section. //template:end testAccConfigAll
+
+func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
+	steps := []resource.TestStep{{
+		// step 1
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`	}` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+	}, {
+		// step 2
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		group_names = ["g2"]` + "\n" +
+			`	}` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+	}, {
+		// step 3
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		literals = [{value = "10.99.0.0/16"}]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+	}, {
+		// step 4
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		group_names = ["g2","g3","g4","g5"]` + "\n" +
+			`	}` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`	}` + "\n" +
+			`	"g3" = {` + "\n" +
+			`		group_names = ["g2"]` + "\n" +
+			`	}` + "\n" +
+			`	"g4" = {` + "\n" +
+			`		group_names = ["g2"]` + "\n" +
+			`	}` + "\n" +
+			`	"g5" = {` + "\n" +
+			`		group_names = ["g3", "g4"]` + "\n" +
+			`	}` + "\n" +
+			`	"g6" = {` + "\n" +
+			`		group_names = ["g2","g3","g4","g5"]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+	}, {
+		// step 5
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		group_names = ["g2","g4","g5"]` + "\n" +
+			`	}` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`	}` + "\n" +
+			`	"g4" = {` + "\n" +
+			`		group_names = ["g2"]` + "\n" +
+			`	}` + "\n" +
+			`	"g5" = {` + "\n" +
+			`		group_names = ["g4"]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+	}, {
+		// step 6
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+	}, {
+		// step 7
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		group_names = ["g2"]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+		ExpectError: regexp.MustCompile(`Cycle in group_names`),
+	}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
