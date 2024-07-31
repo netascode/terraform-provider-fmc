@@ -9,6 +9,7 @@ res_description: >-
   i.e. >50000%, depending on the change size).
 ds_description: >-
   This plural data source can query a bulk of Network Groups.
+# skip_minimum_test: true
 doc_category: Objects
 attributes:
   - model_name: items
@@ -16,11 +17,14 @@ attributes:
     description: Map of network groups. The key of the map is the name of the individual Network Group.
     # min_list: 1 # FIXME because "POST bulk []" fails
     map_key_example: net_group_1
+    minimum_test_value: '{net_group_1={literals=[{value="2005::/56"}]}}'
     attributes:
       - model_name: id
         type: String
         resource_id: true
         description: UUID of the managed Network Group.
+        exclude_example: true
+        exclude_test: true
       - model_name: description
         type: String
         description: Optional user-created description.
@@ -39,6 +43,7 @@ attributes:
           of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is
           to add it inside `objects` by its UUID. Attribute `group_names` is used in managed resource only and always
           empty in a data-source. Modification of contents of `group_names` is not yet implemented.
+        exclude_test: true
       - model_name: objects
         description: Set of objects (fmc_network, fmc_host, ...).
         type: Set
@@ -48,6 +53,7 @@ attributes:
             description: UUID of the object (such as fmc_network.this.id, etc.).
             id: true
             exclude_example: true
+            test_value: fmc_range.test.id
           - model_name: type
             type: String
             description: Type of the object (such as fmc_network.this.type, etc.).
@@ -55,7 +61,6 @@ attributes:
             value: AnyNonEmptyString # ?
       - model_name: literals
         description: Set of literal values.
-        minimum_test_value: '[{value="2005::/56"}]'
         type: Set
         attributes:
           - model_name: value
@@ -69,20 +74,17 @@ attributes:
       # - model_name: delete_me
       #   type: List
       #   description: >-
-      #     FIXME just for testing Map levels.
+      #     FIXME just for testing levels.
       #   attributes:
       #     - model_name: third_level
-      #       type: Map
+      #       type: List
       #       attributes:
       #         - model_name: fourth_level
       #           type: String
       #           example: ugh
-      #     - model_name: third_level_b
-      #       type: Map
-      #       attributes:
-      #         - model_name: fourth_level
-      #           type: Map
-      #           attributes:
-      #             - model_name: fifth_level
-      #               type: String
-      #               example: ugh
+
+test_prerequisites: |-
+  resource "fmc_range" "test" {
+    name   = "test_fmc_network_groups"
+    value  = "2005::10-2005::12"
+  }
