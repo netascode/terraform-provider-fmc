@@ -1,0 +1,310 @@
+---
+name: Manual Nat Rules
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/ftdnatpolicies/%v/manualnatrules
+doc_category: Policy
+# minimum_version: 6.0
+attributes:
+  - model_name: nat_policy_id
+    type: String
+    description: The ID of the associated nat policy
+    reference: true
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_nat_policy._nat_policy_test.id
+
+  - model_name: natType
+    tf_name: nat_type
+    type: String
+    description: The type of the rule
+    enum_values:
+      - STATIC
+      - DYNAMIC
+    example: STATIC
+    mandatory: true
+
+  - model_name: interfaceIpv6
+    tf_name: interface_ipv6
+    type: Bool
+    description: The type of the rule
+    example: false
+
+  - model_name: fallThrough
+    tf_name: fall_through
+    type: Bool
+    description: The type of the rule
+    example: false
+
+  - model_name: dns
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: routeLookup
+    tf_name: route_lookup
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: noProxyArp
+    tf_name: no_proxy_arp
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: netToNet
+    tf_name: net_to_net
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: enabled
+    type: Bool
+    description: Whether the rule is enabled
+    example: true
+
+  - model_name: unidirectional
+    type: Bool
+    description: Whether the rule is unidirectional
+    example: true
+
+  ## Original Source
+  - model_name: id
+    mandatory: true
+    tf_name: original_source_id
+    type: String
+    data_path: [originalSource]
+    description: ID of original source network object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_network._original_src_test.id
+
+  ## Original Destination
+  - model_name: id
+    mandatory: true
+    tf_name: original_destination_id
+    type: String
+    data_path: [originalDestination]
+    description: ID of original destination network object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_network._original_destination_test.id
+
+  ## Original Source Port
+  - model_name: id
+    tf_name: original_source_port_id
+    type: String
+    data_path: [originalSourcePort]
+    description: ID of original source port object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_port._original_src_port.id
+
+  ## Original Destination Port
+  - model_name: id
+    tf_name: original_destination_port_id
+    type: String
+    data_path: [originalDestinationPort]
+    description: ID of original destination port object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_port._original_destination_port.id
+
+  ## Translated Destination
+  - model_name: id
+    mandatory: true
+    tf_name: translated_destination_id
+    type: String
+    data_path: [translatedDestination]
+    description: ID of translated destination network object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_network._original_destination_test.id
+
+  ## Translated Source
+  - model_name: id
+    mandatory: true
+    tf_name: translated_source_id
+    type: String
+    data_path: [translatedSource]
+    description: ID of translated source network object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_network._translated_src_test.id
+
+  ## Translated Destination Port
+  - model_name: id
+    tf_name: translated_destination_port_id
+    type: String
+    data_path: [translatedDestinationPort]
+    description: ID of translated destination port object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_port._translated_destination_port.id
+
+  ## Translated Source Port
+  - model_name: id
+    tf_name: translated_source_port_id
+    type: String
+    data_path: [translatedSourcePort]
+    description: ID of translated source port object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_port._translated_src_port.id
+
+  ## Source Interface
+  - model_name: id
+    mandatory: true
+    tf_name: source_interface_id
+    type: String
+    data_path: [sourceInterface]
+    description: ID of source security zone
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_security_zone._src_zone_test.id
+
+  ## Destination Interface
+  - model_name: id
+    mandatory: true
+    tf_name: destination_interface_id
+    type: String
+    data_path: [destinationInterface]
+    description: ID of destination security zone
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_security_zone._dest_zone_test.id
+
+  - model_name: interfacePat
+    tf_name: interface_pat
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: includeReverse
+    tf_name: include_reverse
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: roundRobin
+    tf_name: round_robin
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: extendedPat
+    tf_name: extended_pat
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: flatPortRange
+    tf_name: flat_port_range
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: blockAllocation
+    tf_name: block_allocation
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: id
+    tf_name: pat_pool_id
+    data_path: [patOptions, patPoolAddress]
+    type: String
+    description: ID of pat host object
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: name
+    tf_name: pat_pool_name
+    data_path: [patOptions, patPoolAddress]
+    type: String
+    description: Name of pat host object
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: description
+    type: String
+    description: Description of the NAT rule
+    example: description of nat rule
+
+  - model_name: interfaceInOriginalDestination
+    tf_name: interface_in_original_destination
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_test: true
+    exclude_example: true
+
+test_prerequisites: |
+  resource "fmc_nat_policy" "_nat_policy_test" {
+    name = "nat_rule_test"
+    description = "My nat policy Test"
+  }
+
+  resource "fmc_network" "_original_src_test" {
+    name        = "NET1"
+    description = "My network object"
+    prefix      = "10.1.2.0/24"
+  }
+
+  resource "fmc_network" "_translated_src_test" {
+    name        = "NET2"
+    description = "My network object"
+    prefix      = "20.1.2.0/24"
+  }
+
+  resource "fmc_network" "_original_destination_test" {
+    name        = "NET3"
+    description = "My network object"
+    prefix      = "30.1.2.0/24"
+  }
+
+  resource "fmc_network" "_original_destination_test_2" {
+    name        = "NET4"
+    description = "My network object"
+    prefix      = "40.1.2.0/24"
+  }
+
+  resource "fmc_security_zone" "_src_zone_test" {
+    name           = "SecZone1"
+    interface_mode = "ROUTED"
+  }
+
+  resource "fmc_security_zone" "_dest_zone_test" {
+    name           = "SecZone2"
+    interface_mode = "ROUTED"
+  }
+
+  resource "fmc_port" "_translated_src_port" {
+    port        = "6012"
+    name        = "tcp6012"
+    protocol    = "TCP"
+    description = "Port TCP/6012 (HTTPS)"
+  }
+
+  resource "fmc_port" "_translated_destination_port" {
+    port        = "6013"
+    name        = "tcp6013"
+    protocol    = "TCP"
+    description = "Port TCP/6012 (HTTPS)"
+  }
+
+  resource "fmc_port" "_original_src_port" {
+    port        = "6014"
+    name        = "tcp6014"
+    protocol    = "TCP"
+    description = "Port TCP/6012 (HTTPS)"
+  }
+
+  resource "fmc_port" "_original_destination_port" {
+    port        = "6015"
+    name        = "tcp6015"
+    protocol    = "TCP"
+    description = "Port TCP/6012 (HTTPS)"
+  }

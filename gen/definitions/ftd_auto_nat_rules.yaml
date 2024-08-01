@@ -1,0 +1,228 @@
+---
+name: Auto Nat Rules
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/ftdnatpolicies/%v/autonatrules
+doc_category: Policy
+# minimum_version: 6.0
+attributes:
+  - model_name: nat_policy_id
+    type: String
+    description: The ID of the associated nat policy
+    reference: true
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_nat_policy._nat_policy_test.id
+
+  # - model_name: type
+  #   type: String
+  #   description: The type of the rule
+  #   value: FTDAutoNatRule
+
+  - model_name: natType
+    tf_name: nat_type
+    type: String
+    description: The type of the rule
+    enum_values:
+      - STATIC
+      - DYNAMIC
+    example: STATIC
+    mandatory: true
+
+  - model_name: interfaceIpv6
+    tf_name: interface_ipv6
+    type: Bool
+    description: The type of the rule
+    example: false
+
+  - model_name: fallThrough
+    tf_name: fall_through
+    type: Bool
+    description: The type of the rule
+    example: false
+
+  - model_name: dns
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: routeLookup
+    tf_name: route_lookup
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: noProxyArp
+    tf_name: no_proxy_arp
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: netToNet
+    tf_name: net_to_net
+    type: Bool
+    description: The type of the rule
+    example: false
+    exclude_example: true
+    exclude_test: true
+
+  - model_name: id
+    mandatory: true
+    tf_name: original_network_id
+    type: String
+    data_path: [originalNetwork]
+    description: ID of original network object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_network._original_network_test.id
+
+  # - model_name: type
+  #   tf_name: original_network_type
+  #   type: String
+  #   data_path: [originalNetwork]
+  #   description: Type of original network object
+  #   value: Network
+  #   exclude_test: true
+  #   exclude_example: true
+
+  - model_name: id
+    mandatory: true
+    tf_name: translated_network_id
+    type: String
+    data_path: [translatedNetwork]
+    description: ID of translated network object
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_network._translated_network_test.id
+
+  # - model_name: type
+  #   tf_name: translated_network_type
+  #   type: String
+  #   data_path: [translatedNetwork]
+  #   description: Type of translated network object
+  #   value: Network
+  #   exclude_test: true
+  #   exclude_example: true
+
+  - model_name: id
+    mandatory: true
+    tf_name: source_interface_id
+    type: String
+    data_path: [sourceInterface]
+    description: ID of source security zone
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_security_zone._src_zone_test.id
+
+  # - model_name: type
+  #   tf_name: source_interface_type
+  #   type: String
+  #   data_path: [sourceInterface]
+  #   description: Type of source security zone
+  #   value: SecurityZone
+  #   exclude_test: true
+  #   exclude_example: true
+
+  - model_name: id
+    mandatory: true
+    tf_name: destination_interface_id
+    type: String
+    data_path: [destinationInterface]
+    description: ID of destination security zone
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: fmc_security_zone._dest_zone_test.id
+
+  # - model_name: type
+  #   tf_name: destination_interface_type
+  #   type: String
+  #   data_path: [destinationInterface]
+  #   description: Type of destination security zone
+  #   value: SecurityZone
+  #   exclude_test: true
+  #   exclude_example: true
+
+  - model_name: interfacePat
+    tf_name: interface_pat
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: includeReverse
+    tf_name: include_reverse
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: roundRobin
+    tf_name: round_robin
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: extendedPat
+    tf_name: extended_pat
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: flatPortRange
+    tf_name: flat_port_range
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: blockAllocation
+    tf_name: block_allocation
+    data_path: [patOptions]
+    type: String
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: id
+    tf_name: pat_pool_id
+    data_path: [patOptions, patPoolAddress]
+    type: String
+    description: ID of pat host object
+    exclude_test: true
+    exclude_example: true
+
+  - model_name: name
+    tf_name: pat_pool_name
+    data_path: [patOptions, patPoolAddress]
+    type: String
+    description: Name of pat host object
+    exclude_test: true
+    exclude_example: true
+
+test_prerequisites: |
+  resource "fmc_nat_policy" "_nat_policy_test" {
+    name = "nat_rule_test"
+    description = "My nat policy Test"
+  }
+
+  resource "fmc_network" "_original_network_test" {
+    name        = "NET1"
+    description = "My network object"
+    prefix      = "10.1.2.0/24"
+  }
+
+  resource "fmc_network" "_translated_network_test" {
+    name        = "NET2"
+    description = "My network object"
+    prefix      = "20.1.2.0/24"
+  }
+
+  resource "fmc_security_zone" "_src_zone_test" {
+    name           = "SecZone1"
+    interface_mode = "ROUTED"
+  }
+
+  resource "fmc_security_zone" "_dest_zone_test" {
+    name           = "SecZone2"
+    interface_mode = "ROUTED"
+  }
