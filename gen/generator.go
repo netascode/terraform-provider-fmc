@@ -147,6 +147,7 @@ type YamlConfigAttribute struct {
 	MinimumTestValue string                `yaml:"minimum_test_value"`
 	TestTags         []string              `yaml:"test_tags"`
 	Attributes       []YamlConfigAttribute `yaml:"attributes"`
+	GoTypeName       string
 }
 
 // Templating helper function to convert TF name to GO name
@@ -366,7 +367,7 @@ var functions = template.FuncMap{
 	"subtract":           Subtract,
 }
 
-func (attr *YamlConfigAttribute) init() error {
+func (attr *YamlConfigAttribute) init(parentGoTypeName string) error {
 	// Augument
 	if attr.TfName == "" {
 		var words []string
@@ -380,6 +381,8 @@ func (attr *YamlConfigAttribute) init() error {
 		}
 		attr.TfName = strings.Join(words, "_")
 	}
+
+	attr.GoTypeName = parentGoTypeName + ToGoName(attr.TfName)
 
 	// Validate
 	if len(attr.Attributes) > 0 && attr.Type != "List" && attr.Type != "Map" && attr.Type != "Set" {
@@ -413,7 +416,7 @@ func (attr *YamlConfigAttribute) init() error {
 
 	// Recurse
 	for i := range attr.Attributes {
-		if err := attr.Attributes[i].init(); err != nil {
+		if err := attr.Attributes[i].init(attr.GoTypeName); err != nil {
 			return err
 		}
 	}
@@ -429,7 +432,7 @@ func NewYamlConfig(bytes []byte) (YamlConfig, error) {
 	}
 
 	for i := range config.Attributes {
-		if err := config.Attributes[i].init(); err != nil {
+		if err := config.Attributes[i].init(CamelCase(config.Name)); err != nil {
 			return YamlConfig{}, err
 		}
 	}

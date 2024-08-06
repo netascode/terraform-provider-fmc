@@ -260,9 +260,9 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
 func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result) {
+{{- define "fromBodyTemplate"}}
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-	{{- $cname := toGoName .TfName}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 	if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
@@ -281,98 +281,31 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	}
 	{{- else if isNestedListSet .}}
 	if value := res{{if .ModelName}}.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"){{end}}; value.Exists() {
-		data.{{toGoName .TfName}} = make([]{{$name}}{{toGoName .TfName}}, 0)
-		value.ForEach(func(k, v gjson.Result) bool {
-			item := {{$name}}{{toGoName .TfName}}{}
-			{{- range .Attributes}}
-			{{- $ccname := toGoName .TfName}}
-			{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-			{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-			if cValue := v.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); cValue.Exists() {
-				item.{{toGoName .TfName}} = types.{{.Type}}Value(cValue.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-			} else {
-				{{- if .DefaultValue}}
-				item.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}})
-				{{- else}}
-				item.{{toGoName .TfName}} = types.{{.Type}}Null()
-				{{- end}}
-			}
-			{{- else if isListSet .}}
-			if cValue := v.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); cValue.Exists() {
-				item.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(cValue.Array())
-			} else {
-				item.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
-			}
-			{{- else if isNestedListSet .}}
-			if cValue := v.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); cValue.Exists() {
-				item.{{toGoName .TfName}} = make([]{{$name}}{{$cname}}{{toGoName .TfName}}, 0)
-				cValue.ForEach(func(ck, cv gjson.Result) bool {
-					cItem := {{$name}}{{$cname}}{{toGoName .TfName}}{}
-					{{- range .Attributes}}
-					{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-					{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-					if ccValue := cv.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); ccValue.Exists() {
-						cItem.{{toGoName .TfName}} = types.{{.Type}}Value(ccValue.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-					} else {
-						{{- if .DefaultValue}}
-						cItem.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}})
-						{{- else}}
-						cItem.{{toGoName .TfName}} = types.{{.Type}}Null()
-						{{- end}}
-					}
-					{{- else if isListSet .}}
-					if ccValue := cv.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); ccValue.Exists() {
-						cItem.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(ccValue.Array())
-					} else {
-						cItem.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
-					}
-					{{- else if isNestedListSet .}}
-					if ccValue := cv.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); ccValue.Exists() {
-						cItem.{{toGoName .TfName}} = make([]{{$name}}{{$cname}}{{$ccname}}{{toGoName .TfName}}, 0)
-						ccValue.ForEach(func(cck, ccv gjson.Result) bool {
-							ccItem := {{$name}}{{$cname}}{{$ccname}}{{toGoName .TfName}}{}
-							{{- range .Attributes}}
-							{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
-							{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-							if cccValue := ccv.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); cccValue.Exists() {
-								ccItem.{{toGoName .TfName}} = types.{{.Type}}Value(cccValue.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
-							} else {
-								{{- if .DefaultValue}}
-								ccItem.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}})
-								{{- else}}
-								ccItem.{{toGoName .TfName}} = types.{{.Type}}Null()
-								{{- end}}
-							}
-							{{- else if isListSet .}}
-							if cccValue := ccv.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); cccValue.Exists() {
-								ccItem.{{toGoName .TfName}} = helpers.Get{{.ElementType}}{{.Type}}(cccValue.Array())
-							} else {
-								ccItem.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
-							}
-							{{- end}}
-							{{- end}}
-							{{- end}}
-							cItem.{{toGoName .TfName}} = append(cItem.{{toGoName .TfName}}, ccItem)
-							return true
-						})
-					}
-					{{- end}}
-					{{- end}}
-					{{- end}}
-					item.{{toGoName .TfName}} = append(item.{{toGoName .TfName}}, cItem)
-					return true
-				})
-			}
-			{{- end}}
-			{{- end}}
-			{{- end}}
-			data.{{toGoName .TfName}} = append(data.{{toGoName .TfName}}, item)
+		data.{{toGoName .TfName}} = make([]{{.GoTypeName}}, 0)
+		value.ForEach(func(k, res gjson.Result) bool {
+			parent := &data
+			data := {{.GoTypeName}}{}
+			{{- template "fromBodyTemplate" .}}
+			(*parent).{{toGoName .TfName}} = append((*parent).{{toGoName .TfName}}, data)
+			return true
+		})
+	}
+	{{- else if isNestedMap .}}
+	if value := res{{if .ModelName}}.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"){{end}}; value.Exists() {
+		data.{{toGoName .TfName}} = map[string]{{.GoTypeName}}{}
+		value.ForEach(func(k, res gjson.Result) bool {
+			parent := &data
+			data := {{.GoTypeName}}{}
+			{{- template "fromBodyTemplate" .}}
+			(*parent).{{toGoName .TfName}}[res.Get("name").String()] = data
 			return true
 		})
 	}
 	{{- end}}
 	{{- end}}
 	{{- end}}
+{{- end}}
+{{- template "fromBodyTemplate" .}}
 }
 
 // End of section. //template:end fromBody
