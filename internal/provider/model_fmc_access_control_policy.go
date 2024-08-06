@@ -230,7 +230,7 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 		body, _ = sjson.Set(body, "dummy_categories", []interface{}{})
 		for _, item := range data.Categories {
 			itemBody := ""
-			if !item.Id.IsNull() {
+			if !item.Id.IsNull() && !item.Id.IsUnknown() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
 			if !item.Name.IsNull() {
@@ -246,7 +246,7 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 		body, _ = sjson.Set(body, "dummy_rules", []interface{}{})
 		for _, item := range data.Rules {
 			itemBody := ""
-			if !item.Id.IsNull() {
+			if !item.Id.IsNull() && !item.Id.IsUnknown() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
 			if !item.Action.IsNull() {
@@ -1633,21 +1633,25 @@ func (data *AccessControlPolicy) fromBodyUnknowns(ctx context.Context, res gjson
 	for i := range data.Categories {
 		r := res.Get(fmt.Sprintf("dummy_categories.%d", i))
 		if data.Categories[i].Id.IsUnknown() {
+			v := data.Categories[i]
 			if value := r.Get("id"); value.Exists() {
-				data.Categories[i].Id = types.StringValue(value.String())
+				v.Id = types.StringValue(value.String())
 			} else {
-				data.Categories[i].Id = types.StringNull()
+				v.Id = types.StringNull()
 			}
+			data.Categories[i] = v
 		}
 	}
 	for i := range data.Rules {
 		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
 		if data.Rules[i].Id.IsUnknown() {
+			v := data.Rules[i]
 			if value := r.Get("id"); value.Exists() {
-				data.Rules[i].Id = types.StringValue(value.String())
+				v.Id = types.StringValue(value.String())
 			} else {
-				data.Rules[i].Id = types.StringNull()
+				v.Id = types.StringNull()
 			}
+			data.Rules[i] = v
 		}
 	}
 }
