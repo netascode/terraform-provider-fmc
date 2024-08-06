@@ -403,22 +403,21 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 	{{- else if isNestedListMapSet .}}
 	{{- $list := (toGoName .TfName)}}
 	{{- if isNestedMap .}}
-	for i, val := range data.{{toGoName .TfName}} {
-
-		parent := data
-		data := parent.{{toGoName .TfName}}[i]
-		parentRes := res
+	for i := range data.{{toGoName .TfName}} {
+		parent := &data
+		data := (*parent).{{toGoName .TfName}}[i]
+		parentRes := &res
 		var res gjson.Result
 
 		parentRes.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
 			func(_, v gjson.Result) bool {
-				if val.Id.IsUnknown() {
+				if data.Id.IsUnknown() {
 					if v.Get("name").String() == i {
 						res = v
 						return false // break ForEach
 					}
 				} else {
-					if val.Id.ValueString() == v.Get("id").String() {
+					if data.Id.ValueString() == v.Get("id").String() {
 						res = v
 						return false // break ForEach
 					}
@@ -439,18 +438,18 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		}
 	}
 	for i := range data.{{toGoName .TfName}} {
-		parent := data
-		data := parent.{{toGoName .TfName}}[i]
-		parentRes := res
+		parent := &data
+		data := (*parent).{{toGoName .TfName}}[i]
+		parentRes := &res
 		res := parentRes.Get(fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}.%d", i))
 	{{- else }}
 	for i := 0; i < len(data.{{toGoName .TfName}}); i++ {
 		keys := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if or (eq .Type "Int64") (eq .Type "Bool") (eq .Type "String")}}"{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{end}}{{end}}{{end}} }
 		keyValues := [...]string{ {{$noId := not (hasId .Attributes)}}{{range .Attributes}}{{if or .Id (and $noId (not .Value))}}{{if eq .Type "Int64"}}strconv.FormatInt(data.{{$list}}[i].{{toGoName .TfName}}.ValueInt64(), 10), {{else if eq .Type "Bool"}}strconv.FormatBool(data.{{$list}}[i].{{toGoName .TfName}}.ValueBool()), {{else if eq .Type "String"}}data.{{$list}}[i].{{toGoName .TfName}}.Value{{.Type}}(), {{end}}{{end}}{{end}} }
 
-		parent := data
-		data := parent.{{toGoName .TfName}}[i]
-		parentRes := res
+		parent := &data
+		data := (*parent).{{toGoName .TfName}}[i]
+		parentRes := &res
 		var res gjson.Result
 
 		parentRes.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
@@ -473,9 +472,9 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		if !res.Exists() {
 			tflog.Debug(ctx, fmt.Sprintf("removing {{toGoName .TfName}}[%d] = %+v",
 				i,
-				parent.{{toGoName .TfName}}[i],
+				(*parent).{{toGoName .TfName}}[i],
 			))
-			parent.{{toGoName .TfName}} = slices.Delete(parent.{{toGoName .TfName}}, i, i+1)
+			(*parent).{{toGoName .TfName}} = slices.Delete((*parent).{{toGoName .TfName}}, i, i+1)
 			i--
 
 			continue
@@ -483,7 +482,7 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 	{{- end}}
 
 		{{- template "fromBodyPartialTemplate" .}}
-		parent.{{toGoName .TfName}}[i] = data
+		(*parent).{{toGoName .TfName}}[i] = data
 	}
 	{{- end}}
 	{{- end}}
