@@ -541,8 +541,7 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 		{{- range .Attributes}}
 		{{- if and .ResourceId (not .Reference)}}
 		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-		if data.{{$list}}[i].{{toGoName .TfName}}.IsUnknown() {
-			v := data.{{$list}}[i]
+		if v := data.{{$list}}[i]; v.{{toGoName .TfName}}.IsUnknown() {
 			if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
 				v.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 			} else {
