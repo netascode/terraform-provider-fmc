@@ -35,7 +35,6 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-{{- $name := camelCase .Name}}
 
 type {{camelCase .Name}} struct {
 	Id types.String `tfsdk:"id"`
@@ -43,9 +42,9 @@ type {{camelCase .Name}} struct {
 {{- range .Attributes}}
 {{- if not .Value}}
 {{- if isNestedListSet .}}
-	{{toGoName .TfName}} []{{$name}}{{toGoName .TfName}} `tfsdk:"{{.TfName}}"`
+	{{toGoName .TfName}} []{{.GoTypeName}} `tfsdk:"{{.TfName}}"`
 {{- else if isNestedMap .}}
-	{{toGoName .TfName}} map[string]{{$name}}{{toGoName .TfName}} `tfsdk:"{{.TfName}}"`
+	{{toGoName .TfName}} map[string]{{.GoTypeName}} `tfsdk:"{{.TfName}}"`
 {{- else}}
 	{{toGoName .TfName}} types.{{.Type}} `tfsdk:"{{.TfName}}"`
 {{- end}}
@@ -55,15 +54,14 @@ type {{camelCase .Name}} struct {
 
 {{range .Attributes}}
 {{- if not .Value}}
-{{- $childName := toGoName .TfName}}
 {{- if isNestedListMapSet .}}
-type {{$name}}{{toGoName .TfName}} struct {
+type {{.GoTypeName}} struct {
 {{- range .Attributes}}
 {{- if not .Value}}
 {{- if isNestedListSet .}}
-	{{toGoName .TfName}} []{{$name}}{{$childName}}{{toGoName .TfName}} `tfsdk:"{{.TfName}}"`
+	{{toGoName .TfName}} []{{.GoTypeName}} `tfsdk:"{{.TfName}}"`
 {{- else if isNestedMap .}}
-	{{toGoName .TfName}} map[string]{{$name}}{{$childName}}{{toGoName .TfName}} `tfsdk:"{{.TfName}}"`
+	{{toGoName .TfName}} map[string]{{.GoTypeName}} `tfsdk:"{{.TfName}}"`
 {{- else}}
 	{{toGoName .TfName}} types.{{.Type}} `tfsdk:"{{.TfName}}"`
 {{- end}}
@@ -76,19 +74,17 @@ type {{$name}}{{toGoName .TfName}} struct {
 
 {{range .Attributes}}
 {{- if not .Value}}
-{{- $childName := toGoName .TfName}}
 {{- if isNestedListMapSet .}}
 {{range .Attributes}}
 {{- if not .Value}}
-{{- $childChildName := toGoName .TfName}}
 {{- if isNestedListMapSet .}}
-type {{$name}}{{$childName}}{{toGoName .TfName}} struct {
+type {{.GoTypeName}} struct {
 {{- range .Attributes}}
 {{- if not .Value}}
 {{- if isNestedListSet .}}
-	{{toGoName .TfName}} []{{$name}}{{$childName}}{{$childChildName}}{{toGoName .TfName}} `tfsdk:"{{.TfName}}"`
+	{{toGoName .TfName}} []{{.GoTypeName}} `tfsdk:"{{.TfName}}"`
 {{- else if isNestedMap .}}
-	{{toGoName .TfName}} map[string]{{$name}}{{$childName}}{{$childChildName}}{{toGoName .TfName}} `tfsdk:"{{.TfName}}"`
+	{{toGoName .TfName}} map[string]{{.GoTypeName}} `tfsdk:"{{.TfName}}"`
 {{- else}}
 	{{toGoName .TfName}} types.{{.Type}} `tfsdk:"{{.TfName}}"`
 {{- end}}
@@ -104,16 +100,14 @@ type {{$name}}{{$childName}}{{toGoName .TfName}} struct {
 
 {{range .Attributes}}
 {{- if not .Value}}
-{{- $childName := toGoName .TfName}}
-{{- if isNestedListMapSet .}}
-{{range .Attributes}}
-{{- if not .Value}}
-{{- $childChildName := toGoName .TfName}}
 {{- if isNestedListMapSet .}}
 {{range .Attributes}}
 {{- if not .Value}}
 {{- if isNestedListMapSet .}}
-type {{$name}}{{$childName}}{{$childChildName}}{{toGoName .TfName}} struct {
+{{range .Attributes}}
+{{- if not .Value}}
+{{- if isNestedListMapSet .}}
+type {{.GoTypeName}} struct {
 {{- range .Attributes}}
 {{- if not .Value}}
 	{{toGoName .TfName}} types.{{.Type}} `tfsdk:"{{.TfName}}"`
@@ -291,15 +285,27 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 		})
 	}
 	{{- else if isNestedMap .}}
-	if value := res{{if .ModelName}}.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"){{end}}; value.Exists() {
-		data.{{toGoName .TfName}} = map[string]{{.GoTypeName}}{}
-		value.ForEach(func(k, res gjson.Result) bool {
-			parent := &data
-			data := {{.GoTypeName}}{}
-			{{- template "fromBodyTemplate" .}}
-			(*parent).{{toGoName .TfName}}[res.Get("name").String()] = data
-			return true
-		})
+	for k := range data.{{toGoName .TfName}} {
+		parent := &data
+		data := (*parent).{{toGoName .TfName}}[k]
+		parentRes := &res
+		var res gjson.Result
+
+		parentRes.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
+			func(_, v gjson.Result) bool {
+				if v.Get("id").String() == data.Id.ValueString() && data.Id.ValueString() != "" {
+					res = v
+					return false // break ForEach
+				}
+				return true
+			},
+		)
+		if !res.Exists() {
+			tflog.Debug(ctx, fmt.Sprintf("subresource not found, removing: uuid=%s, key=%v", data.Id, k))
+			delete((*parent).{{toGoName .TfName}}, k)
+		}
+		{{- template "fromBodyTemplate" .}}
+		(*parent).{{toGoName .TfName}}[k] = data
 	}
 	{{- end}}
 	{{- end}}
@@ -318,7 +324,6 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 // "managed" elements, instead of all elements.
 func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.Result) {
 {{- define "fromBodyPartialTemplate"}}
-	{{- $name := (toGoName .TfName)}}
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
@@ -344,18 +349,10 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 
 		parentRes.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
 			func(_, v gjson.Result) bool {
-				if data.Id.IsUnknown() {
-					if v.Get("name").String() == i {
-						res = v
-						return false // break ForEach
-					}
-				} else {
-					if data.Id.ValueString() == v.Get("id").String() {
-						res = v
-						return false // break ForEach
-					}
+				if v.Get("id").String() == data.Id.ValueString() && data.Id.ValueString() != "" {
+					res = v
+					return false // break ForEach
 				}
-
 				return true
 			},
 		)
@@ -364,7 +361,7 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 		l := len(res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").Array())
 		tflog.Debug(ctx, fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}} array resizing from %d to %d", len(data.{{toGoName .TfName}}), l))
 		for i := len(data.{{toGoName .TfName}}); i < l; i++ {
-			data.{{toGoName .TfName}} = append(data.{{toGoName .TfName}}, {{$name}}{{toGoName .TfName}}{})
+			data.{{toGoName .TfName}} = append(data.{{toGoName .TfName}}, {{.GoTypeName}}{})
 		}
 		if len(data.{{toGoName .TfName}}) > l {
 			data.{{toGoName .TfName}} = data.{{toGoName .TfName}}[:l]
@@ -484,7 +481,7 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 						return false // break ForEach
 					}
 				} else {
-					if val.Id.ValueString() == v.Get("id").String() {
+					if v.Get("id").String() == val.Id.ValueString() && val.Id.ValueString() != "" {
 						r = v
 						return false // break ForEach
 					}
@@ -519,6 +516,17 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 
 // End of section. //template:end fromBodyUnknowns
 {{- range .Attributes}}
+	{{- if isNestedMap .}}
+		{{- $found := false }}
+		{{- range .Attributes }}
+			{{- if and (eq .ModelName "id") (eq .TfName "id") .ResourceId}}
+				{{- $found = true }}
+			{{- end}}
+		{{- end}}
+		{{- if not $found }}
+			{{- errorf "type Map with attributes has a limitation for now: it must always contain attribute with `model_name: id` and `tf_name: id` and `resource_id: true`, because it must always be used to track subresources."}}
+		{{- end}}
+	{{- end}}
 	{{- range .Attributes}}
 		{{- if isNestedMap .}}
 			{{- errorf "Map not yet implemented at this depth"}}

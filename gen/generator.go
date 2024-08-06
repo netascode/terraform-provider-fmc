@@ -504,7 +504,7 @@ func renderTemplate(templatePath, outputPath string, config interface{}) {
 	output := new(bytes.Buffer)
 	err = template.Execute(output, config)
 	if err != nil {
-		log.Fatalf("Error executing template: %v", err)
+		log.Fatalf("Error executing template for %s: %v", outputPath, err)
 	}
 
 	outputFile := filepath.Join(outputPath)
