@@ -400,9 +400,34 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 	} else {
 		data.{{toGoName .TfName}} = types.{{.Type}}Null(types.{{.ElementType}}Type)
 	}
-	{{- else if isNestedListSet .}}
+	{{- else if isNestedListMapSet .}}
 	{{- $list := (toGoName .TfName)}}
-	{{- if .OrderedList }}
+	{{- if isNestedMap .}}
+	for i, val := range data.{{toGoName .TfName}} {
+
+		parent := data
+		data := parent.{{toGoName .TfName}}[i]
+		parentRes := res
+		var res gjson.Result
+
+		parentRes.{{if .ModelName}}Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").{{end}}ForEach(
+			func(_, v gjson.Result) bool {
+				if val.Id.IsUnknown() {
+					if v.Get("name").String() == i {
+						res = v
+						return false // break ForEach
+					}
+				} else {
+					if val.Id.ValueString() == v.Get("id").String() {
+						res = v
+						return false // break ForEach
+					}
+				}
+
+				return true
+			},
+		)
+	{{- else if .OrderedList }}
 	{
 		l := len(res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}").Array())
 		tflog.Debug(ctx, fmt.Sprintf("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}} array resizing from %d to %d", len(data.{{toGoName .TfName}}), l))
