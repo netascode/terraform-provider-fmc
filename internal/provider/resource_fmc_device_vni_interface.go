@@ -37,6 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -232,8 +233,6 @@ func (r *DeviceVNIInterfaceResource) Configure(_ context.Context, req resource.C
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
-
 func (r *DeviceVNIInterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan DeviceVNIInterface
 
@@ -253,6 +252,8 @@ func (r *DeviceVNIInterfaceResource) Create(ctx context.Context, req resource.Cr
 
 	// Create object
 	body := plan.toBody(ctx, DeviceVNIInterface{})
+	body, _ = sjson.Set(body, "name", fmt.Sprintf("vni%d", plan.VniId.ValueInt64()))
+
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -267,8 +268,6 @@ func (r *DeviceVNIInterfaceResource) Create(ctx context.Context, req resource.Cr
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
@@ -320,8 +319,6 @@ func (r *DeviceVNIInterfaceResource) Read(ctx context.Context, req resource.Read
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
-
 func (r *DeviceVNIInterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeviceVNIInterface
 
@@ -346,6 +343,8 @@ func (r *DeviceVNIInterfaceResource) Update(ctx context.Context, req resource.Up
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
+	body, _ = sjson.Set(body, "name", fmt.Sprintf("vni%d", plan.VniId.ValueInt64()))
+
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
@@ -357,8 +356,6 @@ func (r *DeviceVNIInterfaceResource) Update(ctx context.Context, req resource.Up
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 

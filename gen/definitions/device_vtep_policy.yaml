@@ -3,7 +3,7 @@ name: Device VTEP Policy
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/vteppolicies
 res_description: >-
   This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource
-  `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same singe UUID for
+  `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same single UUID for
   every request to create a new VTEP Policy on the same Device.
   Thus multiple resources per Device would unexpectedly overwrite the same set of settings.
 doc_category: Devices

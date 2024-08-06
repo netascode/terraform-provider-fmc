@@ -11,14 +11,6 @@ attributes:
     description: UUID of the parent device (fmc_device.example.id).
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
     test_value: fmc_device_physical_interface.test.device_id
-  - model_name: name
-    type: String
-    description: >-
-      Identifier of the interface, enforced by the device. For FTD for example, you must set it to 'vni2' string for the
-      `vni_id = 2`, the suggested expression being: `\"vni${local.vni_id}\"`
-    example: vni42
-    mandatory: true
-    requires_replace: true
   - model_name: vniId
     type: Int64
     description: User-created VNI number for the interface, not exposed over the wire.
