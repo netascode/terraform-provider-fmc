@@ -9,13 +9,11 @@ res_description: >-
   i.e. >50000%, depending on the change size).
 ds_description: >-
   This plural data source can query a bulk of Network Groups.
-# skip_minimum_test: true
 doc_category: Objects
 attributes:
   - model_name: items
     type: Map
     description: Map of network groups. The key of the map is the name of the individual Network Group.
-    # min_list: 1 # FIXME because "POST bulk []" fails
     map_key_example: net_group_1
     minimum_test_value: '{net_group_1={literals=[{value="2005::/56"}]}}'
     attributes:
@@ -56,9 +54,7 @@ attributes:
             test_value: fmc_range.test.id
           - model_name: type
             type: String
-            description: Type of the object (such as fmc_network.this.type, etc.).
-            exclude_example: true
-            value: AnyNonEmptyString # ?
+            value: AnyNonEmptyString
       - model_name: literals
         description: Set of literal values.
         type: Set
@@ -71,17 +67,6 @@ attributes:
           - model_name: type
             type: String
             value: AnyNonEmptyString
-      # - model_name: delete_me
-      #   type: List
-      #   description: >-
-      #     FIXME just for testing levels.
-      #   attributes:
-      #     - model_name: third_level
-      #       type: List
-      #       attributes:
-      #         - model_name: fourth_level
-      #           type: String
-      #           example: ugh
 
 test_prerequisites: |-
   resource "fmc_range" "test" {
