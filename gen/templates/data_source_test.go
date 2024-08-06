@@ -72,7 +72,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 	{{- if len .TestTags}}
 	}
 	{{- end}}
-	{{- else if not (isSet .)}}
+	{{- else if not (or (isSet .) (isNestedMap .))}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 		checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{$list}}.0.{{$clist}}.0.{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
@@ -86,7 +86,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 	{{- if len .TestTags}}
 	}
 	{{- end}}
-	{{- else if not (isSet .)}}
+	{{- else if not (or (isSet .) (isNestedMap .))}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 		checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{$list}}.0.{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
@@ -100,7 +100,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 	{{- if len .TestTags}}
 	}
 	{{- end}}
-	{{- else if not (isSet .)}}
+	{{- else if not (or (isSet .) (isNestedMap .))}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 		checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
@@ -147,11 +147,15 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
 	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId)}}
-	{{- if isNestedListSet .}}
+	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
+	{{- if isNestedListSet .}}
 	config += `	{{.TfName}} = [{` + "\n"
+	{{- else if isNestedMap .}}
+	config += `	{{.TfName}} = { "myname" = {` + "\n"
+	{{- end}}
 		{{- range  .Attributes}}
 		{{- if and (not .ExcludeTest) (not .Value)}}
 		{{- if isNestedListSet .}}
@@ -207,7 +211,11 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 		{{- end}}
 		{{- end}}
 		{{- end}}
+	{{- if isNestedListSet .}}
 	config += `	}]` + "\n"
+	{{- else if isNestedMap .}}
+	config += `	}}` + "\n"
+	{{- end}}
 		{{- if len .TestTags}}
 	}
 		{{- end}}
