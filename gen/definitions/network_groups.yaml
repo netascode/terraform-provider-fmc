@@ -1,0 +1,88 @@
+---
+name: Network Groups
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/networkgroups
+res_description: >-
+  This plural resource manages a bulk of Network Groups.
+  The `terraform import` of the plural resource is not yet implemented.
+  The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one.
+  Updating and deleting `fmc_network_groups` can thus take much more time than creating it (even >500 times more time,
+  i.e. >50000%, depending on the change size).
+ds_description: >-
+  This plural data source can query a bulk of Network Groups.
+doc_category: Objects
+attributes:
+  - model_name: items
+    type: Map
+    description: Map of network groups. The key of the map is the name of the individual Network Group.
+    # min_list: 1 # FIXME because "POST bulk []" fails
+    map_key_example: net_group_1
+    attributes:
+      - model_name: id
+        type: String
+        resource_id: true
+        description: UUID of the managed Network Group.
+      - model_name: description
+        type: String
+        description: Optional user-created description.
+        example: "My Network Group 1"
+      - model_name: overridable
+        type: Bool
+        description: Indicates whether object values can be overridden.
+        exclude_example: true
+        test_value: "true"
+      - model_name: group_names
+        type: Set
+        element_type: String
+        example: "child_group_1"
+        description: >-
+          Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance
+          of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is
+          to add it inside `objects` by its UUID. Attribute `group_names` is used in managed resource only and always
+          empty in a data-source. Modification of contents of `group_names` is not yet implemented.
+      - model_name: objects
+        description: Set of objects (fmc_network, fmc_host, ...).
+        type: Set
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_network.this.id, etc.).
+            id: true
+            exclude_example: true
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_network.this.type, etc.).
+            exclude_example: true
+            value: AnyNonEmptyString # ?
+      - model_name: literals
+        description: Set of literal values.
+        minimum_test_value: '[{value="2005::/56"}]'
+        type: Set
+        attributes:
+          - model_name: value
+            type: String
+            id: true
+            example: 10.1.1.0/24
+            # minimum_test_value set at parent level
+          - model_name: type
+            type: String
+            value: AnyNonEmptyString
+      # - model_name: delete_me
+      #   type: List
+      #   description: >-
+      #     FIXME just for testing Map levels.
+      #   attributes:
+      #     - model_name: third_level
+      #       type: Map
+      #       attributes:
+      #         - model_name: fourth_level
+      #           type: String
+      #           example: ugh
+      #     - model_name: third_level_b
+      #       type: Map
+      #       attributes:
+      #         - model_name: fourth_level
+      #           type: Map
+      #           attributes:
+      #             - model_name: fifth_level
+      #               type: String
+      #               example: ugh
