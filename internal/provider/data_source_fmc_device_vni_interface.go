@@ -69,10 +69,6 @@ func (d *DeviceVNIInterfaceDataSource) Schema(ctx context.Context, req datasourc
 				MarkdownDescription: "UUID of the parent device (fmc_device.example.id).",
 				Required:            true,
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the interface, enforced by the device. For FTD for example, you must set it to 'vni2' string for the `vni_id = 2`, the suggested expression being: `\"vni${local.vni_id}\"`",
-				Computed:            true,
-			},
 			"vni_id": schema.Int64Attribute{
 				MarkdownDescription: "User-created VNI number for the interface, not exposed over the wire.",
 				Computed:            true,

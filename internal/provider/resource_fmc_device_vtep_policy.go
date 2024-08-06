@@ -66,7 +66,7 @@ func (r *DeviceVTEPPolicyResource) Metadata(ctx context.Context, req resource.Me
 func (r *DeviceVTEPPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same singe UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same single UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

@@ -34,7 +34,6 @@ func TestAccFmcDeviceVNIInterface(t *testing.T) {
 		t.Skip("skipping test, set environment variable TF_VAR_device_id")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_vni_interface.test", "name", "vni42"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_vni_interface.test", "vni_id", "42"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_vni_interface.test", "multicast_group_address", "224.0.0.24"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_vni_interface.test", "segment_id", "501"))
@@ -101,7 +100,6 @@ variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 func testAccFmcDeviceVNIInterfaceConfig_minimum() string {
 	config := `resource "fmc_device_vni_interface" "test" {` + "\n"
 	config += `	device_id = fmc_device_physical_interface.test.device_id` + "\n"
-	config += `	name = "vni42"` + "\n"
 	config += `	vni_id = 42` + "\n"
 	config += `	segment_id = 401` + "\n"
 	config += `	nve_number = null` + "\n"
@@ -117,7 +115,6 @@ func testAccFmcDeviceVNIInterfaceConfig_minimum() string {
 func testAccFmcDeviceVNIInterfaceConfig_all() string {
 	config := `resource "fmc_device_vni_interface" "test" {` + "\n"
 	config += `	device_id = fmc_device_physical_interface.test.device_id` + "\n"
-	config += `	name = "vni42"` + "\n"
 	config += `	vni_id = 42` + "\n"
 	config += `	multicast_group_address = "224.0.0.24"` + "\n"
 	config += `	segment_id = 501` + "\n"

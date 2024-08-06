@@ -89,13 +89,6 @@ func (r *DeviceVNIInterfaceResource) Schema(ctx context.Context, req resource.Sc
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Identifier of the interface, enforced by the device. For FTD for example, you must set it to 'vni2' string for the `vni_id = 2`, the suggested expression being: `\"vni${local.vni_id}\"`").String,
-				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"vni_id": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("User-created VNI number for the interface, not exposed over the wire.").AddIntegerRangeDescription(1, 10000).String,
 				Required:            true,

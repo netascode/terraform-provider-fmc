@@ -3,12 +3,12 @@
 page_title: "fmc_device_vtep_policy Resource - terraform-provider-fmc"
 subcategory: "Devices"
 description: |-
-  This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource fmc_device_vtep_policy exists for a single fmc_device, because the FMC API responds with the same singe UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.
+  This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource fmc_device_vtep_policy exists for a single fmc_device, because the FMC API responds with the same single UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.
 ---
 
 # fmc_device_vtep_policy (Resource)
 
-This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same singe UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.
+This resource can manage the Device VTEP Policy. Practicioners should ensure only one resource `fmc_device_vtep_policy` exists for a single `fmc_device`, because the FMC API responds with the same single UUID for every request to create a new VTEP Policy on the same Device. Thus multiple resources per Device would unexpectedly overwrite the same set of settings.
 
 ## Example Usage
 

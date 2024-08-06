@@ -38,7 +38,6 @@ type DeviceVNIInterface struct {
 	Id                       types.String                      `tfsdk:"id"`
 	Domain                   types.String                      `tfsdk:"domain"`
 	DeviceId                 types.String                      `tfsdk:"device_id"`
-	Name                     types.String                      `tfsdk:"name"`
 	VniId                    types.Int64                       `tfsdk:"vni_id"`
 	MulticastGroupAddress    types.String                      `tfsdk:"multicast_group_address"`
 	SegmentId                types.Int64                       `tfsdk:"segment_id"`
@@ -85,9 +84,6 @@ func (data DeviceVNIInterface) toBody(ctx context.Context, state DeviceVNIInterf
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
-	}
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
 	if !data.VniId.IsNull() {
 		body, _ = sjson.Set(body, "vniId", data.VniId.ValueInt64())
@@ -177,11 +173,6 @@ func (data DeviceVNIInterface) toBody(ctx context.Context, state DeviceVNIInterf
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
 func (data *DeviceVNIInterface) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("name"); value.Exists() {
-		data.Name = types.StringValue(value.String())
-	} else {
-		data.Name = types.StringNull()
-	}
 	if value := res.Get("vniId"); value.Exists() {
 		data.VniId = types.Int64Value(value.Int())
 	} else {
@@ -321,11 +312,6 @@ func (data *DeviceVNIInterface) fromBody(ctx context.Context, res gjson.Result) 
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
 func (data *DeviceVNIInterface) fromBodyPartial(ctx context.Context, res gjson.Result) {
-	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
-	} else {
-		data.Name = types.StringNull()
-	}
 	if value := res.Get("vniId"); value.Exists() && !data.VniId.IsNull() {
 		data.VniId = types.Int64Value(value.Int())
 	} else {

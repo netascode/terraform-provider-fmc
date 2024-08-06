@@ -50,7 +50,6 @@ data "fmc_device_vni_interface" "example" {
 - `logical_name` (String) Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Can only be used when `segment_id` is set.
 - `mtu` (Number) Maximum transmission unit. Can only be used when logical_name is set on the parent interface.
 - `multicast_group_address` (String) Can only be set when VNI interface is mapped to VTEP source interface with `neighbor_discovery` equal to DEFAULT_MULTICAST_GROUP. If unset, the default group from the VTEP source interface is used.
-- `name` (String) Identifier of the interface, enforced by the device. For FTD for example, you must set it to 'vni2' string for the `vni_id = 2`, the suggested expression being: `"vni${local.vni_id}"`
 - `nve_number` (Number) VTEP NVE number (fmc_device_vtep_policy.example.vteps[0].nve_number). If null, not mapped to a VTEP.
 - `priority` (Number) Priority 0-65535.
 - `security_zone_id` (String) UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when `logical_name` is set.

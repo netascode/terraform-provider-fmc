@@ -15,7 +15,6 @@ This resource can manage a Device VNI Interface.
 ```terraform
 resource "fmc_device_vni_interface" "example" {
   device_id               = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  name                    = "vni42"
   vni_id                  = 42
   multicast_group_address = "224.0.0.24"
   segment_id              = 501
@@ -36,7 +35,6 @@ resource "fmc_device_vni_interface" "example" {
 ### Required
 
 - `device_id` (String) UUID of the parent device (fmc_device.example.id).
-- `name` (String) Identifier of the interface, enforced by the device. For FTD for example, you must set it to 'vni2' string for the `vni_id = 2`, the suggested expression being: `"vni${local.vni_id}"`
 - `vni_id` (Number) User-created VNI number for the interface, not exposed over the wire.
   - Range: `1`-`10000`
 
