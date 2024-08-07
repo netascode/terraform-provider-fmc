@@ -393,7 +393,7 @@ func (r *NetworkGroupsResource) ImportState(ctx context.Context, req resource.Im
 // into the Response (UpdateResponse, CreateResponse, ...), otherwise the API's UUIDs may go out-of-sync with
 // terraform.tfstate, an immediate user-visible bug.
 func (r *NetworkGroupsResource) updateSubresources(ctx context.Context, tfsdkPlan tfsdk.Plan, plan NetworkGroups, planBody string, tfsdkState tfsdk.State, state NetworkGroups, reqMods ...func(*fmc.Req)) (NetworkGroups, diag.Diagnostics) {
-	seq, diags := graphTopologicalSeq(planBody)
+	seq, diags := graphTopologicalSeq(ctx, planBody)
 	if diags.HasError() {
 		return state, diags
 	}
@@ -453,7 +453,7 @@ func (r *NetworkGroupsResource) updateSubresources(ctx context.Context, tfsdkPla
 
 	// Subresources to Delete.
 	stateBody := state.toBody(ctx, NetworkGroups{})
-	delSeq, diags := graphTopologicalSeq(stateBody)
+	delSeq, diags := graphTopologicalSeq(ctx, stateBody)
 	if diags.HasError() {
 		return state, diags
 	}
@@ -513,9 +513,10 @@ type group struct {
 //
 // And if you iterate the result sequence in reverse, any parent is guaranteed to be placed before its children, which
 // is useful for delete operations.
-func graphTopologicalSeq(body string) ([]group, diag.Diagnostics) {
+func graphTopologicalSeq(ctx context.Context, body string) ([]group, diag.Diagnostics) {
 	b := gjson.Parse(body).Get("items")
 	m := map[string]group{}
+	parentCount := map[string]int{}
 	for _, item := range b.Array() {
 		g := group{
 			name: item.Get("name").String(),
@@ -525,42 +526,56 @@ func graphTopologicalSeq(body string) ([]group, diag.Diagnostics) {
 			g.children = append(g.children, child.String())
 		}
 		m[g.name] = g
+		parentCount[g.name] = 0
 	}
 
-	marks := map[string]bool{}
-	gens := map[string]int{}
+	for k := range m {
+		for _, child := range m[k].children {
+			parentCount[child]++
+		}
+	}
+
+	var curr []group
+	for k := range parentCount {
+		if parentCount[k] == 0 {
+			delete(parentCount, k)
+			curr = append(curr, m[k])
+		}
+	}
 
 	var diags diag.Diagnostics
 	var ret []group
-	var recurse func(n string, gen int)
-	recurse = func(n string, gen int) {
-		if gens[n] != 0 {
-			return
+	for bulk := 1; len(curr) > 0; bulk++ {
+		next := []group{}
+		for _, group := range curr {
+			for _, child := range group.children {
+				parentCount[child]--
+				if parentCount[child] == 0 {
+					delete(parentCount, child)
+					next = append(next, m[child])
+				}
+			}
+			group.bulk = bulk
+			ret = append(ret, group)
 		}
-		if marks[n] {
-			diags.AddAttributeError(path.Root("items"), "Cycle in group_names", "The children contained in group_names seem to be their own ancestors.")
-			gens[n] = gen
-			return
-		}
-		marks[n] = true
-		item := m[n]
-		for _, child := range item.children {
-			recurse(child, gen+1)
-		}
-		gens[n] = gen
-		item.bulk = gen
-		ret = append(ret, item)
+		curr = next
 	}
 
-	found := true
-	for found {
-		found = false
-		for n := range m {
-			if _, done := gens[n]; !done {
-				recurse(n, 1)
-				found = true
-			}
-		}
+	slices.Reverse(ret)
+
+	var cycle []string
+	for k := range parentCount {
+		cycle = append(cycle, k)
+	}
+
+	if len(cycle) > 0 {
+		diags.AddAttributeError(
+			path.Root("items"),
+			"Cycle in group_names",
+			fmt.Sprintf("Children contained in group_names must not be their own ancestors: %+v", cycle),
+		)
+
+		return ret, diags
 	}
 
 	return ret, diags
@@ -608,7 +623,7 @@ func divideToBulks(ctx context.Context, seq []group, plan NetworkGroups) (ret []
 	b := bulk{}
 	for i := range g {
 		b.groups = append(b.groups, g[i])
-		if i == len(g)-1 || g[i].bulk != g[i+1].bulk || true { // FIXME: fix the bulk numbering bug
+		if i == len(g)-1 || g[i].bulk != g[i+1].bulk {
 			ret = append(ret, b)
 			b = bulk{}
 		}
