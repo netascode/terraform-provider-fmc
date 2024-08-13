@@ -1,0 +1,188 @@
+---
+name: Decryption Policy
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/decryptionpolicies
+data_source_name_query: true
+doc_category: Policy
+attributes:
+  - model_name: name
+    type: String
+    description: User-created name of the resource.
+    mandatory: true
+    example: decryption_policy_test
+
+  - model_name: decryptionErrors
+    tf_name: decryption_errors
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether decryption errors are allowed."
+    enum_values:
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: BLOCK
+
+  - model_name: compressedSession
+    tf_name: compressed_session
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether the session is compressed."
+    enum_values:
+      - INHERIT_DEFAULT_ACTION
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: INHERIT_DEFAULT_ACTION
+
+  - model_name: sslV2Session
+    tf_name: ssl_v2_session
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether SSLv2 is enabled."
+    enum_values:
+      - INHERIT_DEFAULT_ACTION
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: INHERIT_DEFAULT_ACTION
+
+  - model_name: unknownCipherSuite
+    tf_name: unknown_cipher_suite
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether unknown cipher suites are allowed."
+    enum_values:
+      - INHERIT_DEFAULT_ACTION
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: INHERIT_DEFAULT_ACTION
+
+  - model_name: unsupportedCipherSuite
+    tf_name: unsupported_cipher_suite
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether unsupported cipher suites are allowed."
+    enum_values:
+      - INHERIT_DEFAULT_ACTION
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: INHERIT_DEFAULT_ACTION
+
+  - model_name: sessionNotCached
+    tf_name: session_not_cached
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether sessions are cached."
+    enum_values:
+      - INHERIT_DEFAULT_ACTION
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: INHERIT_DEFAULT_ACTION
+
+  - model_name: handshakeErrors
+    tf_name: handshake_errors
+    data_path: [undecryptableActions]
+    type: String
+    description: "Indicates whether handshake errors are allowed."
+    enum_values:
+      - INHERIT_DEFAULT_ACTION
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: INHERIT_DEFAULT_ACTION
+
+  - model_name: policyAction
+    tf_name: policy_action
+    data_path: [defaultAction]
+    type: String
+    description: "Indicates the default action: PERMIT or DENY."
+    enum_values:
+      - DO_NOT_DECRYPT
+      - BLOCK
+      - BLOCK_WITH_RESET
+    example: DO_NOT_DECRYPT
+
+  - model_name: eventLogAction
+    tf_name: event_log_action
+    data_path: [defaultAction]
+    type: String
+    description: "Indicates the default action: PERMIT or DENY."
+    enum_values:
+      - LOG_FLOW_END
+      - LOG_NONE
+    example: LOG_NONE
+
+  - model_name: disallowUntrustedIssuerResign
+    tf_name: disallow_untrusted_issuer_resign
+    data_path: [advancedOptions]
+    type: Bool
+    description: "Indicates whether untrusted issuers are disallowed."
+    example: true
+
+  - model_name: stripHTTP3
+    tf_name: strip_http3
+    data_path: [advancedOptions]
+    type: Bool
+    description: "Indicates whether HTTP/3 is stripped."
+    example: false
+
+  - model_name: tls13Decryption
+    tf_name: tls13_decryption
+    data_path: [advancedOptions]
+    type: Bool
+    description: "Indicates whether TLS 1.3 decryption is enabled."
+    example: false
+
+  - model_name: quicDecryption
+    tf_name: quic_decryption
+    data_path: [advancedOptions]
+    type: Bool
+    description: "Indicates whether QUIC decryption is enabled."
+    example: false
+
+  - model_name: adaptiveProbe
+    tf_name: adaptive_probe
+    data_path: [advancedOptions]
+    type: Bool
+    description: "Indicates whether adaptive probing is enabled."
+    example: true
+
+  - model_name: blockExtensions
+    tf_name: block_extensions
+    data_path: [advancedOptions]
+    type: List
+    element_type: Int64
+    description: "Indicates whether extensions are blocked."
+    example: 1
+
+  - model_name: logEnd
+    tf_name: log_end
+    data_path: [logging]
+    type: Bool
+    description: "Indicates whether the device will log events at the end of the connection."
+    example: false
+
+  - model_name: sendEvents
+    tf_name: send_events
+    data_path: [logging]
+    type: Bool
+    description: "Indicates whether the device will send events."
+    example: false
+
+  - model_name: objects
+    tf_name: trusted_cas
+    data_path: [trustedCAs]
+    type: List
+    description: "List of trusted CAs."
+    attributes:
+      - model_name: name
+        tf_name: ca_name
+        type: String
+        description: "The name of the trusted CA."
+        example: Cisco-Trusted-Authorities
+      - model_name: id
+        tf_name: ca_id
+        type: String
+        description: "The ID of the trusted CA."
+        example: d3856136-b65c-49e6-ac4c-0daf5be98bc1
