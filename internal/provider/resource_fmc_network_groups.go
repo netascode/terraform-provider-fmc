@@ -225,27 +225,10 @@ func (r *NetworkGroupsResource) Read(ctx context.Context, req resource.ReadReque
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	// Pseudo-resource, no Get.
-	if len(state.Items) == 0 {
-		resp.State.RemoveResource(ctx)
+	res, diags := readNetworkGroupsSubresources(ctx, r.client, state, reqMods...)
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Read subobjects from "items"
-
-	// TODO: >1000
-	params := "?expanded=true&limit=1000"
-	res, err := r.client.Get(state.getPath()+params, reqMods...)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-		// TODO: no implicit removal for a pseudo-resource
-		resp.State.RemoveResource(ctx)
-		return
-	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
-
-	// Distill group_names
-	res = r.withAllGroupNames(ctx, res, &state)
 
 	imp, diags := helpers.IsFlagImporting(ctx, req)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
@@ -267,35 +250,88 @@ func (r *NetworkGroupsResource) Read(ctx context.Context, req resource.ReadReque
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-func (r *NetworkGroupsResource) withAllGroupNames(ctx context.Context, res gjson.Result, state *NetworkGroups) gjson.Result {
+// readNetworkGroupsSubresources processes subobjects of NetworkGroups
+func readNetworkGroupsSubresources(ctx context.Context, client *fmc.Client, state NetworkGroups, reqMods ...func(*fmc.Req)) (gjson.Result, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	offset := 0
+	limit := 1000
+	gather := ""
+	for page := 1; ; page++ {
+		queryString := fmt.Sprintf("?expanded=true&limit=%d&offset=%d", limit, offset)
+		res, err := client.Get(state.getPath()+queryString, reqMods...)
+		if err != nil {
+			if strings.Contains(err.Error(), "StatusCode 404") {
+				return gjson.Parse("{}"), diags
+			}
+
+			diags.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects (GET), got error: %s", err))
+			return gjson.Parse("{}"), diags
+		}
+		if gather == "" {
+			gather = res.String()
+		}
+		if value := res.Get("items"); len(value.Array()) > 0 {
+			value.ForEach(func(k, v gjson.Result) bool {
+				gather, _ = sjson.Set(gather, "items.-1", v)
+				return true
+			})
+		}
+		if !res.Get("paging.next.0").Exists() {
+			break
+		}
+		offset += limit
+	}
+
+	res := synthesize(ctx, gjson.Parse(gather), &state)
+
+	return res, diags
+}
+
+// synthesize takes a real API Result (json) and converts some of the entries of the original attribute "objects"
+// into synthetic attribute "group_names". It returns a modified json.
+func synthesize(ctx context.Context, res gjson.Result, state *NetworkGroups) gjson.Result {
 	items := `[]`
 	if !res.Get("items").IsArray() {
 		return res
 	}
+
+	ownedIds := map[string]string{}
+	for name, item := range state.Items {
+		if item.Id.IsUnknown() || item.Id.IsNull() {
+			continue
+		}
+		ownedIds[item.Id.ValueString()] = name
+	}
+
 	for _, item := range res.Get("items").Array() {
-		item := r.withItemGroupNames(ctx, item, state)
+		item := synthesizeItem(ctx, item, ownedIds)
 		items, _ = sjson.SetRaw(items, "-1", item)
 	}
 
 	return set(res, "items", gjson.Parse(items))
 }
 
-func (r *NetworkGroupsResource) withItemGroupNames(ctx context.Context, item gjson.Result, state *NetworkGroups) string {
+func synthesizeItem(ctx context.Context, item gjson.Result, ownedIds map[string]string) string {
 	ret := item.String()
-	name := item.Get("name").String()
-	if _, found := state.Items[name]; !found {
+	if _, owned := ownedIds[item.Get("id").String()]; !owned {
 		return ret
 	}
 
-	var arr []string
-	_ = state.Items[name].GroupNames.ElementsAs(ctx, &arr, false)
-	for _, sg := range arr {
-		for _, obj := range item.Get("objects").Array() {
-			if obj.Get("name").String() == sg && strings.ToLower(obj.Get("type").String()) == "networkgroup" {
-				ret, _ = sjson.Set(ret, "group_names.-1", sg)
-			}
+	ret, _ = sjson.Delete(ret, "objects")
+	for _, obj := range item.Get("objects").Array() {
+		name, owned := ownedIds[obj.Get("id").String()]
+
+		if owned && strings.ToLower(obj.Get("type").String()) == "networkgroup" {
+			tflog.Debug(ctx, fmt.Sprintf("%s: child %q: adding it to group_names and removing it from objects: %s",
+				item.Get("id").String(), name, obj.String()))
+
+			ret, _ = sjson.Set(ret, "group_names.-1", name)
+		} else {
+			ret, _ = sjson.SetRaw(ret, "objects.-1", obj.String())
 		}
 	}
+
 	return ret
 }
 

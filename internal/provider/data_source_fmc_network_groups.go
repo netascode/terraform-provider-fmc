@@ -21,7 +21,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -68,12 +67,12 @@ func (d *NetworkGroupsDataSource) Schema(ctx context.Context, req datasource.Sch
 			},
 			"items": schema.MapNestedAttribute{
 				MarkdownDescription: "Map of network groups. The key of the map is the name of the individual Network Group.",
-				Computed:            true,
+				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: "UUID of the managed Network Group.",
-							Computed:            true,
+							Required:            true,
 						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: "Optional user-created description.",
@@ -129,15 +128,12 @@ func (d *NetworkGroupsDataSource) Configure(_ context.Context, req datasource.Co
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
-
 func (d *NetworkGroupsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config NetworkGroups
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -149,9 +145,8 @@ func (d *NetworkGroupsDataSource) Read(ctx context.Context, req datasource.ReadR
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
-	res, err := d.client.Get(config.getPath()+"/"+url.QueryEscape(config.Id.ValueString()), reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
+	res, diags := readNetworkGroupsSubresources(ctx, d.client, config, reqMods...)
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -162,5 +157,3 @@ func (d *NetworkGroupsDataSource) Read(ctx context.Context, req datasource.ReadR
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read
