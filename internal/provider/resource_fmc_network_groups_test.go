@@ -79,7 +79,7 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 		// step 1
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
 			`	"g1" = {` + "\n" +
-			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
+			`		group_names = ["g2"]` + "\n" +
 			`	}` + "\n" +
 			`	"g2" = {` + "\n" +
 			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
@@ -89,7 +89,7 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 		// step 2
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
 			`	"g1" = {` + "\n" +
-			`		group_names = ["g2"]` + "\n" +
+			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
 			`	}` + "\n" +
 			`	"g2" = {` + "\n" +
 			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +

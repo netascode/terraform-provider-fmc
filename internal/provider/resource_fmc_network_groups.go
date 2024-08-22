@@ -165,34 +165,21 @@ func (r *NetworkGroupsResource) Create(ctx context.Context, req resource.CreateR
 
 	// Create object
 	body := plan.toBody(ctx, NetworkGroups{})
-	// It's a pseudo-object, no Post needed.
+	// A pseudo-resource, no Post needed.
 	plan.Id = types.StringValue("00000000-0000-0000-0000-000000000000")
 
-	var res gjson.Result
-	subbody := gjson.Parse(body).Get("items").String()
-	if gjson.Parse(body).Get("items").IsArray() {
-		// manual fixup
-		for i := range gjson.Parse(body).Get("items").Array() {
-			subbody, _ = sjson.Delete(subbody, fmt.Sprintf("%d.group_names", i))
-		}
-
-		// TODO: first create child groups, then their parents
-		subres, err := r.client.Post(plan.getPath()+"?bulk=true", subbody, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, subres.String()))
-			return
-		}
-
-		res = set(res, "items", subres.Get("items"))
-	} else {
-		res = set(res, "items", gjson.Parse(`[]`))
+	state := plan
+	if len(plan.Items) > 0 {
+		state.Items = map[string]NetworkGroupsItems{}
 	}
 
-	plan.fromBodyUnknowns(ctx, res)
+	state, diags = r.updateSubresources(ctx, req.Plan, plan, body, tfsdk.State{}, state, reqMods...)
+	resp.Diagnostics.Append(diags...)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished", state.Id.ValueString()))
 
-	diags = resp.State.Set(ctx, &plan)
+	// On error we do Set anyway. Terraform taints our resource, and the next run is responsible to call Delete() for us.
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
@@ -356,19 +343,17 @@ func (r *NetworkGroupsResource) Update(ctx context.Context, req resource.UpdateR
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	planBody := plan.toBody(ctx, state)
-	// Skip these for a pseudo-recource.
-	// body := planBody
-	// body, _ = sjson.Delete(body, "items")
+	body := plan.toBody(ctx, state)
 
-	existingItems := state.Items
+	// Pseudo-resource, no Put needed.
+	orig := state
 	state = plan
-	state.Items = existingItems
+	state.Items = orig.Items
 
-	plan, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, req.State, state, reqMods...)
+	state, diags = r.updateSubresources(ctx, req.Plan, plan, body, req.State, state, reqMods...)
 	resp.Diagnostics.Append(diags...)
 
-	diags = resp.State.Set(ctx, &plan)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
 
