@@ -532,20 +532,13 @@ func (r *AccessControlPolicyResource) Create(ctx context.Context, req resource.C
 	state.Categories = nil
 
 	state, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, tfsdk.State{}, state)
-	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
-		}
-		return
-	}
+	resp.Diagnostics.Append(diags...)
 
+	// On error we do Set anyway. Terraform taints our resource, and the next run is responsible to call Delete() for us.
 	diags = resp.State.Set(ctx, &state)
-	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-		return
-	}
+	resp.Diagnostics.Append(diags...)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", state.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished", state.Id.ValueString()))
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
