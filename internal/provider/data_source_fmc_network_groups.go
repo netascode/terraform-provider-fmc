@@ -66,8 +66,9 @@ func (d *NetworkGroupsDataSource) Schema(ctx context.Context, req datasource.Sch
 				Optional:            true,
 			},
 			"items": schema.MapNestedAttribute{
-				MarkdownDescription: "Map of network groups. The key of the map is the name of the individual Network Group.",
+				MarkdownDescription: "Map of network groups. The key of the map is the name of the individual Network Group. Renaming Network Groups is not yet implemented.",
 				Optional:            true,
+				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
@@ -83,7 +84,7 @@ func (d *NetworkGroupsDataSource) Schema(ctx context.Context, req datasource.Sch
 							Computed:            true,
 						},
 						"group_names": schema.SetAttribute{
-							MarkdownDescription: "Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to add it inside `objects` by its UUID. Attribute `group_names` is used in managed resource only and always empty in a data-source. Modification of contents of `group_names` is not yet implemented.",
+							MarkdownDescription: "Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to add it inside `objects` by its UUID. Renaming a group contained in `group_names` is not yet implemented.",
 							ElementType:         types.StringType,
 							Computed:            true,
 						},

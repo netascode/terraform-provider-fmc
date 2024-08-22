@@ -84,13 +84,16 @@ func (r *NetworkGroupsResource) Schema(ctx context.Context, req resource.SchemaR
 				},
 			},
 			"items": schema.MapNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Map of network groups. The key of the map is the name of the individual Network Group.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Map of network groups. The key of the map is the name of the individual Network Group. Renaming Network Groups is not yet implemented.").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("UUID of the managed Network Group.").String,
 							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
@@ -101,7 +104,7 @@ func (r *NetworkGroupsResource) Schema(ctx context.Context, req resource.SchemaR
 							Optional:            true,
 						},
 						"group_names": schema.SetAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to add it inside `objects` by its UUID. Attribute `group_names` is used in managed resource only and always empty in a data-source. Modification of contents of `group_names` is not yet implemented.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to add it inside `objects` by its UUID. Renaming a group contained in `group_names` is not yet implemented.").String,
 							ElementType:         types.StringType,
 							Optional:            true,
 						},
