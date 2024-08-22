@@ -1,0 +1,19 @@
+---
+name: Interface Group
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/interfacegroups
+data_source_name_query: true
+doc_category: Objects
+attributes:
+  - model_name: name
+    type: String
+    description: User-created name of the resource.
+    mandatory: true
+    example: interface_group_1
+  - model_name: interfaceMode
+    type: String
+    description: Type of the interface.
+    enum_values: [INLINE, SWITCHED, ROUTED]
+    mandatory: true
+    example: INLINE
+  - model_name: interfaces
+    type: Set
