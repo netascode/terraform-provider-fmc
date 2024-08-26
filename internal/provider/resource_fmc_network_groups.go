@@ -388,15 +388,11 @@ func (r *NetworkGroupsResource) Delete(ctx context.Context, req resource.DeleteR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete successful", state.Id.ValueString()))
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin import
-
 func (r *NetworkGroupsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	resp.Diagnostics.AddError("Import not implemented yet", "The Import operation is not implemented yet in this version of the provider.")
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end import
 
 // updateSubresources returns a coherent state whether it fails or succeeds. Caller should always persist that state
 // into the Response (UpdateResponse, CreateResponse, ...), otherwise the API's UUIDs may go out-of-sync with
