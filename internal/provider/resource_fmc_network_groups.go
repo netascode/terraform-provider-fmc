@@ -673,6 +673,10 @@ func (bulk *bulk) Create(ctx context.Context, plan, state NetworkGroups, client 
 		}
 	}
 
+	if ret.Items == nil && len(bulk.groups) != 0 {
+		ret.Items = map[string]NetworkGroupsItems{}
+	}
+
 	// Bulk Create is all-or-nothing, so now persist all in the tfstate.
 	for _, g := range bulk.groups {
 		ret.Items[g.name] = plan.Items[g.name]
