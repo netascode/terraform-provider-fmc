@@ -368,33 +368,19 @@ func (r *NetworkGroupsResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Delete converting to Update", state.Id.ValueString()))
+	// Set request domain if provided
+	reqMods := [](func(*fmc.Req)){}
+	if !state.Domain.IsNull() && state.Domain.ValueString() != "" {
+		reqMods = append(reqMods, fmc.DomainName(state.Domain.ValueString()))
+	}
 
-	// Convert Delete call into Update call
-	uresp := &resource.UpdateResponse{
-		State: resp.State,
-	}
-	ureq := &resource.UpdateRequest{
-		Plan: tfsdk.Plan{
-			Schema: req.State.Schema,
-		},
-		State:        req.State,
-		ProviderMeta: req.ProviderMeta,
-		Private:      req.Private,
-	}
-	diags = ureq.Plan.Set(ctx, &NetworkGroups{})
+	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+
+	state, diags = r.updateSubresources(ctx, tfsdk.Plan{}, NetworkGroups{}, "{}", req.State, state, reqMods...)
+	resp.Diagnostics.Append(diags...)
+
+	diags = resp.State.Set(ctx, &state)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-		return
-	}
-
-	r.Update(ctx, *ureq, uresp)
-
-	resp.Private = uresp.Private
-	resp.State = uresp.State
-	resp.Diagnostics = uresp.Diagnostics
-
-	if resp.Diagnostics.HasError() {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Delete failed", state.Id.ValueString()))
 		return
 	}
 
