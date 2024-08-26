@@ -163,7 +163,6 @@ func (r *NetworkGroupsResource) Create(ctx context.Context, req resource.CreateR
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
 	body := plan.toBody(ctx, NetworkGroups{})
 	// A pseudo-resource, no Post needed.
 	plan.Id = types.StringValue("00000000-0000-0000-0000-000000000000")
