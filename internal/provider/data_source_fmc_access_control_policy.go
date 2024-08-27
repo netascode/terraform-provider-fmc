@@ -84,10 +84,6 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "Specifies the default action to take when none of the rules meet the conditions.",
 				Computed:            true,
 			},
-			"default_action_id": schema.StringAttribute{
-				MarkdownDescription: "Default action ID.",
-				Computed:            true,
-			},
 			"default_action_log_begin": schema.BoolAttribute{
 				MarkdownDescription: "Indicating whether the device will log events at the beginning of the connection.",
 				Computed:            true,

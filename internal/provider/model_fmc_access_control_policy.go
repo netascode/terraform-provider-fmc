@@ -44,7 +44,6 @@ type AccessControlPolicy struct {
 	Name                           types.String                    `tfsdk:"name"`
 	Description                    types.String                    `tfsdk:"description"`
 	DefaultAction                  types.String                    `tfsdk:"default_action"`
-	DefaultActionId                types.String                    `tfsdk:"default_action_id"`
 	DefaultActionLogBegin          types.Bool                      `tfsdk:"default_action_log_begin"`
 	DefaultActionLogEnd            types.Bool                      `tfsdk:"default_action_log_end"`
 	DefaultActionSendEventsToFmc   types.Bool                      `tfsdk:"default_action_send_events_to_fmc"`
@@ -198,9 +197,6 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 	}
 	if !data.DefaultAction.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.action", data.DefaultAction.ValueString())
-	}
-	if state.DefaultActionId.ValueString() != "" {
-		body, _ = sjson.Set(body, "defaultAction.id", state.DefaultActionId.ValueString())
 	}
 	if !data.DefaultActionLogBegin.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.logBegin", data.DefaultActionLogBegin.ValueBool())
@@ -487,11 +483,6 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 		data.DefaultAction = types.StringValue(value.String())
 	} else {
 		data.DefaultAction = types.StringNull()
-	}
-	if value := res.Get("defaultAction.id"); value.Exists() {
-		data.DefaultActionId = types.StringValue(value.String())
-	} else {
-		data.DefaultActionId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.logBegin"); value.Exists() {
 		data.DefaultActionLogBegin = types.BoolValue(value.Bool())
@@ -887,11 +878,6 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 		data.DefaultAction = types.StringValue(value.String())
 	} else {
 		data.DefaultAction = types.StringNull()
-	}
-	if value := res.Get("defaultAction.id"); value.Exists() {
-		data.DefaultActionId = types.StringValue(value.String())
-	} else {
-		data.DefaultActionId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.logBegin"); value.Exists() && !data.DefaultActionLogBegin.IsNull() {
 		data.DefaultActionLogBegin = types.BoolValue(value.Bool())
@@ -1717,13 +1703,6 @@ func (data *AccessControlPolicy) adjustFromBody(ctx context.Context, res gjson.R
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *AccessControlPolicy) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
-	if data.DefaultActionId.IsUnknown() {
-		if value := res.Get("defaultAction.id"); value.Exists() {
-			data.DefaultActionId = types.StringValue(value.String())
-		} else {
-			data.DefaultActionId = types.StringNull()
-		}
-	}
 	for i := range data.Categories {
 		r := res.Get(fmt.Sprintf("dummy_categories.%d", i))
 		if v := data.Categories[i]; v.Id.IsUnknown() {

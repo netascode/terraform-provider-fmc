@@ -101,10 +101,6 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 					stringvalidator.OneOf("BLOCK", "TRUST", "PERMIT", "NETWORK_DISCOVERY", "INHERIT_FROM_PARENT"),
 				},
 			},
-			"default_action_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Default action ID.").String,
-				Computed:            true,
-			},
 			"default_action_log_begin": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicating whether the device will log events at the beginning of the connection.").AddDefaultValueDescription("false").String,
 				Optional:            true,

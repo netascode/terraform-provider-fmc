@@ -79,7 +79,7 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 			},
 			"interface_name": schema.StringAttribute{
 				MarkdownDescription: "Name of the parent interface. As the fmc_device_physical_interface.example.name does not propagate dependency adequately on Terraform, the `interface_id` attribute must be always set when creating this managed resource.",
-				Computed:            true,
+				Required:            true,
 			},
 			"index": schema.Int64Attribute{
 				MarkdownDescription: "The numerical id of this subinterface, unique on the parent interface.",

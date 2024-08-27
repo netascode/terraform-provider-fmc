@@ -153,7 +153,6 @@ resource "fmc_access_control_policy" "example" {
 
 ### Read-Only
 
-- `default_action_id` (String) Default action ID.
 - `id` (String) The id of the object
 
 <a id="nestedatt--categories"></a>
