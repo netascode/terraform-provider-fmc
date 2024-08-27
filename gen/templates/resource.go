@@ -87,6 +87,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			{{- define "resourceSchema"}}
 			{{- range  .Attributes}}
 			{{- if not .Value}}
 			"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
@@ -144,246 +145,19 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace}}
+				{{- if or .Reference .RequiresReplace}}
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
 				},
+				{{- else if .ResourceId}}
+				PlanModifiers: []planmodifier.{{.Type}}{
+					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+				},
 				{{- end}}
 				{{- if isNestedListMapSet .}}
-				{{- $useStateForUnknown := isNestedMap .}}
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						{{- range  .Attributes}}
-						{{- if not .Value}}
-						"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
-								{{- if len .EnumValues -}}
-								.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
-								{{- end -}}
-								{{- if or (ne .MinInt 0) (ne .MaxInt 0) -}}
-								.AddIntegerRangeDescription({{.MinInt}}, {{.MaxInt}})
-								{{- end -}}
-								{{- if or (ne .MinFloat 0.0) (ne .MaxFloat 0.0) -}}
-								.AddFloatRangeDescription({{.MinFloat}}, {{.MaxFloat}})
-								{{- end -}}
-								{{- if .DefaultValue -}}
-								.AddDefaultValueDescription("{{.DefaultValue}}")
-								{{- end -}}
-								.String,
-							{{- if isListSet .}}
-							ElementType:         types.{{.ElementType}}Type,
-							{{- end}}
-							{{- if or .Reference .Mandatory}}
-							Required:            true,
-							{{- else if not .ResourceId}}
-							Optional:            true,
-							{{- end}}
-							{{- if or (len .DefaultValue) .ResourceId}}
-							Computed:            true,
-							{{- end}}
-							{{- if len .EnumValues}}
-							Validators: []validator.String{
-								stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
-							},
-							{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
-							Validators: []validator.String{
-								{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
-								stringvalidator.LengthBetween({{.StringMinLength}}, {{.StringMaxLength}}),
-								{{- end}}
-								{{- range .StringPatterns}}
-								stringvalidator.RegexMatches(regexp.MustCompile(`{{.}}`), ""),
-								{{- end}}
-							},
-							{{- else if or (ne .MinInt 0) (ne .MaxInt 0)}}
-							Validators: []validator.Int64{
-								int64validator.Between({{.MinInt}}, {{.MaxInt}}),
-							},
-							{{- else if or (ne .MinFloat 0.0) (ne .MaxFloat 0.0)}}
-							Validators: []validator.Float64{
-								float64validator.Between({{.MinFloat}}, {{.MaxFloat}}),
-							},
-							{{- end}}
-							{{- if and (len .DefaultValue) (eq .Type "Int64")}}
-							Default:             int64default.StaticInt64({{.DefaultValue}}),
-							{{- else if and (len .DefaultValue) (eq .Type "Bool")}}
-							Default:             booldefault.StaticBool({{.DefaultValue}}),
-							{{- else if and (len .DefaultValue) (eq .Type "String")}}
-							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
-							{{- end}}
-							{{- if and .ResourceId $useStateForUnknown}}
-							PlanModifiers: []planmodifier.{{.Type}}{
-								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
-							},
-							{{- else if .RequiresReplace}}
-							PlanModifiers: []planmodifier.{{.Type}}{
-								{{snakeCase .Type}}planmodifier.RequiresReplace(),
-							},
-							{{- end}}
-							{{- if isNestedListMapSet .}}
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									{{- range  .Attributes}}
-									{{- if not .Value}}
-									"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
-										MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
-											{{- if len .EnumValues -}}
-											.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
-											{{- end -}}
-											{{- if or (ne .MinInt 0) (ne .MaxInt 0) -}}
-											.AddIntegerRangeDescription({{.MinInt}}, {{.MaxInt}})
-											{{- end -}}
-											{{- if or (ne .MinFloat 0.0) (ne .MaxFloat 0.0) -}}
-											.AddFloatRangeDescription({{.MinFloat}}, {{.MaxFloat}})
-											{{- end -}}
-											{{- if .DefaultValue -}}
-											.AddDefaultValueDescription("{{.DefaultValue}}")
-											{{- end -}}
-											.String,
-										{{- if isListSet .}}
-										ElementType:         types.{{.ElementType}}Type,
-										{{- end}}
-										{{- if or .Reference .Mandatory}}
-										Required:            true,
-										{{- else if not .ResourceId}}
-										Optional:            true,
-										{{- end}}
-										{{- if or (len .DefaultValue) .ResourceId}}
-										Computed:            true,
-										{{- end}}
-										{{- if len .EnumValues}}
-										Validators: []validator.String{
-											stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
-										},
-										{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
-										Validators: []validator.String{
-											{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
-											stringvalidator.LengthBetween({{.StringMinLength}}, {{.StringMaxLength}}),
-											{{- end}}
-											{{- range .StringPatterns}}
-											stringvalidator.RegexMatches(regexp.MustCompile(`{{.}}`), ""),
-											{{- end}}
-										},
-										{{- else if or (ne .MinInt 0) (ne .MaxInt 0)}}
-										Validators: []validator.Int64{
-											int64validator.Between({{.MinInt}}, {{.MaxInt}}),
-										},
-										{{- else if or (ne .MinFloat 0.0) (ne .MaxFloat 0.0)}}
-										Validators: []validator.Float64{
-											float64validator.Between({{.MinFloat}}, {{.MaxFloat}}),
-										},
-										{{- end}}
-										{{- if and (len .DefaultValue) (eq .Type "Int64")}}
-										Default:             int64default.StaticInt64({{.DefaultValue}}),
-										{{- else if and (len .DefaultValue) (eq .Type "Bool")}}
-										Default:             booldefault.StaticBool({{.DefaultValue}}),
-										{{- else if and (len .DefaultValue) (eq .Type "String")}}
-										Default:             stringdefault.StaticString("{{.DefaultValue}}"),
-										{{- end}}
-										{{- if .RequiresReplace}}
-										PlanModifiers: []planmodifier.{{.Type}}{
-											{{snakeCase .Type}}planmodifier.RequiresReplace(),
-										},
-										{{- end}}
-										{{- if isNestedListMapSet .}}
-										NestedObject: schema.NestedAttributeObject{
-											Attributes: map[string]schema.Attribute{
-												{{- range  .Attributes}}
-												{{- if not .Value}}
-												"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
-													MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
-														{{- if len .EnumValues -}}
-														.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
-														{{- end -}}
-														{{- if or (ne .MinInt 0) (ne .MaxInt 0) -}}
-														.AddIntegerRangeDescription({{.MinInt}}, {{.MaxInt}})
-														{{- end -}}
-														{{- if or (ne .MinFloat 0.0) (ne .MaxFloat 0.0) -}}
-														.AddFloatRangeDescription({{.MinFloat}}, {{.MaxFloat}})
-														{{- end -}}
-														{{- if .DefaultValue -}}
-														.AddDefaultValueDescription("{{.DefaultValue}}")
-														{{- end -}}
-														.String,
-													{{- if isListSet .}}
-													ElementType:         types.{{.ElementType}}Type,
-													{{- end}}
-													{{- if or .Reference .Mandatory}}
-													Required:            true,
-													{{- else if not .ResourceId}}
-													Optional:            true,
-													{{- end}}
-													{{- if or (len .DefaultValue) .ResourceId}}
-													Computed:            true,
-													{{- end}}
-													{{- if len .EnumValues}}
-													Validators: []validator.String{
-														stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
-													},
-													{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
-													Validators: []validator.String{
-														{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
-														stringvalidator.LengthBetween({{.StringMinLength}}, {{.StringMaxLength}}),
-														{{- end}}
-														{{- range .StringPatterns}}
-														stringvalidator.RegexMatches(regexp.MustCompile(`{{.}}`), ""),
-														{{- end}}
-													},
-													{{- else if or (ne .MinInt 0) (ne .MaxInt 0)}}
-													Validators: []validator.Int64{
-														int64validator.Between({{.MinInt}}, {{.MaxInt}}),
-													},
-													{{- else if or (ne .MinFloat 0.0) (ne .MaxFloat 0.0)}}
-													Validators: []validator.Float64{
-														float64validator.Between({{.MinFloat}}, {{.MaxFloat}}),
-													},
-													{{- end}}
-													{{- if and (len .DefaultValue) (eq .Type "Int64")}}
-													Default:             int64default.StaticInt64({{.DefaultValue}}),
-													{{- else if and (len .DefaultValue) (eq .Type "Bool")}}
-													Default:             booldefault.StaticBool({{.DefaultValue}}),
-													{{- else if and (len .DefaultValue) (eq .Type "String")}}
-													Default:             stringdefault.StaticString("{{.DefaultValue}}"),
-													{{- end}}
-													{{- if .RequiresReplace}}
-													PlanModifiers: []planmodifier.{{.Type}}{
-														{{snakeCase .Type}}planmodifier.RequiresReplace(),
-													},
-													{{- end}}
-												},
-												{{- end}}
-												{{- end}}
-											},
-										},
-										{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-										Validators: []validator.List{
-											{{- if ne .MinList 0}}
-											listvalidator.SizeAtLeast({{.MinList}}),
-											{{- end}}
-											{{- if ne .MaxList 0}}
-											listvalidator.SizeAtMost({{.MaxList}}),
-											{{- end}}
-										},
-										{{- end}}
-										{{- end}}
-									},
-									{{- end}}
-									{{- end}}
-								},
-							},
-							{{- if or (ne .MinList 0) (ne .MaxList 0)}}
-							Validators: []validator.List{
-								{{- if ne .MinList 0}}
-								listvalidator.SizeAtLeast({{.MinList}}),
-								{{- end}}
-								{{- if ne .MaxList 0}}
-								listvalidator.SizeAtMost({{.MaxList}}),
-								{{- end}}
-							},
-							{{- end}}
-							{{- end}}
-						},
-						{{- end}}
-						{{- end}}
+						{{- template "resourceSchema" .}}
 					},
 				},
 				{{- if or (ne .MinList 0) (ne .MaxList 0)}}
@@ -400,6 +174,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 			},
 			{{- end}}
 			{{- end}}
+			{{- end}}
+			{{- template "resourceSchema" .}}
 		},
 	}
 }

@@ -56,8 +56,6 @@ func (d *{{camelCase .Name}}DataSource) Metadata(_ context.Context, req datasour
 	resp.TypeName = req.ProviderTypeName + "_{{snakeCase .Name}}"
 }
 
-{{- $nameQuery := .DataSourceNameQuery}}
-
 func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -77,6 +75,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "The name of the FMC domain",
 				Optional:			true,
 			},
+			{{- define "dataSourceSchema"}}
 			{{- range  .Attributes}}
 			{{- if not .Value}}
 			"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
@@ -84,10 +83,10 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
 				{{- end}}
-				{{- if .Reference}}
+				{{- if or .Reference .ResourceId}}
 				Required:            true,
 				{{- else}}
-				{{- if and (eq .ModelName "name") ($nameQuery)}}
+				{{- if eq .ModelName "name"}}
 				Optional:            true,
 				{{- end}}
 				{{- if isNestedMap .}}
@@ -96,64 +95,17 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				Computed:            true,
 				{{- end}}
 				{{- if isNestedListMapSet .}}
-				{{- $parentNestedMap := isNestedMap .}}
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						{{- range  .Attributes}}
-						{{- if not .Value}}
-						"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
-							MarkdownDescription: "{{.Description}}",
-							{{- if isListSet .}}
-							ElementType:         types.{{.ElementType}}Type,
-							{{- end}}
-							{{- if and .ResourceId $parentNestedMap}}
-							Required:            true,
-							{{- else}}
-							Computed:            true,
-							{{- end}}
-							{{- if isNestedListMapSet .}}
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									{{- range  .Attributes}}
-									{{- if not .Value}}
-									"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
-										MarkdownDescription: "{{.Description}}",
-										{{- if isListSet .}}
-										ElementType:         types.{{.ElementType}}Type,
-										{{- end}}
-										Computed:            true,
-										{{- if isNestedListMapSet .}}
-										NestedObject: schema.NestedAttributeObject{
-											Attributes: map[string]schema.Attribute{
-												{{- range  .Attributes}}
-												{{- if not .Value}}
-												"{{.TfName}}": schema.{{if isNestedListMapSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
-													MarkdownDescription: "{{.Description}}",
-													{{- if isListSet .}}
-													ElementType:         types.{{.ElementType}}Type,
-													{{- end}}
-													Computed:            true,
-												},
-												{{- end}}
-												{{- end}}
-											},
-										},
-										{{- end}}
-									},
-									{{- end}}
-									{{- end}}
-								},
-							},
-							{{- end}}
-						},
-						{{- end}}
-						{{- end}}
+						{{- template "dataSourceSchema" .}}
 					},
 				},
 				{{- end}}
 			},
 			{{- end}}
 			{{- end}}
+			{{- end}}
+			{{- template "dataSourceSchema" .}}
 		},
 	}
 }
