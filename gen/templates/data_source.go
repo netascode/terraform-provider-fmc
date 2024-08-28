@@ -86,10 +86,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- if or .Reference .ResourceId}}
 				Required:            true,
 				{{- else}}
-				{{- if eq .ModelName "name"}}
-				Optional:            true,
-				{{- end}}
-				{{- if isNestedMap .}}
+				{{- if or .DataSourceNameQuery (isNestedMap .)}}
 				Optional:            true,
 				{{- end}}
 				Computed:            true,

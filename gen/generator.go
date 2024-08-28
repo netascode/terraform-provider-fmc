@@ -149,7 +149,11 @@ type YamlConfigAttribute struct {
 	MinimumTestValue string                `yaml:"minimum_test_value"`
 	TestTags         []string              `yaml:"test_tags"`
 	Attributes       []YamlConfigAttribute `yaml:"attributes"`
-	GoTypeName       string
+
+	// Computed from other fields:
+
+	GoTypeName          string
+	DataSourceNameQuery bool
 }
 
 // Templating helper function to convert TF name to GO name
@@ -436,6 +440,9 @@ func NewYamlConfig(bytes []byte) (YamlConfig, error) {
 	for i := range config.Attributes {
 		if err := config.Attributes[i].init(CamelCase(config.Name)); err != nil {
 			return YamlConfig{}, err
+		}
+		if config.DataSourceNameQuery && config.Attributes[i].ModelName == "name" {
+			config.Attributes[i].DataSourceNameQuery = true
 		}
 	}
 	if config.DsDescription == "" {
