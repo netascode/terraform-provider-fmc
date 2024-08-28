@@ -172,6 +172,14 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 			`	}` + "\n" +
 			`}}`,
 		ExpectError: regexp.MustCompile(`Cycle in network_groups`),
+	}, {
+		// step 8
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g2" = {` + "\n" +
+			`		network_groups = ["no_such_group"]` + "\n" +
+			`	}` + "\n" +
+			`}}`,
+		ExpectError: regexp.MustCompile(`Failed to create`),
 	}}
 
 	resource.Test(t, resource.TestCase{
