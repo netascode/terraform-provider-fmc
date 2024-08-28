@@ -443,7 +443,7 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 	{{- errorf "resource_id is not yet implemented for type %v" .Type}}
 	{{- end}}
 	{{- else if isNestedListMapSet .}}
-	{{- if hasResourceId .Attributes}}
+	{{- if hasComputed .Attributes}}
 	{{- $list := (toGoName .TfName)}}
 	{{- if .OrderedList }}
 	for i := range data.{{toGoName .TfName}} {
@@ -535,9 +535,6 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 		{{- if .OrderedList }}
 			{{- errorf "ordered_list not yet implemented at this depth"}}
 		{{- end}}
-		{{- if hasResourceId .Attributes}}
-			{{- errorf "resource_id not yet implemented at this depth"}}
-		{{- end}}
 
 		{{- range .Attributes}}
 			{{- if isNestedMap .}}
@@ -546,9 +543,6 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 			{{- if .OrderedList }}
 				{{- errorf "ordered_list not yet implemented at this depth"}}
 			{{- end}}
-			{{- if hasResourceId .Attributes}}
-				{{- errorf "resource_id not yet implemented at this depth"}}
-			{{- end}}
 
 			{{- range .Attributes}}
 				{{- if isNestedMap .}}
@@ -556,9 +550,6 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 				{{- end}}
 				{{- if .OrderedList }}
 					{{- errorf "ordered_list not yet implemented at this depth"}}
-				{{- end}}
-				{{- if hasResourceId .Attributes}}
-					{{- errorf "resource_id not yet implemented at this depth"}}
 				{{- end}}
 				{{- range .Attributes}}
 					{{- errorf "attributes not yet implemented at this depth"}}

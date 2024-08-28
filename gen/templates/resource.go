@@ -113,7 +113,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if not .ResourceId}}
 				Optional:            true,
 				{{- end}}
-				{{- if or (len .DefaultValue) .ResourceId}}
+				{{- if or (len .DefaultValue) .ResourceId .Computed}}
 				Computed:            true,
 				{{- end}}
 				{{- if len .EnumValues}}
@@ -259,7 +259,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
-	{{- if hasResourceId .Attributes}}
+	{{- if hasComputed .Attributes}}
 	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
@@ -361,7 +361,7 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 		return
 	}
 
-	{{- if hasResourceId .Attributes}}
+	{{- if hasComputed .Attributes}}
 	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))

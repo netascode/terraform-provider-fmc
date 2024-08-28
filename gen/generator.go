@@ -235,16 +235,14 @@ func HasReference(attributes []YamlConfigAttribute) bool {
 	return false
 }
 
-// Templating helper function to return true if reference included in attributes
-func HasResourceId(attributes []YamlConfigAttribute) bool {
+// Templating helper function to return true if computed/resource included in attributes
+func HasComputed(attributes []YamlConfigAttribute) bool {
 	for _, attr := range attributes {
-		if attr.ResourceId {
+		if attr.Computed || attr.ResourceId {
 			return true
 		}
-		if len(attr.Attributes) > 0 {
-			if HasResourceId(attr.Attributes) {
-				return true
-			}
+		if HasComputed(attr.Attributes) {
+			return true
 		}
 	}
 	return false
@@ -359,7 +357,7 @@ var functions = template.FuncMap{
 	"path":               BuildPath,
 	"hasId":              HasId,
 	"hasReference":       HasReference,
-	"hasResourceId":      HasResourceId,
+	"hasComputed":        HasComputed,
 	"isListSet":          IsListSet,
 	"isList":             IsList,
 	"isSet":              IsSet,
