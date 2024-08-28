@@ -268,7 +268,7 @@ func readNetworkGroupsSubresources(ctx context.Context, client *fmc.Client, stat
 }
 
 // synthesizeNetworkGroups takes a real API Result (json) and converts some of the entries of the original attribute "objects"
-// into synthetic attribute "group_names". It returns a modified json.
+// into synthetic attribute "network_groups". It returns a modified json.
 func synthesizeNetworkGroups(ctx context.Context, res gjson.Result, state *NetworkGroups) gjson.Result {
 	items := `[]`
 	if !res.Get("items").IsArray() {
@@ -302,10 +302,10 @@ func synthesizeNetworkGroupsItem(ctx context.Context, item gjson.Result, ownedId
 		name, owned := ownedIds[obj.Get("id").String()]
 
 		if owned && strings.ToLower(obj.Get("type").String()) == "networkgroup" {
-			tflog.Debug(ctx, fmt.Sprintf("%s: child %q: adding it to group_names and removing it from objects: %s",
+			tflog.Debug(ctx, fmt.Sprintf("%s: child %q: adding it to network_groups and removing it from objects: %s",
 				item.Get("id").String(), name, obj.String()))
 
-			ret, _ = sjson.Set(ret, "group_names.-1", name)
+			ret, _ = sjson.Set(ret, "network_groups.-1", name)
 		} else {
 			ret, _ = sjson.SetRaw(ret, "objects.-1", obj.String())
 		}
@@ -485,7 +485,7 @@ type networkGroup struct {
 	bulk     int
 }
 
-// graphTopologicalSeq takes "items" of the body and parses their parent-child dependencies (attribute "group_names").
+// graphTopologicalSeq takes "items" of the body and parses their parent-child dependencies (attribute "network_groups").
 // The goal is to ensure that any child is created before its parent.
 // Having the "items" as a graph the func runs the topological sort algorithm to convert it to a sequence:
 // https://en.wikipedia.org/wiki/Topological_sorting
@@ -501,7 +501,7 @@ func graphTopologicalSeq(ctx context.Context, body string) ([]networkGroup, diag
 			name: item.Get("name").String(),
 			json: item.String(),
 		}
-		for _, child := range item.Get("group_names").Array() {
+		for _, child := range item.Get("network_groups").Array() {
 			g.children = append(g.children, child.String())
 		}
 		m[g.name] = g
@@ -550,8 +550,8 @@ func graphTopologicalSeq(ctx context.Context, body string) ([]networkGroup, diag
 	if len(cycle) > 0 {
 		diags.AddAttributeError(
 			path.Root("items"),
-			"Cycle in group_names",
-			fmt.Sprintf("Children contained in group_names must not be their own ancestors: %+v", cycle),
+			"Cycle in network_groups",
+			fmt.Sprintf("Children contained in network_groups must not be their own ancestors: %+v", cycle),
 		)
 
 		return ret, diags
@@ -562,7 +562,7 @@ func graphTopologicalSeq(ctx context.Context, body string) ([]networkGroup, diag
 
 func (group *networkGroup) Body(ctx context.Context, state NetworkGroups) (string, diag.Diagnostics) {
 	ret := group.json
-	ret, _ = sjson.Delete(ret, "group_names")
+	ret, _ = sjson.Delete(ret, "network_groups")
 
 	for _, child := range group.children {
 		existing := state.Items[child].Id

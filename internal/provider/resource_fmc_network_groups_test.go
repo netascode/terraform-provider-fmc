@@ -96,7 +96,7 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 		// step 1
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
 			`	"g1" = {` + "\n" +
-			`		group_names = ["g2"]` + "\n" +
+			`		network_groups = ["g2"]` + "\n" +
 			`	}` + "\n" +
 			`	"g2" = {` + "\n" +
 			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
@@ -123,38 +123,38 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 		// step 4
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
 			`	"g1" = {` + "\n" +
-			`		group_names = ["g2","g3","g4","g5"]` + "\n" +
+			`		network_groups = ["g2","g3","g4","g5"]` + "\n" +
 			`	}` + "\n" +
 			`	"g2" = {` + "\n" +
 			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
 			`	}` + "\n" +
 			`	"g3" = {` + "\n" +
-			`		group_names = ["g2"]` + "\n" +
+			`		network_groups = ["g2"]` + "\n" +
 			`	}` + "\n" +
 			`	"g4" = {` + "\n" +
-			`		group_names = ["g2"]` + "\n" +
+			`		network_groups = ["g2"]` + "\n" +
 			`	}` + "\n" +
 			`	"g5" = {` + "\n" +
-			`		group_names = ["g3", "g4"]` + "\n" +
+			`		network_groups = ["g3", "g4"]` + "\n" +
 			`	}` + "\n" +
 			`	"g6" = {` + "\n" +
-			`		group_names = ["g2","g3","g4","g5"]` + "\n" +
+			`		network_groups = ["g2","g3","g4","g5"]` + "\n" +
 			`	}` + "\n" +
 			`}}`,
 	}, {
 		// step 5
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
 			`	"g1" = {` + "\n" +
-			`		group_names = ["g2","g4","g5"]` + "\n" +
+			`		network_groups = ["g2","g4","g5"]` + "\n" +
 			`	}` + "\n" +
 			`	"g2" = {` + "\n" +
 			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
 			`	}` + "\n" +
 			`	"g4" = {` + "\n" +
-			`		group_names = ["g2"]` + "\n" +
+			`		network_groups = ["g2"]` + "\n" +
 			`	}` + "\n" +
 			`	"g5" = {` + "\n" +
-			`		group_names = ["g4"]` + "\n" +
+			`		network_groups = ["g4"]` + "\n" +
 			`	}` + "\n" +
 			`}}`,
 	}, {
@@ -168,10 +168,10 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 		// step 7
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
 			`	"g2" = {` + "\n" +
-			`		group_names = ["g2"]` + "\n" +
+			`		network_groups = ["g2"]` + "\n" +
 			`	}` + "\n" +
 			`}}`,
-		ExpectError: regexp.MustCompile(`Cycle in group_names`),
+		ExpectError: regexp.MustCompile(`Cycle in network_groups`),
 	}}
 
 	resource.Test(t, resource.TestCase{

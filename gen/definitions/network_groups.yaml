@@ -33,14 +33,15 @@ attributes:
         description: Indicates whether object values can be overridden.
         exclude_example: true
         test_value: "true"
-      - model_name: group_names
+      - model_name: network_groups
         type: Set
         element_type: String
         example: "child_group_1"
         description: >-
           Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance
           of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is
-          to add it inside `objects` by its UUID. Renaming a group contained in `group_names` is not yet implemented.
+          to instead add it inside `objects` by its UUID.
+          Renaming a group contained in `network_groups` is not yet implemented, while it works in `objects`.
         exclude_test: true
       - model_name: objects
         description: Set of objects (fmc_network, fmc_host, ...).
@@ -48,7 +49,9 @@ attributes:
         attributes:
           - model_name: id
             type: String
-            description: UUID of the object (such as fmc_network.this.id, etc.).
+            description: >-
+              UUID of the object (such as fmc_network.example.id, fmc_host.example.id,
+              fmc_network_groups.another.items[\"example\"].id, etc.).
             id: true
             exclude_example: true
             test_value: fmc_range.test.id
