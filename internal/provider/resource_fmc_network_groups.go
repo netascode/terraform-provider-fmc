@@ -25,7 +25,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -187,15 +186,6 @@ func (r *NetworkGroupsResource) Create(ctx context.Context, req resource.CreateR
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-func set(orig gjson.Result, path string, content gjson.Result) gjson.Result {
-	s, err := sjson.SetRaw(orig.String(), path, content.String())
-	if err != nil {
-		panic(err)
-	}
-
-	return gjson.Parse(s)
-}
-
 func (r *NetworkGroupsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state NetworkGroups
 
@@ -298,7 +288,7 @@ func synthesizeNetworkGroups(ctx context.Context, res gjson.Result, state *Netwo
 		items, _ = sjson.SetRaw(items, "-1", item)
 	}
 
-	return set(res, "items", gjson.Parse(items))
+	return helpers.SetGjson(res, "items", gjson.Parse(items))
 }
 
 func synthesizeNetworkGroupsItem(ctx context.Context, item gjson.Result, ownedIds map[string]string) string {
@@ -427,7 +417,7 @@ func (r *NetworkGroupsResource) updateSubresources(ctx context.Context, tfsdkPla
 	// Subresources to Update.
 	tflog.Debug(ctx, fmt.Sprintf("%s: considering remaining subresources for Update: %+v", plan.Id.ValueString(), seq))
 	for _, group := range seq {
-		ok, diags := isConfigUpdatingAt(ctx, tfsdkPlan, tfsdkState, path.Root("items").AtMapKey(group.name))
+		ok, diags := helpers.IsConfigUpdatingAt(ctx, tfsdkPlan, tfsdkState, path.Root("items").AtMapKey(group.name))
 		if diags.HasError() {
 			return state, diags
 		}
@@ -485,22 +475,6 @@ func (r *NetworkGroupsResource) updateSubresources(ctx context.Context, tfsdkPla
 	}
 
 	return state, nil
-}
-
-func isConfigUpdatingAt(ctx context.Context, tfsdkPlan tfsdk.Plan, tfsdkState tfsdk.State, where path.Path) (bool, diag.Diagnostics) {
-	var pv, sv attr.Value
-
-	diags := tfsdkPlan.GetAttribute(ctx, where, &pv)
-	if diags.HasError() {
-		return false, diags
-	}
-
-	diags = tfsdkState.GetAttribute(ctx, where, &sv)
-	if diags.HasError() {
-		return false, nil
-	}
-
-	return !sv.Equal(pv), diags
 }
 
 // networkGroup is an internal representation of a single fmc_network_group.
