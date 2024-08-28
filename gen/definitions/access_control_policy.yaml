@@ -21,12 +21,6 @@ attributes:
     enum_values: [BLOCK, TRUST, PERMIT, NETWORK_DISCOVERY, INHERIT_FROM_PARENT]
     description: Specifies the default action to take when none of the rules meet the conditions.
     example: BLOCK
-  - model_name: id
-    data_path: [defaultAction]
-    tf_name: default_action_id
-    type: String
-    resource_id: true
-    description: Default action ID.
   - model_name: logBegin
     data_path: [defaultAction]
     tf_name: default_action_log_begin
