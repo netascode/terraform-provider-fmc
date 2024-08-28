@@ -119,6 +119,7 @@ type YamlConfigAttribute struct {
 	TfName           string                `yaml:"tf_name"`
 	Type             string                `yaml:"type"`
 	ElementType      string                `yaml:"element_type"`
+	Computed         bool                  `yaml:"computed"`
 	DataPath         []string              `yaml:"data_path"`
 	Id               bool                  `yaml:"id"`
 	ResourceId       bool                  `yaml:"resource_id"`
