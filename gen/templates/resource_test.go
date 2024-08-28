@@ -38,7 +38,7 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	{{- $name := .Name }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .ResourceId)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .ResourceId) (not .Computed)}}
 	{{- if isNestedListSet .}}
 	{{- $list := .TfName }}
 	{{- if len .TestTags}}
@@ -242,7 +242,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 func testAccFmc{{camelCase .Name}}Config_all() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
-	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId)}}
+	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId) (not .Computed)}}
 	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {

@@ -1,6 +1,6 @@
 resource "fmc_{{snakeCase .Name}}" "example" {
 {{- range  .Attributes}}
-{{- if and (not .ExcludeExample) (not .Value) (not .ResourceId)}}
+{{- if and (not .ExcludeExample) (not .Value) (not .ResourceId) (not .Computed)}}
 {{- if isNestedListMapSet .}}
   {{.TfName}} =
   {{- if isNestedListSet . -}}
