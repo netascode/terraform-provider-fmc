@@ -272,14 +272,14 @@ func readNetworkGroupsSubresources(ctx context.Context, client *fmc.Client, stat
 		offset += limit
 	}
 
-	res := synthesize(ctx, gjson.Parse(gather), &state)
+	res := synthesizeNetworkGroups(ctx, gjson.Parse(gather), &state)
 
 	return res, diags
 }
 
-// synthesize takes a real API Result (json) and converts some of the entries of the original attribute "objects"
+// synthesizeNetworkGroups takes a real API Result (json) and converts some of the entries of the original attribute "objects"
 // into synthetic attribute "group_names". It returns a modified json.
-func synthesize(ctx context.Context, res gjson.Result, state *NetworkGroups) gjson.Result {
+func synthesizeNetworkGroups(ctx context.Context, res gjson.Result, state *NetworkGroups) gjson.Result {
 	items := `[]`
 	if !res.Get("items").IsArray() {
 		return res
@@ -294,14 +294,14 @@ func synthesize(ctx context.Context, res gjson.Result, state *NetworkGroups) gjs
 	}
 
 	for _, item := range res.Get("items").Array() {
-		item := synthesizeItem(ctx, item, ownedIds)
+		item := synthesizeNetworkGroupsItem(ctx, item, ownedIds)
 		items, _ = sjson.SetRaw(items, "-1", item)
 	}
 
 	return set(res, "items", gjson.Parse(items))
 }
 
-func synthesizeItem(ctx context.Context, item gjson.Result, ownedIds map[string]string) string {
+func synthesizeNetworkGroupsItem(ctx context.Context, item gjson.Result, ownedIds map[string]string) string {
 	ret := item.String()
 	if _, owned := ownedIds[item.Get("id").String()]; !owned {
 		return ret
@@ -503,8 +503,8 @@ func isConfigUpdatingAt(ctx context.Context, tfsdkPlan tfsdk.Plan, tfsdkState tf
 	return !sv.Equal(pv), diags
 }
 
-// group is an internal representation of a single fmc_network_group.
-type group struct {
+// networkGroup is an internal representation of a single fmc_network_group.
+type networkGroup struct {
 	name     string
 	children []string
 	json     string
@@ -518,12 +518,12 @@ type group struct {
 //
 // And if you iterate the result sequence in reverse, any parent is guaranteed to be placed before its children, which
 // is useful for delete operations.
-func graphTopologicalSeq(ctx context.Context, body string) ([]group, diag.Diagnostics) {
+func graphTopologicalSeq(ctx context.Context, body string) ([]networkGroup, diag.Diagnostics) {
 	b := gjson.Parse(body).Get("items")
-	m := map[string]group{}
+	m := map[string]networkGroup{}
 	parentCount := map[string]int{}
 	for _, item := range b.Array() {
-		g := group{
+		g := networkGroup{
 			name: item.Get("name").String(),
 			json: item.String(),
 		}
@@ -540,7 +540,7 @@ func graphTopologicalSeq(ctx context.Context, body string) ([]group, diag.Diagno
 		}
 	}
 
-	var curr []group
+	var curr []networkGroup
 	for k := range parentCount {
 		if parentCount[k] == 0 {
 			delete(parentCount, k)
@@ -549,9 +549,9 @@ func graphTopologicalSeq(ctx context.Context, body string) ([]group, diag.Diagno
 	}
 
 	var diags diag.Diagnostics
-	var ret []group
+	var ret []networkGroup
 	for bulk := 1; len(curr) > 0; bulk++ {
-		next := []group{}
+		next := []networkGroup{}
 		for _, group := range curr {
 			for _, child := range group.children {
 				parentCount[child]--
@@ -586,7 +586,7 @@ func graphTopologicalSeq(ctx context.Context, body string) ([]group, diag.Diagno
 	return ret, diags
 }
 
-func (group *group) Body(ctx context.Context, state NetworkGroups) (string, diag.Diagnostics) {
+func (group *networkGroup) Body(ctx context.Context, state NetworkGroups) (string, diag.Diagnostics) {
 	ret := group.json
 	ret, _ = sjson.Delete(ret, "group_names")
 
@@ -609,14 +609,14 @@ func (group *group) Body(ctx context.Context, state NetworkGroups) (string, diag
 	return ret, nil
 }
 
-type bulk struct {
-	groups []group
+type networkGroupsBulk struct {
+	groups []networkGroup
 }
 
 // divideToBulks takes seq and divides it into bulks to be created (bulk-POST), and leftovers (some of leftovers can
 // later become individual PUT requests, as there is no bulk-PUT in this API).
-func divideToBulks(ctx context.Context, seq []group, plan NetworkGroups) (ret []bulk, leftovers []group) {
-	var g []group
+func divideToBulks(ctx context.Context, seq []networkGroup, plan NetworkGroups) (ret []networkGroupsBulk, leftovers []networkGroup) {
+	var g []networkGroup
 	for _, group := range seq {
 		if !plan.Items[group.name].Id.IsUnknown() {
 			leftovers = append(leftovers, group)
@@ -625,19 +625,19 @@ func divideToBulks(ctx context.Context, seq []group, plan NetworkGroups) (ret []
 		g = append(g, group)
 	}
 
-	b := bulk{}
+	b := networkGroupsBulk{}
 	for i := range g {
 		b.groups = append(b.groups, g[i])
 		if i == len(g)-1 || g[i].bulk != g[i+1].bulk {
 			ret = append(ret, b)
-			b = bulk{}
+			b = networkGroupsBulk{}
 		}
 	}
 
 	return ret, leftovers
 }
 
-func (bulk *bulk) Create(ctx context.Context, plan, state NetworkGroups, client *fmc.Client, reqMods ...func(*fmc.Req)) (NetworkGroups, diag.Diagnostics) {
+func (bulk *networkGroupsBulk) Create(ctx context.Context, plan, state NetworkGroups, client *fmc.Client, reqMods ...func(*fmc.Req)) (NetworkGroups, diag.Diagnostics) {
 	ret := state.Clone()
 	bodies := "[]"
 	for i := range bulk.groups {
