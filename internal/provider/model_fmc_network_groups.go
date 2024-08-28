@@ -42,12 +42,12 @@ type NetworkGroups struct {
 }
 
 type NetworkGroupsItems struct {
-	Id          types.String                 `tfsdk:"id"`
-	Description types.String                 `tfsdk:"description"`
-	Overridable types.Bool                   `tfsdk:"overridable"`
-	GroupNames  types.Set                    `tfsdk:"group_names"`
-	Objects     []NetworkGroupsItemsObjects  `tfsdk:"objects"`
-	Literals    []NetworkGroupsItemsLiterals `tfsdk:"literals"`
+	Id            types.String                 `tfsdk:"id"`
+	Description   types.String                 `tfsdk:"description"`
+	Overridable   types.Bool                   `tfsdk:"overridable"`
+	NetworkGroups types.Set                    `tfsdk:"network_groups"`
+	Objects       []NetworkGroupsItemsObjects  `tfsdk:"objects"`
+	Literals      []NetworkGroupsItemsLiterals `tfsdk:"literals"`
 }
 
 type NetworkGroupsItemsObjects struct {
@@ -87,10 +87,10 @@ func (data NetworkGroups) toBody(ctx context.Context, state NetworkGroups) strin
 			if !item.Overridable.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "overridable", item.Overridable.ValueBool())
 			}
-			if !item.GroupNames.IsNull() {
+			if !item.NetworkGroups.IsNull() {
 				var values []string
-				item.GroupNames.ElementsAs(ctx, &values, false)
-				itemBody, _ = sjson.Set(itemBody, "group_names", values)
+				item.NetworkGroups.ElementsAs(ctx, &values, false)
+				itemBody, _ = sjson.Set(itemBody, "network_groups", values)
 			}
 			if len(item.Objects) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "objects", []interface{}{})
@@ -160,10 +160,10 @@ func (data *NetworkGroups) fromBody(ctx context.Context, res gjson.Result) {
 		} else {
 			data.Overridable = types.BoolNull()
 		}
-		if value := res.Get("group_names"); value.Exists() {
-			data.GroupNames = helpers.GetStringSet(value.Array())
+		if value := res.Get("network_groups"); value.Exists() {
+			data.NetworkGroups = helpers.GetStringSet(value.Array())
 		} else {
-			data.GroupNames = types.SetNull(types.StringType)
+			data.NetworkGroups = types.SetNull(types.StringType)
 		}
 		if value := res.Get("objects"); value.Exists() {
 			data.Objects = make([]NetworkGroupsItemsObjects, 0)
@@ -236,10 +236,10 @@ func (data *NetworkGroups) fromBodyPartial(ctx context.Context, res gjson.Result
 		} else {
 			data.Overridable = types.BoolNull()
 		}
-		if value := res.Get("group_names"); value.Exists() && !data.GroupNames.IsNull() {
-			data.GroupNames = helpers.GetStringSet(value.Array())
+		if value := res.Get("network_groups"); value.Exists() && !data.NetworkGroups.IsNull() {
+			data.NetworkGroups = helpers.GetStringSet(value.Array())
 		} else {
-			data.GroupNames = types.SetNull(types.StringType)
+			data.NetworkGroups = types.SetNull(types.StringType)
 		}
 		for i := 0; i < len(data.Objects); i++ {
 			keys := [...]string{"id"}

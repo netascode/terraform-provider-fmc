@@ -102,8 +102,8 @@ func (r *NetworkGroupsResource) Schema(ctx context.Context, req resource.SchemaR
 							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
 							Optional:            true,
 						},
-						"group_names": schema.SetAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to add it inside `objects` by its UUID. Renaming a group contained in `group_names` is not yet implemented.").String,
+						"network_groups": schema.SetAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to instead add it inside `objects` by its UUID. Renaming a group contained in `network_groups` is not yet implemented, while it works in `objects`.").String,
 							ElementType:         types.StringType,
 							Optional:            true,
 						},
@@ -113,7 +113,7 @@ func (r *NetworkGroupsResource) Schema(ctx context.Context, req resource.SchemaR
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.this.id, etc.).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, fmc_host.example.id, fmc_network_groups.another.items[\"example\"].id, etc.).").String,
 										Optional:            true,
 									},
 								},

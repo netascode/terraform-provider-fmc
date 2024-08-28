@@ -45,8 +45,8 @@ Required:
 Read-Only:
 
 - `description` (String) Optional user-created description.
-- `group_names` (Set of String) Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to add it inside `objects` by its UUID. Renaming a group contained in `group_names` is not yet implemented.
 - `literals` (Attributes Set) Set of literal values. (see [below for nested schema](#nestedatt--items--literals))
+- `network_groups` (Set of String) Set of names (not UUIDs) of child Network Groups. The names must be defined in the same instance of fmc_network_groups resource. This is an auxiliary way to add a child Network Group: the suggested way is to instead add it inside `objects` by its UUID. Renaming a group contained in `network_groups` is not yet implemented, while it works in `objects`.
 - `objects` (Attributes Set) Set of objects (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--items--objects))
 - `overridable` (Boolean) Indicates whether object values can be overridden.
 
@@ -63,4 +63,4 @@ Read-Only:
 
 Read-Only:
 
-- `id` (String) UUID of the object (such as fmc_network.this.id, etc.).
+- `id` (String) UUID of the object (such as fmc_network.example.id, fmc_host.example.id, fmc_network_groups.another.items["example"].id, etc.).
