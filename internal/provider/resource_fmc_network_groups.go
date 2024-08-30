@@ -249,9 +249,8 @@ func readNetworkGroupsSubresources(ctx context.Context, client *fmc.Client, stat
 		}
 		if gather == "" {
 			gather = res.String()
-		}
-		if value := res.Get("items"); len(value.Array()) > 0 {
-			value.ForEach(func(k, v gjson.Result) bool {
+		} else if items := res.Get("items"); len(items.Array()) > 0 {
+			items.ForEach(func(k, v gjson.Result) bool {
 				gather, _ = sjson.Set(gather, "items.-1", v)
 				return true
 			})
