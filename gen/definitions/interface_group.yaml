@@ -8,12 +8,31 @@ attributes:
     type: String
     description: User-created name of the resource.
     mandatory: true
-    example: interface_group_1
+    example: interface_group_2
   - model_name: interfaceMode
     type: String
     description: Type of the interface.
     enum_values: [INLINE, SWITCHED, ROUTED]
     mandatory: true
-    example: INLINE
+    example: ROUTED
   - model_name: interfaces
+    description: vgvjh
     type: Set
+    attributes:
+      - model_name: id
+        type: String
+        description: UUID of the object (such as fmc_network.example.id, etc.).
+        id: true
+        example: 0050568A-4E02-1ed3-0000-004294969198
+        test_value: fmc_device_physical_interface.test.id
+
+test_prerequisites: |-
+  variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+
+  resource "fmc_device_physical_interface" "test" {
+    device_id    = var.device_id
+    name         = "GigabitEthernet0/1"
+    logical_name = "myinterface-0-1"
+    mode         = "NONE"
+    enabled      = true
+  }
