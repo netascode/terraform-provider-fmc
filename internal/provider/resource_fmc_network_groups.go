@@ -46,8 +46,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &NetworkGroupsResource{}
-	_ resource.ResourceWithImportState = &NetworkGroupsResource{}
+	_ resource.Resource = &NetworkGroupsResource{}
 )
 
 func NewNetworkGroupsResource() resource.Resource {
@@ -65,7 +64,7 @@ func (r *NetworkGroupsResource) Metadata(ctx context.Context, req resource.Metad
 func (r *NetworkGroupsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Network Groups. The `terraform import` of the plural resource is not yet implemented. The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one. Updating and deleting `fmc_network_groups` can thus take much more time than creating it (even >500 times more time, i.e. >50000%, depending on the change size).").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Network Groups. The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one. Updating and deleting `fmc_network_groups` can thus take much more time than creating it (even >500 times more time, i.e. >50000%, depending on the change size). The `terraform import` of the resource is not implemented, you need to instead use the singular resource `fmc_network_group`.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -378,14 +377,7 @@ func (r *NetworkGroupsResource) Delete(ctx context.Context, req resource.DeleteR
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-
-func (r *NetworkGroupsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resp.Diagnostics.AddError("Import not implemented yet", "The Import operation is not implemented yet in this version of the provider.")
-
-	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
-}
-
-//template:end import
+// End of section. //template:end import
 
 // updateSubresources returns a coherent state whether it fails or succeeds. Caller should always persist that state
 // into the Response (UpdateResponse, CreateResponse, ...), otherwise the API's UUIDs may go out-of-sync with

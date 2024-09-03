@@ -43,7 +43,6 @@ func TestAccFmcNetworkGroups(t *testing.T) {
 		Config: testAccFmcNetworkGroupsPrerequisitesConfig + testAccFmcNetworkGroupsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	// Do not test Import here, because Import is not yet implemented.
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
