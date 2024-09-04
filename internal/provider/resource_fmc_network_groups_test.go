@@ -28,6 +28,8 @@ import (
 
 // End of section. //template:end imports
 
+// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
+
 func TestAccFmcNetworkGroups(t *testing.T) {
 	var checks []resource.TestCheckFunc
 
@@ -49,6 +51,8 @@ func TestAccFmcNetworkGroups(t *testing.T) {
 		Steps:                    steps,
 	})
 }
+
+// End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 

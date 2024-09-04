@@ -1,14 +1,15 @@
 ---
 name: Network Groups
+no_data_source: true
+no_import: true
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/networkgroups
 res_description: >-
   This plural resource manages a bulk of Network Groups.
-  The `terraform import` of the plural resource is not yet implemented.
   The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one.
   Updating and deleting `fmc_network_groups` can thus take much more time than creating it (even >500 times more time,
   i.e. >50000%, depending on the change size).
-ds_description: >-
-  This plural data source can query a bulk of Network Groups.
+  The `terraform import` of the resource is not implemented, you need to instead use the singular resource
+  `fmc_network_group`.
 doc_category: Objects
 attributes:
   - model_name: items
