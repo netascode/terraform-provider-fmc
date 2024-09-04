@@ -31,18 +31,17 @@ import (
 
 func TestAccFmcInterfaceGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "name", "interface_group_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "name", "interface_group_2"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "interface_mode", "ROUTED"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "interfaces.0.id", "0050568A-4E02-0ed3-0000-004294969159"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcInterfaceGroupConfig_minimum(),
+			Config: testAccFmcInterfaceGroupPrerequisitesConfig + testAccFmcInterfaceGroupConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcInterfaceGroupConfig_all(),
+		Config: testAccFmcInterfaceGroupPrerequisitesConfig + testAccFmcInterfaceGroupConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -60,13 +59,26 @@ func TestAccFmcInterfaceGroup(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccFmcInterfaceGroupPrerequisitesConfig = `
+variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+
+resource "fmc_device_physical_interface" "test" {
+  device_id    = var.device_id
+  name         = "GigabitEthernet0/1"
+  logical_name = "myinterface-0-1"
+  mode         = "NONE"
+  enabled      = true
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 
 func testAccFmcInterfaceGroupConfig_minimum() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_1"` + "\n"
+	config += `	name = "interface_group_2"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `}` + "\n"
 	return config
@@ -78,10 +90,10 @@ func testAccFmcInterfaceGroupConfig_minimum() string {
 
 func testAccFmcInterfaceGroupConfig_all() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_1"` + "\n"
+	config += `	name = "interface_group_2"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `	interfaces = [{` + "\n"
-	config += `		id = "0050568A-4E02-0ed3-0000-004294969159"` + "\n"
+	config += `		id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

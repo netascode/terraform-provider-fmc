@@ -30,19 +30,18 @@ import (
 
 func TestAccDataSourceFmcInterfaceGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "name", "interface_group_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "name", "interface_group_2"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "interface_mode", "ROUTED"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "interfaces.0.id", "0050568A-4E02-0ed3-0000-004294969159"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcInterfaceGroupConfig(),
+				Config: testAccDataSourceFmcInterfaceGroupPrerequisitesConfig + testAccDataSourceFmcInterfaceGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 			{
-				Config: testAccNamedDataSourceFmcInterfaceGroupConfig(),
+				Config: testAccDataSourceFmcInterfaceGroupPrerequisitesConfig + testAccNamedDataSourceFmcInterfaceGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -52,16 +51,29 @@ func TestAccDataSourceFmcInterfaceGroup(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccDataSourceFmcInterfaceGroupPrerequisitesConfig = `
+variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+
+resource "fmc_device_physical_interface" "test" {
+  device_id    = var.device_id
+  name         = "GigabitEthernet0/1"
+  logical_name = "myinterface-0-1"
+  mode         = "NONE"
+  enabled      = true
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
 func testAccDataSourceFmcInterfaceGroupConfig() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_1"` + "\n"
+	config += `	name = "interface_group_2"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `	interfaces = [{` + "\n"
-	config += `		id = "0050568A-4E02-0ed3-0000-004294969159"` + "\n"
+	config += `		id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
@@ -75,10 +87,10 @@ func testAccDataSourceFmcInterfaceGroupConfig() string {
 
 func testAccNamedDataSourceFmcInterfaceGroupConfig() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_1"` + "\n"
+	config += `	name = "interface_group_2"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `	interfaces = [{` + "\n"
-	config += `		id = "0050568A-4E02-0ed3-0000-004294969159"` + "\n"
+	config += `		id = fmc_device_physical_interface.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
