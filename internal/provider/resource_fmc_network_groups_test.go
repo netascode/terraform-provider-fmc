@@ -94,7 +94,7 @@ func testAccFmcNetworkGroupsConfig_all() string {
 
 // End of section. //template:end testAccConfigAll
 
-func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
+func TestAccFmcNetworkGroups_Update(t *testing.T) {
 	steps := []resource.TestStep{{
 		// step 1
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
@@ -167,22 +167,66 @@ func TestAccFmcNetworkGroups_GroupNames(t *testing.T) {
 			`		literals = [{value = "10.0.0.0/8"}]` + "\n" +
 			`	}` + "\n" +
 			`}}`,
-	}, {
-		// step 7
+	}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
+
+func TestAccFmcNetworkGroups_Validation(t *testing.T) {
+	steps := []resource.TestStep{{
+		// step 1
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
-			`	"g2" = {` + "\n" +
-			`		network_groups = ["g2"]` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		network_groups = ["g1"]` + "\n" +
 			`	}` + "\n" +
 			`}}`,
 		ExpectError: regexp.MustCompile(`Cycle in network_groups`),
 	}, {
-		// step 8
+		// step 2
 		Config: `resource fmc_network_groups test { items = {` + "\n" +
-			`	"g2" = {` + "\n" +
+			`	"g1" = {` + "\n" +
 			`		network_groups = ["no_such_group"]` + "\n" +
 			`	}` + "\n" +
 			`}}`,
 		ExpectError: regexp.MustCompile(`Failed to create`),
+	}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
+}
+
+func TestAccFmcNetworkGroups_ObjectToLiteral(t *testing.T) {
+	steps := []resource.TestStep{{
+		// step 1
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		objects = [{ id = fmc_host.test.id }]` + "\n" +
+			`	}` + "\n" +
+			`}}` + "\n" +
+			`` + "\n" +
+			`resource fmc_host test {` + "\n" +
+			`	name = "test_fmc_network_groups_1"` + "\n" +
+			`	ip   = "10.1.1.1"` + "\n" +
+			`}`,
+	}, {
+		// step 2
+		Config: `resource fmc_network_groups test { items = {` + "\n" +
+			`	"g1" = {` + "\n" +
+			`		literals = [{value = "10.1.1.1"}]` + "\n" +
+			`	}` + "\n" +
+			`}}` + "\n" +
+			`` + "\n" +
+			`resource fmc_host test {` + "\n" +
+			`	name = "test_fmc_network_groups_1"` + "\n" +
+			`	ip   = "10.1.1.1"` + "\n" +
+			`}`,
 	}}
 
 	resource.Test(t, resource.TestCase{
