@@ -1,0 +1,38 @@
+---
+name: Url Group
+rest_endpoint: /api/fmc_config/v1/domain/{domainUUID}/object/urlgroups
+data_source_name_query: true
+doc_category: Objects
+attributes:
+  - model_name: name
+    type: String
+    description: User-created name of the resource.
+    mandatory: true
+    example: url_1
+  - model_name: objects
+    description: vgvjh
+    type: Set
+    attributes:
+      - model_name: id
+        type: String
+        description: UUID of the object (such as fmc_network.example.id, etc.).
+        id: true
+        example: 0050568A-4E02-1ed3-0000-004294969198
+  - model_name: description
+    type: String
+    description: Optional user-created description.
+    example: "My URL group"
+  - model_name: overridable
+    type: Bool
+    description: Indicates whether object values can be overridden.
+    exclude_example: true
+    test_value: "true"
+# test_prerequisites: |-
+#   variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+#   resource "fmc_device_physical_interface" "test" {
+#     device_id    = var.device_id
+#     name         = "GigabitEthernet0/1"
+#     logical_name = "myinterface-0-1"
+#     mode         = "NONE"
+#     enabled      = true
+#   }
