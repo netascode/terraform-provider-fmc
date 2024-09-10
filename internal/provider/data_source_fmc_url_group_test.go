@@ -30,8 +30,9 @@ import (
 
 func TestAccDataSourceFmcUrlGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "name", "url_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "name", "url_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "objects.0.id", "0050568A-4E02-1ed3-0000-004294969198"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "objects.0.name", "url_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "description", "My URL group"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -58,9 +59,10 @@ func TestAccDataSourceFmcUrlGroup(t *testing.T) {
 
 func testAccDataSourceFmcUrlGroupConfig() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
-	config += `	name = "url_1"` + "\n"
+	config += `	name = "url_group_1"` + "\n"
 	config += `	objects = [{` + "\n"
 	config += `		id = "0050568A-4E02-1ed3-0000-004294969198"` + "\n"
+	config += `		name = "url_1"` + "\n"
 	config += `	}]` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"
@@ -76,9 +78,10 @@ func testAccDataSourceFmcUrlGroupConfig() string {
 
 func testAccNamedDataSourceFmcUrlGroupConfig() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
-	config += `	name = "url_1"` + "\n"
+	config += `	name = "url_group_1"` + "\n"
 	config += `	objects = [{` + "\n"
 	config += `		id = "0050568A-4E02-1ed3-0000-004294969198"` + "\n"
+	config += `		name = "url_1"` + "\n"
 	config += `	}]` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"

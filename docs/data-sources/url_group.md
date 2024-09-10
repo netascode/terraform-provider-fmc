@@ -30,7 +30,7 @@ data "fmc_url_group" "example" {
 ### Read-Only
 
 - `description` (String) Optional user-created description.
-- `objects` (Attributes Set) vgvjh (see [below for nested schema](#nestedatt--objects))
+- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--objects))
 - `overridable` (Boolean) Indicates whether object values can be overridden.
 
 <a id="nestedatt--objects"></a>
@@ -39,3 +39,4 @@ data "fmc_url_group" "example" {
 Read-Only:
 
 - `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
+- `name` (String)

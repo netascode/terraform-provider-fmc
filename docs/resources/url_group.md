@@ -14,10 +14,11 @@ This resource can manage an Url Group.
 
 ```terraform
 resource "fmc_url_group" "example" {
-  name = "url_1"
+  name = "url_group_1"
   objects = [
     {
-      id = "0050568A-4E02-1ed3-0000-004294969198"
+      id   = "0050568A-4E02-1ed3-0000-004294969198"
+      name = "url_1"
     }
   ]
   description = "My URL group"
@@ -35,7 +36,7 @@ resource "fmc_url_group" "example" {
 
 - `description` (String) Optional user-created description.
 - `domain` (String) The name of the FMC domain
-- `objects` (Attributes Set) vgvjh (see [below for nested schema](#nestedatt--objects))
+- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--objects))
 - `overridable` (Boolean) Indicates whether object values can be overridden.
 
 ### Read-Only
@@ -48,6 +49,7 @@ resource "fmc_url_group" "example" {
 Optional:
 
 - `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
+- `name` (String)
 
 ## Import
 

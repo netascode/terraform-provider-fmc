@@ -82,12 +82,16 @@ func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 				Required:            true,
 			},
 			"objects": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("vgvjh").String,
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
+							Optional:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
 						},
 					},

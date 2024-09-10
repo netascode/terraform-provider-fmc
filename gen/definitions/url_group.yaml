@@ -8,9 +8,8 @@ attributes:
     type: String
     description: User-created name of the resource.
     mandatory: true
-    example: url_1
+    example: url_group_1
   - model_name: objects
-    description: vgvjh
     type: Set
     attributes:
       - model_name: id
@@ -18,6 +17,9 @@ attributes:
         description: UUID of the object (such as fmc_network.example.id, etc.).
         id: true
         example: 0050568A-4E02-1ed3-0000-004294969198
+      - model_name: name
+        type: String
+        example: url_1
   - model_name: description
     type: String
     description: Optional user-created description.

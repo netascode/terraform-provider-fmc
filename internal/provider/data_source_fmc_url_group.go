@@ -76,12 +76,16 @@ func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Computed:            true,
 			},
 			"objects": schema.SetNestedAttribute{
-				MarkdownDescription: "vgvjh",
+				MarkdownDescription: "",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "",
 							Computed:            true,
 						},
 					},

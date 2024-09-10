@@ -31,8 +31,9 @@ import (
 
 func TestAccFmcUrlGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "name", "url_1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "name", "url_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "objects.0.id", "0050568A-4E02-1ed3-0000-004294969198"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "objects.0.name", "url_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "description", "My URL group"))
 
 	var steps []resource.TestStep
@@ -66,7 +67,7 @@ func TestAccFmcUrlGroup(t *testing.T) {
 
 func testAccFmcUrlGroupConfig_minimum() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
-	config += `	name = "url_1"` + "\n"
+	config += `	name = "url_group_1"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -77,9 +78,10 @@ func testAccFmcUrlGroupConfig_minimum() string {
 
 func testAccFmcUrlGroupConfig_all() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
-	config += `	name = "url_1"` + "\n"
+	config += `	name = "url_group_1"` + "\n"
 	config += `	objects = [{` + "\n"
 	config += `		id = "0050568A-4E02-1ed3-0000-004294969198"` + "\n"
+	config += `		name = "url_1"` + "\n"
 	config += `	}]` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"
