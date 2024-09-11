@@ -81,22 +81,6 @@ func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the resource.").String,
 				Required:            true,
 			},
-			"objects": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
-							Optional:            true,
-						},
-						"name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("").String,
-							Optional:            true,
-						},
-					},
-				},
-			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
 				Optional:            true,
@@ -104,6 +88,30 @@ func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 			"overridable": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
 				Optional:            true,
+			},
+			"objects": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Required:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_url.example.id, etc.).").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
+			"literals": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"url": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("URL literal value.").String,
+							Optional:            true,
+						},
+					},
+				},
 			},
 		},
 	}

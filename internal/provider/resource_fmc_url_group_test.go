@@ -32,18 +32,17 @@ import (
 func TestAccFmcUrlGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "name", "url_group_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "objects.0.id", "0050568A-4E02-1ed3-0000-004294969198"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "objects.0.name", "url_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "description", "My URL group"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "literals.0.url", "https://www.example.com/app"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcUrlGroupConfig_minimum(),
+			Config: testAccFmcUrlGroupPrerequisitesConfig + testAccFmcUrlGroupConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcUrlGroupConfig_all(),
+		Config: testAccFmcUrlGroupPrerequisitesConfig + testAccFmcUrlGroupConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -61,6 +60,14 @@ func TestAccFmcUrlGroup(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccFmcUrlGroupPrerequisitesConfig = `
+resource "fmc_url" "test" {
+  name        = "url_1"
+  url         = "https://www.example.com/app"
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
@@ -68,6 +75,9 @@ func TestAccFmcUrlGroup(t *testing.T) {
 func testAccFmcUrlGroupConfig_minimum() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
 	config += `	name = "url_group_1"` + "\n"
+	config += `	objects = [{` + "\n"
+	config += `		id = fmc_url.test.id` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -79,12 +89,14 @@ func testAccFmcUrlGroupConfig_minimum() string {
 func testAccFmcUrlGroupConfig_all() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
 	config += `	name = "url_group_1"` + "\n"
-	config += `	objects = [{` + "\n"
-	config += `		id = "0050568A-4E02-1ed3-0000-004294969198"` + "\n"
-	config += `		name = "url_1"` + "\n"
-	config += `	}]` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"
+	config += `	objects = [{` + "\n"
+	config += `		id = fmc_url.test.id` + "\n"
+	config += `	}]` + "\n"
+	config += `	literals = [{` + "\n"
+	config += `		url = "https://www.example.com/app"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

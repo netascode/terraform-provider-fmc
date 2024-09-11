@@ -75,22 +75,6 @@ func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Optional:            true,
 				Computed:            true,
 			},
-			"objects": schema.SetNestedAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"id": schema.StringAttribute{
-							MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
-							Computed:            true,
-						},
-						"name": schema.StringAttribute{
-							MarkdownDescription: "",
-							Computed:            true,
-						},
-					},
-				},
-			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Optional user-created description.",
 				Computed:            true,
@@ -98,6 +82,30 @@ func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"overridable": schema.BoolAttribute{
 				MarkdownDescription: "Indicates whether object values can be overridden.",
 				Computed:            true,
+			},
+			"objects": schema.SetNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the object (such as fmc_url.example.id, etc.).",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"literals": schema.SetNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"url": schema.StringAttribute{
+							MarkdownDescription: "URL literal value.",
+							Computed:            true,
+						},
+					},
+				},
 			},
 		},
 	}

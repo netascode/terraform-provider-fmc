@@ -1,6 +1,6 @@
 ---
 name: Url Group
-rest_endpoint: /api/fmc_config/v1/domain/{domainUUID}/object/urlgroups
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/urlgroups
 data_source_name_query: true
 doc_category: Objects
 attributes:
@@ -9,17 +9,6 @@ attributes:
     description: User-created name of the resource.
     mandatory: true
     example: url_group_1
-  - model_name: objects
-    type: Set
-    attributes:
-      - model_name: id
-        type: String
-        description: UUID of the object (such as fmc_network.example.id, etc.).
-        id: true
-        example: 0050568A-4E02-1ed3-0000-004294969198
-      - model_name: name
-        type: String
-        example: url_1
   - model_name: description
     type: String
     description: Optional user-created description.
@@ -29,12 +18,26 @@ attributes:
     description: Indicates whether object values can be overridden.
     exclude_example: true
     test_value: "true"
-# test_prerequisites: |-
-#   variable "device_id" { default = null } // tests will set $TF_VAR_device_id
-#   resource "fmc_device_physical_interface" "test" {
-#     device_id    = var.device_id
-#     name         = "GigabitEthernet0/1"
-#     logical_name = "myinterface-0-1"
-#     mode         = "NONE"
-#     enabled      = true
-#   }
+  - model_name: objects
+    type: Set
+    mandatory: true
+    attributes:
+      - model_name: id
+        type: String
+        description: UUID of the object (such as fmc_url.example.id, etc.).
+        id: true
+        example: 0050568A-FAC7-0ed3-0000-004294987896
+        test_value: fmc_url.test.id
+  - model_name: literals
+    type: Set
+    attributes:
+      - model_name: url
+        type: String
+        description: URL literal value.
+        example: "https://www.example.com/app"
+
+test_prerequisites: |-
+  resource "fmc_url" "test" {
+    name        = "url_1"
+    url         = "https://www.example.com/app"
+  }

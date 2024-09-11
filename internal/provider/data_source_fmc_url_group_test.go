@@ -31,19 +31,18 @@ import (
 func TestAccDataSourceFmcUrlGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "name", "url_group_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "objects.0.id", "0050568A-4E02-1ed3-0000-004294969198"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "objects.0.name", "url_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "description", "My URL group"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_url_group.test", "literals.0.url", "https://www.example.com/app"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcUrlGroupConfig(),
+				Config: testAccDataSourceFmcUrlGroupPrerequisitesConfig + testAccDataSourceFmcUrlGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 			{
-				Config: testAccNamedDataSourceFmcUrlGroupConfig(),
+				Config: testAccDataSourceFmcUrlGroupPrerequisitesConfig + testAccNamedDataSourceFmcUrlGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -53,6 +52,14 @@ func TestAccDataSourceFmcUrlGroup(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccDataSourceFmcUrlGroupPrerequisitesConfig = `
+resource "fmc_url" "test" {
+  name        = "url_1"
+  url         = "https://www.example.com/app"
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
@@ -60,12 +67,14 @@ func TestAccDataSourceFmcUrlGroup(t *testing.T) {
 func testAccDataSourceFmcUrlGroupConfig() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
 	config += `	name = "url_group_1"` + "\n"
-	config += `	objects = [{` + "\n"
-	config += `		id = "0050568A-4E02-1ed3-0000-004294969198"` + "\n"
-	config += `		name = "url_1"` + "\n"
-	config += `	}]` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"
+	config += `	objects = [{` + "\n"
+	config += `		id = fmc_url.test.id` + "\n"
+	config += `	}]` + "\n"
+	config += `	literals = [{` + "\n"
+	config += `		url = "https://www.example.com/app"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -79,12 +88,14 @@ func testAccDataSourceFmcUrlGroupConfig() string {
 func testAccNamedDataSourceFmcUrlGroupConfig() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
 	config += `	name = "url_group_1"` + "\n"
-	config += `	objects = [{` + "\n"
-	config += `		id = "0050568A-4E02-1ed3-0000-004294969198"` + "\n"
-	config += `		name = "url_1"` + "\n"
-	config += `	}]` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"
+	config += `	objects = [{` + "\n"
+	config += `		id = fmc_url.test.id` + "\n"
+	config += `	}]` + "\n"
+	config += `	literals = [{` + "\n"
+	config += `		url = "https://www.example.com/app"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `

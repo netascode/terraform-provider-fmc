@@ -34,17 +34,21 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type UrlGroup struct {
-	Id          types.String      `tfsdk:"id"`
-	Domain      types.String      `tfsdk:"domain"`
-	Name        types.String      `tfsdk:"name"`
-	Objects     []UrlGroupObjects `tfsdk:"objects"`
-	Description types.String      `tfsdk:"description"`
-	Overridable types.Bool        `tfsdk:"overridable"`
+	Id          types.String       `tfsdk:"id"`
+	Domain      types.String       `tfsdk:"domain"`
+	Name        types.String       `tfsdk:"name"`
+	Description types.String       `tfsdk:"description"`
+	Overridable types.Bool         `tfsdk:"overridable"`
+	Objects     []UrlGroupObjects  `tfsdk:"objects"`
+	Literals    []UrlGroupLiterals `tfsdk:"literals"`
 }
 
 type UrlGroupObjects struct {
-	Id   types.String `tfsdk:"id"`
-	Name types.String `tfsdk:"name"`
+	Id types.String `tfsdk:"id"`
+}
+
+type UrlGroupLiterals struct {
+	Url types.String `tfsdk:"url"`
 }
 
 // End of section. //template:end types
@@ -52,7 +56,7 @@ type UrlGroupObjects struct {
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 
 func (data UrlGroup) getPath() string {
-	return "/api/fmc_config/v1/domain/{domainUUID}/object/urlgroups"
+	return "/api/fmc_config/v1/domain/{DOMAIN_UUID}/object/urlgroups"
 }
 
 // End of section. //template:end getPath
@@ -67,6 +71,12 @@ func (data UrlGroup) toBody(ctx context.Context, state UrlGroup) string {
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
+	if !data.Description.IsNull() {
+		body, _ = sjson.Set(body, "description", data.Description.ValueString())
+	}
+	if !data.Overridable.IsNull() {
+		body, _ = sjson.Set(body, "overridable", data.Overridable.ValueBool())
+	}
 	if len(data.Objects) > 0 {
 		body, _ = sjson.Set(body, "objects", []interface{}{})
 		for _, item := range data.Objects {
@@ -74,17 +84,18 @@ func (data UrlGroup) toBody(ctx context.Context, state UrlGroup) string {
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
-			if !item.Name.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
-			}
 			body, _ = sjson.SetRaw(body, "objects.-1", itemBody)
 		}
 	}
-	if !data.Description.IsNull() {
-		body, _ = sjson.Set(body, "description", data.Description.ValueString())
-	}
-	if !data.Overridable.IsNull() {
-		body, _ = sjson.Set(body, "overridable", data.Overridable.ValueBool())
+	if len(data.Literals) > 0 {
+		body, _ = sjson.Set(body, "literals", []interface{}{})
+		for _, item := range data.Literals {
+			itemBody := ""
+			if !item.Url.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "url", item.Url.ValueString())
+			}
+			body, _ = sjson.SetRaw(body, "literals.-1", itemBody)
+		}
 	}
 	return body
 }
@@ -99,6 +110,16 @@ func (data *UrlGroup) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
+	if value := res.Get("description"); value.Exists() {
+		data.Description = types.StringValue(value.String())
+	} else {
+		data.Description = types.StringNull()
+	}
+	if value := res.Get("overridable"); value.Exists() {
+		data.Overridable = types.BoolValue(value.Bool())
+	} else {
+		data.Overridable = types.BoolNull()
+	}
 	if value := res.Get("objects"); value.Exists() {
 		data.Objects = make([]UrlGroupObjects, 0)
 		value.ForEach(func(k, res gjson.Result) bool {
@@ -109,24 +130,23 @@ func (data *UrlGroup) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				data.Id = types.StringNull()
 			}
-			if value := res.Get("name"); value.Exists() {
-				data.Name = types.StringValue(value.String())
-			} else {
-				data.Name = types.StringNull()
-			}
 			(*parent).Objects = append((*parent).Objects, data)
 			return true
 		})
 	}
-	if value := res.Get("description"); value.Exists() {
-		data.Description = types.StringValue(value.String())
-	} else {
-		data.Description = types.StringNull()
-	}
-	if value := res.Get("overridable"); value.Exists() {
-		data.Overridable = types.BoolValue(value.Bool())
-	} else {
-		data.Overridable = types.BoolNull()
+	if value := res.Get("literals"); value.Exists() {
+		data.Literals = make([]UrlGroupLiterals, 0)
+		value.ForEach(func(k, res gjson.Result) bool {
+			parent := &data
+			data := UrlGroupLiterals{}
+			if value := res.Get("url"); value.Exists() {
+				data.Url = types.StringValue(value.String())
+			} else {
+				data.Url = types.StringNull()
+			}
+			(*parent).Literals = append((*parent).Literals, data)
+			return true
+		})
 	}
 }
 
@@ -143,6 +163,16 @@ func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
+		data.Description = types.StringValue(value.String())
+	} else {
+		data.Description = types.StringNull()
+	}
+	if value := res.Get("overridable"); value.Exists() && !data.Overridable.IsNull() {
+		data.Overridable = types.BoolValue(value.Bool())
+	} else {
+		data.Overridable = types.BoolNull()
 	}
 	for i := 0; i < len(data.Objects); i++ {
 		keys := [...]string{"id"}
@@ -185,22 +215,50 @@ func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		} else {
 			data.Id = types.StringNull()
 		}
-		if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
-			data.Name = types.StringValue(value.String())
-		} else {
-			data.Name = types.StringNull()
-		}
 		(*parent).Objects[i] = data
 	}
-	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
-		data.Description = types.StringValue(value.String())
-	} else {
-		data.Description = types.StringNull()
-	}
-	if value := res.Get("overridable"); value.Exists() && !data.Overridable.IsNull() {
-		data.Overridable = types.BoolValue(value.Bool())
-	} else {
-		data.Overridable = types.BoolNull()
+	for i := 0; i < len(data.Literals); i++ {
+		keys := [...]string{"url"}
+		keyValues := [...]string{data.Literals[i].Url.ValueString()}
+
+		parent := &data
+		data := (*parent).Literals[i]
+		parentRes := &res
+		var res gjson.Result
+
+		parentRes.Get("literals").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() != keyValues[ik] {
+						found = false
+						break
+					}
+					found = true
+				}
+				if found {
+					res = v
+					return false
+				}
+				return true
+			},
+		)
+		if !res.Exists() {
+			tflog.Debug(ctx, fmt.Sprintf("removing Literals[%d] = %+v",
+				i,
+				(*parent).Literals[i],
+			))
+			(*parent).Literals = slices.Delete((*parent).Literals, i, i+1)
+			i--
+
+			continue
+		}
+		if value := res.Get("url"); value.Exists() && !data.Url.IsNull() {
+			data.Url = types.StringValue(value.String())
+		} else {
+			data.Url = types.StringNull()
+		}
+		(*parent).Literals[i] = data
 	}
 }
 

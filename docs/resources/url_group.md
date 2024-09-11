@@ -14,14 +14,18 @@ This resource can manage an Url Group.
 
 ```terraform
 resource "fmc_url_group" "example" {
-  name = "url_group_1"
+  name        = "url_group_1"
+  description = "My URL group"
   objects = [
     {
-      id   = "0050568A-4E02-1ed3-0000-004294969198"
-      name = "url_1"
+      id = "0050568A-FAC7-0ed3-0000-004294987896"
     }
   ]
-  description = "My URL group"
+  literals = [
+    {
+      url = "https://www.example.com/app"
+    }
+  ]
 }
 ```
 
@@ -31,12 +35,13 @@ resource "fmc_url_group" "example" {
 ### Required
 
 - `name` (String) User-created name of the resource.
+- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--objects))
 
 ### Optional
 
 - `description` (String) Optional user-created description.
 - `domain` (String) The name of the FMC domain
-- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--objects))
+- `literals` (Attributes Set) (see [below for nested schema](#nestedatt--literals))
 - `overridable` (Boolean) Indicates whether object values can be overridden.
 
 ### Read-Only
@@ -48,8 +53,15 @@ resource "fmc_url_group" "example" {
 
 Optional:
 
-- `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
-- `name` (String)
+- `id` (String) UUID of the object (such as fmc_url.example.id, etc.).
+
+
+<a id="nestedatt--literals"></a>
+### Nested Schema for `literals`
+
+Optional:
+
+- `url` (String) URL literal value.
 
 ## Import
 
