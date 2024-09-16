@@ -41,26 +41,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &UrlGroupResource{}
-	_ resource.ResourceWithImportState = &UrlGroupResource{}
+	_ resource.Resource                = &URLGroupResource{}
+	_ resource.ResourceWithImportState = &URLGroupResource{}
 )
 
-func NewUrlGroupResource() resource.Resource {
-	return &UrlGroupResource{}
+func NewURLGroupResource() resource.Resource {
+	return &URLGroupResource{}
 }
 
-type UrlGroupResource struct {
+type URLGroupResource struct {
 	client *fmc.Client
 }
 
-func (r *UrlGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *URLGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_url_group"
 }
 
-func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *URLGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an Url Group.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage an URL Group.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -78,7 +78,7 @@ func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the resource.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the object.").String,
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
@@ -89,7 +89,7 @@ func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
 				Optional:            true,
 			},
-			"objects": schema.SetNestedAttribute{
+			"urls": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Required:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -117,7 +117,7 @@ func (r *UrlGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 	}
 }
 
-func (r *UrlGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *URLGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -129,8 +129,8 @@ func (r *UrlGroupResource) Configure(_ context.Context, req resource.ConfigureRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
-func (r *UrlGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan UrlGroup
+func (r *URLGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan URLGroup
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -147,7 +147,7 @@ func (r *UrlGroupResource) Create(ctx context.Context, req resource.CreateReques
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, UrlGroup{})
+	body := plan.toBody(ctx, URLGroup{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -167,8 +167,8 @@ func (r *UrlGroupResource) Create(ctx context.Context, req resource.CreateReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (r *UrlGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state UrlGroup
+func (r *URLGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state URLGroup
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -217,8 +217,8 @@ func (r *UrlGroupResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
-func (r *UrlGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state UrlGroup
+func (r *URLGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state URLGroup
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -257,8 +257,8 @@ func (r *UrlGroupResource) Update(ctx context.Context, req resource.UpdateReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *UrlGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state UrlGroup
+func (r *URLGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state URLGroup
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -288,7 +288,7 @@ func (r *UrlGroupResource) Delete(ctx context.Context, req resource.DeleteReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *UrlGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *URLGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)

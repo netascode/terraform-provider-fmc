@@ -302,7 +302,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewSecurityZoneResource,
 		NewStandardACLResource,
 		NewURLResource,
-		NewUrlGroupResource,
+		NewURLGroupResource,
 	}
 }
 
@@ -329,7 +329,7 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewSecurityZoneDataSource,
 		NewStandardACLDataSource,
 		NewURLDataSource,
-		NewUrlGroupDataSource,
+		NewURLGroupDataSource,
 	}
 }
 

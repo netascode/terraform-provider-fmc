@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &UrlGroupDataSource{}
-	_ datasource.DataSourceWithConfigure = &UrlGroupDataSource{}
+	_ datasource.DataSource              = &URLGroupDataSource{}
+	_ datasource.DataSourceWithConfigure = &URLGroupDataSource{}
 )
 
-func NewUrlGroupDataSource() datasource.DataSource {
-	return &UrlGroupDataSource{}
+func NewURLGroupDataSource() datasource.DataSource {
+	return &URLGroupDataSource{}
 }
 
-type UrlGroupDataSource struct {
+type URLGroupDataSource struct {
 	client *fmc.Client
 }
 
-func (d *UrlGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *URLGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_url_group"
 }
 
-func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *URLGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Url Group.",
+		MarkdownDescription: "This data source can read the URL Group.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -71,7 +71,7 @@ func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-created name of the resource.",
+				MarkdownDescription: "User-created name of the object.",
 				Optional:            true,
 				Computed:            true,
 			},
@@ -83,7 +83,7 @@ func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				MarkdownDescription: "Indicates whether object values can be overridden.",
 				Computed:            true,
 			},
-			"objects": schema.SetNestedAttribute{
+			"urls": schema.SetNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -110,7 +110,7 @@ func (d *UrlGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 		},
 	}
 }
-func (d *UrlGroupDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *URLGroupDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -119,7 +119,7 @@ func (d *UrlGroupDataSource) ConfigValidators(ctx context.Context) []datasource.
 	}
 }
 
-func (d *UrlGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *URLGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -131,8 +131,8 @@ func (d *UrlGroupDataSource) Configure(_ context.Context, req datasource.Configu
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (d *UrlGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config UrlGroup
+func (d *URLGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config URLGroup
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

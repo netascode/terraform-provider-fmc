@@ -3,12 +3,12 @@
 page_title: "fmc_url_group Data Source - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
-  This data source can read the Url Group.
+  This data source can read the URL Group.
 ---
 
 # fmc_url_group (Data Source)
 
-This data source can read the Url Group.
+This data source can read the URL Group.
 
 ## Example Usage
 
@@ -25,14 +25,14 @@ data "fmc_url_group" "example" {
 
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
-- `name` (String) User-created name of the resource.
+- `name` (String) User-created name of the object.
 
 ### Read-Only
 
 - `description` (String) Optional user-created description.
 - `literals` (Attributes Set) (see [below for nested schema](#nestedatt--literals))
-- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--objects))
 - `overridable` (Boolean) Indicates whether object values can be overridden.
+- `urls` (Attributes Set) (see [below for nested schema](#nestedatt--urls))
 
 <a id="nestedatt--literals"></a>
 ### Nested Schema for `literals`
@@ -42,8 +42,8 @@ Read-Only:
 - `url` (String) URL literal value.
 
 
-<a id="nestedatt--objects"></a>
-### Nested Schema for `objects`
+<a id="nestedatt--urls"></a>
+### Nested Schema for `urls`
 
 Read-Only:
 

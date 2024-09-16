@@ -3,12 +3,12 @@
 page_title: "fmc_url_group Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
-  This resource can manage an Url Group.
+  This resource can manage an URL Group.
 ---
 
 # fmc_url_group (Resource)
 
-This resource can manage an Url Group.
+This resource can manage an URL Group.
 
 ## Example Usage
 
@@ -16,7 +16,7 @@ This resource can manage an Url Group.
 resource "fmc_url_group" "example" {
   name        = "url_group_1"
   description = "My URL group"
-  objects = [
+  urls = [
     {
       id = "0050568A-FAC7-0ed3-0000-004294987896"
     }
@@ -34,8 +34,8 @@ resource "fmc_url_group" "example" {
 
 ### Required
 
-- `name` (String) User-created name of the resource.
-- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--objects))
+- `name` (String) User-created name of the object.
+- `urls` (Attributes Set) (see [below for nested schema](#nestedatt--urls))
 
 ### Optional
 
@@ -48,8 +48,8 @@ resource "fmc_url_group" "example" {
 
 - `id` (String) The id of the object
 
-<a id="nestedatt--objects"></a>
-### Nested Schema for `objects`
+<a id="nestedatt--urls"></a>
+### Nested Schema for `urls`
 
 Optional:
 

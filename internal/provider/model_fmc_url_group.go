@@ -33,21 +33,21 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
-type UrlGroup struct {
+type URLGroup struct {
 	Id          types.String       `tfsdk:"id"`
 	Domain      types.String       `tfsdk:"domain"`
 	Name        types.String       `tfsdk:"name"`
 	Description types.String       `tfsdk:"description"`
 	Overridable types.Bool         `tfsdk:"overridable"`
-	Objects     []UrlGroupObjects  `tfsdk:"objects"`
-	Literals    []UrlGroupLiterals `tfsdk:"literals"`
+	Urls        []URLGroupUrls     `tfsdk:"urls"`
+	Literals    []URLGroupLiterals `tfsdk:"literals"`
 }
 
-type UrlGroupObjects struct {
+type URLGroupUrls struct {
 	Id types.String `tfsdk:"id"`
 }
 
-type UrlGroupLiterals struct {
+type URLGroupLiterals struct {
 	Url types.String `tfsdk:"url"`
 }
 
@@ -55,7 +55,7 @@ type UrlGroupLiterals struct {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 
-func (data UrlGroup) getPath() string {
+func (data URLGroup) getPath() string {
 	return "/api/fmc_config/v1/domain/{DOMAIN_UUID}/object/urlgroups"
 }
 
@@ -63,7 +63,7 @@ func (data UrlGroup) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 
-func (data UrlGroup) toBody(ctx context.Context, state UrlGroup) string {
+func (data URLGroup) toBody(ctx context.Context, state URLGroup) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
@@ -77,9 +77,9 @@ func (data UrlGroup) toBody(ctx context.Context, state UrlGroup) string {
 	if !data.Overridable.IsNull() {
 		body, _ = sjson.Set(body, "overridable", data.Overridable.ValueBool())
 	}
-	if len(data.Objects) > 0 {
+	if len(data.Urls) > 0 {
 		body, _ = sjson.Set(body, "objects", []interface{}{})
-		for _, item := range data.Objects {
+		for _, item := range data.Urls {
 			itemBody := ""
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
@@ -104,7 +104,7 @@ func (data UrlGroup) toBody(ctx context.Context, state UrlGroup) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
-func (data *UrlGroup) fromBody(ctx context.Context, res gjson.Result) {
+func (data *URLGroup) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -121,24 +121,24 @@ func (data *UrlGroup) fromBody(ctx context.Context, res gjson.Result) {
 		data.Overridable = types.BoolNull()
 	}
 	if value := res.Get("objects"); value.Exists() {
-		data.Objects = make([]UrlGroupObjects, 0)
+		data.Urls = make([]URLGroupUrls, 0)
 		value.ForEach(func(k, res gjson.Result) bool {
 			parent := &data
-			data := UrlGroupObjects{}
+			data := URLGroupUrls{}
 			if value := res.Get("id"); value.Exists() {
 				data.Id = types.StringValue(value.String())
 			} else {
 				data.Id = types.StringNull()
 			}
-			(*parent).Objects = append((*parent).Objects, data)
+			(*parent).Urls = append((*parent).Urls, data)
 			return true
 		})
 	}
 	if value := res.Get("literals"); value.Exists() {
-		data.Literals = make([]UrlGroupLiterals, 0)
+		data.Literals = make([]URLGroupLiterals, 0)
 		value.ForEach(func(k, res gjson.Result) bool {
 			parent := &data
-			data := UrlGroupLiterals{}
+			data := URLGroupLiterals{}
 			if value := res.Get("url"); value.Exists() {
 				data.Url = types.StringValue(value.String())
 			} else {
@@ -158,7 +158,7 @@ func (data *UrlGroup) fromBody(ctx context.Context, res gjson.Result) {
 // uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
-func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
+func (data *URLGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -174,12 +174,12 @@ func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Overridable = types.BoolNull()
 	}
-	for i := 0; i < len(data.Objects); i++ {
+	for i := 0; i < len(data.Urls); i++ {
 		keys := [...]string{"id"}
-		keyValues := [...]string{data.Objects[i].Id.ValueString()}
+		keyValues := [...]string{data.Urls[i].Id.ValueString()}
 
 		parent := &data
-		data := (*parent).Objects[i]
+		data := (*parent).Urls[i]
 		parentRes := &res
 		var res gjson.Result
 
@@ -201,11 +201,11 @@ func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 			},
 		)
 		if !res.Exists() {
-			tflog.Debug(ctx, fmt.Sprintf("removing Objects[%d] = %+v",
+			tflog.Debug(ctx, fmt.Sprintf("removing Urls[%d] = %+v",
 				i,
-				(*parent).Objects[i],
+				(*parent).Urls[i],
 			))
-			(*parent).Objects = slices.Delete((*parent).Objects, i, i+1)
+			(*parent).Urls = slices.Delete((*parent).Urls, i, i+1)
 			i--
 
 			continue
@@ -215,7 +215,7 @@ func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		} else {
 			data.Id = types.StringNull()
 		}
-		(*parent).Objects[i] = data
+		(*parent).Urls[i] = data
 	}
 	for i := 0; i < len(data.Literals); i++ {
 		keys := [...]string{"url"}
@@ -268,7 +268,7 @@ func (data *UrlGroup) fromBodyPartial(ctx context.Context, res gjson.Result) {
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *UrlGroup) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+func (data *URLGroup) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 }
 
 // End of section. //template:end fromBodyUnknowns

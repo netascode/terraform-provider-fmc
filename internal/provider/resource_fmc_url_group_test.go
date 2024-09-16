@@ -29,7 +29,7 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
-func TestAccFmcUrlGroup(t *testing.T) {
+func TestAccFmcURLGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "name", "url_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_group.test", "description", "My URL group"))
@@ -38,11 +38,11 @@ func TestAccFmcUrlGroup(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcUrlGroupPrerequisitesConfig + testAccFmcUrlGroupConfig_minimum(),
+			Config: testAccFmcURLGroupPrerequisitesConfig + testAccFmcURLGroupConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcUrlGroupPrerequisitesConfig + testAccFmcUrlGroupConfig_all(),
+		Config: testAccFmcURLGroupPrerequisitesConfig + testAccFmcURLGroupConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -61,7 +61,7 @@ func TestAccFmcUrlGroup(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
-const testAccFmcUrlGroupPrerequisitesConfig = `
+const testAccFmcURLGroupPrerequisitesConfig = `
 resource "fmc_url" "test" {
   name        = "url_1"
   url         = "https://www.example.com/app"
@@ -72,10 +72,10 @@ resource "fmc_url" "test" {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 
-func testAccFmcUrlGroupConfig_minimum() string {
+func testAccFmcURLGroupConfig_minimum() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
 	config += `	name = "url_group_1"` + "\n"
-	config += `	objects = [{` + "\n"
+	config += `	urls = [{` + "\n"
 	config += `		id = fmc_url.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
@@ -86,12 +86,12 @@ func testAccFmcUrlGroupConfig_minimum() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 
-func testAccFmcUrlGroupConfig_all() string {
+func testAccFmcURLGroupConfig_all() string {
 	config := `resource "fmc_url_group" "test" {` + "\n"
 	config += `	name = "url_group_1"` + "\n"
 	config += `	description = "My URL group"` + "\n"
 	config += `	overridable = true` + "\n"
-	config += `	objects = [{` + "\n"
+	config += `	urls = [{` + "\n"
 	config += `		id = fmc_url.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `	literals = [{` + "\n"
