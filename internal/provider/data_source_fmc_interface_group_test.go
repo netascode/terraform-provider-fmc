@@ -30,7 +30,7 @@ import (
 
 func TestAccDataSourceFmcInterfaceGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "name", "interface_group_2"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "name", "interface_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_interface_group.test", "interface_mode", "ROUTED"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -70,7 +70,7 @@ resource "fmc_device_physical_interface" "test" {
 
 func testAccDataSourceFmcInterfaceGroupConfig() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_2"` + "\n"
+	config += `	name = "interface_group_1"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `	interfaces = [{` + "\n"
 	config += `		id = fmc_device_physical_interface.test.id` + "\n"
@@ -87,7 +87,7 @@ func testAccDataSourceFmcInterfaceGroupConfig() string {
 
 func testAccNamedDataSourceFmcInterfaceGroupConfig() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_2"` + "\n"
+	config += `	name = "interface_group_1"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `	interfaces = [{` + "\n"
 	config += `		id = fmc_device_physical_interface.test.id` + "\n"

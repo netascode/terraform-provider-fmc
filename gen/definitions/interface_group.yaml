@@ -6,22 +6,21 @@ doc_category: Objects
 attributes:
   - model_name: name
     type: String
-    description: User-created name of the resource.
+    description: User-created name of the object.
     mandatory: true
-    example: interface_group_2
+    example: interface_group_1
   - model_name: interfaceMode
     type: String
-    description: Type of the interface.
+    description: The interface type must match to assign an interface to the group.
     enum_values: [INLINE, SWITCHED, ROUTED]
     mandatory: true
     example: ROUTED
   - model_name: interfaces
-    description: vgvjh
     type: Set
     attributes:
       - model_name: id
         type: String
-        description: UUID of the object (such as fmc_network.example.id, etc.).
+        description: UUID of the interface (such as fmc_device_physical_interface.example.id, etc.).
         id: true
         example: 0050568A-4E02-1ed3-0000-004294969198
         test_value: fmc_device_physical_interface.test.id

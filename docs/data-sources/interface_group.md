@@ -25,16 +25,16 @@ data "fmc_interface_group" "example" {
 
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
-- `name` (String) User-created name of the resource.
+- `name` (String) User-created name of the object.
 
 ### Read-Only
 
-- `interface_mode` (String) Type of the interface.
-- `interfaces` (Attributes Set) vgvjh (see [below for nested schema](#nestedatt--interfaces))
+- `interface_mode` (String) The interface type must match to assign an interface to the group.
+- `interfaces` (Attributes Set) (see [below for nested schema](#nestedatt--interfaces))
 
 <a id="nestedatt--interfaces"></a>
 ### Nested Schema for `interfaces`
 
 Read-Only:
 
-- `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
+- `id` (String) UUID of the interface (such as fmc_device_physical_interface.example.id, etc.).

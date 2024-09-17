@@ -80,23 +80,23 @@ func (r *InterfaceGroupResource) Schema(ctx context.Context, req resource.Schema
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the resource.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the object.").String,
 				Required:            true,
 			},
 			"interface_mode": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the interface.").AddStringEnumDescription("INLINE", "SWITCHED", "ROUTED").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The interface type must match to assign an interface to the group.").AddStringEnumDescription("INLINE", "SWITCHED", "ROUTED").String,
 				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("INLINE", "SWITCHED", "ROUTED"),
 				},
 			},
 			"interfaces": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("vgvjh").String,
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the interface (such as fmc_device_physical_interface.example.id, etc.).").String,
 							Optional:            true,
 						},
 					},

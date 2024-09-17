@@ -31,7 +31,7 @@ import (
 
 func TestAccFmcInterfaceGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "name", "interface_group_2"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "name", "interface_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "interface_mode", "ROUTED"))
 
 	var steps []resource.TestStep
@@ -78,7 +78,7 @@ resource "fmc_device_physical_interface" "test" {
 
 func testAccFmcInterfaceGroupConfig_minimum() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_2"` + "\n"
+	config += `	name = "interface_group_1"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `}` + "\n"
 	return config
@@ -90,7 +90,7 @@ func testAccFmcInterfaceGroupConfig_minimum() string {
 
 func testAccFmcInterfaceGroupConfig_all() string {
 	config := `resource "fmc_interface_group" "test" {` + "\n"
-	config += `	name = "interface_group_2"` + "\n"
+	config += `	name = "interface_group_1"` + "\n"
 	config += `	interface_mode = "ROUTED"` + "\n"
 	config += `	interfaces = [{` + "\n"
 	config += `		id = fmc_device_physical_interface.test.id` + "\n"

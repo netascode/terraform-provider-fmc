@@ -1,5 +1,5 @@
 resource "fmc_interface_group" "example" {
-  name           = "interface_group_2"
+  name           = "interface_group_1"
   interface_mode = "ROUTED"
   interfaces = [
     {

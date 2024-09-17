@@ -14,7 +14,7 @@ This resource can manage an Interface Group.
 
 ```terraform
 resource "fmc_interface_group" "example" {
-  name           = "interface_group_2"
+  name           = "interface_group_1"
   interface_mode = "ROUTED"
   interfaces = [
     {
@@ -29,14 +29,14 @@ resource "fmc_interface_group" "example" {
 
 ### Required
 
-- `interface_mode` (String) Type of the interface.
+- `interface_mode` (String) The interface type must match to assign an interface to the group.
   - Choices: `INLINE`, `SWITCHED`, `ROUTED`
-- `name` (String) User-created name of the resource.
+- `name` (String) User-created name of the object.
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `interfaces` (Attributes Set) vgvjh (see [below for nested schema](#nestedatt--interfaces))
+- `interfaces` (Attributes Set) (see [below for nested schema](#nestedatt--interfaces))
 
 ### Read-Only
 
@@ -47,7 +47,7 @@ resource "fmc_interface_group" "example" {
 
 Optional:
 
-- `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
+- `id` (String) UUID of the interface (such as fmc_device_physical_interface.example.id, etc.).
 
 ## Import
 
