@@ -29,3 +29,9 @@ attributes:
         id: true
         example: 0050568A-4E02-1ed3-0000-004294969198
         test_value: fmc_device_physical_interface.test.id
+
+test_prerequisites: |-
+  resource "fmc_access_control_policy" "minimum" {
+    name = "test_fmc_device_1"
+    default_action = "BLOCK"
+  }
