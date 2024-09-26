@@ -17,8 +17,8 @@ resource "fmc_vlan_tag" "example" {
   name        = "vlan_tag_1"
   description = "My TAG id"
   type        = "VlanTag"
-  start_tag   = 12
-  end_tag     = 15
+  start_tag   = "12"
+  end_tag     = "15"
 }
 ```
 
@@ -34,9 +34,9 @@ resource "fmc_vlan_tag" "example" {
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `end_tag` (Number)
+- `end_tag` (String)
 - `overridable` (Boolean) Indicates whether object values can be overridden.
-- `start_tag` (Number)
+- `start_tag` (String)
 
 ### Read-Only
 

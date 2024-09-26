@@ -93,11 +93,11 @@ func (r *VLANTagResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Required:            true,
 			},
-			"start_tag": schema.Int64Attribute{
+			"start_tag": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 			},
-			"end_tag": schema.Int64Attribute{
+			"end_tag": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 			},

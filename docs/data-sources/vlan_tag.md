@@ -30,7 +30,7 @@ data "fmc_vlan_tag" "example" {
 ### Read-Only
 
 - `description` (String) Optional user-created description.
-- `end_tag` (Number)
+- `end_tag` (String)
 - `overridable` (Boolean) Indicates whether object values can be overridden.
-- `start_tag` (Number)
+- `start_tag` (String)
 - `type` (String)

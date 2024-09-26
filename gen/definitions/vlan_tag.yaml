@@ -25,12 +25,12 @@ attributes:
     mandatory: true
     example: "VlanTag"
   - model_name: startTag
-    type: Int64
-    example: 12
-    test_value: 12
+    type: String
+    example: "12"
+    test_value: "12"
     data_path: ["data"]
   - model_name: endTag
-    type: Int64
-    example: 15
-    test_value: 15
+    type: String
+    example: "15"
+    test_value: "15"
     data_path: ["data"]

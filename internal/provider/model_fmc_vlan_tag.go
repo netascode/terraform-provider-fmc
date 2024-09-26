@@ -37,8 +37,8 @@ type VLANTag struct {
 	Description types.String `tfsdk:"description"`
 	Overridable types.Bool   `tfsdk:"overridable"`
 	Type        types.String `tfsdk:"type"`
-	StartTag    types.Int64  `tfsdk:"start_tag"`
-	EndTag      types.Int64  `tfsdk:"end_tag"`
+	StartTag    types.String `tfsdk:"start_tag"`
+	EndTag      types.String `tfsdk:"end_tag"`
 }
 
 // End of section. //template:end types
@@ -71,10 +71,10 @@ func (data VLANTag) toBody(ctx context.Context, state VLANTag) string {
 		body, _ = sjson.Set(body, "type", data.Type.ValueString())
 	}
 	if !data.StartTag.IsNull() {
-		body, _ = sjson.Set(body, "data.startTag", data.StartTag.ValueInt64())
+		body, _ = sjson.Set(body, "data.startTag", data.StartTag.ValueString())
 	}
 	if !data.EndTag.IsNull() {
-		body, _ = sjson.Set(body, "data.endTag", data.EndTag.ValueInt64())
+		body, _ = sjson.Set(body, "data.endTag", data.EndTag.ValueString())
 	}
 	return body
 }
@@ -105,14 +105,14 @@ func (data *VLANTag) fromBody(ctx context.Context, res gjson.Result) {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("data.startTag"); value.Exists() {
-		data.StartTag = types.Int64Value(value.Int())
+		data.StartTag = types.StringValue(value.String())
 	} else {
-		data.StartTag = types.Int64Null()
+		data.StartTag = types.StringNull()
 	}
 	if value := res.Get("data.endTag"); value.Exists() {
-		data.EndTag = types.Int64Value(value.Int())
+		data.EndTag = types.StringValue(value.String())
 	} else {
-		data.EndTag = types.Int64Null()
+		data.EndTag = types.StringNull()
 	}
 }
 
@@ -146,14 +146,14 @@ func (data *VLANTag) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("data.startTag"); value.Exists() && !data.StartTag.IsNull() {
-		data.StartTag = types.Int64Value(value.Int())
+		data.StartTag = types.StringValue(value.String())
 	} else {
-		data.StartTag = types.Int64Null()
+		data.StartTag = types.StringNull()
 	}
 	if value := res.Get("data.endTag"); value.Exists() && !data.EndTag.IsNull() {
-		data.EndTag = types.Int64Value(value.Int())
+		data.EndTag = types.StringValue(value.String())
 	} else {
-		data.EndTag = types.Int64Null()
+		data.EndTag = types.StringNull()
 	}
 }
 

@@ -87,11 +87,11 @@ func (d *VLANTagDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"start_tag": schema.Int64Attribute{
+			"start_tag": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"end_tag": schema.Int64Attribute{
+			"end_tag": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
