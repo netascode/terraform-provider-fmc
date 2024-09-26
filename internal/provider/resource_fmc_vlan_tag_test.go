@@ -68,6 +68,7 @@ func testAccFmcVLANTagConfig_minimum() string {
 	config := `resource "fmc_vlan_tag" "test" {` + "\n"
 	config += `	name = "vlan_tag_1"` + "\n"
 	config += `	description = "My TAG id"` + "\n"
+	config += `	overridable = true` + "\n"
 	config += `	type = "VlanTag"` + "\n"
 	config += `}` + "\n"
 	return config

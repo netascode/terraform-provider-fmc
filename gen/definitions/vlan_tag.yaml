@@ -17,9 +17,9 @@ attributes:
   - model_name: overridable
     type: Bool
     description: Indicates whether object values can be overridden.
-    exclude_example: false
-    example: true
-    test_value: true
+    exclude_example: true
+    test_value: "true"
+    minimum_test_value: "true"
   - model_name: type
     type: String
     mandatory: true
