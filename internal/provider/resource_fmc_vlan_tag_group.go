@@ -95,7 +95,7 @@ func (r *VLANTagGroupResource) Schema(ctx context.Context, req resource.SchemaRe
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of the vlan_tag (such as fmc_device_physical_interface.example.id, etc.).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the vlan_tag (such as fmc_vlan_tag.test.id, etc.).").String,
 							Optional:            true,
 						},
 					},

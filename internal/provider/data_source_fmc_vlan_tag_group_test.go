@@ -37,11 +37,11 @@ func TestAccDataSourceFmcVLANTagGroup(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcVLANTagGroupConfig(),
+				Config: testAccDataSourceFmcVLANTagGroupPrerequisitesConfig + testAccDataSourceFmcVLANTagGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 			{
-				Config: testAccNamedDataSourceFmcVLANTagGroupConfig(),
+				Config: testAccDataSourceFmcVLANTagGroupPrerequisitesConfig + testAccNamedDataSourceFmcVLANTagGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -51,6 +51,18 @@ func TestAccDataSourceFmcVLANTagGroup(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccDataSourceFmcVLANTagGroupPrerequisitesConfig = `
+resource "fmc_vlan_tag" "test" {
+  name        = "vlan_tag_1111"
+  description = "My TAG id"
+  type        = "VlanTag"
+  overridable = false
+  start_tag   = 11
+  end_tag     = 12
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
@@ -61,7 +73,7 @@ func testAccDataSourceFmcVLANTagGroupConfig() string {
 	config += `	description = "My vlan tag group name"` + "\n"
 	config += `	overridable = true` + "\n"
 	config += `	vlan_tags = [{` + "\n"
-	config += `		id = fmc_device_physical_interface.test.id` + "\n"
+	config += `		id = fmc_vlan_tag.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
@@ -79,7 +91,7 @@ func testAccNamedDataSourceFmcVLANTagGroupConfig() string {
 	config += `	description = "My vlan tag group name"` + "\n"
 	config += `	overridable = true` + "\n"
 	config += `	vlan_tags = [{` + "\n"
-	config += `		id = fmc_device_physical_interface.test.id` + "\n"
+	config += `		id = fmc_vlan_tag.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

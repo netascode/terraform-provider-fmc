@@ -47,7 +47,7 @@ resource "fmc_vlan_tag_group" "example" {
 
 Optional:
 
-- `id` (String) UUID of the vlan_tag (such as fmc_device_physical_interface.example.id, etc.).
+- `id` (String) UUID of the vlan_tag (such as fmc_vlan_tag.test.id, etc.).
 
 ## Import
 

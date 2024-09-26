@@ -89,7 +89,7 @@ func (d *VLANTagGroupDataSource) Schema(ctx context.Context, req datasource.Sche
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "UUID of the vlan_tag (such as fmc_device_physical_interface.example.id, etc.).",
+							MarkdownDescription: "UUID of the vlan_tag (such as fmc_vlan_tag.test.id, etc.).",
 							Computed:            true,
 						},
 					},

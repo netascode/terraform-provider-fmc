@@ -37,11 +37,11 @@ func TestAccFmcVLANTagGroup(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcVLANTagGroupConfig_minimum(),
+			Config: testAccFmcVLANTagGroupPrerequisitesConfig + testAccFmcVLANTagGroupConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcVLANTagGroupConfig_all(),
+		Config: testAccFmcVLANTagGroupPrerequisitesConfig + testAccFmcVLANTagGroupConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -59,6 +59,18 @@ func TestAccFmcVLANTagGroup(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccFmcVLANTagGroupPrerequisitesConfig = `
+resource "fmc_vlan_tag" "test" {
+  name        = "vlan_tag_1111"
+  description = "My TAG id"
+  type        = "VlanTag"
+  overridable = false
+  start_tag   = 11
+  end_tag     = 12
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
@@ -67,7 +79,7 @@ func testAccFmcVLANTagGroupConfig_minimum() string {
 	config := `resource "fmc_vlan_tag_group" "test" {` + "\n"
 	config += `	name = "vlan_tag_group_1"` + "\n"
 	config += `	vlan_tags = [{` + "\n"
-	config += `		id = fmc_device_physical_interface.test.id` + "\n"
+	config += `		id = fmc_vlan_tag.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -83,7 +95,7 @@ func testAccFmcVLANTagGroupConfig_all() string {
 	config += `	description = "My vlan tag group name"` + "\n"
 	config += `	overridable = true` + "\n"
 	config += `	vlan_tags = [{` + "\n"
-	config += `		id = fmc_device_physical_interface.test.id` + "\n"
+	config += `		id = fmc_vlan_tag.test.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

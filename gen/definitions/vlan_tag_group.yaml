@@ -25,13 +25,17 @@ attributes:
     attributes:
       - model_name: id
         type: String
-        description: UUID of the vlan_tag (such as fmc_device_physical_interface.example.id, etc.).
+        description: UUID of the vlan_tag (such as fmc_vlan_tag.test.id, etc.).
         id: true
         example: 0050568A-4E02-1ed3-0000-004294969198
-        test_value: fmc_device_physical_interface.test.id
+        test_value: fmc_vlan_tag.test.id
 
 test_prerequisites: |-
-  resource "fmc_access_control_policy" "minimum" {
-    name = "test_fmc_device_1"
-    default_action = "BLOCK"
+  resource "fmc_vlan_tag" "test" {
+    name        = "vlan_tag_1111"
+    description = "My TAG id"
+    type        = "VlanTag"
+    overridable = false
+    start_tag   = 11
+    end_tag     = 12
   }
