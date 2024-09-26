@@ -32,6 +32,7 @@ func TestAccDataSourceFmcVLANTag(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag.test", "name", "vlan_tag_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag.test", "description", "My TAG id"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag.test", "type", "VlanTag"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -60,7 +61,7 @@ func testAccDataSourceFmcVLANTagConfig() string {
 	config += `	name = "vlan_tag_1"` + "\n"
 	config += `	description = "My TAG id"` + "\n"
 	config += `	overridable = true` + "\n"
-	config += `	type = VlanTag` + "\n"
+	config += `	type = "VlanTag"` + "\n"
 	config += `	start_tag = 12` + "\n"
 	config += `	end_tag = 15` + "\n"
 	config += `}` + "\n"
@@ -78,7 +79,7 @@ func testAccNamedDataSourceFmcVLANTagConfig() string {
 	config += `	name = "vlan_tag_1"` + "\n"
 	config += `	description = "My TAG id"` + "\n"
 	config += `	overridable = true` + "\n"
-	config += `	type = VlanTag` + "\n"
+	config += `	type = "VlanTag"` + "\n"
 	config += `	start_tag = 12` + "\n"
 	config += `	end_tag = 15` + "\n"
 	config += `}` + "\n"

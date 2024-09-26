@@ -28,12 +28,12 @@ resource "fmc_vlan_tag" "example" {
 
 ### Required
 
+- `description` (String) Optional user-created description.
 - `name` (String) User-created name of the resource.
 - `type` (String)
 
 ### Optional
 
-- `description` (String) Optional user-created description.
 - `domain` (String) The name of the FMC domain
 - `end_tag` (Number)
 - `overridable` (Boolean) Indicates whether object values can be overridden.

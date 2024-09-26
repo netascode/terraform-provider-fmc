@@ -13,6 +13,7 @@ attributes:
     type: String
     description: Optional user-created description.
     example: "My TAG id"
+    mandatory: true
   - model_name: overridable
     type: Bool
     description: Indicates whether object values can be overridden.
@@ -22,7 +23,6 @@ attributes:
   - model_name: type
     type: String
     mandatory: true
-    test_value: "VlanTag"
     example: "VlanTag"
   - model_name: startTag
     type: Int64
