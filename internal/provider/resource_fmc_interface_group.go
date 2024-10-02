@@ -260,15 +260,11 @@ func (r *InterfaceGroupResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	emptyInterfacesState := state
-	emptyInterfacesState.Interfaces = nil
-	body := emptyInterfacesState.toBody(ctx, emptyInterfacesState)
-	res, err := r.client.Put(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), body, reqMods...)
+	err := r.removeInterfaces(ctx, state, resp, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}
-	res, err = r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -288,3 +284,14 @@ func (r *InterfaceGroupResource) ImportState(ctx context.Context, req resource.I
 }
 
 // End of section. //template:end import
+
+func (r *InterfaceGroupResource) removeInterfaces(ctx context.Context, state InterfaceGroup, resp *resource.DeleteResponse, reqMods ...func(*fmc.Req)) error {
+	state.Interfaces = nil
+	body := state.toBody(ctx, state)
+	res, err := r.client.Put(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), body, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		return err
+	}
+	return nil
+}
