@@ -84,7 +84,7 @@ func (r *InterfaceGroupResource) Schema(ctx context.Context, req resource.Schema
 				Required:            true,
 			},
 			"interface_mode": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The interface type must match to assign an interface to the group.").AddStringEnumDescription("INLINE", "SWITCHED", "ROUTED").String,
+				MarkdownDescription: helpers.NewAttributeDescription("All interfaces' types must match the interface mode.").AddStringEnumDescription("INLINE", "SWITCHED", "ROUTED").String,
 				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("INLINE", "SWITCHED", "ROUTED"),
@@ -244,8 +244,6 @@ func (r *InterfaceGroupResource) Update(ctx context.Context, req resource.Update
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
-
 func (r *InterfaceGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state InterfaceGroup
 
@@ -262,7 +260,15 @@ func (r *InterfaceGroupResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	emptyInterfacesState := state
+	emptyInterfacesState.Interfaces = nil
+	body := emptyInterfacesState.toBody(ctx, emptyInterfacesState)
+	res, err := r.client.Put(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), body, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+		return
+	}
+	res, err = r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
@@ -272,8 +278,6 @@ func (r *InterfaceGroupResource) Delete(ctx context.Context, req resource.Delete
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 

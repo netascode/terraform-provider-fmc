@@ -11,7 +11,7 @@ attributes:
     example: interface_group_1
   - model_name: interfaceMode
     type: String
-    description: The interface type must match to assign an interface to the group.
+    description: All interfaces' types must match the interface mode.
     enum_values: [INLINE, SWITCHED, ROUTED]
     mandatory: true
     example: ROUTED

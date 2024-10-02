@@ -29,7 +29,7 @@ resource "fmc_interface_group" "example" {
 
 ### Required
 
-- `interface_mode` (String) The interface type must match to assign an interface to the group.
+- `interface_mode` (String) All interfaces' types must match the interface mode.
   - Choices: `INLINE`, `SWITCHED`, `ROUTED`
 - `name` (String) User-created name of the object.
 
