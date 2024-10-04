@@ -30,6 +30,9 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
 func TestAccFmcInterfaceGroup(t *testing.T) {
+	if os.Getenv("TF_VAR_device_id") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "name", "interface_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_interface_group.test", "interface_mode", "ROUTED"))

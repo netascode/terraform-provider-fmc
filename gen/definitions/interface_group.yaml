@@ -3,6 +3,7 @@ name: Interface Group
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/interfacegroups
 data_source_name_query: true
 doc_category: Objects
+test_tags: [TF_VAR_device_id]
 attributes:
   - model_name: name
     type: String
