@@ -28,16 +28,17 @@ import (
 
 func TestAccFmcHosts(t *testing.T) {
 	var checks_step01 []resource.TestCheckFunc
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host1.ip", "1.2.3.1"))
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host1.description", "host1"))
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host2.ip", "1.2.3.2"))
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host3.ip", "1.2.3.3"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_1.ip", "1.2.3.1"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_1.description", "host1"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_2.ip", "1.2.3.2"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_3.ip", "1.2.3.3"))
 
 	var checks_step02 []resource.TestCheckFunc
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host1.ip", "1.2.3.1"))
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host1.description", "host1 new description"))
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host2.ip", "1.2.3.2"))
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.host4.ip", "1.2.3.4"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_1.ip", "1.2.3.1"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_1.description", "host1 new description"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_2.ip", "1.2.3.2"))
+	checks_step02 = append(checks_step02, resource.TestCheckNoResourceAttr("fmc_hosts.test", "items.hosts_3"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_hosts.test", "items.hosts_4.ip", "1.2.3.4"))
 
 	var steps []resource.TestStep
 
@@ -89,14 +90,15 @@ func testAccFmcHostsConfig_all() string {
 func testAccFmcHostsConfig_step01() string {
 	config := `resource "fmc_hosts" "test" {` + "\n"
 	config += `	items = {` + "\n"
-	config += `		"host1" = {` + "\n"
+	config += `		"hosts_1" = {` + "\n"
 	config += `			ip = "1.2.3.1",` + "\n"
 	config += `			description = "host1"` + "\n"
+	config += `			overridable = true` + "\n"
 	config += `		},` + "\n"
-	config += `		"host2" = {` + "\n"
+	config += `		"hosts_2" = {` + "\n"
 	config += `			ip = "1.2.3.2",` + "\n"
 	config += `		},` + "\n"
-	config += `		"host3" = {` + "\n"
+	config += `		"hosts_3" = {` + "\n"
 	config += `			ip = "1.2.3.3",` + "\n"
 	config += `		},` + "\n"
 	config += `	} ` + "\n"
@@ -107,14 +109,14 @@ func testAccFmcHostsConfig_step01() string {
 func testAccFmcHostsConfig_step02() string {
 	config := `resource "fmc_hosts" "test" {` + "\n"
 	config += `	items = {` + "\n"
-	config += `		"host1" = {` + "\n"
+	config += `		"hosts_1" = {` + "\n"
 	config += `			ip = "1.2.3.1",` + "\n"
 	config += `			description = "host1 new description"` + "\n"
 	config += `		},` + "\n"
-	config += `		"host2" = {` + "\n"
+	config += `		"hosts_2" = {` + "\n"
 	config += `			ip = "1.2.3.2",` + "\n"
 	config += `		},` + "\n"
-	config += `		"host4" = {` + "\n"
+	config += `		"hosts_4" = {` + "\n"
 	config += `			ip = "1.2.3.4",` + "\n"
 	config += `		},` + "\n"
 	config += `	} ` + "\n"

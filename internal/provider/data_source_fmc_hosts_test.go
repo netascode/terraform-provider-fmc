@@ -29,6 +29,7 @@ import (
 func TestAccDataSourceFmcHosts(t *testing.T) {
 	var checks []resource.TestCheckFunc
 
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_hosts.test", "items.hosts_1.id"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_hosts.test", "items.hosts_1.ip", "10.1.1.1"))
 
 	resource.Test(t, resource.TestCase{
