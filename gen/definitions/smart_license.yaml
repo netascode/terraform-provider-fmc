@@ -1,0 +1,16 @@
+---
+name: Smart License
+rest_endpoint: /api/fmc_platform/v1/license/smartlicenses
+doc_category: License
+attributes:
+  - model_name: registrationType
+    type: String
+    description: Action to be executed on the smart license.
+    enum_values: [REGISTER, DEREGISTER, EVALUATION]
+    mandatory: true
+    example: REGISTER
+  - model_name: token
+    type: String
+    description: Registration token.
+    example: "X2M3YmJlY..."
+    exclude_test: true
