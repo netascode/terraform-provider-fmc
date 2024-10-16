@@ -61,5 +61,5 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-terraform import fmc_hosts.example "Domain,[HostsName1,HostsName2]"
+terraform import fmc_hosts.example "<domain>,[<hosts_name>]"
 ```
