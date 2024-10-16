@@ -58,11 +58,11 @@ func testAccDataSourceFmcHostsConfig() string {
 
 	config += `
 		data "fmc_hosts" "test" {
-			id = fmc_hosts.test.id
 			items = {
 				"hosts_1" = {
 				}
 			}
+			depends_on = [fmc_hosts.test]
 		}
 	`
 	return config

@@ -490,11 +490,14 @@ func (r *HostsResource) deleteSubresources(ctx context.Context, state, plan Host
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Deleting bulk of hosts id", state.Id.ValueString()))
 
+	// Get minimum version needed for bulk updates
 	minVer, _ := version.NewVersion(hostsBulkDeleteMinFMCVersion)
 
-	// Check if FMC version supports bulk deletes
+	// Get FMC version from the clinet
 	r.client.GetFMCVersion()
-	fmcVersion, _ := version.NewVersion(r.client.FMCVersion)
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
+
+	// Check if FMC version supports bulk deletes
 	if fmcVersion.GreaterThanOrEqual(minVer) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk deletion mode", state.Id.ValueString()))
 

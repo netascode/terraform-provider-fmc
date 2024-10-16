@@ -57,9 +57,15 @@ func (data Hosts) getPath() string {
 
 // End of section. //template:end getPath
 
+// Section below is generated&owned by "gen/generator.go". //template:begin toBody
+
 func (data Hosts) toBody(ctx context.Context, state Hosts) string {
-	body := "[]"
+	body := ""
+	if data.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "id", data.Id.ValueString())
+	}
 	if len(data.Items) > 0 {
+		body, _ = sjson.Set(body, "items", []interface{}{})
 		for key, item := range data.Items {
 			itemBody, _ := sjson.Set("{}", "name", key)
 			if !item.Id.IsNull() && !item.Id.IsUnknown() {
@@ -77,11 +83,15 @@ func (data Hosts) toBody(ctx context.Context, state Hosts) string {
 			if !item.Type.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
 			}
-			body, _ = sjson.SetRaw(body, "-1", itemBody)
+			body, _ = sjson.SetRaw(body, "items.-1", itemBody)
 		}
 	}
-	return body
+	return gjson.Get(body, "items").String()
 }
+
+// End of section. //template:end toBody
+
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
 func (data *Hosts) fromBody(ctx context.Context, res gjson.Result) {
 	for k := range data.Items {
@@ -132,6 +142,8 @@ func (data *Hosts) fromBody(ctx context.Context, res gjson.Result) {
 		(*parent).Items[k] = data
 	}
 }
+
+// End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
@@ -232,27 +244,14 @@ func (data *Hosts) Clone() Hosts {
 
 // Updates are done one-by-one and require different API body
 func (data Hosts) toBodyNonBulk(ctx context.Context, state Hosts) string {
-	body := "{}"
-	// data.Items is expected to be 1, however we don't know the key name, hence the loop
-	if len(data.Items) > 0 {
-		for key, item := range data.Items {
-			body, _ = sjson.Set(body, "name", key)
-			if !item.Id.IsNull() && !item.Id.IsUnknown() {
-				body, _ = sjson.Set(body, "id", item.Id.ValueString())
-			}
-			if !item.Description.IsNull() {
-				body, _ = sjson.Set(body, "description", item.Description.ValueString())
-			}
-			if !item.Overridable.IsNull() {
-				body, _ = sjson.Set(body, "overridable", item.Overridable.ValueBool())
-			}
-			if !item.Ip.IsNull() {
-				body, _ = sjson.Set(body, "value", item.Ip.ValueString())
-			}
-			if !item.Type.IsNull() {
-				body, _ = sjson.Set(body, "type", item.Type.ValueString())
-			}
-		}
+	// This is one-by-one update, so only one element to update is expected
+	if len(data.Items) > 1 {
+		tflog.Error(ctx, "Found more than one element to chage. Only one will be changed.")
 	}
-	return body
+
+	// Utilize existing toBody function
+	body := data.toBody(ctx, state)
+
+	// Get first element only
+	return gjson.Get(body, "0").String()
 }

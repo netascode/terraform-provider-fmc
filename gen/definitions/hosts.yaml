@@ -8,6 +8,7 @@ res_description: >-
 doc_category: Objects
 is_bulk: true
 data_source_name_query: yes
+import_name_query: yes
 attributes:
   - model_name: items
     type: Map
