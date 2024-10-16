@@ -32,6 +32,8 @@ import (
 
 // End of section. //template:end imports
 
+// Section below is generated&owned by "gen/generator.go". //template:begin model
+
 // Ensure the implementation satisfies the expected interfaces.
 var (
 	_ datasource.DataSource              = &HostsDataSource{}
@@ -58,7 +60,7 @@ func (d *HostsDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Optional:            true,
+				Computed:            true,
 			},
 			"domain": schema.StringAttribute{
 				MarkdownDescription: "The name of the FMC domain",
@@ -105,6 +107,8 @@ func (d *HostsDataSource) Configure(_ context.Context, req datasource.ConfigureR
 	d.client = req.ProviderData.(*FmcProviderData).Client
 }
 
+// End of section. //template:end model
+
 func (d *HostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config Hosts
 
@@ -145,7 +149,7 @@ func (d *HostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 			break
 		}
 
-		// Increate offset to get next bulk of data
+		// Increase offset to get next bulk of data
 		offset += limit
 	}
 

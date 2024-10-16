@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -63,8 +64,7 @@ func NewHostsResource() resource.Resource {
 }
 
 type HostsResource struct {
-	client     *fmc.Client
-	fmcVersion *version.Version
+	client *fmc.Client
 }
 
 func (r *HostsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -134,7 +134,6 @@ func (r *HostsResource) Configure(_ context.Context, req resource.ConfigureReque
 	}
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
-	r.fmcVersion = req.ProviderData.(*FmcProviderData).Version
 }
 
 // End of section. //template:end model
@@ -395,27 +394,29 @@ func (r *HostsResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 }
 
 func (r *HostsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Import looks for string in the following format: domain|host1,host2,host3...
+	// Import looks for string in the following format: Domain,[HostName1,HostName2,...]
 	// Domain part is optional
-	// host1,host2... are coma-separated list of object names
+	// HostName1,HostName2,... is coma-separated list of object names
 
-	var importList *string
-	var tmp []string
 	var config Hosts
 
-	// Check if domain was provided
-	if strings.Contains(req.ID, "|") {
-		// If yes, split string into domain and list of names
-		tmp = strings.Split(req.ID, "|")
-		config.Domain = types.StringValue(tmp[0])
-		importList = &tmp[1]
-	} else {
-		// If not, assume whole input is list of names
-		importList = &req.ID
+	// Compile pattern for import command parsing
+	var inputPattern = regexp.MustCompile(`^(?P<domain>[^\s,]*),*\[(?P<names>.*?),*\]`)
+
+	// Parse parameter
+	match := inputPattern.FindStringSubmatch(req.ID)
+
+	// Check if regex matched
+	if match == nil {
+		resp.Diagnostics.AddError("Import error", "Failed to parse import parameres")
+		return
 	}
 
-	// Get list of object names
-	names := strings.Split(*importList, ",")
+	// extract values
+	if tmpDomain := match[inputPattern.SubexpIndex("domain")]; tmpDomain != "" {
+		config.Domain = types.StringValue(tmpDomain)
+	}
+	names := strings.Split(match[inputPattern.SubexpIndex("names")], ",")
 
 	// Fill state with names of objects to import
 	config.Items = make(map[string]HostsItems, len(names))
@@ -492,7 +493,9 @@ func (r *HostsResource) deleteSubresources(ctx context.Context, state, plan Host
 	minVer, _ := version.NewVersion(hostsBulkDeleteMinFMCVersion)
 
 	// Check if FMC version supports bulk deletes
-	if r.fmcVersion.GreaterThanOrEqual(minVer) {
+	r.client.GetFMCVersion()
+	fmcVersion, _ := version.NewVersion(r.client.FMCVersion)
+	if fmcVersion.GreaterThanOrEqual(minVer) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk deletion mode", state.Id.ValueString()))
 
 		var idx = 0

@@ -112,6 +112,7 @@ type YamlConfig struct {
 	Attributes          []YamlConfigAttribute `yaml:"attributes"`
 	TestTags            []string              `yaml:"test_tags"`
 	TestPrerequisites   string                `yaml:"test_prerequisites"`
+	IsBulk              bool                  `yaml:"is_bulk"`
 }
 
 type YamlConfigAttribute struct {

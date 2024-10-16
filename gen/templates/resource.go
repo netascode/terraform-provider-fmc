@@ -62,7 +62,6 @@ func New{{camelCase .Name}}Resource() resource.Resource {
 
 type {{camelCase .Name}}Resource struct {
 	client *fmc.Client
-	fmcVersion *version.Version
 }
 
 func (r *{{camelCase .Name}}Resource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -412,7 +411,6 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 	}
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
-	r.fmcVersion = req.ProviderData.(*FmcProviderData).Version
 }
 
 // End of section. //template:end model

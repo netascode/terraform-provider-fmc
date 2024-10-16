@@ -14,10 +14,8 @@ This data source can read the Hosts.
 
 ```terraform
 data "fmc_hosts" "example" {
-  id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   items = {
     "hosts_1" = {
-      id = fmc_hosts.test.items["hosts_1"].id
     }
   }
 }
@@ -29,8 +27,11 @@ data "fmc_hosts" "example" {
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `id` (String) The id of the object
 - `items` (Attributes Map) Map of hosts. The key of the map is the name of the individual Host. Renaming Hosts in bulk is not yet implemented. (see [below for nested schema](#nestedatt--items))
+
+### Read-Only
+
+- `id` (String) The id of the object
 
 <a id="nestedatt--items"></a>
 ### Nested Schema for `items`
