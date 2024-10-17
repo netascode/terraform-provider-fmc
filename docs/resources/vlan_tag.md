@@ -16,7 +16,7 @@ This resource can manage a VLAN Tag.
 resource "fmc_vlan_tag" "example" {
   name        = "vlan_tag_1"
   description = "My TAG id"
-  type        = "VlanTag"
+  overridable = true
   start_tag   = "12"
   end_tag     = "15"
 }
@@ -27,16 +27,15 @@ resource "fmc_vlan_tag" "example" {
 
 ### Required
 
-- `description` (String) Optional user-created description.
+- `end_tag` (String)
 - `name` (String) User-created name of the resource.
-- `type` (String)
+- `start_tag` (String)
 
 ### Optional
 
+- `description` (String) Optional user-created description.
 - `domain` (String) The name of the FMC domain
-- `end_tag` (String)
 - `overridable` (Boolean) Indicates whether object values can be overridden.
-- `start_tag` (String)
 
 ### Read-Only
 

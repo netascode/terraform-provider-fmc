@@ -13,24 +13,23 @@ attributes:
     type: String
     description: Optional user-created description.
     example: "My TAG id"
-    mandatory: true
+    mandatory: false
   - model_name: overridable
     type: Bool
     description: Indicates whether object values can be overridden.
-    exclude_example: true
-    test_value: "true"
-    minimum_test_value: "true"
+    example: true
   - model_name: type
     type: String
-    mandatory: true
-    example: "VlanTag"
+    value: "VlanTag"
   - model_name: startTag
     type: String
     example: "12"
     test_value: "12"
     data_path: ["data"]
+    mandatory: true
   - model_name: endTag
     type: String
     example: "15"
     test_value: "15"
     data_path: ["data"]
+    mandatory: true

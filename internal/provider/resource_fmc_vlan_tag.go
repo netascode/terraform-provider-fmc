@@ -83,23 +83,19 @@ func (r *VLANTagResource) Schema(ctx context.Context, req resource.SchemaRequest
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"overridable": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
 				Optional:            true,
 			},
-			"type": schema.StringAttribute{
+			"start_tag": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Required:            true,
 			},
-			"start_tag": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
 			"end_tag": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
+				Required:            true,
 			},
 		},
 	}
