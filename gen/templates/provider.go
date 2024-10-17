@@ -27,9 +27,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"strings"
 
-	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -60,7 +58,6 @@ type FmcProviderModel struct {
 // FmcProviderData describes the data maintained by the provider.
 type FmcProviderData struct {
 	Client      *fmc.Client
-	Version		*version.Version
 }
 
 // Metadata returns the provider type name.
@@ -278,34 +275,7 @@ func (p *FmcProvider) Configure(ctx context.Context, req provider.ConfigureReque
 		return
 	}
 
-	// Get FMC Version
-	res, err := c.Get("/api/fmc_platform/v1/info/serverversion")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to retrieve FMC version",
-			"Unable to retrieve FMC version:\n\n"+err.Error(),
-		)
-		return
-	}
-
-	fmcVersion := res.Get("items.0.serverVersion")
-	if !fmcVersion.Exists() {
-		resp.Diagnostics.AddError(
-			"Unable to retrieve FMC version",
-			"Unable to retrieve FMC version:\n\nVersion not found in FMC response",
-		)
-		return
-	}
-
-	fmcVersionFormatted, _ := version.NewVersion(strings.Split(fmcVersion.String(), " ")[0])
-
-	tflog.Debug(ctx, fmt.Sprintf("FMC version: %s", fmcVersionFormatted))
-
-	data := FmcProviderData{
-		Client:  &c,
-		Version: fmcVersionFormatted,
-	}
-	
+	data := FmcProviderData{Client: &c}
 	resp.DataSourceData = &data
 	resp.ResourceData = &data
 }
