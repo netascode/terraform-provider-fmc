@@ -16,8 +16,7 @@ attributes:
   - model_name: overridable
     type: Bool
     description: Indicates whether object values can be overridden.
-    exclude_example: true
-    test_value: "true"
+    example: true
   - model_name: objects
     tf_name: vlan_tags
     type: Set
@@ -34,7 +33,6 @@ test_prerequisites: |-
   resource "fmc_vlan_tag" "test" {
     name        = "vlan_tag_1111"
     description = "My TAG id"
-    type        = "VlanTag"
     overridable = false
     start_tag   = 11
     end_tag     = 12

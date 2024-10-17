@@ -32,6 +32,7 @@ func TestAccDataSourceFmcVLANTagGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag_group.test", "name", "vlan_tag_group_1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag_group.test", "description", "My vlan tag group name"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag_group.test", "overridable", "true"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -56,7 +57,6 @@ const testAccDataSourceFmcVLANTagGroupPrerequisitesConfig = `
 resource "fmc_vlan_tag" "test" {
   name        = "vlan_tag_1111"
   description = "My TAG id"
-  type        = "VlanTag"
   overridable = false
   start_tag   = 11
   end_tag     = 12
