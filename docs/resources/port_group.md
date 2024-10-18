@@ -50,7 +50,7 @@ resource "fmc_port_group" "example" {
 
 Required:
 
-- `type` (String)
+- `type` (String) - Choices: `ProtocolPortObject`, `ICMPV6Object`, `ICMPV4Object`
 
 Optional:
 

@@ -36,7 +36,8 @@ attributes:
       - model_name: type
         type: String
         mandatory: true
-        example: "ProtocolPortObject"
+        enum_values: [ProtocolPortObject,ICMPV6Object,ICMPV4Object]
+        example: ProtocolPortObject
 
 test_prerequisites: |-
   resource "fmc_port" "test" {
