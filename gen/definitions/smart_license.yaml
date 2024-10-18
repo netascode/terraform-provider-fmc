@@ -2,6 +2,8 @@
 name: Smart License
 rest_endpoint: /api/fmc_platform/v1/license/smartlicenses
 doc_category: License
+no_update: true
+no_delete: true
 attributes:
   - model_name: registrationType
     type: String
@@ -14,3 +16,10 @@ attributes:
     description: Registration token.
     example: "X2M3YmJlY..."
     exclude_test: true
+  - model_name: regStatus
+    tf_name: registration_status
+    type: String
+    description: Status of a smart license.
+    example: EVALUATION
+    exclude_test: true
+    exclude_example: true

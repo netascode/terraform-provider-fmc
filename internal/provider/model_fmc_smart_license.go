@@ -31,10 +31,11 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type SmartLicense struct {
-	Id               types.String `tfsdk:"id"`
-	Domain           types.String `tfsdk:"domain"`
-	RegistrationType types.String `tfsdk:"registration_type"`
-	Token            types.String `tfsdk:"token"`
+	Id                 types.String `tfsdk:"id"`
+	Domain             types.String `tfsdk:"domain"`
+	RegistrationType   types.String `tfsdk:"registration_type"`
+	Token              types.String `tfsdk:"token"`
+	RegistrationStatus types.String `tfsdk:"registration_status"`
 }
 
 // End of section. //template:end types
@@ -60,6 +61,9 @@ func (data SmartLicense) toBody(ctx context.Context, state SmartLicense) string 
 	if !data.Token.IsNull() {
 		body, _ = sjson.Set(body, "token", data.Token.ValueString())
 	}
+	if !data.RegistrationStatus.IsNull() {
+		body, _ = sjson.Set(body, "regStatus", data.RegistrationStatus.ValueString())
+	}
 	return body
 }
 
@@ -77,6 +81,11 @@ func (data *SmartLicense) fromBody(ctx context.Context, res gjson.Result) {
 		data.Token = types.StringValue(value.String())
 	} else {
 		data.Token = types.StringNull()
+	}
+	if value := res.Get("regStatus"); value.Exists() {
+		data.RegistrationStatus = types.StringValue(value.String())
+	} else {
+		data.RegistrationStatus = types.StringNull()
 	}
 }
 
@@ -98,6 +107,11 @@ func (data *SmartLicense) fromBodyPartial(ctx context.Context, res gjson.Result)
 		data.Token = types.StringValue(value.String())
 	} else {
 		data.Token = types.StringNull()
+	}
+	if value := res.Get("regStatus"); value.Exists() && !data.RegistrationStatus.IsNull() {
+		data.RegistrationStatus = types.StringValue(value.String())
+	} else {
+		data.RegistrationStatus = types.StringNull()
 	}
 }
 

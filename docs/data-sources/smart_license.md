@@ -31,5 +31,6 @@ data "fmc_smart_license" "example" {
 
 ### Read-Only
 
+- `registration_status` (String) Status of a smart license.
 - `registration_type` (String) Action to be executed on the smart license.
 - `token` (String) Registration token.

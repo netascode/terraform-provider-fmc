@@ -73,6 +73,10 @@ func (d *SmartLicenseDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "Registration token.",
 				Computed:            true,
 			},
+			"registration_status": schema.StringAttribute{
+				MarkdownDescription: "Status of a smart license.",
+				Computed:            true,
+			},
 		},
 	}
 }
