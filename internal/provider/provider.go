@@ -294,9 +294,11 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewHostResource,
 		NewICMPv4ObjectResource,
 		NewICMPv6ObjectResource,
+		NewInterfaceGroupResource,
 		NewIntrusionPolicyResource,
 		NewNetworkResource,
 		NewNetworkAnalysisPolicyResource,
+		NewNetworkGroupsResource,
 		NewPortResource,
 		NewPORTGroupResource,
 		NewRangeResource,
@@ -304,6 +306,8 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewStandardACLResource,
 		NewURLResource,
 		NewURLGroupResource,
+		NewVLANTagResource,
+		NewVLANTagGroupResource,
 	}
 }
 
@@ -322,6 +326,7 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewHostDataSource,
 		NewICMPv4ObjectDataSource,
 		NewICMPv6ObjectDataSource,
+		NewInterfaceGroupDataSource,
 		NewIntrusionPolicyDataSource,
 		NewNetworkDataSource,
 		NewNetworkAnalysisPolicyDataSource,
@@ -332,6 +337,8 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewStandardACLDataSource,
 		NewURLDataSource,
 		NewURLGroupDataSource,
+		NewVLANTagDataSource,
+		NewVLANTagGroupDataSource,
 	}
 }
 
