@@ -3,12 +3,12 @@
 page_title: "fmc_port_group Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
-  This resource can manage a PORT Group.
+  This resource can manage a Port Group.
 ---
 
 # fmc_port_group (Resource)
 
-This resource can manage a PORT Group.
+This resource can manage a Port Group.
 
 ## Example Usage
 

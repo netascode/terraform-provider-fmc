@@ -43,26 +43,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &PORTGroupResource{}
-	_ resource.ResourceWithImportState = &PORTGroupResource{}
+	_ resource.Resource                = &PortGroupResource{}
+	_ resource.ResourceWithImportState = &PortGroupResource{}
 )
 
-func NewPORTGroupResource() resource.Resource {
-	return &PORTGroupResource{}
+func NewPortGroupResource() resource.Resource {
+	return &PortGroupResource{}
 }
 
-type PORTGroupResource struct {
+type PortGroupResource struct {
 	client *fmc.Client
 }
 
-func (r *PORTGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *PortGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_port_group"
 }
 
-func (r *PORTGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *PortGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a PORT Group.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Port Group.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -118,7 +118,7 @@ func (r *PORTGroupResource) Schema(ctx context.Context, req resource.SchemaReque
 	}
 }
 
-func (r *PORTGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *PortGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -130,8 +130,8 @@ func (r *PORTGroupResource) Configure(_ context.Context, req resource.ConfigureR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
-func (r *PORTGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan PORTGroup
+func (r *PortGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan PortGroup
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -148,7 +148,7 @@ func (r *PORTGroupResource) Create(ctx context.Context, req resource.CreateReque
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, PORTGroup{})
+	body := plan.toBody(ctx, PortGroup{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -168,8 +168,8 @@ func (r *PORTGroupResource) Create(ctx context.Context, req resource.CreateReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (r *PORTGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state PORTGroup
+func (r *PortGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state PortGroup
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -218,8 +218,8 @@ func (r *PORTGroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
-func (r *PORTGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state PORTGroup
+func (r *PortGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state PortGroup
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -258,8 +258,8 @@ func (r *PORTGroupResource) Update(ctx context.Context, req resource.UpdateReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *PORTGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state PORTGroup
+func (r *PortGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state PortGroup
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -289,7 +289,7 @@ func (r *PORTGroupResource) Delete(ctx context.Context, req resource.DeleteReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *PORTGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *PortGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)

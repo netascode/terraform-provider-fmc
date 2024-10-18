@@ -29,7 +29,7 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
-func TestAccFmcPORTGroup(t *testing.T) {
+func TestAccFmcPortGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_port_group.test", "name", "portgroup_obj1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_port_group.test", "type", "PortObjectGroup"))
@@ -39,11 +39,11 @@ func TestAccFmcPORTGroup(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcPORTGroupPrerequisitesConfig + testAccFmcPORTGroupConfig_minimum(),
+			Config: testAccFmcPortGroupPrerequisitesConfig + testAccFmcPortGroupConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcPORTGroupPrerequisitesConfig + testAccFmcPORTGroupConfig_all(),
+		Config: testAccFmcPortGroupPrerequisitesConfig + testAccFmcPortGroupConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -62,7 +62,7 @@ func TestAccFmcPORTGroup(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
-const testAccFmcPORTGroupPrerequisitesConfig = `
+const testAccFmcPortGroupPrerequisitesConfig = `
 resource "fmc_port" "test" {
   name        = "port_1"
   description = "My PORT id"
@@ -75,7 +75,7 @@ resource "fmc_port" "test" {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 
-func testAccFmcPORTGroupConfig_minimum() string {
+func testAccFmcPortGroupConfig_minimum() string {
 	config := `resource "fmc_port_group" "test" {` + "\n"
 	config += `	name = "portgroup_obj1"` + "\n"
 	config += `	type = "PortObjectGroup"` + "\n"
@@ -91,7 +91,7 @@ func testAccFmcPORTGroupConfig_minimum() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 
-func testAccFmcPORTGroupConfig_all() string {
+func testAccFmcPortGroupConfig_all() string {
 	config := `resource "fmc_port_group" "test" {` + "\n"
 	config += `	name = "portgroup_obj1"` + "\n"
 	config += `	type = "PortObjectGroup"` + "\n"

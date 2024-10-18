@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &PORTGroupDataSource{}
-	_ datasource.DataSourceWithConfigure = &PORTGroupDataSource{}
+	_ datasource.DataSource              = &PortGroupDataSource{}
+	_ datasource.DataSourceWithConfigure = &PortGroupDataSource{}
 )
 
-func NewPORTGroupDataSource() datasource.DataSource {
-	return &PORTGroupDataSource{}
+func NewPortGroupDataSource() datasource.DataSource {
+	return &PortGroupDataSource{}
 }
 
-type PORTGroupDataSource struct {
+type PortGroupDataSource struct {
 	client *fmc.Client
 }
 
-func (d *PORTGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *PortGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_port_group"
 }
 
-func (d *PORTGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *PortGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the PORT Group.",
+		MarkdownDescription: "This data source can read the Port Group.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -106,7 +106,7 @@ func (d *PORTGroupDataSource) Schema(ctx context.Context, req datasource.SchemaR
 		},
 	}
 }
-func (d *PORTGroupDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *PortGroupDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -115,7 +115,7 @@ func (d *PORTGroupDataSource) ConfigValidators(ctx context.Context) []datasource
 	}
 }
 
-func (d *PORTGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *PortGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -127,8 +127,8 @@ func (d *PORTGroupDataSource) Configure(_ context.Context, req datasource.Config
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (d *PORTGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config PORTGroup
+func (d *PortGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config PortGroup
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

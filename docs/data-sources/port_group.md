@@ -3,12 +3,12 @@
 page_title: "fmc_port_group Data Source - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
-  This data source can read the PORT Group.
+  This data source can read the Port Group.
 ---
 
 # fmc_port_group (Data Source)
 
-This data source can read the PORT Group.
+This data source can read the Port Group.
 
 ## Example Usage
 

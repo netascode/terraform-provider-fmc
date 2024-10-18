@@ -28,7 +28,7 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
-func TestAccDataSourceFmcPORTGroup(t *testing.T) {
+func TestAccDataSourceFmcPortGroup(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_port_group.test", "name", "portgroup_obj1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_port_group.test", "type", "PortObjectGroup"))
@@ -39,11 +39,11 @@ func TestAccDataSourceFmcPORTGroup(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcPORTGroupPrerequisitesConfig + testAccDataSourceFmcPORTGroupConfig(),
+				Config: testAccDataSourceFmcPortGroupPrerequisitesConfig + testAccDataSourceFmcPortGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 			{
-				Config: testAccDataSourceFmcPORTGroupPrerequisitesConfig + testAccNamedDataSourceFmcPORTGroupConfig(),
+				Config: testAccDataSourceFmcPortGroupPrerequisitesConfig + testAccNamedDataSourceFmcPortGroupConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -54,7 +54,7 @@ func TestAccDataSourceFmcPORTGroup(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
-const testAccDataSourceFmcPORTGroupPrerequisitesConfig = `
+const testAccDataSourceFmcPortGroupPrerequisitesConfig = `
 resource "fmc_port" "test" {
   name        = "port_1"
   description = "My PORT id"
@@ -67,7 +67,7 @@ resource "fmc_port" "test" {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
-func testAccDataSourceFmcPORTGroupConfig() string {
+func testAccDataSourceFmcPortGroupConfig() string {
 	config := `resource "fmc_port_group" "test" {` + "\n"
 	config += `	name = "portgroup_obj1"` + "\n"
 	config += `	type = "PortObjectGroup"` + "\n"
@@ -87,7 +87,7 @@ func testAccDataSourceFmcPORTGroupConfig() string {
 	return config
 }
 
-func testAccNamedDataSourceFmcPORTGroupConfig() string {
+func testAccNamedDataSourceFmcPortGroupConfig() string {
 	config := `resource "fmc_port_group" "test" {` + "\n"
 	config += `	name = "portgroup_obj1"` + "\n"
 	config += `	type = "PortObjectGroup"` + "\n"
