@@ -26,8 +26,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -127,33 +125,15 @@ func (d *HostsDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
-	// In one request, up to 1000 elements can be read
-	// Here all elements from FMC are requested and locally only required are processed
-	offset := 0
-	limit := 1000
-	fullOutput := `{"items":[]}`
-	for page := 1; ; page++ {
-		urlPath := config.getPath() + fmt.Sprintf("?expanded=true&limit=%d&offset=%d", limit, offset)
-		res, err := d.client.Get(urlPath, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) from %s, got error: %s, %s", urlPath, err, res.String()))
-			return
-		}
-
-		// Merge output of current request to overall list
-		resItems := res.Get("items").String()
-		fullOutput, _ = sjson.SetRaw(fullOutput, "items.-1", resItems[1:len(resItems)-1])
-
-		// If there are no more pages to get, break the loop
-		if !res.Get("paging.next.0").Exists() {
-			break
-		}
-
-		// Increase offset to get next bulk of data
-		offset += limit
+	// Get all objects from FMC
+	urlPath := config.getPath() + "?expanded=true"
+	res, err := d.client.GetAll(urlPath, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) from %s, got error: %s, %s", urlPath, err, res.String()))
+		return
 	}
 
-	config.fromBody(ctx, gjson.Parse(fullOutput))
+	config.fromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
 

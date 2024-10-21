@@ -38,17 +38,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
 
-// define maximum elements in single bulk request for delete & create
-const (
-	hostsBulkSizeDelete          int    = 200
-	hostsBulkSizeCreate          int    = 1000
-	hostsBulkDeleteMinFMCVersion string = "7.4"
+var (
+	hostsBulkDeleteMinFMCVersion, _ = version.NewVersion("7.4")
 )
 
 // Section below is generated&owned by "gen/generator.go". //template:begin model
@@ -193,30 +188,12 @@ func (r *HostsResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	// In one request, up to 1000 elements can be read
-	// Here all elements from FMC are requested and locally only required are processed
-	offset := 0
-	limit := 1000
-	fullOutput := `{"items":[]}`
-	for page := 1; ; page++ {
-		urlPath := state.getPath() + fmt.Sprintf("?expanded=true&limit=%d&offset=%d", limit, offset)
-		res, err := r.client.Get(urlPath, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) from %s, got error: %s, %s", urlPath, err, res.String()))
-			return
-		}
-
-		// Merge output of current request to overall list
-		resItems := res.Get("items").String()
-		fullOutput, _ = sjson.SetRaw(fullOutput, "items.-1", resItems[1:len(resItems)-1])
-
-		// If there are no more pages to get, break the loop
-		if !res.Get("paging.next.0").Exists() {
-			break
-		}
-
-		// Increate offset to get next bulk of data
-		offset += limit
+	// Get all objects from FMC
+	urlPath := state.getPath() + "?expanded=true"
+	res, err := r.client.GetAll(urlPath, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) from %s, got error: %s, %s", urlPath, err, res.String()))
+		return
 	}
 
 	imp, diags := helpers.IsFlagImporting(ctx, req)
@@ -226,9 +203,9 @@ func (r *HostsResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	// After `terraform import` we switch to a full read.
 	if imp {
-		state.fromBody(ctx, gjson.Parse(fullOutput))
+		state.fromBody(ctx, res)
 	} else {
-		state.fromBodyPartial(ctx, gjson.Parse(fullOutput))
+		state.fromBodyPartial(ctx, res)
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
@@ -408,7 +385,7 @@ func (r *HostsResource) ImportState(ctx context.Context, req resource.ImportStat
 
 	// Check if regex matched
 	if match == nil {
-		resp.Diagnostics.AddError("Import error", "Failed to parse import parameres")
+		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters")
 		return
 	}
 
@@ -443,7 +420,7 @@ func (r *HostsResource) ImportState(ctx context.Context, req resource.ImportStat
 func (r *HostsResource) createSubresources(ctx context.Context, state, plan Hosts, reqMods ...func(*fmc.Req)) (Hosts, diag.Diagnostics) {
 	var idx = 0
 	var bulk Hosts
-	bulk.Items = make(map[string]HostsItems, hostsBulkSizeCreate)
+	bulk.Items = make(map[string]HostsItems, bulkSizeCreate)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Creating bulk of hosts id", state.Id.ValueString()))
 
@@ -456,7 +433,7 @@ func (r *HostsResource) createSubresources(ctx context.Context, state, plan Host
 		bulk.Items[k] = v
 
 		// If bulk size was reached or all entries have been processed
-		if idx%hostsBulkSizeCreate == 0 || idx == len(plan.Items) {
+		if idx%bulkSizeCreate == 0 || idx == len(plan.Items) {
 
 			// Parse body of the request to string
 			body := bulk.toBody(ctx, Hosts{})
@@ -477,7 +454,7 @@ func (r *HostsResource) createSubresources(ctx context.Context, state, plan Host
 			}
 
 			// Clear bulk item for next run
-			bulk.Items = make(map[string]HostsItems, hostsBulkSizeCreate)
+			bulk.Items = make(map[string]HostsItems, bulkSizeCreate)
 		}
 	}
 
@@ -489,16 +466,11 @@ func (r *HostsResource) deleteSubresources(ctx context.Context, state, plan Host
 	hostsToRemove := plan.Clone()
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Deleting bulk of hosts id", state.Id.ValueString()))
-
-	// Get minimum version needed for bulk updates
-	minVer, _ := version.NewVersion(hostsBulkDeleteMinFMCVersion)
-
 	// Get FMC version from the clinet
-	r.client.GetFMCVersion()
 	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
 
 	// Check if FMC version supports bulk deletes
-	if fmcVersion.GreaterThanOrEqual(minVer) {
+	if fmcVersion.GreaterThanOrEqual(hostsBulkDeleteMinFMCVersion) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk deletion mode", state.Id.ValueString()))
 
 		var idx = 0
@@ -519,7 +491,7 @@ func (r *HostsResource) deleteSubresources(ctx context.Context, state, plan Host
 			idsToRemove.WriteString(url.QueryEscape(v.Id.ValueString()) + ",")
 
 			// If bulk size was reached or all entries have been processed
-			if idx%hostsBulkSizeDelete == 0 || idx == len(hostsToRemove.Items) {
+			if idx%bulkSizeDelete == 0 || idx == len(hostsToRemove.Items) {
 				urlPath := state.getPath() + "?bulk=true&filter=\"ids:" + idsToRemove.String() + "\""
 				res, err := r.client.Delete(urlPath, reqMods...)
 				if err != nil {
