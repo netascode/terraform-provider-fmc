@@ -190,7 +190,7 @@ func (r *HostsResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	// Get all objects from FMC
 	urlPath := state.getPath() + "?expanded=true"
-	res, err := r.client.GetAll(urlPath, reqMods...)
+	res, err := r.client.Get(urlPath, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) from %s, got error: %s, %s", urlPath, err, res.String()))
 		return
