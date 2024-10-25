@@ -307,6 +307,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewNetworkResource,
 		NewNetworkAnalysisPolicyResource,
 		NewNetworkGroupsResource,
+		NewPolicyAssignmentsResource,
 		NewPortResource,
 		NewPortGroupResource,
 		NewRangeResource,
