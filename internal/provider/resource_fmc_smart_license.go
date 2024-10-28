@@ -109,6 +109,7 @@ func (r *SmartLicenseResource) Configure(_ context.Context, req resource.Configu
 
 func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan SmartLicense
+	var state SmartLicense
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -122,15 +123,23 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
+	// Read state
+	res, err := r.client.Get(state.getPath(), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	state.fromBodyPartial(ctx, res)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, SmartLicense{})
-	res, err := r.client.Post(plan.getPath(), body, reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-		return
-	}
+	// body := plan.toBody(ctx, SmartLicense{})
+	// res, err = r.client.Post(plan.getPath(), body, reqMods...)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+	// 	return
+	// }
 	plan.Id = types.StringValue(res.Get("id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
