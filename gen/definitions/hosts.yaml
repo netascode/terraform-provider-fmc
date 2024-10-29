@@ -10,7 +10,7 @@ is_bulk: true
 data_source_name_query: yes
 import_name_query: yes
 minimum_versions:
-  bulk_delete: 7.4
+  bulk_delete: "7.4"
 attributes:
   - model_name: items
     type: Map
