@@ -56,11 +56,11 @@ var (
 	{{- end}}
 )
 
-{{- if .MinimumVersions.ObjectSupport}}
-var minFMCVersionObjectSupport{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersions.ObjectSupport}}"))
+{{- if .MinimumVersion}}
+var minFMCVersionObjectSupport{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersion}}"))
 {{- end}}
-{{- if .MinimumVersions.BulkDelete}}
-var minFMCVersionBulkDelete{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersions.BulkDelete}}"))
+{{- if .MinimumVersionBulkDelete}}
+var minFMCVersionBulkDelete{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersionBulkDelete}}"))
 {{- end}}
 
 func New{{camelCase .Name}}Resource() resource.Resource {
@@ -820,9 +820,9 @@ func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resou
 
 {{- if .IsBulk}}
 func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Import looks for string in the following format: Domain,[ObjectName1,ObjectName2,...]
-	// Domain part is optional
-	// ObjectName1,ObjectName2,... is coma-separated list of object names
+	// Import looks for string in the following format: <domain_name>,[<object1_name>,<object2_name>,...]
+	// <domain_name> is optional
+	// <object1_name>,<object2_name>,... is coma-separated list of object names
 	var config {{camelCase .Name}}
 
 	// Compile pattern for import command parsing
@@ -833,7 +833,7 @@ func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resou
 
 	// Check if regex matched
 	if match == nil {
-		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters")
+		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters. Please provide import string in the following format: <domain_name>,[<object1_name>,<object2_name>,...]")
 		return
 	}
 
@@ -928,7 +928,7 @@ func (r *{{camelCase .Name}}Resource) deleteSubresources(ctx context.Context, st
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Deleting bulk of objects", state.Id.ValueString()))
 	
-	{{- if .MinimumVersions.BulkDelete}}
+	{{- if .MinimumVersionBulkDelete}}
 	// Get FMC version from the clinet
 	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
 
@@ -998,7 +998,7 @@ func (r *{{camelCase .Name}}Resource) deleteSubresources(ctx context.Context, st
 			// Remove deleted item from state
 			delete(state.Items, k)
 		}
-	{{- if .MinimumVersions.BulkDelete}}
+	{{- if .MinimumVersionBulkDelete}}
 	}
 	{{- end}}
 
