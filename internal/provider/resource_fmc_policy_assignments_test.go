@@ -44,10 +44,6 @@ func TestAccFmcPolicyAssignments(t *testing.T) {
 		Config: testAccFmcPolicyAssignmentsPrerequisitesConfig + testAccFmcPolicyAssignmentsConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "fmc_policy_assignments.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

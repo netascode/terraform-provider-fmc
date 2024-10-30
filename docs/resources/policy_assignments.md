@@ -29,14 +29,14 @@ resource "fmc_policy_assignments" "example" {
 
 ### Required
 
-- `policy_id` (String)
+- `policy_id` (String) ID of the policy to be assigned.
 - `targets` (Attributes Set) (see [below for nested schema](#nestedatt--targets))
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `name` (String) User-created name of the resource.
-- `type` (String)
+- `name` (String) Name of the policy to be assigned.
+- `type` (String) Type of the policy to be assigned.
 
 ### Read-Only
 
@@ -53,11 +53,3 @@ Required:
 Optional:
 
 - `name` (String)
-
-## Import
-
-Import is supported using the following syntax:
-
-```shell
-terraform import fmc_policy_assignments.example "<policy_id>"
-```

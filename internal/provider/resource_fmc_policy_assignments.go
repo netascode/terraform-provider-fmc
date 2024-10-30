@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -43,8 +42,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &PolicyAssignmentsResource{}
-	_ resource.ResourceWithImportState = &PolicyAssignmentsResource{}
+	_ resource.Resource = &PolicyAssignmentsResource{}
 )
 
 func NewPolicyAssignmentsResource() resource.Resource {
@@ -80,15 +78,15 @@ func (r *PolicyAssignmentsResource) Schema(ctx context.Context, req resource.Sch
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the resource.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the policy to be assigned.").String,
 				Optional:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the policy to be assigned.").String,
 				Optional:            true,
 			},
 			"policy_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("ID of the policy to be assigned.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -286,11 +284,4 @@ func (r *PolicyAssignmentsResource) Delete(ctx context.Context, req resource.Del
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-
-func (r *PolicyAssignmentsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-
-	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
-}
-
 // End of section. //template:end import

@@ -3,7 +3,7 @@ name: Policy Assignments
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments
 no_delete: true
 no_data_source: true
-data_source_name_query: true
+no_import: true
 doc_category: Policy Assignments
 attributes:
   - model_name: type
@@ -11,7 +11,7 @@ attributes:
     value: "PolicyAssignment"
   - model_name: name
     type: String
-    description: User-created name of the resource.
+    description: Name of the policy to be assigned.
     mandatory: false
     example: AccessPolicyName
     data_path: ["policy"]
@@ -19,6 +19,7 @@ attributes:
     exclude_test: true    
   - model_name: type
     type: String
+    description: Type of the policy to be assigned.
     mandatory: false
     example: AccessPolicy
     data_path: ["policy"]
@@ -27,6 +28,7 @@ attributes:
   - model_name: id
     tf_name: policy_id
     type: String
+    description: ID of the policy to be assigned.
     id: true
     mandatory: true
     example: 0050568A-2561-0ed3-0000-004294972836
