@@ -452,9 +452,9 @@ func (r *DynamicObjectsResource) Delete(ctx context.Context, req resource.Delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 func (r *DynamicObjectsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Import looks for string in the following format: Domain,[ObjectName1,ObjectName2,...]
-	// Domain part is optional
-	// ObjectName1,ObjectName2,... is coma-separated list of object names
+	// Import looks for string in the following format: <domain_name>,[<object1_name>,<object2_name>,...]
+	// <domain_name> is optional
+	// <object1_name>,<object2_name>,... is coma-separated list of object names
 	var config DynamicObjects
 
 	// Compile pattern for import command parsing
@@ -465,7 +465,7 @@ func (r *DynamicObjectsResource) ImportState(ctx context.Context, req resource.I
 
 	// Check if regex matched
 	if match == nil {
-		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters")
+		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters. Please provide import string in the following format: <domain_name>,[<object1_name>,<object2_name>,...]")
 		return
 	}
 
