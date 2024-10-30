@@ -38,8 +38,6 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin model
-
 // Ensure provider defined types fully satisfy framework interfaces
 var (
 	_ resource.Resource                = &SmartLicenseResource{}
@@ -91,7 +89,7 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"registration_status": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Status of a smart license.").String,
-				Optional:            true,
+				Computed:            true,
 			},
 		},
 	}
@@ -104,8 +102,6 @@ func (r *SmartLicenseResource) Configure(_ context.Context, req resource.Configu
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
 }
-
-// End of section. //template:end model
 
 func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan SmartLicense
@@ -123,26 +119,48 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	// Read state
+	// Read state before create
 	res, err := r.client.Get(state.getPath(), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	state.fromBodyPartial(ctx, res)
+	state.fromBody(ctx, res.Get("items.0"))
+
+	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
+		plan.RegistrationStatus = state.RegistrationStatus
+		plan.Id = types.StringValue("")
+		diags = resp.State.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+		return
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
+	if plan.RegistrationType.ValueString() == "REGISTER" && plan.Token.ValueString() == "" {
+		resp.Diagnostics.AddError("Provider Error", "Token required for registration")
+		return
+	}
+
 	// Create object
-	// body := plan.toBody(ctx, SmartLicense{})
-	// res, err = r.client.Post(plan.getPath(), body, reqMods...)
-	// if err != nil {
-	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-	// 	return
-	// }
+	body := plan.toBody(ctx, SmartLicense{})
+	res, err = r.client.Post(plan.getPath(), body, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+		return
+	}
 	plan.Id = types.StringValue(res.Get("id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+
+	// Read state after create
+	res, err = r.client.Get(state.getPath(), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+	state.fromBody(ctx, res.Get("items.0"))
+	plan.RegistrationStatus = state.RegistrationStatus
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -183,9 +201,9 @@ func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadReques
 
 	// After `terraform import` we switch to a full read.
 	if imp {
-		state.fromBody(ctx, res)
+		state.fromBody(ctx, res.Get("items.0"))
 	} else {
-		state.fromBodyPartial(ctx, res)
+		state.fromBodyPartial(ctx, res.Get("items.0"))
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))

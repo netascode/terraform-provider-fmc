@@ -48,8 +48,6 @@ func (data SmartLicense) getPath() string {
 
 // End of section. //template:end getPath
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
-
 func (data SmartLicense) toBody(ctx context.Context, state SmartLicense) string {
 	body := ""
 	if data.Id.ValueString() != "" {
@@ -61,13 +59,8 @@ func (data SmartLicense) toBody(ctx context.Context, state SmartLicense) string 
 	if !data.Token.IsNull() {
 		body, _ = sjson.Set(body, "token", data.Token.ValueString())
 	}
-	if !data.RegistrationStatus.IsNull() {
-		body, _ = sjson.Set(body, "regStatus", data.RegistrationStatus.ValueString())
-	}
 	return body
 }
-
-// End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
@@ -91,12 +84,13 @@ func (data *SmartLicense) fromBody(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBody
 
+// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
+
 // fromBodyPartial reads values from a gjson.Result into a tfstate model. It ignores null attributes in order to
 // uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
 func (data *SmartLicense) fromBodyPartial(ctx context.Context, res gjson.Result) {
-	res = res.Get("items.0")
 	if value := res.Get("registrationType"); value.Exists() && !data.RegistrationType.IsNull() {
 		data.RegistrationType = types.StringValue(value.String())
 	} else {
@@ -107,12 +101,14 @@ func (data *SmartLicense) fromBodyPartial(ctx context.Context, res gjson.Result)
 	} else {
 		data.Token = types.StringNull()
 	}
-	if value := res.Get("regStatus"); value.Exists() {
+	if value := res.Get("regStatus"); value.Exists() && !data.RegistrationStatus.IsNull() {
 		data.RegistrationStatus = types.StringValue(value.String())
 	} else {
 		data.RegistrationStatus = types.StringNull()
 	}
 }
+
+// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
 
