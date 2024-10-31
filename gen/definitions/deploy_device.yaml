@@ -1,0 +1,42 @@
+---
+name: Deployment
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/deploymentrequests
+no_delete: true
+no_update: true
+no_data_source: true
+no_import: true
+doc_category: Deployment
+attributes:
+  - model_name: type
+    type: String
+    value: "DeploymentRequest"
+  - model_name: version
+    type: String
+    description: Epoch unix time stamp.
+    mandatory: true
+    example: "1457566762351"
+  - model_name: ForceDeploy
+    type: Bool
+    description: Force deployment (even if there are no configuration changes).
+    mandatory: false
+    exclude_example: true
+    exclude_test: true
+  - model_name: ignoreWarning
+    type: Bool
+    description: Ignore warnings during deployment.
+    mandatory: false
+    exclude_example: true
+    exclude_test: true
+  - model_name: deviceList
+    type: Set
+    description: List of device ids to be deployed.
+    mandatory: true
+    element_type: String
+    example: d94f7ada-d141-11e5-acf3-c41f7e67fb1b
+  - model_name: deploymentNote
+    type: String
+    description: User note related to deployment.
+    mandatory: false
+    example: "yournotescomehere"
+    exclude_example: true
+    exclude_test: true
