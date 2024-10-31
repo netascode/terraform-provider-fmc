@@ -26,13 +26,14 @@ import (
 
 // End of section. //template:end imports
 
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
+
 func TestAccDataSourceFmcPorts(t *testing.T) {
 	var checks []resource.TestCheckFunc
-
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_ports.test", "items.ports_1.id"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ports.test", "items.ports_1.port", "123"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ports.test", "items.ports_1.protocol", "UDP"))
-
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ports.test", "items.ports_1.port", "443"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ports.test", "items.ports_1.protocol", "TCP"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ports.test", "items.ports_1.description", "Port TCP/443 (HTTPS)"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -45,27 +46,33 @@ func TestAccDataSourceFmcPorts(t *testing.T) {
 	})
 }
 
+// End of section. //template:end testAccDataSource
+
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 // End of section. //template:end testPrerequisites
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
 func testAccDataSourceFmcPortsConfig() string {
 	config := `resource "fmc_ports" "test" {` + "\n"
 	config += `	items = { "ports_1" = {` + "\n"
-	config += `		description = "My Port 1"` + "\n"
+	config += `		port = "443"` + "\n"
+	config += `		protocol = "TCP"` + "\n"
+	config += `		description = "Port TCP/443 (HTTPS)"` + "\n"
 	config += `		overridable = true` + "\n"
-	config += `		port = "123"` + "\n"
-	config += `		protocol = "UDP"` + "\n"
 	config += `	}}` + "\n"
 	config += `}` + "\n"
 
 	config += `
 		data "fmc_ports" "test" {
+			depends_on = [fmc_ports.test]
 			items = {
 				"ports_1" = {
 				}
 			}
-			depends_on = [fmc_ports.test]
 		}
 	`
 	return config
 }
+
+// End of section. //template:end testAccDataSourceConfig

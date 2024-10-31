@@ -249,6 +249,8 @@ func (data *Ports) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBodyUnknowns
 
+// Section below is generated&owned by "gen/generator.go". //template:begin Clone
+
 func (data *Ports) Clone() Ports {
 	ret := *data
 	ret.Items = maps.Clone(data.Items)
@@ -256,7 +258,11 @@ func (data *Ports) Clone() Ports {
 	return ret
 }
 
-// Updates are done one-by-one and require different API body
+// End of section. //template:end Clone
+
+// Section below is generated&owned by "gen/generator.go". //template:begin toBodyNonBulk
+
+// Updates done one-by-one require different API body
 func (data Ports) toBodyNonBulk(ctx context.Context, state Ports) string {
 	// This is one-by-one update, so only one element to update is expected
 	if len(data.Items) > 1 {
@@ -269,3 +275,5 @@ func (data Ports) toBodyNonBulk(ctx context.Context, state Ports) string {
 	// Get first element only
 	return gjson.Get(body, "0").String()
 }
+
+// End of section. //template:end toBodyNonBulk
