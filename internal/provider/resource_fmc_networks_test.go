@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -26,29 +27,23 @@ import (
 
 // End of section. //template:end imports
 
-func TestAccFmcNetworks(t *testing.T) {
-	var checks_step01 []resource.TestCheckFunc
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.prefix", "10.20.30.0/24"))
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.description", "network 1"))
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_2.prefix", "10.20.40.0/24"))
-	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_3.prefix", "10.20.50.0/24"))
+// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
-	var checks_step02 []resource.TestCheckFunc
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.prefix", "10.20.30.0/24"))
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.description", "network 1 new description"))
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_2.prefix", "10.20.40.0/24"))
-	checks_step02 = append(checks_step02, resource.TestCheckNoResourceAttr("fmc_networks.test", "items.networks_3"))
-	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_4.prefix", "10.20.60.0/24"))
+func TestAccFmcNetworks(t *testing.T) {
+	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_networks.test", "items.networks_1.id"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.description", "My Network 1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.prefix", "10.1.1.0/24"))
 
 	var steps []resource.TestStep
-
+	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
+		steps = append(steps, resource.TestStep{
+			Config: testAccFmcNetworksConfig_minimum(),
+		})
+	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcNetworksConfig_step01(),
-		Check:  resource.ComposeTestCheckFunc(checks_step01...),
-	})
-	steps = append(steps, resource.TestStep{
-		Config: testAccFmcNetworksConfig_step02(),
-		Check:  resource.ComposeTestCheckFunc(checks_step02...),
+		Config: testAccFmcNetworksConfig_all(),
+		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
 	resource.Test(t, resource.TestCase{
@@ -58,6 +53,8 @@ func TestAccFmcNetworks(t *testing.T) {
 	})
 }
 
+// End of section. //template:end testAcc
+
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 // End of section. //template:end testPrerequisites
 
@@ -65,7 +62,9 @@ func TestAccFmcNetworks(t *testing.T) {
 
 func testAccFmcNetworksConfig_minimum() string {
 	config := `resource "fmc_networks" "test" {` + "\n"
-	config += `	items = ` + "\n"
+	config += `	items = { "networks_1" = {` + "\n"
+	config += `		prefix = "10.1.1.0/24"` + "\n"
+	config += `	}}` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -79,7 +78,7 @@ func testAccFmcNetworksConfig_all() string {
 	config += `	items = { "networks_1" = {` + "\n"
 	config += `		description = "My Network 1"` + "\n"
 	config += `		overridable = true` + "\n"
-	config += `		prefix = "10.1.1.1"` + "\n"
+	config += `		prefix = "10.1.1.0/24"` + "\n"
 	config += `	}}` + "\n"
 	config += `}` + "\n"
 	return config
@@ -87,39 +86,62 @@ func testAccFmcNetworksConfig_all() string {
 
 // End of section. //template:end testAccConfigAll
 
-func testAccFmcNetworksConfig_step01() string {
-	config := `resource "fmc_networks" "test" {` + "\n"
-	config += `	items = {` + "\n"
-	config += `		"networks_1" = {` + "\n"
-	config += `			prefix = "10.20.30.0/24"` + "\n"
-	config += `			description = "network 1"` + "\n"
-	config += `			overridable = true` + "\n"
-	config += `		},` + "\n"
-	config += `		"networks_2" = {` + "\n"
-	config += `			prefix = "10.20.40.0/24"` + "\n"
-	config += `		},` + "\n"
-	config += `		"networks_3" = {` + "\n"
-	config += `			prefix = "10.20.50.0/24"` + "\n"
-	config += `		},` + "\n"
-	config += `	} ` + "\n"
-	config += `}` + "\n"
-	return config
-}
+func TestAccFmcNetworks_Sequential(t *testing.T) {
+	step_01 := `resource "fmc_networks" "test" {` + "\n" +
+		`	items = {` + "\n" +
+		`		"networks_1" = {` + "\n" +
+		`			prefix = "10.20.30.0/24"` + "\n" +
+		`			description = "network 1"` + "\n" +
+		`			overridable = true` + "\n" +
+		`		},` + "\n" +
+		`		"networks_2" = {` + "\n" +
+		`			prefix = "10.20.40.0/24"` + "\n" +
+		`		},` + "\n" +
+		`		"networks_3" = {` + "\n" +
+		`			prefix = "10.20.50.0/24"` + "\n" +
+		`		},` + "\n" +
+		`	} ` + "\n" +
+		`}` + "\n"
 
-func testAccFmcNetworksConfig_step02() string {
-	config := `resource "fmc_networks" "test" {` + "\n"
-	config += `	items = {` + "\n"
-	config += `		"networks_1" = {` + "\n"
-	config += `			prefix = "10.20.30.0/24"` + "\n"
-	config += `			description = "network 1 new description"` + "\n"
-	config += `		},` + "\n"
-	config += `		"networks_2" = {` + "\n"
-	config += `			prefix = "10.20.40.0/24"` + "\n"
-	config += `		},` + "\n"
-	config += `		"networks_4" = {` + "\n"
-	config += `			prefix = "10.20.60.0/24"` + "\n"
-	config += `		},` + "\n"
-	config += `	} ` + "\n"
-	config += `}` + "\n"
-	return config
+	var checks_step01 []resource.TestCheckFunc
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.prefix", "10.20.30.0/24"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.description", "network 1"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_2.prefix", "10.20.40.0/24"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_3.prefix", "10.20.50.0/24"))
+
+	step_02 := `resource "fmc_networks" "test" {` + "\n" +
+		`	items = {` + "\n" +
+		`		"networks_1" = {` + "\n" +
+		`			prefix = "10.20.30.0/24"` + "\n" +
+		`			description = "network 1 new description"` + "\n" +
+		`		},` + "\n" +
+		`		"networks_2" = {` + "\n" +
+		`			prefix = "10.20.40.0/24"` + "\n" +
+		`		},` + "\n" +
+		`		"networks_4" = {` + "\n" +
+		`			prefix = "10.20.60.0/24"` + "\n" +
+		`		},` + "\n" +
+		`	} ` + "\n" +
+		`}` + "\n"
+
+	var checks_step02 []resource.TestCheckFunc
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.prefix", "10.20.30.0/24"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_1.description", "network 1 new description"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_2.prefix", "10.20.40.0/24"))
+	checks_step02 = append(checks_step02, resource.TestCheckNoResourceAttr("fmc_networks.test", "items.networks_3"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_networks.test", "items.networks_4.prefix", "10.20.60.0/24"))
+
+	steps := []resource.TestStep{{
+		Config: step_01,
+		Check:  resource.ComposeTestCheckFunc(checks_step01...),
+	}, {
+		Config: step_02,
+		Check:  resource.ComposeTestCheckFunc(checks_step02...),
+	}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    steps,
+	})
 }

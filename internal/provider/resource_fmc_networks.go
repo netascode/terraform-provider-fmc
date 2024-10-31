@@ -42,10 +42,6 @@ import (
 
 // End of section. //template:end imports
 
-var (
-	networksBulkDeleteMinFMCVersion, _ = version.NewVersion("7.4")
-)
-
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
@@ -53,6 +49,7 @@ var (
 	_ resource.Resource                = &NetworksResource{}
 	_ resource.ResourceWithImportState = &NetworksResource{}
 )
+var minFMCVersionBulkDeleteNetworks = version.Must(version.NewVersion("7.4"))
 
 func NewNetworksResource() resource.Resource {
 	return &NetworksResource{}
@@ -133,6 +130,8 @@ func (r *NetworksResource) Configure(_ context.Context, req resource.ConfigureRe
 
 // End of section. //template:end model
 
+// Section below is generated&owned by "gen/generator.go". //template:begin create
+
 func (r *NetworksResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Networks
 
@@ -150,9 +149,8 @@ func (r *NetworksResource) Create(ctx context.Context, req resource.CreateReques
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Prepare state for the output
-	// Since I am splitting request into multipe, it may happen that some resources will be created
-	// while other don't. Hence I'd like to track current status outside of plan structure
+	// Prepare state to track creation process
+	// Create request is split to multiple requests, where just subset of them may be successful
 	state := Networks{}
 	state.Items = make(map[string]NetworksItems, len(plan.Items))
 	state.Id = types.StringValue(uuid.New().String())
@@ -160,16 +158,20 @@ func (r *NetworksResource) Create(ctx context.Context, req resource.CreateReques
 
 	// Create object
 	// Creation process is put in a separate function, as that same proces will be needed with `Update`
-	state, diags = r.createSubresources(ctx, state, plan, reqMods...)
+	plan, diags = r.createSubresources(ctx, state, plan, reqMods...)
 	resp.Diagnostics.Append(diags...)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
+
+// End of section. //template:end create
+
+// Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (r *NetworksResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Networks
@@ -192,7 +194,7 @@ func (r *NetworksResource) Read(ctx context.Context, req resource.ReadRequest, r
 	urlPath := state.getPath() + "?expanded=true"
 	res, err := r.client.Get(urlPath, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET) from %s, got error: %s, %s", urlPath, err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
 
@@ -215,6 +217,10 @@ func (r *NetworksResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
+
+// End of section. //template:end read
+
+// Section below is generated&owned by "gen/generator.go". //template:begin update
 
 func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Networks
@@ -240,7 +246,7 @@ func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateReques
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	// DELETE
-	// Delete objects (objects that are present in state, but missing in plan)
+	// Delete objects (that are present in state, but missing in plan)
 	var toDelete Networks
 	toDelete.Items = make(map[string]NetworksItems)
 	planOwnedIDs := make(map[string]string, len(plan.Items))
@@ -257,7 +263,7 @@ func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
-	// If there are networks marked to be deleted
+	// If there are objects marked to be deleted
 	if len(toDelete.Items) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to delete: %d", state.Id.ValueString(), len(toDelete.Items)))
 		state, diags = r.deleteSubresources(ctx, state, toDelete, reqMods...)
@@ -271,19 +277,19 @@ func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateReques
 
 	// CREATE
 	// Create new objects (objects that have missing IDs in plan)
-	var newObjects Networks
-	newObjects.Items = make(map[string]NetworksItems)
+	var toCreate Networks
+	toCreate.Items = make(map[string]NetworksItems)
 	// Scan plan for items with no ID
 	for k, v := range plan.Items {
 		if v.Id.IsUnknown() || v.Id.IsNull() {
-			newObjects.Items[k] = v
+			toCreate.Items[k] = v
 		}
 	}
 
-	// If there are networks marked for create
-	if len(newObjects.Items) > 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(newObjects.Items)))
-		state, diags = r.createSubresources(ctx, state, newObjects, reqMods...)
+	// If there are objects marked for create
+	if len(toCreate.Items) > 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to create: %d", state.Id.ValueString(), len(toCreate.Items)))
+		state, diags = r.createSubresources(ctx, state, toCreate, reqMods...)
 		if diags != nil {
 			resp.Diagnostics.Append(diags...)
 			diags = resp.State.Set(ctx, &state)
@@ -294,8 +300,6 @@ func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateReques
 
 	// UPDATE
 	// Update objects (objects that have different definition in plan and state)
-	// FMC API does not support bulk updates for networks, but still I would like to keep it as if it had
-	// TODO: Add support for renaming objects
 	var notEqual bool
 	var toUpdate Networks
 	toUpdate.Items = make(map[string]NetworksItems)
@@ -314,14 +318,14 @@ func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateReques
 				return
 			}
 
-			// If definitions differ, add network to update list
+			// If definitions differ, add object to update list
 			if notEqual {
 				toUpdate.Items[keyState] = plan.Items[keyState]
 			}
 		}
 	}
 
-	// If there are networks marked for update
+	// If there are objects marked for update
 	if len(toUpdate.Items) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Number of items to update: %d", state.Id.ValueString(), len(toUpdate.Items)))
 		state, diags = r.updateSubresources(ctx, state, toUpdate, reqMods...)
@@ -332,12 +336,17 @@ func (r *NetworksResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 	}
+	plan = state
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end update
+
+// Section below is generated&owned by "gen/generator.go". //template:begin delete
 
 func (r *NetworksResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Networks
@@ -354,27 +363,32 @@ func (r *NetworksResource) Delete(ctx context.Context, req resource.DeleteReques
 		reqMods = append(reqMods, fmc.DomainName(state.Domain.ValueString()))
 	}
 
+	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+
 	// Execute delete
 	state, diags = r.deleteSubresources(ctx, state, state, reqMods...)
 	resp.Diagnostics.Append(diags...)
 
 	// Check if every element was removed
-	if len(state.Items) == 0 {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
-		resp.State.RemoveResource(ctx)
-	} else {
+	if len(state.Items) > 0 {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Not all elements have been removed", state.Id.ValueString()))
 		diags = resp.State.Set(ctx, &state)
 		resp.Diagnostics.Append(diags...)
+		return
 	}
 
+	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
+
+	resp.State.RemoveResource(ctx)
 }
 
-func (r *NetworksResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Import looks for string in the following format: Domain,[NetworkName1,NetworkName2,...]
-	// Domain part is optional
-	// NetworkName1,NetworkName2,... is coma-separated list of object names
+// End of section. //template:end delete
 
+// Section below is generated&owned by "gen/generator.go". //template:begin import
+func (r *NetworksResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Import looks for string in the following format: <domain_name>,[<object1_name>,<object2_name>,...]
+	// <domain_name> is optional
+	// <object1_name>,<object2_name>,... is coma-separated list of object names
 	var config Networks
 
 	// Compile pattern for import command parsing
@@ -385,7 +399,7 @@ func (r *NetworksResource) ImportState(ctx context.Context, req resource.ImportS
 
 	// Check if regex matched
 	if match == nil {
-		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters")
+		resp.Diagnostics.AddError("Import error", "Failed to parse import parameters. Please provide import string in the following format: <domain_name>,[<object1_name>,<object2_name>,...]")
 		return
 	}
 
@@ -415,14 +429,17 @@ func (r *NetworksResource) ImportState(ctx context.Context, req resource.ImportS
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
 }
 
-// createSubresources takes list of networks, splits them into bulks and creates them
+// End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin createSubresources
+// createSubresources takes list of objects, splits them into bulks and creates them
 // We want to save the state after each create event, to be able track already created resources
 func (r *NetworksResource) createSubresources(ctx context.Context, state, plan Networks, reqMods ...func(*fmc.Req)) (Networks, diag.Diagnostics) {
 	var idx = 0
 	var bulk Networks
 	bulk.Items = make(map[string]NetworksItems, bulkSizeCreate)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Creating bulk of networks id", state.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Creating bulk of objects", state.Id.ValueString()))
 
 	// iterate over all items
 	for k, v := range plan.Items {
@@ -461,23 +478,26 @@ func (r *NetworksResource) createSubresources(ctx context.Context, state, plan N
 	return state, nil
 }
 
-// deleteSubresources takes list of networks and deletes them either in bulk, or one-by-one, depending on FMC version
-func (r *NetworksResource) deleteSubresources(ctx context.Context, state, plan Networks, reqMods ...func(*fmc.Req)) (Networks, diag.Diagnostics) {
-	networksToRemove := plan.Clone()
+// End of section. //template:end createSubresources
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Deleting bulk of networks id", state.Id.ValueString()))
+// Section below is generated&owned by "gen/generator.go". //template:begin deleteSubresources
+// deleteSubresources takes list of objects and deletes them either in bulk, or one-by-one, depending on FMC version
+func (r *NetworksResource) deleteSubresources(ctx context.Context, state, plan Networks, reqMods ...func(*fmc.Req)) (Networks, diag.Diagnostics) {
+	objectsToRemove := plan.Clone()
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Deleting bulk of objects", state.Id.ValueString()))
 	// Get FMC version from the clinet
 	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
 
 	// Check if FMC version supports bulk deletes
-	if fmcVersion.GreaterThanOrEqual(networksBulkDeleteMinFMCVersion) {
+	if fmcVersion.GreaterThanOrEqual(minFMCVersionBulkDeleteNetworks) {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk deletion mode", state.Id.ValueString()))
 
 		var idx = 0
 		var idsToRemove strings.Builder
 		var alreadyDeleted []string
 
-		for k, v := range networksToRemove.Items {
+		for k, v := range objectsToRemove.Items {
 			// Counter
 			idx++
 
@@ -491,7 +511,7 @@ func (r *NetworksResource) deleteSubresources(ctx context.Context, state, plan N
 			idsToRemove.WriteString(url.QueryEscape(v.Id.ValueString()) + ",")
 
 			// If bulk size was reached or all entries have been processed
-			if idx%bulkSizeDelete == 0 || idx == len(networksToRemove.Items) {
+			if idx%bulkSizeDelete == 0 || idx == len(objectsToRemove.Items) {
 				urlPath := state.getPath() + "?bulk=true&filter=\"ids:" + idsToRemove.String() + "\""
 				res, err := r.client.Delete(urlPath, reqMods...)
 				if err != nil {
@@ -517,8 +537,8 @@ func (r *NetworksResource) deleteSubresources(ctx context.Context, state, plan N
 
 	} else {
 		tflog.Debug(ctx, fmt.Sprintf("%s: One-by-one deletion mode", state.Id.ValueString()))
-		for k, v := range networksToRemove.Items {
-			// If ID is missing (i.a. object already deleted)
+		for k, v := range objectsToRemove.Items {
+			// Check if the object was not already deleted
 			if v.Id.IsNull() {
 				delete(state.Items, k)
 				continue
@@ -540,18 +560,22 @@ func (r *NetworksResource) deleteSubresources(ctx context.Context, state, plan N
 	return state, nil
 }
 
+// End of section. //template:end deleteSubresources
+
+// Section below is generated&owned by "gen/generator.go". //template:begin updateSubresources
+
 // updateSubresources take elements one-by-one and updates them, as bulks are not supported
 func (r *NetworksResource) updateSubresources(ctx context.Context, state, plan Networks, reqMods ...func(*fmc.Req)) (Networks, diag.Diagnostics) {
-	var tmpNetwork Networks
-	tmpNetwork.Items = make(map[string]NetworksItems, 1)
+	var tmpObject Networks
+	tmpObject.Items = make(map[string]NetworksItems, 1)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Updating bulk of networks id", state.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: Updating bulk of objects", state.Id.ValueString()))
 
 	for k, v := range plan.Items {
-		tmpNetwork.Items[k] = v
+		tmpObject.Items[k] = v
 
-		body := tmpNetwork.toBodyNonBulk(ctx, state)
-		urlPath := tmpNetwork.getPath() + "/" + url.QueryEscape(v.Id.ValueString())
+		body := tmpObject.toBodyNonBulk(ctx, state)
+		urlPath := tmpObject.getPath() + "/" + url.QueryEscape(v.Id.ValueString())
 		res, err := r.client.Put(urlPath, body, reqMods...)
 		if err != nil {
 			return state, diag.Diagnostics{
@@ -562,9 +586,11 @@ func (r *NetworksResource) updateSubresources(ctx context.Context, state, plan N
 		// Update state
 		state.Items[k] = v
 
-		// Clear tmpNetwork Items
-		delete(tmpNetwork.Items, k)
+		// Clear tmpObject.Items
+		delete(tmpObject.Items, k)
 	}
 
 	return state, nil
 }
+
+// End of section. //template:end updateSubresources

@@ -26,12 +26,13 @@ import (
 
 // End of section. //template:end imports
 
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
+
 func TestAccDataSourceFmcNetworks(t *testing.T) {
 	var checks []resource.TestCheckFunc
-
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_networks.test", "items.networks_1.id"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_networks.test", "items.networks_1.prefix", "10.20.30.0/24"))
-
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_networks.test", "items.networks_1.description", "My Network 1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_networks.test", "items.networks_1.prefix", "10.1.1.0/24"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -44,26 +45,32 @@ func TestAccDataSourceFmcNetworks(t *testing.T) {
 	})
 }
 
+// End of section. //template:end testAccDataSource
+
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 // End of section. //template:end testPrerequisites
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
 func testAccDataSourceFmcNetworksConfig() string {
 	config := `resource "fmc_networks" "test" {` + "\n"
 	config += `	items = { "networks_1" = {` + "\n"
 	config += `		description = "My Network 1"` + "\n"
 	config += `		overridable = true` + "\n"
-	config += `		prefix = "10.20.30.0/24"` + "\n"
+	config += `		prefix = "10.1.1.0/24"` + "\n"
 	config += `	}}` + "\n"
 	config += `}` + "\n"
 
 	config += `
 		data "fmc_networks" "test" {
+			depends_on = [fmc_networks.test]
 			items = {
 				"networks_1" = {
 				}
 			}
-			depends_on = [fmc_networks.test]
 		}
 	`
 	return config
 }
+
+// End of section. //template:end testAccDataSourceConfig
