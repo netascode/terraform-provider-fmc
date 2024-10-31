@@ -62,18 +62,12 @@ func (data SmartLicense) toBody(ctx context.Context, state SmartLicense) string 
 	return body
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-
 func (data *SmartLicense) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("registrationType"); value.Exists() {
 		data.RegistrationType = types.StringValue(value.String())
-	} else {
-		data.RegistrationType = types.StringNull()
 	}
 	if value := res.Get("token"); value.Exists() {
 		data.Token = types.StringValue(value.String())
-	} else {
-		data.Token = types.StringNull()
 	}
 	if value := res.Get("regStatus"); value.Exists() {
 		data.RegistrationStatus = types.StringValue(value.String())
@@ -81,8 +75,6 @@ func (data *SmartLicense) fromBody(ctx context.Context, res gjson.Result) {
 		data.RegistrationStatus = types.StringNull()
 	}
 }
-
-// End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 

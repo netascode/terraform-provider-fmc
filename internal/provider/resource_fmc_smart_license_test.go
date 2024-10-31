@@ -43,10 +43,6 @@ func TestAccFmcSmartLicense(t *testing.T) {
 		Config: testAccFmcSmartLicenseConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "fmc_smart_license.test",
-		ImportState:  true,
-	})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

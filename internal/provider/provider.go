@@ -344,7 +344,6 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewPortGroupDataSource,
 		NewRangeDataSource,
 		NewSecurityZoneDataSource,
-		NewSmartLicenseDataSource,
 		NewStandardACLDataSource,
 		NewURLDataSource,
 		NewURLGroupDataSource,

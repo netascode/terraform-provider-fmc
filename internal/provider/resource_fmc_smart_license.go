@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -40,8 +39,7 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &SmartLicenseResource{}
-	_ resource.ResourceWithImportState = &SmartLicenseResource{}
+	_ resource.Resource = &SmartLicenseResource{}
 )
 
 func NewSmartLicenseResource() resource.Resource {
@@ -193,18 +191,7 @@ func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-
-	imp, diags := helpers.IsFlagImporting(ctx, req)
-	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
-		return
-	}
-
-	// After `terraform import` we switch to a full read.
-	if imp {
-		state.fromBody(ctx, res.Get("items.0"))
-	} else {
-		state.fromBodyPartial(ctx, res.Get("items.0"))
-	}
+	state.fromBody(ctx, res.Get("items.0"))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -213,8 +200,6 @@ func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadReques
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 
 func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state SmartLicense
@@ -239,13 +224,19 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
+	body := plan.toBody(ctx, SmartLicense{})
+	res, err := r.client.Post(plan.getPath(), body, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+	plan.Id = types.StringValue(res.Get("id").String())
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
@@ -274,11 +265,4 @@ func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRe
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-
-func (r *SmartLicenseResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-
-	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
-}
-
 // End of section. //template:end import

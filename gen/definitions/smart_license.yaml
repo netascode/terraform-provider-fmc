@@ -4,6 +4,8 @@ rest_endpoint: /api/fmc_platform/v1/license/smartlicenses
 doc_category: License
 no_update: true
 no_delete: true
+no_import: true
+no_data_source: true
 attributes:
   - model_name: registrationType
     type: String

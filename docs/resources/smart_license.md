@@ -36,11 +36,3 @@ resource "fmc_smart_license" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-
-## Import
-
-Import is supported using the following syntax:
-
-```shell
-terraform import fmc_smart_license.example "<id>"
-```
