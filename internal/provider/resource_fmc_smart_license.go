@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -75,10 +76,10 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"registration_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Action to be executed on the smart license.").AddStringEnumDescription("REGISTER", "DEREGISTER", "EVALUATION").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Action to be executed on the smart license.").AddStringEnumDescription("REGISTER", "EVALUATION").String,
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("REGISTER", "DEREGISTER", "EVALUATION"),
+					stringvalidator.OneOf("REGISTER", "EVALUATION"),
 				},
 			},
 			"token": schema.StringAttribute{
@@ -222,23 +223,59 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
-
-	body := plan.toBody(ctx, SmartLicense{})
-	res, err := r.client.Post(plan.getPath(), body, reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
+		plan.RegistrationStatus = state.RegistrationStatus
+		plan.Id = types.StringValue("")
+		diags = resp.State.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
 		return
 	}
-	plan.Id = types.StringValue(res.Get("id").String())
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
+	if plan.RegistrationType.ValueString() == "REGISTER" && plan.Token.ValueString() == "" {
+		resp.Diagnostics.AddError("Provider Error", "Token required for registration")
+		return
+	}
 
+	if plan.Force.ValueBool() && state.RegistrationStatus.ValueString() != "UNREGISTERED" {
+		res, err := r.deregisterSmartLicense(ctx, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+		res, err = r.client.Get(state.getPath(), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		state.fromBody(ctx, res.Get("items.0"))
+	}
+
+	if state.RegistrationStatus.ValueString() != "REGISTERED" {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
+
+		body := plan.toBody(ctx, SmartLicense{})
+		res, err := r.client.Post(plan.getPath(), body, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+		plan.Id = types.StringValue(res.Get("id").String())
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
+
+		// Read state after update
+		res, err = r.client.Get(state.getPath(), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+			return
+		}
+		state.fromBody(ctx, res.Get("items.0"))
+	}
+
+	plan.RegistrationStatus = state.RegistrationStatus
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
 
 func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state SmartLicense
@@ -256,13 +293,24 @@ func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	res, err := r.deregisterSmartLicense(ctx, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+		return
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
 }
 
-// End of section. //template:end delete
-
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 // End of section. //template:end import
+
+func (r *SmartLicenseResource) deregisterSmartLicense(ctx context.Context, reqMods ...func(*fmc.Req)) (gjson.Result, error) {
+	plan := SmartLicense{
+		RegistrationType: types.StringValue("DEREGISTER"),
+	}
+	body := plan.toBody(ctx, SmartLicense{})
+	return r.client.Post(plan.getPath(), body, reqMods...)
+}

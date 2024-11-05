@@ -36,6 +36,7 @@ type SmartLicense struct {
 	RegistrationType   types.String `tfsdk:"registration_type"`
 	Token              types.String `tfsdk:"token"`
 	RegistrationStatus types.String `tfsdk:"registration_status"`
+	Force              types.Bool   `tfsdk:"force"`
 }
 
 // End of section. //template:end types
@@ -63,12 +64,6 @@ func (data SmartLicense) toBody(ctx context.Context, state SmartLicense) string 
 }
 
 func (data *SmartLicense) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("registrationType"); value.Exists() {
-		data.RegistrationType = types.StringValue(value.String())
-	}
-	if value := res.Get("token"); value.Exists() {
-		data.Token = types.StringValue(value.String())
-	}
 	if value := res.Get("regStatus"); value.Exists() {
 		data.RegistrationStatus = types.StringValue(value.String())
 	} else {
@@ -97,6 +92,11 @@ func (data *SmartLicense) fromBodyPartial(ctx context.Context, res gjson.Result)
 		data.RegistrationStatus = types.StringValue(value.String())
 	} else {
 		data.RegistrationStatus = types.StringNull()
+	}
+	if value := res.Get("force"); value.Exists() && !data.Force.IsNull() {
+		data.Force = types.BoolValue(value.Bool())
+	} else {
+		data.Force = types.BoolNull()
 	}
 }
 

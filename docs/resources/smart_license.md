@@ -25,14 +25,14 @@ resource "fmc_smart_license" "example" {
 ### Required
 
 - `registration_type` (String) Action to be executed on the smart license.
-  - Choices: `REGISTER`, `DEREGISTER`, `EVALUATION`
+  - Choices: `REGISTER`, `EVALUATION`
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `registration_status` (String) Status of a smart license.
 - `token` (String) Registration token.
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `registration_status` (String) Status of a smart license.
