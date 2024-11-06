@@ -90,6 +90,10 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: helpers.NewAttributeDescription("Status of a smart license.").String,
 				Computed:            true,
 			},
+			"force": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Set to true to re-register smart license.").String,
+				Optional:            true,
+			},
 		},
 	}
 }

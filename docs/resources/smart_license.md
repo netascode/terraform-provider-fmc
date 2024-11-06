@@ -30,6 +30,7 @@ resource "fmc_smart_license" "example" {
 ### Optional
 
 - `domain` (String) The name of the FMC domain
+- `force` (Boolean) Set to true to re-register smart license.
 - `token` (String) Registration token.
 
 ### Read-Only
