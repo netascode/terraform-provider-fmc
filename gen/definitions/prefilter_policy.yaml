@@ -1,0 +1,15 @@
+---
+name: Prefilter Policy
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/prefilterpolicies
+data_source_name_query: true
+doc_category: Policy
+attributes:
+  - model_name: name
+    type: String
+    mandatory: true
+    description: The name of the prefilter policy.
+    example: POLICY1
+  - model_name: description
+    type: String
+    description: Description
+    example: My prefilter policy
