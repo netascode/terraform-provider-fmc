@@ -5,6 +5,7 @@ no_delete: true
 no_data_source: true
 no_import: true
 doc_category: Policy Assignments
+test_tags: [TF_VAR_target_id]
 attributes:
   - model_name: type
     type: String
@@ -43,6 +44,7 @@ attributes:
         id: true
         mandatory: true
         example: "9862719c-8d5f-11ef-99a6-aef0794da1c1"
+        test_value: var.target_id
       - model_name: type
         type: String
         enum_values: [Device,DeviceHAPair,DeviceGroup]
@@ -66,3 +68,5 @@ test_prerequisites: |-
       name                              = "policy-example-test"
       rules                             = []
   }
+
+  variable "target_id" { default = null } // tests will set $TF_VAR_target_id
