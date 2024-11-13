@@ -79,6 +79,22 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: "Description",
 				Computed:            true,
 			},
+			"default_action": schema.StringAttribute{
+				MarkdownDescription: "Specifies the default action to take when none of the rules meet the conditions.",
+				Computed:            true,
+			},
+			"default_action_log_begin": schema.BoolAttribute{
+				MarkdownDescription: "Indicating whether the device will log events at the beginning of the connection.",
+				Computed:            true,
+			},
+			"default_action_log_end": schema.BoolAttribute{
+				MarkdownDescription: "Indicating whether the device will log events at the end of the connection.",
+				Computed:            true,
+			},
+			"default_action_send_events_to_fmc": schema.BoolAttribute{
+				MarkdownDescription: "Indicating whether the device will send events to the Firepower Management Center event viewer.",
+				Computed:            true,
+			},
 		},
 	}
 }

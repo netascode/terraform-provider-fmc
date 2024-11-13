@@ -13,3 +13,64 @@ attributes:
     type: String
     description: Description
     example: My prefilter policy
+  - model_name: action
+    data_path: [defaultAction]
+    tf_name: default_action
+    type: String
+    enum_values: [BLOCK_TUNNELS, ANALYZE_TUNNELS]
+    description: Specifies the default action to take when none of the rules meet the conditions.
+    example: BLOCK_TUNNELS
+  - model_name: logBegin
+    data_path: [defaultAction]
+    tf_name: default_action_log_begin
+    type: Bool
+    description: Indicating whether the device will log events at the beginning of the connection.
+    default_value: "false"
+    example: "true"
+  - model_name: logEnd
+    data_path: [defaultAction]
+    tf_name: default_action_log_end
+    type: Bool
+    description: Indicating whether the device will log events at the end of the connection.
+    default_value: "false"
+    example: "false"
+  - model_name: sendEventsToFMC
+    data_path: [defaultAction]
+    tf_name: default_action_send_events_to_fmc
+    type: Bool
+    description: Indicating whether the device will send events to the Firepower Management Center event viewer.
+    default_value: "false"
+    example: "true"
+  # - model_name: id
+  #   data_path: [defaultAction, syslogConfig]
+  #   tf_name: default_action_syslog_config_id
+  #   type: String
+  #   description: >-
+  #     UUID of the syslog config. Can be set only when default_action_send_syslog is true and either
+  #     default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration
+  #     in Access Control Logging applies.
+  #   example: 35e197ca-33a8-11ef-b2d1-d98ae17766e7
+  #   exclude_test: true
+  # - model_name: syslogSeverity
+  #   data_path: [defaultAction]
+  #   tf_name: default_action_syslog_severity
+  #   type: String
+  #   description: Override the Severity of syslog alerts.
+  #   enum_values:
+  #     - ALERT
+  #     - CRIT
+  #     - DEBUG
+  #     - EMERG
+  #     - ERR
+  #     - INFO
+  #     - NOTICE
+  #     - WARNING
+  #   example: "DEBUG"
+  # - model_name: id
+  #   data_path: [defaultAction, snmpConfig]
+  #   tf_name: default_action_snmp_config_id
+  #   type: String
+  #   description: >-
+  #     UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
+  #   example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+  #   exclude_test: true

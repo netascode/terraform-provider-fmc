@@ -14,8 +14,12 @@ This resource can manage a Prefilter Policy.
 
 ```terraform
 resource "fmc_prefilter_policy" "example" {
-  name        = "POLICY1"
-  description = "My prefilter policy"
+  name                              = "POLICY1"
+  description                       = "My prefilter policy"
+  default_action                    = "BLOCK_TUNNELS"
+  default_action_log_begin          = true
+  default_action_log_end            = false
+  default_action_send_events_to_fmc = true
 }
 ```
 
@@ -28,6 +32,14 @@ resource "fmc_prefilter_policy" "example" {
 
 ### Optional
 
+- `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
+  - Choices: `BLOCK_TUNNELS`, `ANALYZE_TUNNELS`
+- `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
+  - Default value: `false`
+- `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
+  - Default value: `false`
+- `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
+  - Default value: `false`
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
 

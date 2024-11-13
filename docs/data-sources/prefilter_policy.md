@@ -29,4 +29,8 @@ data "fmc_prefilter_policy" "example" {
 
 ### Read-Only
 
+- `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
+- `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
+- `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
+- `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `description` (String) Description

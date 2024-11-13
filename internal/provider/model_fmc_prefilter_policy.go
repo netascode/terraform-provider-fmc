@@ -31,10 +31,14 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type PrefilterPolicy struct {
-	Id          types.String `tfsdk:"id"`
-	Domain      types.String `tfsdk:"domain"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
+	Id                           types.String `tfsdk:"id"`
+	Domain                       types.String `tfsdk:"domain"`
+	Name                         types.String `tfsdk:"name"`
+	Description                  types.String `tfsdk:"description"`
+	DefaultAction                types.String `tfsdk:"default_action"`
+	DefaultActionLogBegin        types.Bool   `tfsdk:"default_action_log_begin"`
+	DefaultActionLogEnd          types.Bool   `tfsdk:"default_action_log_end"`
+	DefaultActionSendEventsToFmc types.Bool   `tfsdk:"default_action_send_events_to_fmc"`
 }
 
 // End of section. //template:end types
@@ -60,6 +64,18 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "description", data.Description.ValueString())
 	}
+	if !data.DefaultAction.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.action", data.DefaultAction.ValueString())
+	}
+	if !data.DefaultActionLogBegin.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.logBegin", data.DefaultActionLogBegin.ValueBool())
+	}
+	if !data.DefaultActionLogEnd.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.logEnd", data.DefaultActionLogEnd.ValueBool())
+	}
+	if !data.DefaultActionSendEventsToFmc.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.sendEventsToFMC", data.DefaultActionSendEventsToFmc.ValueBool())
+	}
 	return body
 }
 
@@ -77,6 +93,26 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 		data.Description = types.StringValue(value.String())
 	} else {
 		data.Description = types.StringNull()
+	}
+	if value := res.Get("defaultAction.action"); value.Exists() {
+		data.DefaultAction = types.StringValue(value.String())
+	} else {
+		data.DefaultAction = types.StringNull()
+	}
+	if value := res.Get("defaultAction.logBegin"); value.Exists() {
+		data.DefaultActionLogBegin = types.BoolValue(value.Bool())
+	} else {
+		data.DefaultActionLogBegin = types.BoolValue(false)
+	}
+	if value := res.Get("defaultAction.logEnd"); value.Exists() {
+		data.DefaultActionLogEnd = types.BoolValue(value.Bool())
+	} else {
+		data.DefaultActionLogEnd = types.BoolValue(false)
+	}
+	if value := res.Get("defaultAction.sendEventsToFMC"); value.Exists() {
+		data.DefaultActionSendEventsToFmc = types.BoolValue(value.Bool())
+	} else {
+		data.DefaultActionSendEventsToFmc = types.BoolValue(false)
 	}
 }
 
@@ -98,6 +134,26 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		data.Description = types.StringValue(value.String())
 	} else {
 		data.Description = types.StringNull()
+	}
+	if value := res.Get("defaultAction.action"); value.Exists() && !data.DefaultAction.IsNull() {
+		data.DefaultAction = types.StringValue(value.String())
+	} else {
+		data.DefaultAction = types.StringNull()
+	}
+	if value := res.Get("defaultAction.logBegin"); value.Exists() && !data.DefaultActionLogBegin.IsNull() {
+		data.DefaultActionLogBegin = types.BoolValue(value.Bool())
+	} else if data.DefaultActionLogBegin.ValueBool() != false {
+		data.DefaultActionLogBegin = types.BoolNull()
+	}
+	if value := res.Get("defaultAction.logEnd"); value.Exists() && !data.DefaultActionLogEnd.IsNull() {
+		data.DefaultActionLogEnd = types.BoolValue(value.Bool())
+	} else if data.DefaultActionLogEnd.ValueBool() != false {
+		data.DefaultActionLogEnd = types.BoolNull()
+	}
+	if value := res.Get("defaultAction.sendEventsToFMC"); value.Exists() && !data.DefaultActionSendEventsToFmc.IsNull() {
+		data.DefaultActionSendEventsToFmc = types.BoolValue(value.Bool())
+	} else if data.DefaultActionSendEventsToFmc.ValueBool() != false {
+		data.DefaultActionSendEventsToFmc = types.BoolNull()
 	}
 }
 
