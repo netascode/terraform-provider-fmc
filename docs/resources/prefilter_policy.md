@@ -22,6 +22,19 @@ resource "fmc_prefilter_policy" "example" {
   default_action_send_events_to_fmc = true
   default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
   default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  rules = [
+    {
+      action             = "FASTPATH"
+      rule_type          = "PREFILTER"
+      log_begin          = true
+      log_end            = true
+      send_events_to_fmc = true
+      send_syslog        = true
+      syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+      syslog_severity    = "DEBUG"
+      snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+    }
+  ]
 }
 ```
 
@@ -46,10 +59,45 @@ resource "fmc_prefilter_policy" "example" {
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
+- `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only
 
 - `id` (String) The id of the object
+
+<a id="nestedatt--rules"></a>
+### Nested Schema for `rules`
+
+Required:
+
+- `action` (String) What to do when the conditions defined by the rule are met.
+  - Choices: `FASTPATH`, `ANALYZE`, `BLOCK`
+- `rule_type` (String) Indicates whether the rule is prefilter rule or tunnel rule.
+  - Choices: `PREFILTER`, `TUNNEL`
+
+Optional:
+
+- `bidirectional` (Boolean) Indicates whether the rule is bidirectional.
+  - Default value: `true`
+- `description` (String) User-specified string.
+- `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
+  - Default value: `true`
+- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.
+  - Default value: `false`
+- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.
+  - Default value: `false`
+- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
+  - Default value: `false`
+- `send_syslog` (Boolean) Indicates whether the alerts associated with the access rule are sent to syslog.
+  - Default value: `false`
+- `snmp_config_id` (String) UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.
+- `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
+- `syslog_severity` (String) Override the Severity of syslog alerts.
+  - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
+
+Read-Only:
+
+- `id` (String) Unique identifier (UUID) of the prefilter rule.
 
 ## Import
 

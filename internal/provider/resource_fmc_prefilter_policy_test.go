@@ -37,6 +37,11 @@ func TestAccFmcPrefilterPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "default_action_log_begin", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "default_action_log_end", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "default_action_send_events_to_fmc", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.action", "FASTPATH"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.rule_type", "PREFILTER"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.log_begin", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.log_end", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.send_events_to_fmc", "true"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -86,6 +91,16 @@ func testAccFmcPrefilterPolicyConfig_all() string {
 	config += `	default_action_log_begin = true` + "\n"
 	config += `	default_action_log_end = false` + "\n"
 	config += `	default_action_send_events_to_fmc = true` + "\n"
+	config += `	rules = [{` + "\n"
+	config += `		action = "FASTPATH"` + "\n"
+	config += `		rule_type = "PREFILTER"` + "\n"
+	config += `		enabled = true` + "\n"
+	config += `		bidirectional = true` + "\n"
+	config += `		log_begin = true` + "\n"
+	config += `		log_end = true` + "\n"
+	config += `		send_events_to_fmc = true` + "\n"
+	config += `		description = ""` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

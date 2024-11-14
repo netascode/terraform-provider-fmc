@@ -7,4 +7,17 @@ resource "fmc_prefilter_policy" "example" {
   default_action_send_events_to_fmc = true
   default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
   default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  rules = [
+    {
+      action             = "FASTPATH"
+      rule_type          = "PREFILTER"
+      log_begin          = true
+      log_end            = true
+      send_events_to_fmc = true
+      send_syslog        = true
+      syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+      syslog_severity    = "DEBUG"
+      snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+    }
+  ]
 }

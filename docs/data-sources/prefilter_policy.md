@@ -36,3 +36,23 @@ data "fmc_prefilter_policy" "example" {
 - `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `description` (String) Description
+- `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
+
+<a id="nestedatt--rules"></a>
+### Nested Schema for `rules`
+
+Read-Only:
+
+- `action` (String) What to do when the conditions defined by the rule are met.
+- `bidirectional` (Boolean) Indicates whether the rule is bidirectional.
+- `description` (String) User-specified string.
+- `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
+- `id` (String) Unique identifier (UUID) of the prefilter rule.
+- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.
+- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.
+- `rule_type` (String) Indicates whether the rule is prefilter rule or tunnel rule.
+- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
+- `send_syslog` (Boolean) Indicates whether the alerts associated with the access rule are sent to syslog.
+- `snmp_config_id` (String) UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.
+- `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
+- `syslog_severity` (String) Override the Severity of syslog alerts.

@@ -103,6 +103,66 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: "UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.",
 				Computed:            true,
 			},
+			"rules": schema.ListNestedAttribute{
+				MarkdownDescription: "The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule.",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "Unique identifier (UUID) of the prefilter rule.",
+							Computed:            true,
+						},
+						"action": schema.StringAttribute{
+							MarkdownDescription: "What to do when the conditions defined by the rule are met.",
+							Computed:            true,
+						},
+						"rule_type": schema.StringAttribute{
+							MarkdownDescription: "Indicates whether the rule is prefilter rule or tunnel rule.",
+							Computed:            true,
+						},
+						"enabled": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the access rule is in effect (true) or not (false). Default is true.",
+							Computed:            true,
+						},
+						"bidirectional": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the rule is bidirectional.",
+							Computed:            true,
+						},
+						"log_begin": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.",
+							Computed:            true,
+						},
+						"log_end": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.",
+							Computed:            true,
+						},
+						"send_events_to_fmc": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.",
+							Computed:            true,
+						},
+						"send_syslog": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the alerts associated with the access rule are sent to syslog.",
+							Computed:            true,
+						},
+						"syslog_config_id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.",
+							Computed:            true,
+						},
+						"syslog_severity": schema.StringAttribute{
+							MarkdownDescription: "Override the Severity of syslog alerts.",
+							Computed:            true,
+						},
+						"snmp_config_id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.",
+							Computed:            true,
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: "User-specified string.",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
