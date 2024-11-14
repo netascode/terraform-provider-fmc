@@ -39,6 +39,8 @@ type PrefilterPolicy struct {
 	DefaultActionLogBegin        types.Bool   `tfsdk:"default_action_log_begin"`
 	DefaultActionLogEnd          types.Bool   `tfsdk:"default_action_log_end"`
 	DefaultActionSendEventsToFmc types.Bool   `tfsdk:"default_action_send_events_to_fmc"`
+	DefaultActionSyslogConfigId  types.String `tfsdk:"default_action_syslog_config_id"`
+	DefaultActionSnmpConfigId    types.String `tfsdk:"default_action_snmp_config_id"`
 }
 
 // End of section. //template:end types
@@ -75,6 +77,12 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 	}
 	if !data.DefaultActionSendEventsToFmc.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.sendEventsToFMC", data.DefaultActionSendEventsToFmc.ValueBool())
+	}
+	if !data.DefaultActionSyslogConfigId.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.syslogConfig.id", data.DefaultActionSyslogConfigId.ValueString())
+	}
+	if !data.DefaultActionSnmpConfigId.IsNull() {
+		body, _ = sjson.Set(body, "defaultAction.snmpConfig.id", data.DefaultActionSnmpConfigId.ValueString())
 	}
 	return body
 }
@@ -113,6 +121,16 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 		data.DefaultActionSendEventsToFmc = types.BoolValue(value.Bool())
 	} else {
 		data.DefaultActionSendEventsToFmc = types.BoolValue(false)
+	}
+	if value := res.Get("defaultAction.syslogConfig.id"); value.Exists() {
+		data.DefaultActionSyslogConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSyslogConfigId = types.StringNull()
+	}
+	if value := res.Get("defaultAction.snmpConfig.id"); value.Exists() {
+		data.DefaultActionSnmpConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSnmpConfigId = types.StringNull()
 	}
 }
 
@@ -154,6 +172,16 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		data.DefaultActionSendEventsToFmc = types.BoolValue(value.Bool())
 	} else if data.DefaultActionSendEventsToFmc.ValueBool() != false {
 		data.DefaultActionSendEventsToFmc = types.BoolNull()
+	}
+	if value := res.Get("defaultAction.syslogConfig.id"); value.Exists() && !data.DefaultActionSyslogConfigId.IsNull() {
+		data.DefaultActionSyslogConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSyslogConfigId = types.StringNull()
+	}
+	if value := res.Get("defaultAction.snmpConfig.id"); value.Exists() && !data.DefaultActionSnmpConfigId.IsNull() {
+		data.DefaultActionSnmpConfigId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionSnmpConfigId = types.StringNull()
 	}
 }
 

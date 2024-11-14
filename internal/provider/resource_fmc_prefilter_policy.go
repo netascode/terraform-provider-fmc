@@ -113,6 +113,14 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
+			"default_action_syslog_config_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.").String,
+				Optional:            true,
+			},
+			"default_action_snmp_config_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.").String,
+				Optional:            true,
+			},
 		},
 	}
 }

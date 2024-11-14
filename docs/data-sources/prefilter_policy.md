@@ -33,4 +33,6 @@ data "fmc_prefilter_policy" "example" {
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
+- `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
+- `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `description` (String) Description

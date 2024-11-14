@@ -95,6 +95,14 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: "Indicating whether the device will send events to the Firepower Management Center event viewer.",
 				Computed:            true,
 			},
+			"default_action_syslog_config_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.",
+				Computed:            true,
+			},
+			"default_action_snmp_config_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.",
+				Computed:            true,
+			},
 		},
 	}
 }

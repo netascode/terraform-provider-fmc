@@ -20,6 +20,8 @@ resource "fmc_prefilter_policy" "example" {
   default_action_log_begin          = true
   default_action_log_end            = false
   default_action_send_events_to_fmc = true
+  default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+  default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 
@@ -40,6 +42,8 @@ resource "fmc_prefilter_policy" "example" {
   - Default value: `false`
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
   - Default value: `false`
+- `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
+- `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
 
