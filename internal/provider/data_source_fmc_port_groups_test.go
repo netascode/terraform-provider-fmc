@@ -33,7 +33,6 @@ func TestAccDataSourceFmcPortGroups(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_port_groups.test", "items.port_group_1.id"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_port_groups.test", "items.port_group_1.type", "PortObjectGroup"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_port_groups.test", "items.port_group_1.description", "My port group description"))
-	//checks = append(checks, resource.TestCheckResourceAttr("data.fmc_port_groups.test", "items.port_group_1.ports", ""))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
