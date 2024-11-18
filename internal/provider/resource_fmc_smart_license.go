@@ -83,7 +83,7 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"token": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Registration token.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Registration token. Mandatory when registrationType set to REGISTER.").String,
 				Optional:            true,
 			},
 			"registration_status": schema.StringAttribute{
@@ -130,6 +130,8 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	state.fromBody(ctx, res.Get("items.0"))
 
+	// When smart license is already in evaluation mode and user requests evaluation mode - do nothing
+	// It's not automatically detected by terraform, because two different fields keep status (RegistrationStatus) and requested status (RegistrationType)
 	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
 		plan.RegistrationStatus = state.RegistrationStatus
 		plan.Id = types.StringValue("")
@@ -140,6 +142,7 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
+	// Check if token provided when registration is requested
 	if plan.RegistrationType.ValueString() == "REGISTER" && plan.Token.ValueString() == "" {
 		resp.Diagnostics.AddError("Provider Error", "Token required for registration")
 		return
@@ -227,6 +230,7 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
+	// Same logic as in create
 	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
 		plan.RegistrationStatus = state.RegistrationStatus
 		plan.Id = types.StringValue("")
@@ -235,11 +239,13 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	// Check if token provided when registration is requested
 	if plan.RegistrationType.ValueString() == "REGISTER" && plan.Token.ValueString() == "" {
 		resp.Diagnostics.AddError("Provider Error", "Token required for registration")
 		return
 	}
 
+	// When re-registration is forced, only deregister license if it is not already unregistered
 	if plan.Force.ValueBool() && state.RegistrationStatus.ValueString() != "UNREGISTERED" {
 		res, err := r.deregisterSmartLicense(ctx, reqMods...)
 		if err != nil {
@@ -254,6 +260,7 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		state.fromBody(ctx, res.Get("items.0"))
 	}
 
+	// When force flag is not set to true, only register license if it is not already registered
 	if state.RegistrationStatus.ValueString() != "REGISTERED" {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 

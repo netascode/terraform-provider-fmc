@@ -15,7 +15,7 @@ attributes:
     example: REGISTER
   - model_name: token
     type: String
-    description: Registration token.
+    description: Registration token. Mandatory when registrationType set to REGISTER.
     example: "X2M3YmJlY..."
     exclude_test: true
   - model_name: regStatus
