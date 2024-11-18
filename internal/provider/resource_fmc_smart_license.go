@@ -68,13 +68,6 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
-				Optional:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"registration_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Action to be executed on the smart license.").AddStringEnumDescription("REGISTER", "EVALUATION").String,
 				Required:            true,
@@ -116,11 +109,7 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
-	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
-		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
-	}
 
 	// Read state before create
 	res, err := r.client.Get(state.getPath(), reqMods...)
@@ -183,12 +172,7 @@ func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
-	if !state.Domain.IsNull() && state.Domain.ValueString() != "" {
-		reqMods = append(reqMods, fmc.DomainName(state.Domain.ValueString()))
-	}
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	res, err := r.client.Get(state.getPath(), reqMods...)
@@ -224,11 +208,7 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
-	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
-		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
-	}
 
 	// Same logic as in create
 	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
@@ -297,11 +277,7 @@ func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
-	if !state.Domain.IsNull() && state.Domain.ValueString() != "" {
-		reqMods = append(reqMods, fmc.DomainName(state.Domain.ValueString()))
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	res, err := r.deregisterSmartLicense(ctx, reqMods...)

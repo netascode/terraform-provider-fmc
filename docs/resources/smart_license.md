@@ -13,9 +13,16 @@ This resource can manage a Smart License.
 ## Example Usage
 
 ```terraform
-resource "fmc_smart_license" "example" {
+// Enable Evaluation Mode
+resource "fmc_smart_license" "license" {
+  registration_type = "EVALUATION"
+}
+
+// Force to re-register with the provided token
+resource "fmc_smart_license" "license" {
   registration_type = "REGISTER"
   token             = "X2M3YmJlY..."
+  force             = true
 }
 ```
 
@@ -29,11 +36,10 @@ resource "fmc_smart_license" "example" {
 
 ### Optional
 
-- `domain` (String) The name of the FMC domain
 - `force` (Boolean) Set to true to re-register smart license.
-- `registration_status` (String) Status of a smart license.
 - `token` (String) Registration token. Mandatory when registrationType set to REGISTER.
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `registration_status` (String) Status of a smart license.

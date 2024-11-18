@@ -32,7 +32,6 @@ import (
 
 type SmartLicense struct {
 	Id                 types.String `tfsdk:"id"`
-	Domain             types.String `tfsdk:"domain"`
 	RegistrationType   types.String `tfsdk:"registration_type"`
 	Token              types.String `tfsdk:"token"`
 	RegistrationStatus types.String `tfsdk:"registration_status"`
