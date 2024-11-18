@@ -183,8 +183,8 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 					},
 				},
 			},
-			"auto_nat_rules": schema.SetNestedAttribute{
-				MarkdownDescription: "The ordered list of manual NAT rules.",
+			"auto_nat_rules": schema.ListNestedAttribute{
+				MarkdownDescription: "The list of auto NAT rules.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{

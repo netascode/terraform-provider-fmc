@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 	"slices"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -641,8 +640,8 @@ func (data *FTDNATPolicy) fromBodyPartial(ctx context.Context, res gjson.Result)
 		(*parent).ManualNatRules[i] = data
 	}
 	for i := 0; i < len(data.AutoNatRules); i++ {
-		keys := [...]string{"id", "natType", "destinationInterface.id", "fallThrough", "interfaceIpv6", "netToNet", "noProxyArp", "originalNetwork.id", "originalPort", "serviceProtocol", "routeLookup", "sourceInterface.id", "dns", "translatedNetwork.id", "interfaceInTranslatedNetwork", "translatedPort"}
-		keyValues := [...]string{data.AutoNatRules[i].Id.ValueString(), data.AutoNatRules[i].NatType.ValueString(), data.AutoNatRules[i].DestinationInterfaceId.ValueString(), strconv.FormatBool(data.AutoNatRules[i].FallThrough.ValueBool()), strconv.FormatBool(data.AutoNatRules[i].Ipv6.ValueBool()), strconv.FormatBool(data.AutoNatRules[i].NetToNet.ValueBool()), strconv.FormatBool(data.AutoNatRules[i].NoProxyArp.ValueBool()), data.AutoNatRules[i].OriginalNetworkId.ValueString(), strconv.FormatInt(data.AutoNatRules[i].OriginalPort.ValueInt64(), 10), data.AutoNatRules[i].Protocol.ValueString(), strconv.FormatBool(data.AutoNatRules[i].PerformRouteLookup.ValueBool()), data.AutoNatRules[i].SourceInterfaceId.ValueString(), strconv.FormatBool(data.AutoNatRules[i].TranslateDns.ValueBool()), data.AutoNatRules[i].TranslatedNetworkId.ValueString(), strconv.FormatBool(data.AutoNatRules[i].TranslatedNetworkIsDestinationInterface.ValueBool()), strconv.FormatInt(data.AutoNatRules[i].TranslatedPort.ValueInt64(), 10)}
+		keys := [...]string{"id"}
+		keyValues := [...]string{data.AutoNatRules[i].Id.ValueString()}
 
 		parent := &data
 		data := (*parent).AutoNatRules[i]
@@ -779,8 +778,8 @@ func (data *FTDNATPolicy) fromBodyUnknowns(ctx context.Context, res gjson.Result
 		}
 	}
 	for i := range data.AutoNatRules {
-		keys := [...]string{"id", "natType", "destinationInterface.id", "fallThrough", "interfaceIpv6", "netToNet", "noProxyArp", "originalNetwork.id", "originalPort", "serviceProtocol", "routeLookup", "sourceInterface.id", "dns", "translatedNetwork.id", "interfaceInTranslatedNetwork", "translatedPort"}
-		keyValues := [...]string{data.AutoNatRules[i].Id.ValueString(), data.AutoNatRules[i].NatType.ValueString(), data.AutoNatRules[i].DestinationInterfaceId.ValueString(), strconv.FormatBool(data.AutoNatRules[i].FallThrough.ValueBool()), strconv.FormatBool(data.AutoNatRules[i].Ipv6.ValueBool()), strconv.FormatBool(data.AutoNatRules[i].NetToNet.ValueBool()), strconv.FormatBool(data.AutoNatRules[i].NoProxyArp.ValueBool()), data.AutoNatRules[i].OriginalNetworkId.ValueString(), strconv.FormatInt(data.AutoNatRules[i].OriginalPort.ValueInt64(), 10), data.AutoNatRules[i].Protocol.ValueString(), strconv.FormatBool(data.AutoNatRules[i].PerformRouteLookup.ValueBool()), data.AutoNatRules[i].SourceInterfaceId.ValueString(), strconv.FormatBool(data.AutoNatRules[i].TranslateDns.ValueBool()), data.AutoNatRules[i].TranslatedNetworkId.ValueString(), strconv.FormatBool(data.AutoNatRules[i].TranslatedNetworkIsDestinationInterface.ValueBool()), strconv.FormatInt(data.AutoNatRules[i].TranslatedPort.ValueInt64(), 10)}
+		keys := [...]string{"id"}
+		keyValues := [...]string{data.AutoNatRules[i].Id.ValueString()}
 
 		var r gjson.Result
 		res.Get("dummy_auto_nat_rules").ForEach(

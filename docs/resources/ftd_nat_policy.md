@@ -63,7 +63,7 @@ resource "fmc_ftd_nat_policy" "example" {
 
 ### Optional
 
-- `auto_nat_rules` (Attributes Set) The ordered list of manual NAT rules. (see [below for nested schema](#nestedatt--auto_nat_rules))
+- `auto_nat_rules` (Attributes List) The list of auto NAT rules. (see [below for nested schema](#nestedatt--auto_nat_rules))
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
 - `manual_nat_rules` (Attributes List) The ordered list of manual NAT rules. (see [below for nested schema](#nestedatt--manual_nat_rules))

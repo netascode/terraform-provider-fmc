@@ -169,8 +169,8 @@ attributes:
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
   - model_name: dummy_auto_nat_rules
     tf_name: auto_nat_rules
-    type: Set
-    description: The ordered list of manual NAT rules.
+    type: List
+    description: The list of auto NAT rules.
     attributes:
       - model_name: id
         type: String
@@ -178,6 +178,7 @@ attributes:
         resource_id: true
         exclude_example: true
         exclude_test: true
+        id: true
       - model_name: natType
         tf_name: nat_type
         type: String

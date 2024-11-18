@@ -203,8 +203,8 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 					},
 				},
 			},
-			"auto_nat_rules": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of manual NAT rules.").String,
+			"auto_nat_rules": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("The list of auto NAT rules.").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -724,5 +724,3 @@ func (r *FTDNATPolicyResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 // End of section. //template:end import
-
-// Section below is generated&owned by "gen/generator.go". //template:begin createSubresources
