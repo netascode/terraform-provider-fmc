@@ -81,7 +81,7 @@ func (r *RangeResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the resource.").String,
 				Required:            true,
 			},
-			"value": schema.StringAttribute{
+			"ip_range": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Range of addresses, IPv4 or IPv6.").String,
 				Required:            true,
 			},
@@ -164,7 +164,9 @@ func (r *RangeResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
+	res, err := r.client.Get(urlPath, reqMods...)
+
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
