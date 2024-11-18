@@ -47,8 +47,8 @@ type FTDNATPolicyManualNatRules struct {
 	Description                    types.String `tfsdk:"description"`
 	Enabled                        types.Bool   `tfsdk:"enabled"`
 	Section                        types.String `tfsdk:"section"`
-	FallThrough                    types.Bool   `tfsdk:"fall_through"`
 	NatType                        types.String `tfsdk:"nat_type"`
+	FallThrough                    types.Bool   `tfsdk:"fall_through"`
 	InterfaceInOriginalDestination types.Bool   `tfsdk:"interface_in_original_destination"`
 	InterfaceInTranslatedSource    types.Bool   `tfsdk:"interface_in_translated_source"`
 	Ipv6                           types.Bool   `tfsdk:"ipv6"`
@@ -127,11 +127,11 @@ func (data FTDNATPolicy) toBody(ctx context.Context, state FTDNATPolicy) string 
 			if !item.Section.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "metadata.section", item.Section.ValueString())
 			}
-			if !item.FallThrough.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "fallThrough", item.FallThrough.ValueBool())
-			}
 			if !item.NatType.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "natType", item.NatType.ValueString())
+			}
+			if !item.FallThrough.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "fallThrough", item.FallThrough.ValueBool())
 			}
 			if !item.InterfaceInOriginalDestination.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "interfaceInOriginalDestination", item.InterfaceInOriginalDestination.ValueBool())
@@ -288,15 +288,15 @@ func (data *FTDNATPolicy) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				data.Section = types.StringNull()
 			}
-			if value := res.Get("fallThrough"); value.Exists() {
-				data.FallThrough = types.BoolValue(value.Bool())
-			} else {
-				data.FallThrough = types.BoolNull()
-			}
 			if value := res.Get("natType"); value.Exists() {
 				data.NatType = types.StringValue(value.String())
 			} else {
 				data.NatType = types.StringNull()
+			}
+			if value := res.Get("fallThrough"); value.Exists() {
+				data.FallThrough = types.BoolValue(value.Bool())
+			} else {
+				data.FallThrough = types.BoolNull()
 			}
 			if value := res.Get("interfaceInOriginalDestination"); value.Exists() {
 				data.InterfaceInOriginalDestination = types.BoolValue(value.Bool())
@@ -537,15 +537,15 @@ func (data *FTDNATPolicy) fromBodyPartial(ctx context.Context, res gjson.Result)
 		} else {
 			data.Section = types.StringNull()
 		}
-		if value := res.Get("fallThrough"); value.Exists() && !data.FallThrough.IsNull() {
-			data.FallThrough = types.BoolValue(value.Bool())
-		} else {
-			data.FallThrough = types.BoolNull()
-		}
 		if value := res.Get("natType"); value.Exists() && !data.NatType.IsNull() {
 			data.NatType = types.StringValue(value.String())
 		} else {
 			data.NatType = types.StringNull()
+		}
+		if value := res.Get("fallThrough"); value.Exists() && !data.FallThrough.IsNull() {
+			data.FallThrough = types.BoolValue(value.Bool())
+		} else {
+			data.FallThrough = types.BoolNull()
 		}
 		if value := res.Get("interfaceInOriginalDestination"); value.Exists() && !data.InterfaceInOriginalDestination.IsNull() {
 			data.InterfaceInOriginalDestination = types.BoolValue(value.Bool())

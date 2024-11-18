@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -100,12 +101,12 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							MarkdownDescription: "To which section the rule belongs.",
 							Computed:            true,
 						},
-						"fall_through": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
-							Computed:            true,
-						},
 						"nat_type": schema.StringAttribute{
 							MarkdownDescription: "The type of the rule",
+							Computed:            true,
+						},
+						"fall_through": schema.BoolAttribute{
+							MarkdownDescription: "TBD???????????",
 							Computed:            true,
 						},
 						"interface_in_original_destination": schema.BoolAttribute{
@@ -277,8 +278,6 @@ func (d *FTDNATPolicyDataSource) Configure(_ context.Context, req datasource.Con
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
-
 func (d *FTDNATPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config FTDNATPolicy
 
@@ -334,6 +333,32 @@ func (d *FTDNATPolicyDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
+	resManualNatRules, err := d.client.Get(config.getPath()+"/"+url.QueryEscape(config.Id.ValueString())+"/manualnatrules?expanded=true", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	resAutoNatRules, err := d.client.Get(config.getPath()+"/"+url.QueryEscape(config.Id.ValueString())+"/autonatrules?expanded=true", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	replaceManualNatRules := resManualNatRules.Get("items").String()
+	if replaceManualNatRules == "" {
+		replaceManualNatRules = "[]"
+	}
+
+	replaceAutoNatRules := resAutoNatRules.Get("items").String()
+	if replaceAutoNatRules == "" {
+		replaceAutoNatRules = "[]"
+	}
+
+	replace, _ := sjson.SetRaw(res.String(), "dummy_manual_nat_rules", replaceManualNatRules)
+	replace, _ = sjson.SetRaw(replace, "dummy_auto_nat_rules", replaceAutoNatRules)
+	res = gjson.Parse(replace)
+
 	config.fromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
@@ -341,5 +366,3 @@ func (d *FTDNATPolicyDataSource) Read(ctx context.Context, req datasource.ReadRe
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

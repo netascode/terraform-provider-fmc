@@ -117,16 +117,16 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 								stringvalidator.OneOf("BEFORE_AUTO", "AFTER_AUTO"),
 							},
 						},
-						"fall_through": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
-							Optional:            true,
-						},
 						"nat_type": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("The type of the rule").AddStringEnumDescription("STATIC", "DYNAMIC").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("STATIC", "DYNAMIC"),
 							},
+						},
+						"fall_through": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							Optional:            true,
 						},
 						"interface_in_original_destination": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,

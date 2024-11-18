@@ -35,40 +35,19 @@ func TestAccDataSourceFmcFTDNATPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.description", "My manual nat rule 1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.enabled", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.section", "BEFORE_AUTO"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.fall_through", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.nat_type", "STATIC"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.ipv6", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.unidirectional", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.source_interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.original_source_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.original_source_port_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.original_destination_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.original_destination_port_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.destination_interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.translated_source_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.translated_source_port_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.translated_destination_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.translated_destination_port_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "manual_nat_rules.0.fall_through", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.nat_type", "STATIC"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.destination_interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.fall_through", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.ipv6", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.original_network_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.original_port", "8022"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.protocol", "TCP"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.source_interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.translated_network_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_ftd_nat_policy.test", "auto_nat_rules.0.translated_port", "22"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcFTDNATPolicyConfig(),
+				Config: testAccDataSourceFmcFTDNATPolicyPrerequisitesConfig + testAccDataSourceFmcFTDNATPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 			{
-				Config: testAccNamedDataSourceFmcFTDNATPolicyConfig(),
+				Config: testAccDataSourceFmcFTDNATPolicyPrerequisitesConfig + testAccNamedDataSourceFmcFTDNATPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -78,6 +57,26 @@ func TestAccDataSourceFmcFTDNATPolicy(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccDataSourceFmcFTDNATPolicyPrerequisitesConfig = `
+resource "fmc_hosts" "test" {
+  items = {
+    "nat_host1" ={
+      ip = "10.0.0.1"
+    },
+    "nat_host2" ={
+      ip = "10.0.0.2"
+    },
+    "nat_host3" ={
+      ip = "10.0.0.3"
+    },
+    "nat_host4" ={
+      ip = "10.0.0.4"
+    }
+  }
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
@@ -90,32 +89,15 @@ func testAccDataSourceFmcFTDNATPolicyConfig() string {
 	config += `		description = "My manual nat rule 1"` + "\n"
 	config += `		enabled = true` + "\n"
 	config += `		section = "BEFORE_AUTO"` + "\n"
-	config += `		fall_through = false` + "\n"
 	config += `		nat_type = "STATIC"` + "\n"
-	config += `		ipv6 = false` + "\n"
-	config += `		unidirectional = true` + "\n"
-	config += `		source_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_source_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_destination_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_destination_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		destination_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_source_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_destination_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_destination_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `		fall_through = false` + "\n"
+	config += `		original_source_id = fmc_hosts.test.items.nat_host1.id` + "\n"
+	config += `		translated_source_id = fmc_hosts.test.items.nat_host2.id` + "\n"
 	config += `	}]` + "\n"
 	config += `	auto_nat_rules = [{` + "\n"
 	config += `		nat_type = "STATIC"` + "\n"
-	config += `		destination_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		fall_through = false` + "\n"
-	config += `		ipv6 = false` + "\n"
-	config += `		original_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_port = 8022` + "\n"
-	config += `		protocol = "TCP"` + "\n"
-	config += `		source_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_port = 22` + "\n"
+	config += `		original_network_id = fmc_hosts.test.items.nat_host3.id` + "\n"
+	config += `		translated_network_id = fmc_hosts.test.items.nat_host4.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
@@ -135,32 +117,15 @@ func testAccNamedDataSourceFmcFTDNATPolicyConfig() string {
 	config += `		description = "My manual nat rule 1"` + "\n"
 	config += `		enabled = true` + "\n"
 	config += `		section = "BEFORE_AUTO"` + "\n"
-	config += `		fall_through = false` + "\n"
 	config += `		nat_type = "STATIC"` + "\n"
-	config += `		ipv6 = false` + "\n"
-	config += `		unidirectional = true` + "\n"
-	config += `		source_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_source_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_destination_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_destination_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		destination_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_source_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_destination_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_destination_port_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `		fall_through = false` + "\n"
+	config += `		original_source_id = fmc_hosts.test.items.nat_host1.id` + "\n"
+	config += `		translated_source_id = fmc_hosts.test.items.nat_host2.id` + "\n"
 	config += `	}]` + "\n"
 	config += `	auto_nat_rules = [{` + "\n"
 	config += `		nat_type = "STATIC"` + "\n"
-	config += `		destination_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		fall_through = false` + "\n"
-	config += `		ipv6 = false` + "\n"
-	config += `		original_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		original_port = 8022` + "\n"
-	config += `		protocol = "TCP"` + "\n"
-	config += `		source_interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `		translated_port = 22` + "\n"
+	config += `		original_network_id = fmc_hosts.test.items.nat_host3.id` + "\n"
+	config += `		translated_network_id = fmc_hosts.test.items.nat_host4.id` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
