@@ -15,7 +15,7 @@ This plural resource manages a bulk of Port Groups. The FMC API supports quick b
 ```terraform
 resource "fmc_url_groups" "example" {
   items = {
-    port_group_1 = {
+    url_group_1 = {
       description = "My URL group"
       urls = [
         {

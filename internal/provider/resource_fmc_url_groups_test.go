@@ -31,9 +31,9 @@ import (
 
 func TestAccFmcURLGroups(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_url_groups.test", "items.port_group_1.id"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_groups.test", "items.port_group_1.description", "My URL group"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_groups.test", "items.port_group_1.literals.0.url", "https://www.example.com/app"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_url_groups.test", "items.url_group_1.id"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_groups.test", "items.url_group_1.description", "My URL group"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_url_groups.test", "items.url_group_1.literals.0.url", "https://www.example.com/app"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -62,6 +62,8 @@ resource "fmc_url" "test" {
   name        = "url_1"
   url         = "https://www.example.com/app"
 }
+
+    
 `
 
 // End of section. //template:end testPrerequisites
@@ -70,7 +72,7 @@ resource "fmc_url" "test" {
 
 func testAccFmcURLGroupsConfig_minimum() string {
 	config := `resource "fmc_url_groups" "test" {` + "\n"
-	config += `	items = { "port_group_1" = {` + "\n"
+	config += `	items = { "url_group_1" = {` + "\n"
 	config += `		urls = [{` + "\n"
 	config += `			id = fmc_url.test.id` + "\n"
 	config += `		}]` + "\n"
@@ -85,7 +87,7 @@ func testAccFmcURLGroupsConfig_minimum() string {
 
 func testAccFmcURLGroupsConfig_all() string {
 	config := `resource "fmc_url_groups" "test" {` + "\n"
-	config += `	items = { "port_group_1" = {` + "\n"
+	config += `	items = { "url_group_1" = {` + "\n"
 	config += `		description = "My URL group"` + "\n"
 	config += `		overridable = true` + "\n"
 	config += `		urls = [{` + "\n"
