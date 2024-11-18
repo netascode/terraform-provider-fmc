@@ -65,6 +65,10 @@ const (
 	// Define maximum elements in single bulk request for delete & create
 	bulkSizeDelete int = 200
 	bulkSizeCreate int = 1000
+	// maximum payload size in bytes
+	maxPayloadSize int = 2048000
+	// maximum URL length
+	maxUrlLength int = 7500
 )
 
 // Metadata returns the provider type name.
