@@ -277,6 +277,11 @@ func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
+	// Smart license cannot be deregistered if in evaluation mode
+	if state.RegistrationStatus.ValueString() == "EVALUATION" {
+		return
+	}
+
 	reqMods := [](func(*fmc.Req)){}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
@@ -287,8 +292,6 @@ func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
-
-	resp.State.RemoveResource(ctx)
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import

@@ -27,11 +27,10 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
-
 func TestAccFmcSmartLicense(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_smart_license.test", "registration_type", "REGISTER"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_smart_license.test", "registration_type", "EVALUATION"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_smart_license.test", "registration_status", "EVALUATION"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -51,8 +50,6 @@ func TestAccFmcSmartLicense(t *testing.T) {
 	})
 }
 
-// End of section. //template:end testAcc
-
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 // End of section. //template:end testPrerequisites
 
@@ -60,7 +57,7 @@ func TestAccFmcSmartLicense(t *testing.T) {
 
 func testAccFmcSmartLicenseConfig_minimum() string {
 	config := `resource "fmc_smart_license" "test" {` + "\n"
-	config += `	registration_type = "REGISTER"` + "\n"
+	config += `	registration_type = "EVALUATION"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -71,7 +68,7 @@ func testAccFmcSmartLicenseConfig_minimum() string {
 
 func testAccFmcSmartLicenseConfig_all() string {
 	config := `resource "fmc_smart_license" "test" {` + "\n"
-	config += `	registration_type = "REGISTER"` + "\n"
+	config += `	registration_type = "EVALUATION"` + "\n"
 	config += `}` + "\n"
 	return config
 }

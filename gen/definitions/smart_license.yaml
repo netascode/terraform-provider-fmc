@@ -25,7 +25,7 @@ attributes:
     description: Action to be executed on the smart license.
     enum_values: [REGISTER, EVALUATION]
     mandatory: true
-    example: REGISTER
+    example: EVALUATION
   - model_name: token
     type: String
     description: Registration token. Mandatory when registrationType set to REGISTER.
