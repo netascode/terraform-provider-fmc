@@ -26,6 +26,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -33,10 +34,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -96,6 +100,10 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 					stringvalidator.OneOf("BLOCK_TUNNELS", "ANALYZE_TUNNELS"),
 				},
 			},
+			"default_action_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Default action ID.").String,
+				Computed:            true,
+			},
 			"default_action_log_begin": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicating whether the device will log events at the beginning of the connection.").AddDefaultValueDescription("false").String,
 				Optional:            true,
@@ -123,13 +131,17 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 				Optional:            true,
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Unique identifier (UUID) of the prefilter rule.").String,
 							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("User-specified unique string.").String,
+							Required:            true,
 						},
 						"action": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("What to do when the conditions defined by the rule are met.").AddStringEnumDescription("FASTPATH", "ANALYZE", "BLOCK").String,
@@ -152,31 +164,31 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							Default:             booldefault.StaticBool(true),
 						},
 						"bidirectional": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the rule is bidirectional.").AddDefaultValueDescription("true").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the rule is bidirectional.").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
-							Default:             booldefault.StaticBool(true),
+							Default:             booldefault.StaticBool(false),
 						},
 						"log_begin": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.").AddDefaultValueDescription("false").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the beginning of the connection.").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
 						"log_end": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.").AddDefaultValueDescription("false").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the end of the connection.").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
 						"send_events_to_fmc": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.").AddDefaultValueDescription("false").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will send events to the Firepower Management Center event viewer.").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
 						"send_syslog": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the alerts associated with the access rule are sent to syslog.").AddDefaultValueDescription("false").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
@@ -196,9 +208,97 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							MarkdownDescription: helpers.NewAttributeDescription("UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.").String,
 							Optional:            true,
 						},
-						"description": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("User-specified string.").String,
+						"vlan_tags_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing vlan tags.").String,
 							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"source_network_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent sources of traffic (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"value": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"source_network_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_network.example.type, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_network_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"value": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_network_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_network.example.type, etc.).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"source_port_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_port_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).").String,
+										Optional:            true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -220,8 +320,6 @@ func (r *PrefilterPolicyResource) Configure(_ context.Context, req resource.Conf
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
-
 func (r *PrefilterPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan PrefilterPolicy
 
@@ -239,30 +337,45 @@ func (r *PrefilterPolicyResource) Create(ctx context.Context, req resource.Creat
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
+	planBody := plan.toBody(ctx, PrefilterPolicy{})
+
 	// Create object
-	body := plan.toBody(ctx, PrefilterPolicy{})
+	body := planBody
+	body, _ = sjson.Delete(body, "dummy_rules")
+
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
-	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+
+	read, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+
+		res, err := r.client.Delete(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddWarning("Client Error", fmt.Sprintf("Also, cannot DELETE a hanging policy object, got error: %s, %s", err, res.String()))
+		}
 		return
 	}
-	plan.fromBodyUnknowns(ctx, res)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
+	plan.fromBodyUnknowns(ctx, read)
 
-	diags = resp.State.Set(ctx, &plan)
+	state := plan
+	state.Rules = nil
+
+	state, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, tfsdk.State{}, state)
 	resp.Diagnostics.Append(diags...)
+
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished", state.Id.ValueString()))
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
@@ -403,14 +516,64 @@ func (r *PrefilterPolicyResource) ImportState(ctx context.Context, req resource.
 
 // End of section. //template:end import
 
-// Section below is generated&owned by "gen/generator.go". //template:begin createSubresources
+func (r *PrefilterPolicyResource) updateSubresources(ctx context.Context, tfsdkPlan tfsdk.Plan, plan PrefilterPolicy, planBody string, tfsdkState tfsdk.State, state PrefilterPolicy) (PrefilterPolicy, diag.Diagnostics) {
+	var diags diag.Diagnostics
 
-// End of section. //template:end createSubresources
+	p := gjson.Parse(planBody)
+	bodyRules := p.Get("dummy_rules")
 
-// Section below is generated&owned by "gen/generator.go". //template:begin deleteSubresources
+	if len(plan.Rules) == 0 {
+		state.Rules = plan.Rules
+	}
 
-// End of section. //template:end deleteSubresources
+	// Set request domain if provided
+	reqMods := [](func(*fmc.Req)){}
+	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
+		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
+	}
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateSubresources
+	err := r.createRulesAt(ctx, plan, bodyRules.Array(), &state, reqMods...)
+	if err != nil {
+		diags.AddError("Client Error", err.Error())
+		return state, diags
+	}
 
-// End of section. //template:end updateSubresources
+	return state, diags
+}
+
+func (r *PrefilterPolicyResource) createRulesAt(ctx context.Context, plan PrefilterPolicy, body []gjson.Result, state *PrefilterPolicy, reqMods ...func(*fmc.Req)) error {
+	bulk := `{"dummy_rules":[]}`
+	for i := 0; i < len(body); i++ {
+		rule := body[i].String()
+		rule, _ = sjson.Delete(rule, "id")
+
+		bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", rule)
+	}
+	res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/prefilterrules?bulk=true",
+		gjson.Parse(bulk).Get("dummy_rules").String(),
+		reqMods...)
+	if err != nil {
+		return fmt.Errorf("failed to configure object (POST), got error: %s, %s", err, res.String())
+	}
+
+	j := 0
+	for _, v := range res.Get("items").Array() {
+		if v.Get("name").String() == "" {
+			tflog.Debug(ctx, fmt.Sprintf("ignoring a bogus item in POST reply, it can happen: %s", v))
+			continue
+		}
+
+		item := plan.Rules[j]
+		item.Id = types.StringValue(v.Get("id").String())
+
+		if len(state.Rules) <= j {
+			state.Rules = append(state.Rules, item)
+		} else {
+			state.Rules[j] = item
+		}
+
+		j++
+	}
+
+	return nil
+}

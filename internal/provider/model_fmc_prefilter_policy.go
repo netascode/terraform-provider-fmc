@@ -21,6 +21,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -38,6 +39,7 @@ type PrefilterPolicy struct {
 	Name                         types.String           `tfsdk:"name"`
 	Description                  types.String           `tfsdk:"description"`
 	DefaultAction                types.String           `tfsdk:"default_action"`
+	DefaultActionId              types.String           `tfsdk:"default_action_id"`
 	DefaultActionLogBegin        types.Bool             `tfsdk:"default_action_log_begin"`
 	DefaultActionLogEnd          types.Bool             `tfsdk:"default_action_log_end"`
 	DefaultActionSendEventsToFmc types.Bool             `tfsdk:"default_action_send_events_to_fmc"`
@@ -47,19 +49,50 @@ type PrefilterPolicy struct {
 }
 
 type PrefilterPolicyRules struct {
-	Id              types.String `tfsdk:"id"`
-	Action          types.String `tfsdk:"action"`
-	RuleType        types.String `tfsdk:"rule_type"`
-	Enabled         types.Bool   `tfsdk:"enabled"`
-	Bidirectional   types.Bool   `tfsdk:"bidirectional"`
-	LogBegin        types.Bool   `tfsdk:"log_begin"`
-	LogEnd          types.Bool   `tfsdk:"log_end"`
-	SendEventsToFmc types.Bool   `tfsdk:"send_events_to_fmc"`
-	SendSyslog      types.Bool   `tfsdk:"send_syslog"`
-	SyslogConfigId  types.String `tfsdk:"syslog_config_id"`
-	SyslogSeverity  types.String `tfsdk:"syslog_severity"`
-	SnmpConfigId    types.String `tfsdk:"snmp_config_id"`
-	Description     types.String `tfsdk:"description"`
+	Id                         types.String                                     `tfsdk:"id"`
+	Name                       types.String                                     `tfsdk:"name"`
+	Action                     types.String                                     `tfsdk:"action"`
+	RuleType                   types.String                                     `tfsdk:"rule_type"`
+	Enabled                    types.Bool                                       `tfsdk:"enabled"`
+	Bidirectional              types.Bool                                       `tfsdk:"bidirectional"`
+	LogBegin                   types.Bool                                       `tfsdk:"log_begin"`
+	LogEnd                     types.Bool                                       `tfsdk:"log_end"`
+	SendEventsToFmc            types.Bool                                       `tfsdk:"send_events_to_fmc"`
+	SendSyslog                 types.Bool                                       `tfsdk:"send_syslog"`
+	SyslogConfigId             types.String                                     `tfsdk:"syslog_config_id"`
+	SyslogSeverity             types.String                                     `tfsdk:"syslog_severity"`
+	SnmpConfigId               types.String                                     `tfsdk:"snmp_config_id"`
+	VlanTagsObjects            []PrefilterPolicyRulesVlanTagsObjects            `tfsdk:"vlan_tags_objects"`
+	SourceNetworkLiterals      []PrefilterPolicyRulesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
+	SourceNetworkObjects       []PrefilterPolicyRulesSourceNetworkObjects       `tfsdk:"source_network_objects"`
+	DestinationNetworkLiterals []PrefilterPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
+	DestinationNetworkObjects  []PrefilterPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
+	SourcePortObjects          []PrefilterPolicyRulesSourcePortObjects          `tfsdk:"source_port_objects"`
+	DestinationPortObjects     []PrefilterPolicyRulesDestinationPortObjects     `tfsdk:"destination_port_objects"`
+}
+
+type PrefilterPolicyRulesVlanTagsObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type PrefilterPolicyRulesSourceNetworkLiterals struct {
+	Value types.String `tfsdk:"value"`
+}
+type PrefilterPolicyRulesSourceNetworkObjects struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type PrefilterPolicyRulesDestinationNetworkLiterals struct {
+	Value types.String `tfsdk:"value"`
+}
+type PrefilterPolicyRulesDestinationNetworkObjects struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type PrefilterPolicyRulesSourcePortObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type PrefilterPolicyRulesDestinationPortObjects struct {
+	Id types.String `tfsdk:"id"`
 }
 
 // End of section. //template:end types
@@ -88,6 +121,9 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 	if !data.DefaultAction.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.action", data.DefaultAction.ValueString())
 	}
+	if state.DefaultActionId.ValueString() != "" {
+		body, _ = sjson.Set(body, "defaultAction.id", state.DefaultActionId.ValueString())
+	}
 	if !data.DefaultActionLogBegin.IsNull() {
 		body, _ = sjson.Set(body, "defaultAction.logBegin", data.DefaultActionLogBegin.ValueBool())
 	}
@@ -109,6 +145,10 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 			itemBody := ""
 			if !item.Id.IsNull() && !item.Id.IsUnknown() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
+			}
+			itemBody, _ = sjson.Set(itemBody, "type", "PrefilterRule")
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
 			if !item.Action.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "action", item.Action.ValueString())
@@ -143,8 +183,85 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 			if !item.SnmpConfigId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "snmpConfig.id", item.SnmpConfigId.ValueString())
 			}
-			if !item.Description.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
+			if len(item.VlanTagsObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "vlanTags.objects", []interface{}{})
+				for _, childItem := range item.VlanTagsObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "vlanTags.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.SourceNetworkLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.literals", []interface{}{})
+				for _, childItem := range item.SourceNetworkLiterals {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					if !childItem.Value.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "value", childItem.Value.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.literals.-1", itemChildBody)
+				}
+			}
+			if len(item.SourceNetworkObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceNetworks.objects", []interface{}{})
+				for _, childItem := range item.SourceNetworkObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationNetworkLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationNetworks.literals", []interface{}{})
+				for _, childItem := range item.DestinationNetworkLiterals {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					if !childItem.Value.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "value", childItem.Value.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.literals.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationNetworkObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationNetworks.objects", []interface{}{})
+				for _, childItem := range item.DestinationNetworkObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.SourcePortObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourcePorts.objects", []interface{}{})
+				for _, childItem := range item.SourcePortObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					itemBody, _ = sjson.SetRaw(itemBody, "sourcePorts.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationPortObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationPorts.objects", []interface{}{})
+				for _, childItem := range item.DestinationPortObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationPorts.objects.-1", itemChildBody)
+				}
 			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
@@ -171,6 +288,11 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 		data.DefaultAction = types.StringValue(value.String())
 	} else {
 		data.DefaultAction = types.StringNull()
+	}
+	if value := res.Get("defaultAction.id"); value.Exists() {
+		data.DefaultActionId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.logBegin"); value.Exists() {
 		data.DefaultActionLogBegin = types.BoolValue(value.Bool())
@@ -207,6 +329,11 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				data.Id = types.StringNull()
 			}
+			if value := res.Get("name"); value.Exists() {
+				data.Name = types.StringValue(value.String())
+			} else {
+				data.Name = types.StringNull()
+			}
 			if value := res.Get("action"); value.Exists() {
 				data.Action = types.StringValue(value.String())
 			} else {
@@ -225,7 +352,7 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 			if value := res.Get("bidirectional"); value.Exists() {
 				data.Bidirectional = types.BoolValue(value.Bool())
 			} else {
-				data.Bidirectional = types.BoolValue(true)
+				data.Bidirectional = types.BoolValue(false)
 			}
 			if value := res.Get("logBegin"); value.Exists() {
 				data.LogBegin = types.BoolValue(value.Bool())
@@ -262,6 +389,114 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				data.SnmpConfigId = types.StringNull()
 			}
+			if value := res.Get("vlanTags.objects"); value.Exists() {
+				data.VlanTagsObjects = make([]PrefilterPolicyRulesVlanTagsObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesVlanTagsObjects{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					(*parent).VlanTagsObjects = append((*parent).VlanTagsObjects, data)
+					return true
+				})
+			}
+			if value := res.Get("sourceNetworks.literals"); value.Exists() {
+				data.SourceNetworkLiterals = make([]PrefilterPolicyRulesSourceNetworkLiterals, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesSourceNetworkLiterals{}
+					if value := res.Get("value"); value.Exists() {
+						data.Value = types.StringValue(value.String())
+					} else {
+						data.Value = types.StringNull()
+					}
+					(*parent).SourceNetworkLiterals = append((*parent).SourceNetworkLiterals, data)
+					return true
+				})
+			}
+			if value := res.Get("sourceNetworks.objects"); value.Exists() {
+				data.SourceNetworkObjects = make([]PrefilterPolicyRulesSourceNetworkObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesSourceNetworkObjects{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringNull()
+					}
+					(*parent).SourceNetworkObjects = append((*parent).SourceNetworkObjects, data)
+					return true
+				})
+			}
+			if value := res.Get("destinationNetworks.literals"); value.Exists() {
+				data.DestinationNetworkLiterals = make([]PrefilterPolicyRulesDestinationNetworkLiterals, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesDestinationNetworkLiterals{}
+					if value := res.Get("value"); value.Exists() {
+						data.Value = types.StringValue(value.String())
+					} else {
+						data.Value = types.StringNull()
+					}
+					(*parent).DestinationNetworkLiterals = append((*parent).DestinationNetworkLiterals, data)
+					return true
+				})
+			}
+			if value := res.Get("destinationNetworks.objects"); value.Exists() {
+				data.DestinationNetworkObjects = make([]PrefilterPolicyRulesDestinationNetworkObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesDestinationNetworkObjects{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringNull()
+					}
+					(*parent).DestinationNetworkObjects = append((*parent).DestinationNetworkObjects, data)
+					return true
+				})
+			}
+			if value := res.Get("sourcePorts.objects"); value.Exists() {
+				data.SourcePortObjects = make([]PrefilterPolicyRulesSourcePortObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesSourcePortObjects{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					(*parent).SourcePortObjects = append((*parent).SourcePortObjects, data)
+					return true
+				})
+			}
+			if value := res.Get("destinationPorts.objects"); value.Exists() {
+				data.DestinationPortObjects = make([]PrefilterPolicyRulesDestinationPortObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesDestinationPortObjects{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					(*parent).DestinationPortObjects = append((*parent).DestinationPortObjects, data)
+					return true
+				})
+			}
 			(*parent).Rules = append((*parent).Rules, data)
 			return true
 		})
@@ -291,6 +526,11 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		data.DefaultAction = types.StringValue(value.String())
 	} else {
 		data.DefaultAction = types.StringNull()
+	}
+	if value := res.Get("defaultAction.id"); value.Exists() {
+		data.DefaultActionId = types.StringValue(value.String())
+	} else {
+		data.DefaultActionId = types.StringNull()
 	}
 	if value := res.Get("defaultAction.logBegin"); value.Exists() && !data.DefaultActionLogBegin.IsNull() {
 		data.DefaultActionLogBegin = types.BoolValue(value.Bool())
@@ -337,6 +577,11 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		} else {
 			data.Id = types.StringNull()
 		}
+		if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
+			data.Name = types.StringValue(value.String())
+		} else {
+			data.Name = types.StringNull()
+		}
 		if value := res.Get("action"); value.Exists() && !data.Action.IsNull() {
 			data.Action = types.StringValue(value.String())
 		} else {
@@ -354,7 +599,7 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		}
 		if value := res.Get("bidirectional"); value.Exists() && !data.Bidirectional.IsNull() {
 			data.Bidirectional = types.BoolValue(value.Bool())
-		} else if data.Bidirectional.ValueBool() != true {
+		} else if data.Bidirectional.ValueBool() != false {
 			data.Bidirectional = types.BoolNull()
 		}
 		if value := res.Get("logBegin"); value.Exists() && !data.LogBegin.IsNull() {
@@ -392,6 +637,317 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		} else {
 			data.SnmpConfigId = types.StringNull()
 		}
+		for i := 0; i < len(data.VlanTagsObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.VlanTagsObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).VlanTagsObjects[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("vlanTags.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagsObjects[%d] = %+v",
+					i,
+					(*parent).VlanTagsObjects[i],
+				))
+				(*parent).VlanTagsObjects = slices.Delete((*parent).VlanTagsObjects, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			(*parent).VlanTagsObjects[i] = data
+		}
+		for i := 0; i < len(data.SourceNetworkLiterals); i++ {
+			keys := [...]string{"value"}
+			keyValues := [...]string{data.SourceNetworkLiterals[i].Value.ValueString()}
+
+			parent := &data
+			data := (*parent).SourceNetworkLiterals[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("sourceNetworks.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourceNetworkLiterals[%d] = %+v",
+					i,
+					(*parent).SourceNetworkLiterals[i],
+				))
+				(*parent).SourceNetworkLiterals = slices.Delete((*parent).SourceNetworkLiterals, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("value"); value.Exists() && !data.Value.IsNull() {
+				data.Value = types.StringValue(value.String())
+			} else {
+				data.Value = types.StringNull()
+			}
+			(*parent).SourceNetworkLiterals[i] = data
+		}
+		for i := 0; i < len(data.SourceNetworkObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.SourceNetworkObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).SourceNetworkObjects[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("sourceNetworks.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourceNetworkObjects[%d] = %+v",
+					i,
+					(*parent).SourceNetworkObjects[i],
+				))
+				(*parent).SourceNetworkObjects = slices.Delete((*parent).SourceNetworkObjects, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
+			}
+			(*parent).SourceNetworkObjects[i] = data
+		}
+		for i := 0; i < len(data.DestinationNetworkLiterals); i++ {
+			keys := [...]string{"value"}
+			keyValues := [...]string{data.DestinationNetworkLiterals[i].Value.ValueString()}
+
+			parent := &data
+			data := (*parent).DestinationNetworkLiterals[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("destinationNetworks.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing DestinationNetworkLiterals[%d] = %+v",
+					i,
+					(*parent).DestinationNetworkLiterals[i],
+				))
+				(*parent).DestinationNetworkLiterals = slices.Delete((*parent).DestinationNetworkLiterals, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("value"); value.Exists() && !data.Value.IsNull() {
+				data.Value = types.StringValue(value.String())
+			} else {
+				data.Value = types.StringNull()
+			}
+			(*parent).DestinationNetworkLiterals[i] = data
+		}
+		for i := 0; i < len(data.DestinationNetworkObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.DestinationNetworkObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).DestinationNetworkObjects[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("destinationNetworks.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing DestinationNetworkObjects[%d] = %+v",
+					i,
+					(*parent).DestinationNetworkObjects[i],
+				))
+				(*parent).DestinationNetworkObjects = slices.Delete((*parent).DestinationNetworkObjects, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
+			}
+			(*parent).DestinationNetworkObjects[i] = data
+		}
+		for i := 0; i < len(data.SourcePortObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.SourcePortObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).SourcePortObjects[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("sourcePorts.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourcePortObjects[%d] = %+v",
+					i,
+					(*parent).SourcePortObjects[i],
+				))
+				(*parent).SourcePortObjects = slices.Delete((*parent).SourcePortObjects, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			(*parent).SourcePortObjects[i] = data
+		}
+		for i := 0; i < len(data.DestinationPortObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.DestinationPortObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).DestinationPortObjects[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("destinationPorts.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing DestinationPortObjects[%d] = %+v",
+					i,
+					(*parent).DestinationPortObjects[i],
+				))
+				(*parent).DestinationPortObjects = slices.Delete((*parent).DestinationPortObjects, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			(*parent).DestinationPortObjects[i] = data
+		}
 		(*parent).Rules[i] = data
 	}
 }
@@ -403,6 +959,13 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *PrefilterPolicy) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.DefaultActionId.IsUnknown() {
+		if value := res.Get("defaultAction.id"); value.Exists() {
+			data.DefaultActionId = types.StringValue(value.String())
+		} else {
+			data.DefaultActionId = types.StringNull()
+		}
+	}
 	for i := range data.Rules {
 		r := res.Get(fmt.Sprintf("dummy_rules.%d", i))
 		if v := data.Rules[i]; v.Id.IsUnknown() {

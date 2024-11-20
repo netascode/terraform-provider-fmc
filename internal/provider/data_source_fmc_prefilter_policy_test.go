@@ -36,11 +36,14 @@ func TestAccDataSourceFmcPrefilterPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "default_action_log_begin", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "default_action_log_end", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "default_action_send_events_to_fmc", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.name", "rule1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.action", "FASTPATH"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.rule_type", "PREFILTER"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.log_begin", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.log_end", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.send_events_to_fmc", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.0/24"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_network_literals.0.value", "10.2.2.0/24"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -73,6 +76,7 @@ func testAccDataSourceFmcPrefilterPolicyConfig() string {
 	config += `	default_action_log_end = false` + "\n"
 	config += `	default_action_send_events_to_fmc = true` + "\n"
 	config += `	rules = [{` + "\n"
+	config += `		name = "rule1"` + "\n"
 	config += `		action = "FASTPATH"` + "\n"
 	config += `		rule_type = "PREFILTER"` + "\n"
 	config += `		enabled = true` + "\n"
@@ -80,7 +84,20 @@ func testAccDataSourceFmcPrefilterPolicyConfig() string {
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"
 	config += `		send_events_to_fmc = true` + "\n"
-	config += `		description = ""` + "\n"
+	config += `		source_network_literals = [{` + "\n"
+	config += `			value = "10.1.1.0/24"` + "\n"
+	config += `		}]` + "\n"
+	config += `		source_network_objects = [{` + "\n"
+	config += `			id = fmc_network.test.id` + "\n"
+	config += `			type = fmc_network.test.type` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_network_literals = [{` + "\n"
+	config += `			value = "10.2.2.0/24"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_network_objects = [{` + "\n"
+	config += `			id = fmc_host.test.id` + "\n"
+	config += `			type = fmc_host.test.type` + "\n"
+	config += `		}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
@@ -101,6 +118,7 @@ func testAccNamedDataSourceFmcPrefilterPolicyConfig() string {
 	config += `	default_action_log_end = false` + "\n"
 	config += `	default_action_send_events_to_fmc = true` + "\n"
 	config += `	rules = [{` + "\n"
+	config += `		name = "rule1"` + "\n"
 	config += `		action = "FASTPATH"` + "\n"
 	config += `		rule_type = "PREFILTER"` + "\n"
 	config += `		enabled = true` + "\n"
@@ -108,7 +126,20 @@ func testAccNamedDataSourceFmcPrefilterPolicyConfig() string {
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"
 	config += `		send_events_to_fmc = true` + "\n"
-	config += `		description = ""` + "\n"
+	config += `		source_network_literals = [{` + "\n"
+	config += `			value = "10.1.1.0/24"` + "\n"
+	config += `		}]` + "\n"
+	config += `		source_network_objects = [{` + "\n"
+	config += `			id = fmc_network.test.id` + "\n"
+	config += `			type = fmc_network.test.type` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_network_literals = [{` + "\n"
+	config += `			value = "10.2.2.0/24"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_network_objects = [{` + "\n"
+	config += `			id = fmc_host.test.id` + "\n"
+	config += `			type = fmc_host.test.type` + "\n"
+	config += `		}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

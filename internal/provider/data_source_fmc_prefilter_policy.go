@@ -83,6 +83,10 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				MarkdownDescription: "Specifies the default action to take when none of the rules meet the conditions.",
 				Computed:            true,
 			},
+			"default_action_id": schema.StringAttribute{
+				MarkdownDescription: "Default action ID.",
+				Computed:            true,
+			},
 			"default_action_log_begin": schema.BoolAttribute{
 				MarkdownDescription: "Indicating whether the device will log events at the beginning of the connection.",
 				Computed:            true,
@@ -104,12 +108,16 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:            true,
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: "The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule.",
+				MarkdownDescription: "",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
 							MarkdownDescription: "Unique identifier (UUID) of the prefilter rule.",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "User-specified unique string.",
 							Computed:            true,
 						},
 						"action": schema.StringAttribute{
@@ -129,19 +137,19 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"log_begin": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.",
+							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection.",
 							Computed:            true,
 						},
 						"log_end": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.",
+							MarkdownDescription: "Indicates whether the device will log events at the end of the connection.",
 							Computed:            true,
 						},
 						"send_events_to_fmc": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.",
+							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer.",
 							Computed:            true,
 						},
 						"send_syslog": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the alerts associated with the access rule are sent to syslog.",
+							MarkdownDescription: "Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.",
 							Computed:            true,
 						},
 						"syslog_config_id": schema.StringAttribute{
@@ -156,9 +164,97 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							MarkdownDescription: "UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.",
 							Computed:            true,
 						},
-						"description": schema.StringAttribute{
-							MarkdownDescription: "User-specified string.",
+						"vlan_tags_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing vlan tags.",
 							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object.",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_network_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent sources of traffic (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"value": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_network_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_network.example.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_network_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent destinations of traffic (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"value": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_network_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object (such as fmc_network.example.type, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_port_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_port_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).",
+										Computed:            true,
+									},
+								},
+							},
 						},
 					},
 				},

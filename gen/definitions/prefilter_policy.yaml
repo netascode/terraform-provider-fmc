@@ -20,6 +20,12 @@ attributes:
     enum_values: [BLOCK_TUNNELS, ANALYZE_TUNNELS]
     description: Specifies the default action to take when none of the rules meet the conditions.
     example: BLOCK_TUNNELS
+  - model_name: id
+    data_path: [defaultAction]
+    tf_name: default_action_id
+    type: String
+    resource_id: true
+    description: Default action ID.
   - model_name: logBegin
     data_path: [defaultAction]
     tf_name: default_action_log_begin
@@ -62,11 +68,11 @@ attributes:
     tf_name: rules
     type: List
     ordered_list: true
-    description: >-
-      The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have
-      `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule
-      is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules
-      after that traffic matches a rule.
+    # description: >-
+    #   The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have
+    #   `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule
+    #   is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules
+    #   after that traffic matches a rule.
     max_list: 1000
     attributes:
       - model_name: id
@@ -75,6 +81,16 @@ attributes:
         resource_id: true
         exclude_example: true
         exclude_test: true
+      - model_name: type
+        type: String
+        value: "PrefilterRule"
+        exclude_example: true
+        test_value: "PrefilterRule"
+      - model_name: name
+        type: String
+        description: User-specified unique string.
+        mandatory: true
+        example: rule1
       - model_name: action
         type: String
         description: What to do when the conditions defined by the rule are met.
@@ -101,35 +117,29 @@ attributes:
       - model_name: bidirectional
         type: Bool
         description: Indicates whether the rule is bidirectional.
-        default_value: "true"
+        default_value: "false"
         exclude_example: true
         test_value: "true"
       - model_name: logBegin
         type: Bool
-        description: >-
-          Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is
-          selected for access rule, log_begin must be false or absent.
+        description: Indicates whether the device will log events at the beginning of the connection.
         default_value: "false"
         example: "true"
       - model_name: logEnd
         type: Bool
-        description: >-
-          Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected
-          for access rule, log_end must be true.
+        description: Indicates whether the device will log events at the end of the connection.
         default_value: "false"
         example: "true"
       - model_name: sendEventsToFMC
         tf_name: send_events_to_fmc
         type: Bool
-        description: >-
-          Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR'
-          action is selected for access rule, send_events_to_fmc must be true.
+        description: Indicates whether the device will send events to the Firepower Management Center event viewer.
         default_value: "false"
         example: true
       - model_name: enableSyslog
         tf_name: send_syslog
         type: Bool
-        description: Indicates whether the alerts associated with the access rule are sent to syslog.
+        description: Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.
         default_value: "false"
         example: "true"
         exclude_test: true
@@ -166,15 +176,22 @@ attributes:
           is true.
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
         exclude_test: true
-      - model_name: description
-        type: String
-        description: User-specified string.
-        write_only: true # absent in GET
-        exclude_example: true
       - model_name: objects
         data_path: [vlanTags]
         tf_name: vlan_tags_objects
-        description: Set of objects that represent vlan tags.
+        description: Set of objects representing vlan tags.
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object.
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+      - model_name: literals
+        data_path: [sourceNetworks]
+        tf_name: source_network_literals
+        description: Set of objects that represent sources of traffic (literally specified).
         type: Set
         attributes:
           - model_name: type
@@ -184,98 +201,97 @@ attributes:
             type: String
             id: true
             example: 10.1.1.0/24
-
-      # - model_name: literals
-      #   data_path: [sourceNetworks]
-      #   tf_name: source_network_literals
-      #   description: Set of objects that represent sources of traffic (literally specified).
+      - model_name: objects
+        data_path: [sourceNetworks]
+        tf_name: source_network_objects
+        description: Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).
+        type: Set
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_network.example.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            test_value: fmc_network.test.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_network.example.type, etc.).
+            example: Network
+            test_value: fmc_network.test.type
+      - model_name: literals
+        data_path: [destinationNetworks]
+        tf_name: destination_network_literals
+        description: Set of objects that represent destinations of traffic (literally specified).
+        type: Set
+        attributes:
+          - model_name: type
+            type: String
+            value: AnyNonEmptyString
+          - model_name: value
+            type: String
+            id: true
+            example: 10.2.2.0/24
+      - model_name: objects
+        data_path: [destinationNetworks]
+        tf_name: destination_network_objects
+        description: Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).
+        type: Set
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_network.example.id, etc.).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            test_value: fmc_host.test.id
+          - model_name: type
+            type: String
+            description: Type of the object (such as fmc_network.example.type, etc.).
+            example: Network
+            test_value: fmc_host.test.type
+      - model_name: objects
+        data_path: [sourcePorts]
+        tf_name: source_port_objects
+        description: >-
+          Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            test_value: fmc_port.test.id
+          - model_name: type
+            type: String
+            value: AnyNonEmptyString
+      - model_name: objects
+        data_path: [destinationPorts]
+        tf_name: destination_port_objects
+        description: >-
+          Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: id
+            type: String
+            description: UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+            id: true
+            example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+            test_value: fmc_port.test.id
+          - model_name: type
+            type: String
+            value: AnyNonEmptyString
+      # - model_name: objects
+      #   data_path: [sourceInterfaces]
+      #   tf_name: source_interfaces
+      #   description: Set of objects that represent source interfaces.
       #   type: Set
       #   attributes:
-      #     - model_name: type
+      #     - model_name: id
       #       type: String
       #       value: AnyNonEmptyString
       #     - model_name: value
       #       type: String
       #       id: true
       #       example: 10.1.1.0/24
-      # - model_name: objects
-      #   data_path: [sourceNetworks]
-      #   tf_name: source_network_objects
-      #   description: Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).
-      #   type: Set
-      #   attributes:
-      #     - model_name: id
-      #       type: String
-      #       description: UUID of the object (such as fmc_network.example.id, etc.).
-      #       id: true
-      #       example: 76d24097-41c4-4558-a4d0-a8c07ac08470
-      #       test_value: fmc_network.test.id
-      #     - model_name: type
-      #       type: String
-      #       description: Type of the object (such as fmc_network.example.type, etc.).
-      #       example: Network
-      #       test_value: fmc_network.test.type
-      # - model_name: literals
-      #   data_path: [destinationNetworks]
-      #   tf_name: destination_network_literals
-      #   description: Set of objects that represent destinations of traffic (literally specified).
-      #   type: Set
-      #   attributes:
-      #     - model_name: type
-      #       type: String
-      #       value: AnyNonEmptyString
-      #     - model_name: value
-      #       type: String
-      #       id: true
-      #       example: 10.2.2.0/24
-      # - model_name: objects
-      #   data_path: [destinationNetworks]
-      #   tf_name: destination_network_objects
-      #   description: Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).
-      #   type: Set
-      #   attributes:
-      #     - model_name: id
-      #       type: String
-      #       description: UUID of the object (such as fmc_network.example.id, etc.).
-      #       id: true
-      #       example: 76d24097-41c4-4558-a4d0-a8c07ac08470
-      #       test_value: fmc_host.test.id
-      #     - model_name: type
-      #       type: String
-      #       description: Type of the object (such as fmc_network.example.type, etc.).
-      #       example: Network
-      #       test_value: fmc_host.test.type
-      # - model_name: objects
-      #   data_path: [sourcePorts]
-      #   tf_name: source_port_objects
-      #   description: >-
-      #     Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).
-      #   type: Set
-      #   exclude_test: true
-      #   attributes:
-      #     - model_name: id
-      #       type: String
-      #       description: UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
-      #       id: true
-      #       example: 76d24097-41c4-4558-a4d0-a8c07ac08470
-      #       test_value: fmc_port.test.id
-      #     - model_name: type
-      #       type: String
-      #       value: AnyNonEmptyString
-      # - model_name: objects
-      #   data_path: [destinationPorts]
-      #   tf_name: destination_port_objects
-      #   description: >-
-      #     Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).
-      #   type: Set
-      #   exclude_test: true
-      #   attributes:
-      #     - model_name: id
-      #       type: String
-      #       description: UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
-      #       id: true
-      #       example: 76d24097-41c4-4558-a4d0-a8c07ac08470
-      #       test_value: fmc_port.test.id
-      #     - model_name: type
-      #       type: String
-      #       value: AnyNonEmptyString

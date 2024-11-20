@@ -9,6 +9,7 @@ resource "fmc_prefilter_policy" "example" {
   default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   rules = [
     {
+      name               = "rule1"
       action             = "FASTPATH"
       rule_type          = "PREFILTER"
       log_begin          = true
@@ -18,6 +19,43 @@ resource "fmc_prefilter_policy" "example" {
       syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
       syslog_severity    = "DEBUG"
       snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      vlan_tags_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      source_network_literals = [
+        {
+          value = "10.1.1.0/24"
+        }
+      ]
+      source_network_objects = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "Network"
+        }
+      ]
+      destination_network_literals = [
+        {
+          value = "10.2.2.0/24"
+        }
+      ]
+      destination_network_objects = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "Network"
+        }
+      ]
+      source_port_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      destination_port_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
     }
   ]
 }

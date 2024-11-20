@@ -30,13 +30,14 @@ data "fmc_prefilter_policy" "example" {
 ### Read-Only
 
 - `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
+- `default_action_id` (String) Default action ID.
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `description` (String) Description
-- `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
+- `rules` (Attributes List) (see [below for nested schema](#nestedatt--rules))
 
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
@@ -45,14 +46,78 @@ Read-Only:
 
 - `action` (String) What to do when the conditions defined by the rule are met.
 - `bidirectional` (Boolean) Indicates whether the rule is bidirectional.
-- `description` (String) User-specified string.
+- `destination_network_literals` (Attributes Set) Set of objects that represent destinations of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--destination_network_literals))
+- `destination_network_objects` (Attributes Set) Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
+- `destination_port_objects` (Attributes Set) Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). (see [below for nested schema](#nestedatt--rules--destination_port_objects))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
 - `id` (String) Unique identifier (UUID) of the prefilter rule.
-- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. If 'MONITOR' action is selected for access rule, log_begin must be false or absent.
-- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. If 'MONITOR' action is selected for access rule, log_end must be true.
+- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection.
+- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection.
+- `name` (String) User-specified unique string.
 - `rule_type` (String) Indicates whether the rule is prefilter rule or tunnel rule.
-- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. If 'MONITOR' action is selected for access rule, send_events_to_fmc must be true.
-- `send_syslog` (Boolean) Indicates whether the alerts associated with the access rule are sent to syslog.
+- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer.
+- `send_syslog` (Boolean) Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.
 - `snmp_config_id` (String) UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.
+- `source_network_literals` (Attributes Set) Set of objects that represent sources of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--source_network_literals))
+- `source_network_objects` (Attributes Set) Set of objects that represent sources of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--source_network_objects))
+- `source_port_objects` (Attributes Set) Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). (see [below for nested schema](#nestedatt--rules--source_port_objects))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
+- `vlan_tags_objects` (Attributes Set) Set of objects representing vlan tags. (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
+
+<a id="nestedatt--rules--destination_network_literals"></a>
+### Nested Schema for `rules.destination_network_literals`
+
+Read-Only:
+
+- `value` (String)
+
+
+<a id="nestedatt--rules--destination_network_objects"></a>
+### Nested Schema for `rules.destination_network_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
+- `type` (String) Type of the object (such as fmc_network.example.type, etc.).
+
+
+<a id="nestedatt--rules--destination_port_objects"></a>
+### Nested Schema for `rules.destination_port_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+
+
+<a id="nestedatt--rules--source_network_literals"></a>
+### Nested Schema for `rules.source_network_literals`
+
+Read-Only:
+
+- `value` (String)
+
+
+<a id="nestedatt--rules--source_network_objects"></a>
+### Nested Schema for `rules.source_network_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
+- `type` (String) Type of the object (such as fmc_network.example.type, etc.).
+
+
+<a id="nestedatt--rules--source_port_objects"></a>
+### Nested Schema for `rules.source_port_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+
+
+<a id="nestedatt--rules--vlan_tags_objects"></a>
+### Nested Schema for `rules.vlan_tags_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object.
