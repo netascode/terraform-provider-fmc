@@ -540,7 +540,7 @@ func (r *FTDNATPolicyResource) truncateManualNatRulesAt(ctx context.Context, sta
 	for i := kept; i < len(state.ManualNatRules); i++ {
 		b.WriteString(state.ManualNatRules[i].Id.ValueString() + ",")
 		count++
-		if b.Len() >= maxUrlLength {
+		if b.Len() >= maxUrlParamLength {
 			bulks = append(bulks, b.String())
 			counts = append(counts, count)
 			b.Reset()
@@ -579,7 +579,7 @@ func (r *FTDNATPolicyResource) truncateAutoNatRulesAt(ctx context.Context, state
 	for i := kept; i < len(state.AutoNatRules); i++ {
 		b.WriteString(state.AutoNatRules[i].Id.ValueString() + ",")
 		count++
-		if b.Len() >= maxUrlLength {
+		if b.Len() >= maxUrlParamLength {
 			bulks = append(bulks, b.String())
 			counts = append(counts, count)
 			b.Reset()
@@ -613,6 +613,8 @@ func (r *FTDNATPolicyResource) createManualNatRulesAt(ctx context.Context, plan 
 	for i := startIndex; i < len(body); i++ {
 		bulk := `{"dummy_manual_nat_rules":[]}`
 		j := i
+		bulkCount := 0
+		bodyLen := 0
 		head := plan.ManualNatRules[i]
 
 		for ; i < len(body); i++ {
@@ -622,8 +624,19 @@ func (r *FTDNATPolicyResource) createManualNatRulesAt(ctx context.Context, plan 
 			}
 			rule := body[i].String()
 			rule, _ = sjson.Delete(rule, "metadata")
-			tflog.Debug(ctx, fmt.Sprintf("Rule: %s", rule))
+
+			// Check if the body is too big for a single POST
+			bodyLen += len(rule)
+			if bodyLen >= maxPayloadSize {
+				i--
+				break
+			}
+
 			bulk, _ = sjson.SetRaw(bulk, "dummy_manual_nat_rules.-1", rule)
+			bulkCount++
+			if bulkCount >= bulkSizeCreate {
+				break
+			}
 		}
 
 		tflog.Debug(ctx, fmt.Sprintf("Bulk: %s", bulk))
@@ -655,10 +668,26 @@ func (r *FTDNATPolicyResource) createAutoNatRulesAt(ctx context.Context, plan FT
 	for i := startIndex; i < len(body); i++ {
 		bulk := `{"dummy_auto_nat_rules":[]}`
 		j := i
+		bulkCount := 0
+		bodyLen := 0
 
 		for ; i < len(body); i++ {
 			rule := body[i].String()
+
+			// Check if the body is too big for a single POST
+			bodyLen += len(rule)
+			if bodyLen >= maxPayloadSize {
+				i--
+				break
+			}
+
 			bulk, _ = sjson.SetRaw(bulk, "dummy_auto_nat_rules.-1", rule)
+
+			bulkCount++
+			if bulkCount >= bulkSizeCreate {
+				break
+			}
+
 		}
 
 		param := "?bulk=true"

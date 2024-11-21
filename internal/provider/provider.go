@@ -66,8 +66,8 @@ const (
 	bulkSizeCreate int = 1000
 	// maximum payload size in bytes
 	maxPayloadSize int = 2048000
-	// maximum URL length
-	maxUrlLength int = 7500
+	// maximum URL Param length. This is a rough estimate and does not account for the entire URL length.
+	maxUrlParamLength int = 7000
 )
 
 // Metadata returns the provider type name.
