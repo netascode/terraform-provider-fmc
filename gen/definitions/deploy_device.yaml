@@ -6,37 +6,52 @@ no_update: true
 no_data_source: true
 no_import: true
 doc_category: Deployment
+test_tags: [TF_VAR_timestamp,TF_VAR_device_id_list]
 attributes:
   - model_name: type
     type: String
     value: "DeploymentRequest"
   - model_name: version
     type: String
-    description: Epoch unix time stamp.
+    description: Epoch unix time stamp (13 digits).
     mandatory: true
     example: "1457566762351"
+    test_value: var.timestamp
   - model_name: ForceDeploy
+    tf_name: force_deploy
     type: Bool
     description: Force deployment (even if there are no configuration changes).
     mandatory: false
     exclude_example: true
     exclude_test: true
   - model_name: ignoreWarning
+    tf_name: ignore_warning
     type: Bool
     description: Ignore warnings during deployment.
     mandatory: false
     exclude_example: true
-    exclude_test: true
+    test_value: true
+    minimum_test_value: true
   - model_name: deviceList
+    tf_name: device_list
     type: Set
     description: List of device ids to be deployed.
     mandatory: true
     element_type: String
-    example: d94f7ada-d141-11e5-acf3-c41f7e67fb1b
+    example: 2fe9063e-8bd5-11ef-9475-e4aeac78cf37
+    test_value: var.device_id_list
   - model_name: deploymentNote
+    tf_name: deployment_note
     type: String
     description: User note related to deployment.
     mandatory: false
     example: "yournotescomehere"
     exclude_example: true
     exclude_test: true
+
+test_prerequisites: |-
+  variable "timestamp" { default = null } // tests will set $TF_VAR_timestamp
+  variable "device_id_list" {             // tests will set $TF_VAR_device_id_list
+    type = list(string)
+    default = null 
+  }

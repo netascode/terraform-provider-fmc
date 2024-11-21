@@ -15,7 +15,7 @@ This resource can manage a Deployment.
 ```terraform
 resource "fmc_deployment" "example" {
   version     = "1457566762351"
-  device_list = ["d94f7ada-d141-11e5-acf3-c41f7e67fb1b"]
+  device_list = ["2fe9063e-8bd5-11ef-9475-e4aeac78cf37"]
 }
 ```
 
@@ -25,7 +25,7 @@ resource "fmc_deployment" "example" {
 ### Required
 
 - `device_list` (Set of String) List of device ids to be deployed.
-- `version` (String) Epoch unix time stamp.
+- `version` (String) Epoch unix time stamp (13 digits).
 
 ### Optional
 

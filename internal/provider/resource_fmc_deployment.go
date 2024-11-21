@@ -17,12 +17,13 @@
 
 package provider
 
-// Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"net/url"
 	"strings"
+
+	"github.com/tidwall/gjson"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -33,8 +34,6 @@ import (
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 )
-
-// End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
@@ -76,7 +75,7 @@ func (r *DeploymentResource) Schema(ctx context.Context, req resource.SchemaRequ
 				},
 			},
 			"version": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Epoch unix time stamp.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Epoch unix time stamp (13 digits).").String,
 				Required:            true,
 			},
 			"force_deploy": schema.BoolAttribute{
@@ -110,8 +109,6 @@ func (r *DeploymentResource) Configure(_ context.Context, req resource.Configure
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
-
 func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan Deployment
 
@@ -120,6 +117,8 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
+
+	myInterfaceUUID := strings.ReplaceAll(plan.DeviceList.Elements()[0].String(), `"`, "")
 
 	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
@@ -136,7 +135,96 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.Id = types.StringValue(res.Get("id").String())
+
+	// BoCODE
+	// As there are no GET api call for /api/fmc_config/v1/domain/{domainUUID}/deployment/deploymentrequests
+	// We need to create abstraction state which reflects deployemnt
+	// We can use /api/fmc_config/v1/domain/{domainUUID}/deployment/jobhistories API
+	// and /api/fmc_config/v1/domain/{domainUUID}/job/taskstatuses/{objectId} (optionally, no jobID in taskstauses)
+	// First after POST /api/fmc_config/v1/domain/{domainUUID}/deployment/deploymentrequests
+	// we have to moinitor task status which available in response body of POST api call
+	// then, when deployment task is finished we need to store Deployment job into tf state
+
+	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
+	res, err = r.client.Get(urlPath, reqMods...)
+	jsonString := res.String()
+	var resMap map[string]interface{}
+	err = json.Unmarshal([]byte(jsonString), &resMap)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
+	}
+
+	// Variable to store the matching item
+	var matchingItem map[string]interface{}
+	// Slice to collect matching data
+	var matchingData []interface{}
+
+	// Access "items"
+	items, ok := resMap["items"].([]interface{})
+	if !ok {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
+	}
+
+	// Iterate over items to find the JobID based on devices UUID
+JonbIdLookup:
+	for _, item := range items {
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		// // Check if the ID matches
+		// if id, ok := itemMap["id"].(string); ok && id == my_job_id {
+		// 	matchingItem = itemMap
+		// 	break // Exit the loop as we found the match
+		// }
+
+		if itemMap["jobType"].(interface{}).(string) != "DEPLOYMENT" {
+			continue
+		}
+
+		deviceList, ok := itemMap["deviceList"].([]interface{})
+
+		jobId, ok := itemMap["id"].(string)
+		if !ok {
+			continue
+		}
+		println(jobId)
+
+		// Iterate over deviceData to check deviceUUID
+		for _, device := range deviceList {
+			deviceMap, ok := device.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			// deviceDetails, ok := deviceMap["data"].(map[string]interface{})
+			// if !ok {
+			// 	continue
+			// }
+			deviceUUID, ok := deviceMap["deviceUUID"].(interface{}).(string)
+			if !ok {
+				continue
+			}
+
+			if deviceUUID == myInterfaceUUID {
+				plan.Id = types.StringValue(jobId)
+				matchingData = append(matchingData, deviceMap)
+				break JonbIdLookup
+			}
+		}
+	}
+
+	// Print the matching item
+	if matchingItem != nil {
+		tflog.Debug(ctx, fmt.Sprintf("Matching item: %+v\n", matchingItem))
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("No matching item found. %+v\n", ""))
+	}
+
+	// EoCODE
+
+	// plan.Id = types.StringValue(res.Get("id").String())
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -145,10 +233,6 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end create
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Deployment
@@ -167,8 +251,79 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
+	// BoCODE
+
+	// Target job ID to match
+	// my_job_id := "0050568A-2561-0ed3-0000-004294994451"
+	my_job_id := state.Id.ValueString()
+
+	// https://10.50.202.94/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/deployment/jobhistories?expanded=true
+	// urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
+
+	// urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
+	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories/" + my_job_id
+
 	res, err := r.client.Get(urlPath, reqMods...)
+	jsonString := res.String()
+	var resMap map[string]interface{}
+	err = json.Unmarshal([]byte(jsonString), &resMap)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
+	}
+
+	// Get resource details from job history
+	resDeviceList := state.DeviceList.Elements()
+	// Modify matchingItem to be in resource format
+	resMap["deviceList"] = resDeviceList
+
+	// Convert the modified resMap back to JSON
+	updatedJSON, err := json.Marshal(resMap)
+	if err != nil {
+		fmt.Printf("Error converting map to JSON: %v\n", err)
+		return
+	}
+
+	res = gjson.Parse(string(updatedJSON))
+
+	matchingItem := resMap
+
+	// // Variable to store the matching item
+	// var matchingItem map[string]interface{}
+
+	// // Access "items"
+	// items, ok := resMap["items"].([]interface{})
+	// if !ok {
+	// 	tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
+	// }
+
+	// // Iterate over items to find the matching ID
+	// for _, item := range items {
+	// 	itemMap, ok := item.(map[string]interface{})
+	// 	if !ok {
+	// 		continue
+	// 	}
+
+	// 	// // Navigate to data
+	// 	// data, ok := itemMap["data"].(map[string]interface{})
+	// 	// if !ok {
+	// 	// 	continue
+	// 	// }
+
+	// 	// Check if the ID matches
+	// 	if id, ok := itemMap["id"].(string); ok && id == my_job_id {
+	// 		matchingItem = itemMap
+	// 		break // Exit the loop as we found the match
+	// 	}
+	// }
+
+	// Print the matching item
+	if matchingItem != nil {
+		tflog.Debug(ctx, fmt.Sprintf("Matching item: %+v\n", matchingItem))
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("No matching item found. %+v\n", ""))
+	}
+
+	// EoCODE
 
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -197,8 +352,6 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 

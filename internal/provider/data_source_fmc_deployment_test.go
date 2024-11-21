@@ -27,37 +27,30 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
-func TestAccFmcDeployment(t *testing.T) {
+func TestAccDataSourceFmcDeployment(t *testing.T) {
 	if os.Getenv("TF_VAR_timestamp") == "" && os.Getenv("TF_VAR_device_id_list") == "" {
 		t.Skip("skipping test, set environment variable TF_VAR_timestamp or TF_VAR_device_id_list")
 	}
 	var checks []resource.TestCheckFunc
-
-	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccFmcDeploymentPrerequisitesConfig + testAccFmcDeploymentConfig_minimum(),
-		})
-	}
-	steps = append(steps, resource.TestStep{
-		Config: testAccFmcDeploymentPrerequisitesConfig + testAccFmcDeploymentConfig_all(),
-		Check:  resource.ComposeTestCheckFunc(checks...),
-	})
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps:                    steps,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceFmcDeploymentPrerequisitesConfig + testAccDataSourceFmcDeploymentConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+		},
 	})
 }
 
-// End of section. //template:end testAcc
+// End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
-const testAccFmcDeploymentPrerequisitesConfig = `
+const testAccDataSourceFmcDeploymentPrerequisitesConfig = `
 variable "timestamp" { default = null } // tests will set $TF_VAR_timestamp
 variable "device_id_list" {             // tests will set $TF_VAR_device_id_list
   type = list(string)
@@ -67,28 +60,21 @@ variable "device_id_list" {             // tests will set $TF_VAR_device_id_list
 
 // End of section. //template:end testPrerequisites
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
-func testAccFmcDeploymentConfig_minimum() string {
+func testAccDataSourceFmcDeploymentConfig() string {
 	config := `resource "fmc_deployment" "test" {` + "\n"
 	config += `	version = var.timestamp` + "\n"
 	config += `	ignore_warning = true` + "\n"
 	config += `	device_list = var.device_id_list` + "\n"
 	config += `}` + "\n"
+
+	config += `
+		data "fmc_deployment" "test" {
+			id = fmc_deployment.test.id
+		}
+	`
 	return config
 }
 
-// End of section. //template:end testAccConfigMinimal
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-
-func testAccFmcDeploymentConfig_all() string {
-	config := `resource "fmc_deployment" "test" {` + "\n"
-	config += `	version = var.timestamp` + "\n"
-	config += `	ignore_warning = true` + "\n"
-	config += `	device_list = var.device_id_list` + "\n"
-	config += `}` + "\n"
-	return config
-}
-
-// End of section. //template:end testAccConfigAll
+// End of section. //template:end testAccDataSourceConfig
