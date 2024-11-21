@@ -37,12 +37,14 @@ attributes:
         type: String
         value: "VlanTag"
       - model_name: startTag
+        tf_name: start_tag
         type: String
         example: "12"
         test_value: "12"
         data_path: ["data"]
         mandatory: true
       - model_name: endTag
+        tf_name: end_tag
         type: String
         example: "15"
         test_value: "15"
