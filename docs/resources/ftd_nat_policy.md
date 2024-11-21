@@ -23,15 +23,15 @@ resource "fmc_ftd_nat_policy" "example" {
       section              = "BEFORE_AUTO"
       nat_type             = "STATIC"
       fall_through         = false
-      original_source_id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-      translated_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      original_source_id   = "76d24097-41c4-4558-a4d0-a8c07ac08471"
+      translated_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08476"
     }
   ]
   auto_nat_rules = [
     {
       nat_type              = "STATIC"
-      original_network_id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-      translated_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      original_network_id   = "76d24097-41c4-4558-a4d0-a8c07ac08481"
+      translated_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08483"
     }
   ]
 }
@@ -42,12 +42,12 @@ resource "fmc_ftd_nat_policy" "example" {
 
 ### Required
 
-- `name` (String) The name of the ftd network address translation (nat) policy.
+- `name` (String) The name of the FTD Network Address Translation (NAT) policy.
 
 ### Optional
 
 - `auto_nat_rules` (Attributes List) The list of auto NAT rules. (see [below for nested schema](#nestedatt--auto_nat_rules))
-- `description` (String) Description
+- `description` (String) Policy description
 - `domain` (String) The name of the FMC domain
 - `manual_nat_rules` (Attributes List) The ordered list of manual NAT rules. (see [below for nested schema](#nestedatt--manual_nat_rules))
 
@@ -60,25 +60,25 @@ resource "fmc_ftd_nat_policy" "example" {
 
 Required:
 
-- `nat_type` (String) The type of the rule
+- `nat_type` (String) Type of the rule
   - Choices: `STATIC`, `DYNAMIC`
 
 Optional:
 
-- `destination_interface_id` (String) ID of destination security zone
-- `fall_through` (Boolean) TBD???????????
-- `ipv6` (Boolean) TBD???????????
-- `net_to_net` (Boolean) TBD???????????
-- `no_proxy_arp` (Boolean) TBD???????????
+- `destination_interface_id` (String) ID of destination interface
+- `fall_through` (Boolean) Fallthrough to Interface PAT (Destination Interface)
+- `ipv6` (Boolean) Use the IPv6 address of the destination interface for interface PAT.
+- `net_to_net` (Boolean) Net to Net Mapping
+- `no_proxy_arp` (Boolean) Do not proxy ARP on Destination Interface
 - `original_network_id` (String) ID of original network object
 - `original_port` (Number) Original port number
-- `perform_route_lookup` (Boolean) TBD???????????
-- `protocol` (String) Protocl of the service
+- `perform_route_lookup` (Boolean) Perform Route Lookup for Destination Interface
+- `protocol` (String) Service protocol
   - Choices: `TCP`, `UDP`
-- `source_interface_id` (String) ID of source security zone
-- `translate_dns` (Boolean) Perform address translation in DNS packets
+- `source_interface_id` (String) ID of source interface
+- `translate_dns` (Boolean) Translate DNS replies that match this rule
 - `translated_network_id` (String) ID of translated network object
-- `translated_network_is_destination_interface` (Boolean) TBD???????????
+- `translated_network_is_destination_interface` (Boolean) Translate source network to destination interface address
 - `translated_port` (Number) Translated port number
 
 Read-Only:
@@ -91,29 +91,29 @@ Read-Only:
 
 Required:
 
-- `nat_type` (String) The type of the rule
+- `nat_type` (String) Type of the rule
   - Choices: `STATIC`, `DYNAMIC`
-- `section` (String) To which section the rule belongs.
+- `section` (String) Name of section to which the rule belongs.
   - Choices: `BEFORE_AUTO`, `AFTER_AUTO`
 
 Optional:
 
-- `description` (String) My manual nat rule 1
-- `destination_interface_id` (String) ID of destination security zone
+- `description` (String) Manual nat rule description
+- `destination_interface_id` (String) ID of destination interface
 - `enabled` (Boolean) Indicates if the rule is enabled.
-- `fall_through` (Boolean) TBD???????????
-- `interface_in_original_destination` (Boolean) TBD???????????
-- `interface_in_translated_source` (Boolean) TBD???????????
-- `ipv6` (Boolean) TBD???????????
-- `net_to_net` (Boolean) TBD???????????
-- `no_proxy_arp` (Boolean) TBD???????????
+- `fall_through` (Boolean) Fallthrough to Interface PAT (Destination Interface)
+- `interface_in_original_destination` (Boolean) Use interface address as original destination
+- `interface_in_translated_source` (Boolean) Translate source network to destination interface address
+- `ipv6` (Boolean) Use the IPv6 address of the destination interface for interface PAT.
+- `net_to_net` (Boolean) Net to Net Mapping
+- `no_proxy_arp` (Boolean) Do not proxy ARP on Destination Interface
 - `original_destination_id` (String) ID of original destination network object
 - `original_destination_port_id` (String) ID of original destination port object
 - `original_source_id` (String) ID of original source network object
 - `original_source_port_id` (String) ID of original source port object
-- `route_lookup` (Boolean) TBD???????????
-- `source_interface_id` (String) ID of source security zone
-- `translate_dns` (Boolean) Perform translation of addresses in DNS packets
+- `route_lookup` (Boolean) Perform Route Lookup for Destination Interface
+- `source_interface_id` (String) ID of source interface
+- `translate_dns` (Boolean) Translate DNS replies that match this rule
 - `translated_destination_id` (String) ID of translated destination network object
 - `translated_destination_port_id` (String) ID of translated destination port object
 - `translated_source_id` (String) ID of translated source network object

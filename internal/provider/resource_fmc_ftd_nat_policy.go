@@ -86,11 +86,11 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the ftd network address translation (nat) policy.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The name of the FTD Network Address Translation (NAT) policy.").String,
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Policy description").String,
 				Optional:            true,
 			},
 			"manual_nat_rules": schema.ListNestedAttribute{
@@ -103,7 +103,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Computed:            true,
 						},
 						"description": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("My manual nat rule 1").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Manual nat rule description").String,
 							Optional:            true,
 						},
 						"enabled": schema.BoolAttribute{
@@ -111,41 +111,41 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("To which section the rule belongs.").AddStringEnumDescription("BEFORE_AUTO", "AFTER_AUTO").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Name of section to which the rule belongs.").AddStringEnumDescription("BEFORE_AUTO", "AFTER_AUTO").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("BEFORE_AUTO", "AFTER_AUTO"),
 							},
 						},
 						"nat_type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("The type of the rule").AddStringEnumDescription("STATIC", "DYNAMIC").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the rule").AddStringEnumDescription("STATIC", "DYNAMIC").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("STATIC", "DYNAMIC"),
 							},
 						},
 						"fall_through": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Fallthrough to Interface PAT (Destination Interface)").String,
 							Optional:            true,
 						},
 						"interface_in_original_destination": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Use interface address as original destination").String,
 							Optional:            true,
 						},
 						"interface_in_translated_source": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Translate source network to destination interface address").String,
 							Optional:            true,
 						},
 						"ipv6": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Use the IPv6 address of the destination interface for interface PAT.").String,
 							Optional:            true,
 						},
 						"net_to_net": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Net to Net Mapping").String,
 							Optional:            true,
 						},
 						"no_proxy_arp": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Do not proxy ARP on Destination Interface").String,
 							Optional:            true,
 						},
 						"unidirectional": schema.BoolAttribute{
@@ -153,7 +153,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"source_interface_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of source security zone").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of source interface").String,
 							Optional:            true,
 						},
 						"original_source_id": schema.StringAttribute{
@@ -173,11 +173,11 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"route_lookup": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Perform Route Lookup for Destination Interface").String,
 							Optional:            true,
 						},
 						"destination_interface_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of destination security zone").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of destination interface").String,
 							Optional:            true,
 						},
 						"translated_source_id": schema.StringAttribute{
@@ -189,7 +189,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"translate_dns": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Perform translation of addresses in DNS packets").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Translate DNS replies that match this rule").String,
 							Optional:            true,
 						},
 						"translated_destination_id": schema.StringAttribute{
@@ -213,30 +213,30 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Computed:            true,
 						},
 						"nat_type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("The type of the rule").AddStringEnumDescription("STATIC", "DYNAMIC").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the rule").AddStringEnumDescription("STATIC", "DYNAMIC").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("STATIC", "DYNAMIC"),
 							},
 						},
 						"destination_interface_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of destination security zone").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of destination interface").String,
 							Optional:            true,
 						},
 						"fall_through": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Fallthrough to Interface PAT (Destination Interface)").String,
 							Optional:            true,
 						},
 						"ipv6": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Use the IPv6 address of the destination interface for interface PAT.").String,
 							Optional:            true,
 						},
 						"net_to_net": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Net to Net Mapping").String,
 							Optional:            true,
 						},
 						"no_proxy_arp": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Do not proxy ARP on Destination Interface").String,
 							Optional:            true,
 						},
 						"original_network_id": schema.StringAttribute{
@@ -248,22 +248,22 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"protocol": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Protocl of the service").AddStringEnumDescription("TCP", "UDP").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Service protocol").AddStringEnumDescription("TCP", "UDP").String,
 							Optional:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("TCP", "UDP"),
 							},
 						},
 						"perform_route_lookup": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Perform Route Lookup for Destination Interface").String,
 							Optional:            true,
 						},
 						"source_interface_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of source security zone").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of source interface").String,
 							Optional:            true,
 						},
 						"translate_dns": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Perform address translation in DNS packets").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Translate DNS replies that match this rule").String,
 							Optional:            true,
 						},
 						"translated_network_id": schema.StringAttribute{
@@ -271,7 +271,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"translated_network_is_destination_interface": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("TBD???????????").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Translate source network to destination interface address").String,
 							Optional:            true,
 						},
 						"translated_port": schema.Int64Attribute{

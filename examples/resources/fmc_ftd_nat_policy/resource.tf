@@ -8,15 +8,15 @@ resource "fmc_ftd_nat_policy" "example" {
       section              = "BEFORE_AUTO"
       nat_type             = "STATIC"
       fall_through         = false
-      original_source_id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-      translated_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      original_source_id   = "76d24097-41c4-4558-a4d0-a8c07ac08471"
+      translated_source_id = "76d24097-41c4-4558-a4d0-a8c07ac08476"
     }
   ]
   auto_nat_rules = [
     {
       nat_type              = "STATIC"
-      original_network_id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-      translated_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      original_network_id   = "76d24097-41c4-4558-a4d0-a8c07ac08481"
+      translated_network_id = "76d24097-41c4-4558-a4d0-a8c07ac08483"
     }
   ]
 }

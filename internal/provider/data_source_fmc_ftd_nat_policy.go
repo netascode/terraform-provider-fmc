@@ -72,12 +72,12 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the ftd network address translation (nat) policy.",
+				MarkdownDescription: "The name of the FTD Network Address Translation (NAT) policy.",
 				Optional:            true,
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Description",
+				MarkdownDescription: "Policy description",
 				Computed:            true,
 			},
 			"manual_nat_rules": schema.ListNestedAttribute{
@@ -90,7 +90,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"description": schema.StringAttribute{
-							MarkdownDescription: "My manual nat rule 1",
+							MarkdownDescription: "Manual nat rule description",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{
@@ -98,35 +98,35 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"section": schema.StringAttribute{
-							MarkdownDescription: "To which section the rule belongs.",
+							MarkdownDescription: "Name of section to which the rule belongs.",
 							Computed:            true,
 						},
 						"nat_type": schema.StringAttribute{
-							MarkdownDescription: "The type of the rule",
+							MarkdownDescription: "Type of the rule",
 							Computed:            true,
 						},
 						"fall_through": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Fallthrough to Interface PAT (Destination Interface)",
 							Computed:            true,
 						},
 						"interface_in_original_destination": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Use interface address as original destination",
 							Computed:            true,
 						},
 						"interface_in_translated_source": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Translate source network to destination interface address",
 							Computed:            true,
 						},
 						"ipv6": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Use the IPv6 address of the destination interface for interface PAT.",
 							Computed:            true,
 						},
 						"net_to_net": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Net to Net Mapping",
 							Computed:            true,
 						},
 						"no_proxy_arp": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Do not proxy ARP on Destination Interface",
 							Computed:            true,
 						},
 						"unidirectional": schema.BoolAttribute{
@@ -134,7 +134,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"source_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of source security zone",
+							MarkdownDescription: "ID of source interface",
 							Computed:            true,
 						},
 						"original_source_id": schema.StringAttribute{
@@ -154,11 +154,11 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"route_lookup": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Perform Route Lookup for Destination Interface",
 							Computed:            true,
 						},
 						"destination_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of destination security zone",
+							MarkdownDescription: "ID of destination interface",
 							Computed:            true,
 						},
 						"translated_source_id": schema.StringAttribute{
@@ -170,7 +170,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"translate_dns": schema.BoolAttribute{
-							MarkdownDescription: "Perform translation of addresses in DNS packets",
+							MarkdownDescription: "Translate DNS replies that match this rule",
 							Computed:            true,
 						},
 						"translated_destination_id": schema.StringAttribute{
@@ -194,27 +194,27 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"nat_type": schema.StringAttribute{
-							MarkdownDescription: "The type of the rule",
+							MarkdownDescription: "Type of the rule",
 							Computed:            true,
 						},
 						"destination_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of destination security zone",
+							MarkdownDescription: "ID of destination interface",
 							Computed:            true,
 						},
 						"fall_through": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Fallthrough to Interface PAT (Destination Interface)",
 							Computed:            true,
 						},
 						"ipv6": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Use the IPv6 address of the destination interface for interface PAT.",
 							Computed:            true,
 						},
 						"net_to_net": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Net to Net Mapping",
 							Computed:            true,
 						},
 						"no_proxy_arp": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Do not proxy ARP on Destination Interface",
 							Computed:            true,
 						},
 						"original_network_id": schema.StringAttribute{
@@ -226,19 +226,19 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"protocol": schema.StringAttribute{
-							MarkdownDescription: "Protocl of the service",
+							MarkdownDescription: "Service protocol",
 							Computed:            true,
 						},
 						"perform_route_lookup": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Perform Route Lookup for Destination Interface",
 							Computed:            true,
 						},
 						"source_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of source security zone",
+							MarkdownDescription: "ID of source interface",
 							Computed:            true,
 						},
 						"translate_dns": schema.BoolAttribute{
-							MarkdownDescription: "Perform address translation in DNS packets",
+							MarkdownDescription: "Translate DNS replies that match this rule",
 							Computed:            true,
 						},
 						"translated_network_id": schema.StringAttribute{
@@ -246,7 +246,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"translated_network_is_destination_interface": schema.BoolAttribute{
-							MarkdownDescription: "TBD???????????",
+							MarkdownDescription: "Translate source network to destination interface address",
 							Computed:            true,
 						},
 						"translated_port": schema.Int64Attribute{

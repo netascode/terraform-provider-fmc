@@ -7,11 +7,11 @@ attributes:
   - model_name: name
     type: String
     mandatory: true
-    description: The name of the ftd network address translation (nat) policy.
+    description: The name of the FTD Network Address Translation (NAT) policy.
     example: nat_policy_1
   - model_name: description
     type: String
-    description: Description
+    description: Policy description
     example: My nat policy
   - model_name: dummy_manual_nat_rules
     tf_name: manual_nat_rules
@@ -27,7 +27,7 @@ attributes:
         exclude_test: true
       - model_name: description
         type: String
-        description: My manual nat rule 1
+        description: Manual nat rule description
         example: My manual nat rule 1
       - model_name: enabled
         type: Bool
@@ -35,7 +35,7 @@ attributes:
         example: true
       - model_name: section
         type: String
-        description: To which section the rule belongs.
+        description: Name of section to which the rule belongs.
         mandatory: true
         data_path: [metadata]
         enum_values:
@@ -45,7 +45,7 @@ attributes:
       - model_name: natType
         tf_name: nat_type
         type: String
-        description: The type of the rule
+        description: Type of the rule
         enum_values:
           - STATIC
           - DYNAMIC
@@ -54,40 +54,40 @@ attributes:
       - model_name: fallThrough
         tf_name: fall_through
         type: Bool
-        description: TBD???????????
+        description: Fallthrough to Interface PAT (Destination Interface)
         example: false
       - model_name: interfaceInOriginalDestination
         tf_name: interface_in_original_destination
         type: Bool
-        description: TBD???????????
+        description: Use interface address as original destination
         example: false
         exclude_test: true
         exclude_example: true
       - model_name: interfaceInTranslatedSource
         tf_name: interface_in_translated_source
         type: Bool
-        description: TBD???????????
+        description: Translate source network to destination interface address
         example: false
         exclude_test: true
         exclude_example: true
       - model_name: interfaceIpv6
         tf_name: ipv6
         type: Bool
-        description: TBD???????????
+        description: Use the IPv6 address of the destination interface for interface PAT.
         example: false
         exclude_test: true
         exclude_example: true
       - model_name: netToNet
         tf_name: net_to_net
         type: Bool
-        description: TBD???????????
+        description: Net to Net Mapping
         example: false
         exclude_example: true
         exclude_test: true
       - model_name: noProxyArp
         tf_name: no_proxy_arp
         type: Bool
-        description: TBD???????????
+        description: Do not proxy ARP on Destination Interface
         example: false
         exclude_example: true
         exclude_test: true
@@ -101,7 +101,7 @@ attributes:
         tf_name: source_interface_id
         type: String
         data_path: [sourceInterface]
-        description: ID of source security zone
+        description: ID of source interface
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
         exclude_test: true
         exclude_example: true
@@ -110,14 +110,14 @@ attributes:
         type: String
         data_path: [originalSource]
         description: ID of original source network object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08471
         test_value: fmc_hosts.test.items.nat_host1.id
       - model_name: id
         tf_name: original_source_port_id
         type: String
         data_path: [originalSourcePort]
         description: ID of original source port object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08472
         exclude_test: true
         exclude_example: true
       - model_name: id
@@ -125,7 +125,7 @@ attributes:
         type: String
         data_path: [originalDestination]
         description: ID of original destination network object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08473
         exclude_test: true
         exclude_example: true
       - model_name: id
@@ -133,13 +133,13 @@ attributes:
         type: String
         data_path: [originalDestinationPort]
         description: ID of original destination port object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08474
         exclude_test: true
         exclude_example: true
       - model_name: routeLookup
         tf_name: route_lookup
         type: Bool
-        description: TBD???????????
+        description: Perform Route Lookup for Destination Interface
         example: false
         exclude_example: true
         exclude_test: true
@@ -147,8 +147,8 @@ attributes:
         tf_name: destination_interface_id
         type: String
         data_path: [destinationInterface]
-        description: ID of destination security zone
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        description: ID of destination interface
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08475
         exclude_test: true
         exclude_example: true
       - model_name: id
@@ -156,20 +156,20 @@ attributes:
         type: String
         data_path: [translatedSource]
         description: ID of translated source network object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08476
         test_value: fmc_hosts.test.items.nat_host2.id
       - model_name: id
         tf_name: translated_source_port_id
         type: String
         data_path: [translatedSourcePort]
         description: ID of translated source port object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08477
         exclude_test: true
         exclude_example: true
       - model_name: dns
         tf_name: translate_dns
         type: Bool
-        description: Perform translation of addresses in DNS packets
+        description: Translate DNS replies that match this rule
         example: false
         exclude_example: true
         exclude_test: true
@@ -178,7 +178,7 @@ attributes:
         type: String
         data_path: [translatedDestination]
         description: ID of translated destination network object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08478
         exclude_test: true
         exclude_example: true
       - model_name: id
@@ -186,7 +186,7 @@ attributes:
         type: String
         data_path: [translatedDestinationPort]
         description: ID of translated destination port object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08479
         exclude_test: true
         exclude_example: true
   - model_name: dummy_auto_nat_rules
@@ -204,7 +204,7 @@ attributes:
       - model_name: natType
         tf_name: nat_type
         type: String
-        description: The type of the rule
+        description: Type of the rule
         enum_values:
           - STATIC
           - DYNAMIC
@@ -214,35 +214,35 @@ attributes:
         tf_name: destination_interface_id
         type: String
         data_path: [destinationInterface]
-        description: ID of destination security zone
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        description: ID of destination interface
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08480
         exclude_example: true
         exclude_test: true
       - model_name: fallThrough
         tf_name: fall_through
         type: Bool
-        description: TBD???????????
+        description: Fallthrough to Interface PAT (Destination Interface)
         example: false
         exclude_example: true
         exclude_test: true
       - model_name: interfaceIpv6
         tf_name: ipv6
         type: Bool
-        description: TBD???????????
+        description: Use the IPv6 address of the destination interface for interface PAT.
         example: false
         exclude_example: true
         exclude_test: true
       - model_name: netToNet
         tf_name: net_to_net
         type: Bool
-        description: TBD???????????
+        description: Net to Net Mapping
         example: false
         exclude_example: true
         exclude_test: true
       - model_name: noProxyArp
         tf_name: no_proxy_arp
         type: Bool
-        description: TBD???????????
+        description: Do not proxy ARP on Destination Interface
         example: false
         exclude_example: true
         exclude_test: true
@@ -251,7 +251,7 @@ attributes:
         type: String
         data_path: [originalNetwork]
         description: ID of original network object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08481
         test_value: fmc_hosts.test.items.nat_host3.id
       - model_name: originalPort
         tf_name: original_port
@@ -263,7 +263,7 @@ attributes:
       - model_name: serviceProtocol
         tf_name: protocol
         type: String
-        description: Protocl of the service
+        description: Service protocol
         enum_values:
         - TCP
         - UDP
@@ -273,7 +273,7 @@ attributes:
       - model_name: routeLookup
         tf_name: perform_route_lookup
         type: Bool
-        description: TBD???????????
+        description: Perform Route Lookup for Destination Interface
         example: false
         exclude_example: true
         exclude_test: true
@@ -281,14 +281,14 @@ attributes:
         tf_name: source_interface_id
         type: String
         data_path: [sourceInterface]
-        description: ID of source security zone
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        description: ID of source interface
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08482
         exclude_example: true
         exclude_test: true
       - model_name: dns
         tf_name: translate_dns
         type: Bool
-        description: Perform address translation in DNS packets
+        description: Translate DNS replies that match this rule
         example: false
         exclude_example: true
         exclude_test: true
@@ -297,12 +297,12 @@ attributes:
         type: String
         data_path: [translatedNetwork]
         description: ID of translated network object
-        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08483
         test_value: fmc_hosts.test.items.nat_host4.id
       - model_name: interfaceInTranslatedNetwork
         tf_name: translated_network_is_destination_interface
         type: Bool
-        description: TBD???????????
+        description: Translate source network to destination interface address
         example: false
         exclude_example: true
         exclude_test: true
