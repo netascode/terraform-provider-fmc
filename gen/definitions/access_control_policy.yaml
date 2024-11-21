@@ -226,11 +226,9 @@ attributes:
             type: String
             value: AnyNonEmptyString
           - model_name: startTag
-            tf_name: start_tag
             type: String
             example: "11"
           - model_name: endTag
-            tf_name: end_tag
             type: String
             example: "22"  
       - model_name: objects
