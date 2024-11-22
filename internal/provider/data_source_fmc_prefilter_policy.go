@@ -288,7 +288,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 								},
 							},
 						},
-						"tunnel_zone": schema.SetNestedAttribute{
+						"tunnel_zone": schema.ListNestedAttribute{
 							MarkdownDescription: "Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{

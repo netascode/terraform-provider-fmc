@@ -318,7 +318,8 @@ attributes:
         data_path: [tunnelZone]
         tf_name: tunnel_zone
         description: Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted.
-        type: Set
+        type: List
+        max_list: 1
         attributes:
           - model_name: id
             type: String

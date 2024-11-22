@@ -170,7 +170,7 @@ Optional:
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
-- `tunnel_zone` (Attributes Set) Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted. (see [below for nested schema](#nestedatt--rules--tunnel_zone))
+- `tunnel_zone` (Attributes List) Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted. (see [below for nested schema](#nestedatt--rules--tunnel_zone))
 - `vlan_tags_objects` (Attributes Set) Set of objects representing vlan tags. (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
 
 Read-Only:

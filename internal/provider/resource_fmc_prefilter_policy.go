@@ -332,7 +332,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 								},
 							},
 						},
-						"tunnel_zone": schema.SetNestedAttribute{
+						"tunnel_zone": schema.ListNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -342,6 +342,9 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 										Optional:            true,
 									},
 								},
+							},
+							Validators: []validator.List{
+								listvalidator.SizeAtMost(1),
 							},
 						},
 						"encapsulation_ports_gre": schema.BoolAttribute{
@@ -445,8 +448,6 @@ func (r *PrefilterPolicyResource) Create(ctx context.Context, req resource.Creat
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin read
-
 func (r *PrefilterPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state PrefilterPolicy
 
@@ -465,15 +466,31 @@ func (r *PrefilterPolicyResource) Read(ctx context.Context, req resource.ReadReq
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get(urlPath, reqMods...)
+	resGet, err := r.client.Get(urlPath, reqMods...)
 
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
 		return
 	}
+
+	resRules, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/prefilterrules?expanded=true&offset=0&limit=1000", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
+		return
+	}
+
+	s := resGet.String()
+
+	replaceRules := resRules.Get("items").String()
+	if replaceRules == "" {
+		replaceRules = "[]"
+	}
+	s, _ = sjson.SetRaw(s, "dummy_rules", replaceRules)
+
+	res := gjson.Parse(s)
 
 	imp, diags := helpers.IsFlagImporting(ctx, req)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
@@ -494,10 +511,6 @@ func (r *PrefilterPolicyResource) Read(ctx context.Context, req resource.ReadReq
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end read
-
-// Section below is generated&owned by "gen/generator.go". //template:begin update
 
 func (r *PrefilterPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state PrefilterPolicy
@@ -522,26 +535,29 @@ func (r *PrefilterPolicyResource) Update(ctx context.Context, req resource.Updat
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
+	planBody := plan.toBody(ctx, state)
+	body := planBody
+	body, _ = sjson.Delete(body, "dummy_rules")
+
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
-	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
 	plan.fromBodyUnknowns(ctx, res)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
+	orig := state
+	state = plan
+	state.Rules = orig.Rules
 
-	diags = resp.State.Set(ctx, &plan)
+	state, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, req.State, state)
+	resp.Diagnostics.Append(diags...)
+
+	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished", plan.Id.ValueString()))
+
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 

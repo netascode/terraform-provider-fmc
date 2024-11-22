@@ -123,8 +123,6 @@ func (data PrefilterPolicy) getPath() string {
 
 // End of section. //template:end getPath
 
-// Section below is generated&owned by "gen/generator.go". //template:begin toBody
-
 func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) string {
 	body := ""
 	if data.Id.ValueString() != "" {
@@ -319,26 +317,30 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 				}
 			}
 			if !item.EncapsulationPortsGre.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "gre", item.EncapsulationPortsGre.ValueBool())
+				if item.EncapsulationPortsGre.ValueBool() {
+					itemBody, _ = sjson.Set(itemBody, "encapsulationPorts.-1", "GRE")
+				}
 			}
 			if !item.EncapsulationPortsInInIp.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "ipInIP", item.EncapsulationPortsInInIp.ValueBool())
+				if item.EncapsulationPortsInInIp.ValueBool() {
+					itemBody, _ = sjson.Set(itemBody, "encapsulationPorts.-1", "IP_IN_IP")
+				}
 			}
 			if !item.EncapsulationPortsIpv6InIp.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "ipv6InIP", item.EncapsulationPortsIpv6InIp.ValueBool())
+				if item.EncapsulationPortsIpv6InIp.ValueBool() {
+					itemBody, _ = sjson.Set(itemBody, "encapsulationPorts.-1", "IPV6_IN_IP")
+				}
 			}
 			if !item.EncapsulationPortsTeredo.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "teredo", item.EncapsulationPortsTeredo.ValueBool())
+				if item.EncapsulationPortsTeredo.ValueBool() {
+					itemBody, _ = sjson.Set(itemBody, "encapsulationPorts.-1", "TEREDO")
+				}
 			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
 	}
 	return body
 }
-
-// End of section. //template:end toBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
 func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() {
@@ -616,24 +618,31 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 					return true
 				})
 			}
-			if value := res.Get("gre"); value.Exists() {
-				data.EncapsulationPortsGre = types.BoolValue(value.Bool())
+			if value := res.Get("encapsulationPorts"); value.Exists() {
+				if field := res.Get(`encapsulationPorts.#(=="GRE")`); field.Exists() {
+					data.EncapsulationPortsGre = types.BoolValue(true)
+				} else {
+					data.EncapsulationPortsGre = types.BoolValue(false)
+				}
+				if field := res.Get(`encapsulationPorts.#(=="IP_IN_IP")`); field.Exists() {
+					data.EncapsulationPortsInInIp = types.BoolValue(true)
+				} else {
+					data.EncapsulationPortsInInIp = types.BoolValue(false)
+				}
+				if field := res.Get(`encapsulationPorts.#(=="IPV6_IN_IP")`); field.Exists() {
+					data.EncapsulationPortsIpv6InIp = types.BoolValue(true)
+				} else {
+					data.EncapsulationPortsIpv6InIp = types.BoolValue(false)
+				}
+				if field := res.Get(`encapsulationPorts.#(=="TEREDO")`); field.Exists() {
+					data.EncapsulationPortsTeredo = types.BoolValue(true)
+				} else {
+					data.EncapsulationPortsTeredo = types.BoolValue(false)
+				}
 			} else {
 				data.EncapsulationPortsGre = types.BoolValue(false)
-			}
-			if value := res.Get("ipInIP"); value.Exists() {
-				data.EncapsulationPortsInInIp = types.BoolValue(value.Bool())
-			} else {
 				data.EncapsulationPortsInInIp = types.BoolValue(false)
-			}
-			if value := res.Get("ipv6InIP"); value.Exists() {
-				data.EncapsulationPortsIpv6InIp = types.BoolValue(value.Bool())
-			} else {
 				data.EncapsulationPortsIpv6InIp = types.BoolValue(false)
-			}
-			if value := res.Get("teredo"); value.Exists() {
-				data.EncapsulationPortsTeredo = types.BoolValue(value.Bool())
-			} else {
 				data.EncapsulationPortsTeredo = types.BoolValue(false)
 			}
 			(*parent).Rules = append((*parent).Rules, data)
@@ -641,10 +650,6 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 		})
 	}
 }
-
-// End of section. //template:end fromBody
-
-// Section below is generated&owned by "gen/generator.go". //template:begin fromBodyPartial
 
 // fromBodyPartial reads values from a gjson.Result into a tfstate model. It ignores null attributes in order to
 // uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
@@ -1226,31 +1231,36 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 			}
 			(*parent).TunnelZone[i] = data
 		}
-		if value := res.Get("gre"); value.Exists() && !data.EncapsulationPortsGre.IsNull() {
-			data.EncapsulationPortsGre = types.BoolValue(value.Bool())
-		} else if data.EncapsulationPortsGre.ValueBool() != false {
-			data.EncapsulationPortsGre = types.BoolNull()
-		}
-		if value := res.Get("ipInIP"); value.Exists() && !data.EncapsulationPortsInInIp.IsNull() {
-			data.EncapsulationPortsInInIp = types.BoolValue(value.Bool())
-		} else if data.EncapsulationPortsInInIp.ValueBool() != false {
-			data.EncapsulationPortsInInIp = types.BoolNull()
-		}
-		if value := res.Get("ipv6InIP"); value.Exists() && !data.EncapsulationPortsIpv6InIp.IsNull() {
-			data.EncapsulationPortsIpv6InIp = types.BoolValue(value.Bool())
-		} else if data.EncapsulationPortsIpv6InIp.ValueBool() != false {
-			data.EncapsulationPortsIpv6InIp = types.BoolNull()
-		}
-		if value := res.Get("teredo"); value.Exists() && !data.EncapsulationPortsTeredo.IsNull() {
-			data.EncapsulationPortsTeredo = types.BoolValue(value.Bool())
-		} else if data.EncapsulationPortsTeredo.ValueBool() != false {
-			data.EncapsulationPortsTeredo = types.BoolNull()
+		if value := res.Get("encapsulationPorts"); value.Exists() {
+			if field := res.Get(`encapsulationPorts.#(=="GRE")`); field.Exists() && !data.EncapsulationPortsGre.IsNull() {
+				data.EncapsulationPortsGre = types.BoolValue(true)
+			} else {
+				data.EncapsulationPortsGre = types.BoolValue(false)
+			}
+			if field := res.Get(`encapsulationPorts.#(=="IP_IN_IP")`); field.Exists() && !data.EncapsulationPortsInInIp.IsNull() {
+				data.EncapsulationPortsInInIp = types.BoolValue(true)
+			} else {
+				data.EncapsulationPortsInInIp = types.BoolValue(false)
+			}
+			if field := res.Get(`encapsulationPorts.#(=="IPV6_IN_IP")`); field.Exists() && !data.EncapsulationPortsIpv6InIp.IsNull() {
+				data.EncapsulationPortsIpv6InIp = types.BoolValue(true)
+			} else {
+				data.EncapsulationPortsIpv6InIp = types.BoolValue(false)
+			}
+			if field := res.Get(`encapsulationPorts.#(=="TEREDO")`); field.Exists() && !data.EncapsulationPortsTeredo.IsNull() {
+				data.EncapsulationPortsTeredo = types.BoolValue(true)
+			} else {
+				data.EncapsulationPortsTeredo = types.BoolValue(false)
+			}
+		} else {
+			data.EncapsulationPortsGre = types.BoolValue(false)
+			data.EncapsulationPortsInInIp = types.BoolValue(false)
+			data.EncapsulationPortsIpv6InIp = types.BoolValue(false)
+			data.EncapsulationPortsTeredo = types.BoolValue(false)
 		}
 		(*parent).Rules[i] = data
 	}
 }
-
-// End of section. //template:end fromBodyPartial
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
 
