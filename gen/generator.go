@@ -579,7 +579,9 @@ func main() {
 				configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf" ||
 				configs[i].NoResource && t.path == "./gen/templates/resource.go" ||
 				configs[i].NoResource && t.path == "./gen/templates/resource_test.go" ||
-				configs[i].NoResource && t.path == "./gen/templates/resource.tf" {
+				configs[i].NoResource && t.path == "./gen/templates/resource.tf" ||
+				// Data source test cannot be generated if there is no corresponding resource
+				configs[i].NoResource && t.path == "./gen/templates/data_source_test.go" {
 				continue
 			}
 			renderTemplate(t.path, t.prefix+SnakeCase(configs[i].Name)+t.suffix, configs[i])

@@ -26,20 +26,14 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-
 func TestAccDataSourceFmcVariableSet(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_variable_set.test", "name", "test_variable_set_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_variable_set.test", "description", "My customized variable set"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_variable_set.test", "id"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_variable_set.test", "name", "Default-Set"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceFmcVariableSetConfig(),
-				Check:  resource.ComposeTestCheckFunc(checks...),
-			},
 			{
 				Config: testAccNamedDataSourceFmcVariableSetConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
@@ -48,39 +42,12 @@ func TestAccDataSourceFmcVariableSet(t *testing.T) {
 	})
 }
 
-// End of section. //template:end testAccDataSource
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-// End of section. //template:end testPrerequisites
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-
-func testAccDataSourceFmcVariableSetConfig() string {
-	config := `resource "fmc_variable_set" "test" {` + "\n"
-	config += `	name = "test_variable_set_1"` + "\n"
-	config += `	description = "My customized variable set"` + "\n"
-	config += `}` + "\n"
-
-	config += `
-		data "fmc_variable_set" "test" {
-			id = fmc_variable_set.test.id
-		}
-	`
-	return config
-}
-
 func testAccNamedDataSourceFmcVariableSetConfig() string {
-	config := `resource "fmc_variable_set" "test" {` + "\n"
-	config += `	name = "test_variable_set_1"` + "\n"
-	config += `	description = "My customized variable set"` + "\n"
-	config += `}` + "\n"
 
-	config += `
+	config := `
 		data "fmc_variable_set" "test" {
-			name = fmc_variable_set.test.name
+			name = "Default-Set"
 		}
 	`
 	return config
 }
-
-// End of section. //template:end testAccDataSourceConfig
