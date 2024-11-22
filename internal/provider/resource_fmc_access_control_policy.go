@@ -239,7 +239,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"vlan_tags_literals": schema.SetNestedAttribute{
+						"vlan_tag_literals": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent vlan tags (literally specified).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -255,7 +255,7 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"vlan_tags_objects": schema.SetNestedAttribute{
+						"vlan_tag_objects": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -539,6 +539,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 						},
 						"intrusion_policy_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Identifier (UUID) of the fmc_intrusion_policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.").String,
+							Optional:            true,
+						},
+						"variable_set_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Identifier (UUID) of the Variable Set for the rule action. ").String,
 							Optional:            true,
 						},
 					},

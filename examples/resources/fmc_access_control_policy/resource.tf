@@ -28,13 +28,13 @@ resource "fmc_access_control_policy" "example" {
           value = "10.2.2.0/24"
         }
       ]
-      vlan_tags_literals = [
+      vlan_tag_literals = [
         {
           start_tag = "11"
           end_tag   = "22"
         }
       ]
-      vlan_tags_objects = [
+      vlan_tag_objects = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
@@ -128,6 +128,7 @@ resource "fmc_access_control_policy" "example" {
       snmp_config_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       file_policy_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      variable_set_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
   ]
 }

@@ -91,8 +91,9 @@ Read-Only:
 - `url_categories` (Attributes Set) Set of objects representing the URL Categories associated with the rule (fmc_url_category). (see [below for nested schema](#nestedatt--rules--url_categories))
 - `url_literals` (Attributes Set) Set of objects representing the URLs associated with the rule (literally specified). (see [below for nested schema](#nestedatt--rules--url_literals))
 - `url_objects` (Attributes Set) Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group). (see [below for nested schema](#nestedatt--rules--url_objects))
-- `vlan_tags_literals` (Attributes Set) Set of objects that represent vlan tags (literally specified). (see [below for nested schema](#nestedatt--rules--vlan_tags_literals))
-- `vlan_tags_objects` (Attributes Set) Set of objects that represent vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...). (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
+- `variable_set_id` (String) Identifier (UUID) of the Variable Set for the rule action.
+- `vlan_tag_literals` (Attributes Set) Set of objects that represent vlan tags (literally specified). (see [below for nested schema](#nestedatt--rules--vlan_tag_literals))
+- `vlan_tag_objects` (Attributes Set) Set of objects that represent vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...). (see [below for nested schema](#nestedatt--rules--vlan_tag_objects))
 
 <a id="nestedatt--rules--destination_dynamic_objects"></a>
 ### Nested Schema for `rules.destination_dynamic_objects`
@@ -232,8 +233,8 @@ Read-Only:
 - `id` (String) UUID of the object (such as fmc_url.example.id, fmc_url_group.id, etc.).
 
 
-<a id="nestedatt--rules--vlan_tags_literals"></a>
-### Nested Schema for `rules.vlan_tags_literals`
+<a id="nestedatt--rules--vlan_tag_literals"></a>
+### Nested Schema for `rules.vlan_tag_literals`
 
 Read-Only:
 
@@ -241,8 +242,8 @@ Read-Only:
 - `start_tag` (String)
 
 
-<a id="nestedatt--rules--vlan_tags_objects"></a>
-### Nested Schema for `rules.vlan_tags_objects`
+<a id="nestedatt--rules--vlan_tag_objects"></a>
+### Nested Schema for `rules.vlan_tag_objects`
 
 Read-Only:
 

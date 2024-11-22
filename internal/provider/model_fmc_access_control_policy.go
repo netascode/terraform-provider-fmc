@@ -72,8 +72,8 @@ type AccessControlPolicyRules struct {
 	Enabled                    types.Bool                                           `tfsdk:"enabled"`
 	SourceNetworkLiterals      []AccessControlPolicyRulesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
 	DestinationNetworkLiterals []AccessControlPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
-	VlanTagsLiterals           []AccessControlPolicyRulesVlanTagsLiterals           `tfsdk:"vlan_tags_literals"`
-	VlanTagsObjects            []AccessControlPolicyRulesVlanTagsObjects            `tfsdk:"vlan_tags_objects"`
+	VlanTagLiterals            []AccessControlPolicyRulesVlanTagLiterals            `tfsdk:"vlan_tag_literals"`
+	VlanTagObjects             []AccessControlPolicyRulesVlanTagObjects             `tfsdk:"vlan_tag_objects"`
 	SourceNetworkObjects       []AccessControlPolicyRulesSourceNetworkObjects       `tfsdk:"source_network_objects"`
 	DestinationNetworkObjects  []AccessControlPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
 	SourceDynamicObjects       []AccessControlPolicyRulesSourceDynamicObjects       `tfsdk:"source_dynamic_objects"`
@@ -99,6 +99,7 @@ type AccessControlPolicyRules struct {
 	Description                types.String                                         `tfsdk:"description"`
 	FilePolicyId               types.String                                         `tfsdk:"file_policy_id"`
 	IntrusionPolicyId          types.String                                         `tfsdk:"intrusion_policy_id"`
+	VariableSetId              types.String                                         `tfsdk:"variable_set_id"`
 }
 
 type AccessControlPolicyRulesSourceNetworkLiterals struct {
@@ -107,11 +108,11 @@ type AccessControlPolicyRulesSourceNetworkLiterals struct {
 type AccessControlPolicyRulesDestinationNetworkLiterals struct {
 	Value types.String `tfsdk:"value"`
 }
-type AccessControlPolicyRulesVlanTagsLiterals struct {
+type AccessControlPolicyRulesVlanTagLiterals struct {
 	StartTag types.String `tfsdk:"start_tag"`
 	EndTag   types.String `tfsdk:"end_tag"`
 }
-type AccessControlPolicyRulesVlanTagsObjects struct {
+type AccessControlPolicyRulesVlanTagObjects struct {
 	Id types.String `tfsdk:"id"`
 }
 type AccessControlPolicyRulesSourceNetworkObjects struct {
@@ -308,9 +309,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.literals.-1", itemChildBody)
 				}
 			}
-			if len(item.VlanTagsLiterals) > 0 {
+			if len(item.VlanTagLiterals) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "vlanTags.literals", []interface{}{})
-				for _, childItem := range item.VlanTagsLiterals {
+				for _, childItem := range item.VlanTagLiterals {
 					itemChildBody := ""
 					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
 					if !childItem.StartTag.IsNull() {
@@ -322,9 +323,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					itemBody, _ = sjson.SetRaw(itemBody, "vlanTags.literals.-1", itemChildBody)
 				}
 			}
-			if len(item.VlanTagsObjects) > 0 {
+			if len(item.VlanTagObjects) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "vlanTags.objects", []interface{}{})
-				for _, childItem := range item.VlanTagsObjects {
+				for _, childItem := range item.VlanTagObjects {
 					itemChildBody := ""
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
@@ -543,6 +544,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			if !item.IntrusionPolicyId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "ipsPolicy.id", item.IntrusionPolicyId.ValueString())
 			}
+			if !item.VariableSetId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "variableSet.id", item.VariableSetId.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
 	}
@@ -697,10 +701,10 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				})
 			}
 			if value := res.Get("vlanTags.literals"); value.Exists() {
-				data.VlanTagsLiterals = make([]AccessControlPolicyRulesVlanTagsLiterals, 0)
+				data.VlanTagLiterals = make([]AccessControlPolicyRulesVlanTagLiterals, 0)
 				value.ForEach(func(k, res gjson.Result) bool {
 					parent := &data
-					data := AccessControlPolicyRulesVlanTagsLiterals{}
+					data := AccessControlPolicyRulesVlanTagLiterals{}
 					if value := res.Get("startTag"); value.Exists() {
 						data.StartTag = types.StringValue(value.String())
 					} else {
@@ -711,21 +715,21 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					} else {
 						data.EndTag = types.StringNull()
 					}
-					(*parent).VlanTagsLiterals = append((*parent).VlanTagsLiterals, data)
+					(*parent).VlanTagLiterals = append((*parent).VlanTagLiterals, data)
 					return true
 				})
 			}
 			if value := res.Get("vlanTags.objects"); value.Exists() {
-				data.VlanTagsObjects = make([]AccessControlPolicyRulesVlanTagsObjects, 0)
+				data.VlanTagObjects = make([]AccessControlPolicyRulesVlanTagObjects, 0)
 				value.ForEach(func(k, res gjson.Result) bool {
 					parent := &data
-					data := AccessControlPolicyRulesVlanTagsObjects{}
+					data := AccessControlPolicyRulesVlanTagObjects{}
 					if value := res.Get("id"); value.Exists() {
 						data.Id = types.StringValue(value.String())
 					} else {
 						data.Id = types.StringNull()
 					}
-					(*parent).VlanTagsObjects = append((*parent).VlanTagsObjects, data)
+					(*parent).VlanTagObjects = append((*parent).VlanTagObjects, data)
 					return true
 				})
 			}
@@ -1025,6 +1029,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 			} else {
 				data.IntrusionPolicyId = types.StringNull()
 			}
+			if value := res.Get("variableSet.id"); value.Exists() {
+				data.VariableSetId = types.StringValue(value.String())
+			} else {
+				data.VariableSetId = types.StringNull()
+			}
 			(*parent).Rules = append((*parent).Rules, data)
 			return true
 		})
@@ -1258,12 +1267,12 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			}
 			(*parent).DestinationNetworkLiterals[i] = data
 		}
-		for i := 0; i < len(data.VlanTagsLiterals); i++ {
+		for i := 0; i < len(data.VlanTagLiterals); i++ {
 			keys := [...]string{"startTag", "endTag"}
-			keyValues := [...]string{data.VlanTagsLiterals[i].StartTag.ValueString(), data.VlanTagsLiterals[i].EndTag.ValueString()}
+			keyValues := [...]string{data.VlanTagLiterals[i].StartTag.ValueString(), data.VlanTagLiterals[i].EndTag.ValueString()}
 
 			parent := &data
-			data := (*parent).VlanTagsLiterals[i]
+			data := (*parent).VlanTagLiterals[i]
 			parentRes := &res
 			var res gjson.Result
 
@@ -1285,11 +1294,11 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 				},
 			)
 			if !res.Exists() {
-				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagsLiterals[%d] = %+v",
+				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagLiterals[%d] = %+v",
 					i,
-					(*parent).VlanTagsLiterals[i],
+					(*parent).VlanTagLiterals[i],
 				))
-				(*parent).VlanTagsLiterals = slices.Delete((*parent).VlanTagsLiterals, i, i+1)
+				(*parent).VlanTagLiterals = slices.Delete((*parent).VlanTagLiterals, i, i+1)
 				i--
 
 				continue
@@ -1304,14 +1313,14 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			} else {
 				data.EndTag = types.StringNull()
 			}
-			(*parent).VlanTagsLiterals[i] = data
+			(*parent).VlanTagLiterals[i] = data
 		}
-		for i := 0; i < len(data.VlanTagsObjects); i++ {
+		for i := 0; i < len(data.VlanTagObjects); i++ {
 			keys := [...]string{"id"}
-			keyValues := [...]string{data.VlanTagsObjects[i].Id.ValueString()}
+			keyValues := [...]string{data.VlanTagObjects[i].Id.ValueString()}
 
 			parent := &data
-			data := (*parent).VlanTagsObjects[i]
+			data := (*parent).VlanTagObjects[i]
 			parentRes := &res
 			var res gjson.Result
 
@@ -1333,11 +1342,11 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 				},
 			)
 			if !res.Exists() {
-				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagsObjects[%d] = %+v",
+				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagObjects[%d] = %+v",
 					i,
-					(*parent).VlanTagsObjects[i],
+					(*parent).VlanTagObjects[i],
 				))
-				(*parent).VlanTagsObjects = slices.Delete((*parent).VlanTagsObjects, i, i+1)
+				(*parent).VlanTagObjects = slices.Delete((*parent).VlanTagObjects, i, i+1)
 				i--
 
 				continue
@@ -1347,7 +1356,7 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			} else {
 				data.Id = types.StringNull()
 			}
-			(*parent).VlanTagsObjects[i] = data
+			(*parent).VlanTagObjects[i] = data
 		}
 		for i := 0; i < len(data.SourceNetworkObjects); i++ {
 			keys := [...]string{"id"}
@@ -2050,6 +2059,11 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			data.IntrusionPolicyId = types.StringValue(value.String())
 		} else {
 			data.IntrusionPolicyId = types.StringNull()
+		}
+		if value := res.Get("variableSet.id"); value.Exists() && !data.VariableSetId.IsNull() {
+			data.VariableSetId = types.StringValue(value.String())
+		} else {
+			data.VariableSetId = types.StringNull()
 		}
 		(*parent).Rules[i] = data
 	}

@@ -218,7 +218,7 @@ attributes:
             example: 10.2.2.0/24
       - model_name: literals
         data_path: [vlanTags]
-        tf_name: vlan_tags_literals
+        tf_name: vlan_tag_literals
         description: Set of objects that represent vlan tags (literally specified).
         type: Set
         attributes:
@@ -233,7 +233,7 @@ attributes:
             example: "22"  
       - model_name: objects
         data_path: [vlanTags]
-        tf_name: vlan_tags_objects
+        tf_name: vlan_tag_objects
         description: Set of objects that represent vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...).
         type: Set
         attributes:
@@ -332,7 +332,7 @@ attributes:
           - model_name: icmpType
             type: String
             example: "0"
-            exclude_test: true        
+            exclude_test: true         
       - model_name: objects
         data_path: [sourcePorts]
         tf_name: source_port_objects
@@ -371,7 +371,7 @@ attributes:
           - model_name: icmpType
             type: String
             example: "0"
-            exclude_test: true       
+            exclude_test: true           
       - model_name: objects
         data_path: [destinationPorts]
         tf_name: destination_port_objects
@@ -598,6 +598,14 @@ attributes:
           is BLOCK, BLOCK_RESET, TRUST, MONITOR.
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
         exclude_test: true
+      - model_name: id
+        data_path: [variableSet]
+        tf_name: variable_set_id
+        type: String
+        description: >-
+          Identifier (UUID) of the Variable Set for the rule action. 
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        exclude_test: true        
 
 test_prerequisites: |-
   resource "fmc_network" "test" {
