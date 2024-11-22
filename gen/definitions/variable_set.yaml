@@ -15,5 +15,11 @@ attributes:
     type: String
     description: Optional description of the policy.
     example: "My customized variable set"
-
+  - model_name: type
+    type: String
+    description: Type of the object; this value is always 'VariableSet'.
+    default_value: VariableSet
+    requires_replace: true
+    exclude_example: true
+    exclude_test: true
 
