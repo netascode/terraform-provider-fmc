@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -41,26 +42,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &VLANTagGroupResource{}
-	_ resource.ResourceWithImportState = &VLANTagGroupResource{}
+	_ resource.Resource                = &SGTResource{}
+	_ resource.ResourceWithImportState = &SGTResource{}
 )
 
-func NewVLANTagGroupResource() resource.Resource {
-	return &VLANTagGroupResource{}
+func NewSGTResource() resource.Resource {
+	return &SGTResource{}
 }
 
-type VLANTagGroupResource struct {
+type SGTResource struct {
 	client *fmc.Client
 }
 
-func (r *VLANTagGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_vlan_tag_group"
+func (r *SGTResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_sgt"
 }
 
-func (r *VLANTagGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *SGTResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a VLAN Tag Group.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a SGT.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -78,50 +79,31 @@ func (r *VLANTagGroupResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("User-created name of the object.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The name of the SGT object.").String,
 				Required:            true,
+			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityGroupTag'.").AddDefaultValueDescription("SecurityGroupTag").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString("SecurityGroupTag"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
 				Optional:            true,
 			},
-			"overridable": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether object values can be overridden.").String,
-				Optional:            true,
-			},
-			"vlan_tags": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+			"tag": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Security Group Tag.").String,
 				Required:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of the vlan_tag (such as fmc_vlan_tag.test.id, etc.).").String,
-							Optional:            true,
-						},
-					},
-				},
-			},
-			"literals": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"start_tag": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("VLAN Tag literal starting value.").String,
-							Required:            true,
-						},
-						"end_tag": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("VLAN Tag literal end value.").String,
-							Optional:            true,
-						},
-					},
-				},
 			},
 		},
 	}
 }
 
-func (r *VLANTagGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *SGTResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -133,8 +115,8 @@ func (r *VLANTagGroupResource) Configure(_ context.Context, req resource.Configu
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
-func (r *VLANTagGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan VLANTagGroup
+func (r *SGTResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan SGT
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -151,7 +133,7 @@ func (r *VLANTagGroupResource) Create(ctx context.Context, req resource.CreateRe
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, VLANTagGroup{})
+	body := plan.toBody(ctx, SGT{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -171,8 +153,8 @@ func (r *VLANTagGroupResource) Create(ctx context.Context, req resource.CreateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (r *VLANTagGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state VLANTagGroup
+func (r *SGTResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state SGT
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -223,8 +205,8 @@ func (r *VLANTagGroupResource) Read(ctx context.Context, req resource.ReadReques
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
-func (r *VLANTagGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state VLANTagGroup
+func (r *SGTResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state SGT
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -263,8 +245,8 @@ func (r *VLANTagGroupResource) Update(ctx context.Context, req resource.UpdateRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *VLANTagGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state VLANTagGroup
+func (r *SGTResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state SGT
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -294,10 +276,22 @@ func (r *VLANTagGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *VLANTagGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *SGTResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin createSubresources
+
+// End of section. //template:end createSubresources
+
+// Section below is generated&owned by "gen/generator.go". //template:begin deleteSubresources
+
+// End of section. //template:end deleteSubresources
+
+// Section below is generated&owned by "gen/generator.go". //template:begin updateSubresources
+
+// End of section. //template:end updateSubresources

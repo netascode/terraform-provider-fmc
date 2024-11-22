@@ -29,21 +29,25 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
-func TestAccFmcVLANTagGroups(t *testing.T) {
+func TestAccFmcSGT(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.id"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.description", "My vlan tag group name"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.overridable", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "name", "SGT1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "description", "My SGT object"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "tag", "11"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcVLANTagGroupsPrerequisitesConfig + testAccFmcVLANTagGroupsConfig_minimum(),
+			Config: testAccFmcSGTConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcVLANTagGroupsPrerequisitesConfig + testAccFmcVLANTagGroupsConfig_all(),
+		Config: testAccFmcSGTConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
+	})
+	steps = append(steps, resource.TestStep{
+		ResourceName: "fmc_sgt.test",
+		ImportState:  true,
 	})
 
 	resource.Test(t, resource.TestCase{
@@ -56,28 +60,14 @@ func TestAccFmcVLANTagGroups(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-
-const testAccFmcVLANTagGroupsPrerequisitesConfig = `
-resource "fmc_vlan_tag" "test" {
-  name        = "vlan_tag_1111"
-  description = "My TAG id"
-  overridable = false
-  start_tag   = 11
-  end_tag     = 12
-}
-`
-
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 
-func testAccFmcVLANTagGroupsConfig_minimum() string {
-	config := `resource "fmc_vlan_tag_groups" "test" {` + "\n"
-	config += `	items = { "vlan_tag_group_1" = {` + "\n"
-	config += `		vlan_tags = [{` + "\n"
-	config += `			id = fmc_vlan_tag.test.id` + "\n"
-	config += `		}]` + "\n"
-	config += `	}}` + "\n"
+func testAccFmcSGTConfig_minimum() string {
+	config := `resource "fmc_sgt" "test" {` + "\n"
+	config += `	name = "SGT1"` + "\n"
+	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -86,19 +76,11 @@ func testAccFmcVLANTagGroupsConfig_minimum() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 
-func testAccFmcVLANTagGroupsConfig_all() string {
-	config := `resource "fmc_vlan_tag_groups" "test" {` + "\n"
-	config += `	items = { "vlan_tag_group_1" = {` + "\n"
-	config += `		description = "My vlan tag group name"` + "\n"
-	config += `		overridable = true` + "\n"
-	config += `		vlan_tags = [{` + "\n"
-	config += `			id = fmc_vlan_tag.test.id` + "\n"
-	config += `		}]` + "\n"
-	config += `		literals = [{` + "\n"
-	config += `			start_tag = 11` + "\n"
-	config += `			end_tag = 22` + "\n"
-	config += `		}]` + "\n"
-	config += `	}}` + "\n"
+func testAccFmcSGTConfig_all() string {
+	config := `resource "fmc_sgt" "test" {` + "\n"
+	config += `	name = "SGT1"` + "\n"
+	config += `	description = "My SGT object"` + "\n"
+	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"
 	return config
 }

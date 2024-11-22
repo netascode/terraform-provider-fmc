@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &VLANTagGroupDataSource{}
-	_ datasource.DataSourceWithConfigure = &VLANTagGroupDataSource{}
+	_ datasource.DataSource              = &SGTDataSource{}
+	_ datasource.DataSourceWithConfigure = &SGTDataSource{}
 )
 
-func NewVLANTagGroupDataSource() datasource.DataSource {
-	return &VLANTagGroupDataSource{}
+func NewSGTDataSource() datasource.DataSource {
+	return &SGTDataSource{}
 }
 
-type VLANTagGroupDataSource struct {
+type SGTDataSource struct {
 	client *fmc.Client
 }
 
-func (d *VLANTagGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_vlan_tag_group"
+func (d *SGTDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_sgt"
 }
 
-func (d *VLANTagGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *SGTDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the VLAN Tag Group.",
+		MarkdownDescription: "This data source can read the SGT.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -71,50 +71,26 @@ func (d *VLANTagGroupDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-created name of the object.",
+				MarkdownDescription: "The name of the SGT object.",
 				Optional:            true,
 				Computed:            true,
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Type of the object; this value is always 'SecurityGroupTag'.",
+				Computed:            true,
+			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Optional user-created description.",
+				MarkdownDescription: "Description",
 				Computed:            true,
 			},
-			"overridable": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether object values can be overridden.",
+			"tag": schema.StringAttribute{
+				MarkdownDescription: "Security Group Tag.",
 				Computed:            true,
-			},
-			"vlan_tags": schema.SetNestedAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"id": schema.StringAttribute{
-							MarkdownDescription: "UUID of the vlan_tag (such as fmc_vlan_tag.test.id, etc.).",
-							Computed:            true,
-						},
-					},
-				},
-			},
-			"literals": schema.SetNestedAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"start_tag": schema.StringAttribute{
-							MarkdownDescription: "VLAN Tag literal starting value.",
-							Computed:            true,
-						},
-						"end_tag": schema.StringAttribute{
-							MarkdownDescription: "VLAN Tag literal end value.",
-							Computed:            true,
-						},
-					},
-				},
 			},
 		},
 	}
 }
-func (d *VLANTagGroupDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *SGTDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -123,7 +99,7 @@ func (d *VLANTagGroupDataSource) ConfigValidators(ctx context.Context) []datasou
 	}
 }
 
-func (d *VLANTagGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *SGTDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -135,8 +111,8 @@ func (d *VLANTagGroupDataSource) Configure(_ context.Context, req datasource.Con
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (d *VLANTagGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config VLANTagGroup
+func (d *SGTDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config SGT
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

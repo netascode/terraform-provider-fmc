@@ -28,18 +28,21 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
-func TestAccDataSourceFmcVLANTagGroups(t *testing.T) {
+func TestAccDataSourceFmcSGT(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.id"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.description", "My vlan tag group name"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.overridable", "true"))
-	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_vlan_tag_groups.test", "items.vlan_tag_group_1.vlan_tags.0.id"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "name", "SGT1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "description", "My SGT object"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "tag", "11"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcVLANTagGroupsPrerequisitesConfig + testAccDataSourceFmcVLANTagGroupsConfig(),
+				Config: testAccDataSourceFmcSGTConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+			{
+				Config: testAccNamedDataSourceFmcSGTConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -49,43 +52,35 @@ func TestAccDataSourceFmcVLANTagGroups(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-
-const testAccDataSourceFmcVLANTagGroupsPrerequisitesConfig = `
-resource "fmc_vlan_tag" "test" {
-  name        = "vlan_tag_1111"
-  description = "My TAG id"
-  overridable = false
-  start_tag   = 11
-  end_tag     = 12
-}
-`
-
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
-func testAccDataSourceFmcVLANTagGroupsConfig() string {
-	config := `resource "fmc_vlan_tag_groups" "test" {` + "\n"
-	config += `	items = { "vlan_tag_group_1" = {` + "\n"
-	config += `		description = "My vlan tag group name"` + "\n"
-	config += `		overridable = true` + "\n"
-	config += `		vlan_tags = [{` + "\n"
-	config += `			id = fmc_vlan_tag.test.id` + "\n"
-	config += `		}]` + "\n"
-	config += `		literals = [{` + "\n"
-	config += `			start_tag = 11` + "\n"
-	config += `			end_tag = 22` + "\n"
-	config += `		}]` + "\n"
-	config += `	}}` + "\n"
+func testAccDataSourceFmcSGTConfig() string {
+	config := `resource "fmc_sgt" "test" {` + "\n"
+	config += `	name = "SGT1"` + "\n"
+	config += `	description = "My SGT object"` + "\n"
+	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"
 
 	config += `
-		data "fmc_vlan_tag_groups" "test" {
-			depends_on = [fmc_vlan_tag_groups.test]
-			items = {
-				"vlan_tag_group_1" = {
-				}
-			}
+		data "fmc_sgt" "test" {
+			id = fmc_sgt.test.id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcSGTConfig() string {
+	config := `resource "fmc_sgt" "test" {` + "\n"
+	config += `	name = "SGT1"` + "\n"
+	config += `	description = "My SGT object"` + "\n"
+	config += `	tag = "11"` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_sgt" "test" {
+			name = fmc_sgt.test.name
 		}
 	`
 	return config
