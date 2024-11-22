@@ -96,6 +96,7 @@ var templates = []t{
 type YamlConfig struct {
 	Name                     string                `yaml:"name"`
 	NoDataSource             bool                  `yaml:"no_data_source"`
+	NoResource               bool                  `yaml:"no_resource"`
 	NoImport                 bool                  `yaml:"no_import"`
 	TfName                   string                `yaml:"tf_name"`
 	RestEndpoint             string                `yaml:"rest_endpoint"`
@@ -575,7 +576,10 @@ func main() {
 			if configs[i].NoImport && t.path == "./gen/templates/import.sh" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data_source.go" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data_source_test.go" ||
-				configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf" {
+				configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf" ||
+				configs[i].NoResource && t.path == "./gen/templates/resource.go" ||
+				configs[i].NoResource && t.path == "./gen/templates/resource_test.go" ||
+				configs[i].NoResource && t.path == "./gen/templates/resource.tf" {
 				continue
 			}
 			renderTemplate(t.path, t.prefix+SnakeCase(configs[i].Name)+t.suffix, configs[i])

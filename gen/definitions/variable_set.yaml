@@ -1,8 +1,9 @@
 ---
 name: Variable Set
-rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/variableset
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/object/variablesets
 data_source_name_query: true
-no_resource: false
+no_resource: true
+no_import: true
 doc_category: Objects
 attributes:
   - model_name: name
@@ -22,4 +23,3 @@ attributes:
     requires_replace: true
     exclude_example: true
     exclude_test: true
-
