@@ -47,6 +47,8 @@ func TestAccFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.destination_network_literals.0.value", "10.2.2.0/24"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.vlan_tags_literals.0.start_tag", "11"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.vlan_tags_literals.0.end_tag", "22"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.source_port_literals.0.type", "PortLiteral"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.destination_port_literals.0.type", "PortLiteral"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.log_begin", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.log_end", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_access_control_policy.test", "rules.0.send_events_to_fmc", "true"))
@@ -155,6 +157,16 @@ func testAccFmcAccessControlPolicyConfig_all() string {
 	config += `		destination_network_objects = [{` + "\n"
 	config += `			id = fmc_host.test.id` + "\n"
 	config += `			type = fmc_host.test.type` + "\n"
+	config += `		}]` + "\n"
+	config += `		source_port_literals = [{` + "\n"
+	config += `			type = "PortLiteral"` + "\n"
+	config += `			protocol = 17` + "\n"
+	config += `			port = 123` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_port_literals = [{` + "\n"
+	config += `			type = "PortLiteral"` + "\n"
+	config += `			protocol = 17` + "\n"
+	config += `			port = 123` + "\n"
 	config += `		}]` + "\n"
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"

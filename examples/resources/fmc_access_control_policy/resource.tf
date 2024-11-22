@@ -61,9 +61,25 @@ resource "fmc_access_control_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
+      source_port_literals = [
+        {
+          type      = "PortLiteral"
+          protocol  = "6"
+          port      = "80"
+          icmp_type = "0"
+        }
+      ]
       source_port_objects = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      destination_port_literals = [
+        {
+          type      = "PortLiteral"
+          protocol  = "6"
+          port      = "80"
+          icmp_type = "0"
         }
       ]
       destination_port_objects = [
@@ -71,13 +87,7 @@ resource "fmc_access_control_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
-      source_security_group_tag_objects = [
-        {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "SecurityGroupTag"
-        }
-      ]
-      destination_security_group_tag_objects = [
+      source_sgt_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
           type = "SecurityGroupTag"

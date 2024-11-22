@@ -323,6 +323,33 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
+						"source_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent protocol/port (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("PortLiteral", "ICMPv4PortLiteral").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("PortLiteral", "ICMPv4PortLiteral"),
+										},
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Required:            true,
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
 						"source_port_objects": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).").String,
 							Optional:            true,
@@ -330,6 +357,33 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent protocol/port (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("PortLiteral", "ICMPv4PortLiteral").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("PortLiteral", "ICMPv4PortLiteral"),
+										},
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Required:            true,
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
 										Optional:            true,
 									},
 								},
@@ -347,29 +401,13 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								},
 							},
 						},
-						"source_security_group_tag_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing the source Security Group Tags (fmc_security_group_tag - part of the dynamic attributes).").String,
+						"source_sgt_objects": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing the source Security Group Tags (fmc_sgt - part of the dynamic attributes).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_security_group_tag.example.id, etc.).").String,
-										Optional:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_security_group_tag.example.type, etc.).").String,
-										Optional:            true,
-									},
-								},
-							},
-						},
-						"destination_security_group_tag_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing the destination Security Group Tags (fmc_security_group_tag - part of the dynamic attributes).").String,
-							Optional:            true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_security_group_tag.example.id, etc.).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_sgt.example.id, etc.).").String,
 										Optional:            true,
 									},
 									"type": schema.StringAttribute{
