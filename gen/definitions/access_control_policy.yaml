@@ -320,20 +320,19 @@ attributes:
           - model_name: type
             type: String
             enum_values: [ PortLiteral, ICMPv4PortLiteral ]
+            mandatory: true
             example: PortLiteral
+          - model_name: port
+            type: String
+            example: "80"              
           - model_name: protocol
             type: String
             example: "6"
-            mandatory: true
-            test_value: "17"
-          - model_name: port
-            type: String
-            test_value: "123"
-            example: "80"      
+            mandatory: true    
           - model_name: icmpType
             type: String
             example: "0"
-            exclude_test: true
+            exclude_test: true        
       - model_name: objects
         data_path: [sourcePorts]
         tf_name: source_port_objects
@@ -360,20 +359,19 @@ attributes:
           - model_name: type
             type: String
             enum_values: [ PortLiteral, ICMPv4PortLiteral ]
+            mandatory: true
             example: PortLiteral
+          - model_name: port
+            type: String
+            example: "80"              
           - model_name: protocol
             type: String
             example: "6"
-            mandatory: true
-            test_value: "17"
-          - model_name: port
-            type: String
-            test_value: "123"
-            example: "80"      
+            mandatory: true    
           - model_name: icmpType
             type: String
             example: "0"
-            exclude_test: true
+            exclude_test: true       
       - model_name: objects
         data_path: [destinationPorts]
         tf_name: destination_port_objects
@@ -444,6 +442,18 @@ attributes:
             type: String
             description: Type of the object (such as fmc_security_zone.example.type, etc.).
             value: SecurityZone
+      - model_name: literals
+        data_path: [urls]
+        tf_name: url_literals
+        description: Set of objects representing the URLs associated with the rule (literally specified).
+        type: Set
+        exclude_test: true
+        attributes:
+          - model_name: url
+            type: String
+            description: URL such as https://www.example.com/app
+            mandatory: true
+            example: "https://www.example.com/app"
       - model_name: objects
         data_path: [urls]
         tf_name: url_objects
@@ -611,3 +621,4 @@ test_prerequisites: |-
     start_tag = "10"
     end_tag   = "11" 
   }
+

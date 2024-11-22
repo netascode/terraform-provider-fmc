@@ -89,6 +89,7 @@ Read-Only:
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
 - `url_categories` (Attributes Set) Set of objects representing the URL Categories associated with the rule (fmc_url_category). (see [below for nested schema](#nestedatt--rules--url_categories))
+- `url_literals` (Attributes Set) Set of objects representing the URLs associated with the rule (literally specified). (see [below for nested schema](#nestedatt--rules--url_literals))
 - `url_objects` (Attributes Set) Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group). (see [below for nested schema](#nestedatt--rules--url_objects))
 - `vlan_tags_literals` (Attributes Set) Set of objects that represent vlan tags (literally specified). (see [below for nested schema](#nestedatt--rules--vlan_tags_literals))
 - `vlan_tags_objects` (Attributes Set) Set of objects that represent vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...). (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
@@ -213,6 +214,14 @@ Read-Only:
 
 - `id` (String) UUID of the object (such as fmc_url_category.example.id, etc.).
 - `reputation` (String) Reputation applicable to the category.
+
+
+<a id="nestedatt--rules--url_literals"></a>
+### Nested Schema for `rules.url_literals`
+
+Read-Only:
+
+- `url` (String) URL such as https://www.example.com/app
 
 
 <a id="nestedatt--rules--url_objects"></a>

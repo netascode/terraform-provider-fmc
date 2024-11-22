@@ -330,18 +330,18 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								Attributes: map[string]schema.Attribute{
 									"type": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("PortLiteral", "ICMPv4PortLiteral").String,
-										Optional:            true,
+										Required:            true,
 										Validators: []validator.String{
 											stringvalidator.OneOf("PortLiteral", "ICMPv4PortLiteral"),
 										},
 									},
-									"protocol": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
-										Required:            true,
-									},
 									"port": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
 										Optional:            true,
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Required:            true,
 									},
 									"icmp_type": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
@@ -369,18 +369,18 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 								Attributes: map[string]schema.Attribute{
 									"type": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("PortLiteral", "ICMPv4PortLiteral").String,
-										Optional:            true,
+										Required:            true,
 										Validators: []validator.String{
 											stringvalidator.OneOf("PortLiteral", "ICMPv4PortLiteral"),
 										},
 									},
-									"protocol": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
-										Required:            true,
-									},
 									"port": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
 										Optional:            true,
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Required:            true,
 									},
 									"icmp_type": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
@@ -437,6 +437,18 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 									"id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_security_zone.example.id, etc.).").String,
 										Optional:            true,
+									},
+								},
+							},
+						},
+						"url_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing the URLs associated with the rule (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"url": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("URL such as https://www.example.com/app").String,
+										Required:            true,
 									},
 								},
 							},

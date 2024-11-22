@@ -286,11 +286,11 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 										MarkdownDescription: "",
 										Computed:            true,
 									},
-									"protocol": schema.StringAttribute{
+									"port": schema.StringAttribute{
 										MarkdownDescription: "",
 										Computed:            true,
 									},
-									"port": schema.StringAttribute{
+									"protocol": schema.StringAttribute{
 										MarkdownDescription: "",
 										Computed:            true,
 									},
@@ -322,11 +322,11 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 										MarkdownDescription: "",
 										Computed:            true,
 									},
-									"protocol": schema.StringAttribute{
+									"port": schema.StringAttribute{
 										MarkdownDescription: "",
 										Computed:            true,
 									},
-									"port": schema.StringAttribute{
+									"protocol": schema.StringAttribute{
 										MarkdownDescription: "",
 										Computed:            true,
 									},
@@ -384,6 +384,18 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: "UUID of the object (such as fmc_security_zone.example.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"url_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing the URLs associated with the rule (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"url": schema.StringAttribute{
+										MarkdownDescription: "URL such as https://www.example.com/app",
 										Computed:            true,
 									},
 								},

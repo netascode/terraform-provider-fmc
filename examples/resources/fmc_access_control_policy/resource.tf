@@ -64,8 +64,8 @@ resource "fmc_access_control_policy" "example" {
       source_port_literals = [
         {
           type      = "PortLiteral"
-          protocol  = "6"
           port      = "80"
+          protocol  = "6"
           icmp_type = "0"
         }
       ]
@@ -77,8 +77,8 @@ resource "fmc_access_control_policy" "example" {
       destination_port_literals = [
         {
           type      = "PortLiteral"
-          protocol  = "6"
           port      = "80"
+          protocol  = "6"
           icmp_type = "0"
         }
       ]
@@ -101,6 +101,11 @@ resource "fmc_access_control_policy" "example" {
       destination_zones = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      url_literals = [
+        {
+          url = "https://www.example.com/app"
         }
       ]
       url_objects = [

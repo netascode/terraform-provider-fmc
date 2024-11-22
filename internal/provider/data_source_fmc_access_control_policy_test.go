@@ -46,7 +46,11 @@ func TestAccDataSourceFmcAccessControlPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.vlan_tags_literals.0.start_tag", "11"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.vlan_tags_literals.0.end_tag", "22"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.source_port_literals.0.type", "PortLiteral"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.source_port_literals.0.port", "80"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.source_port_literals.0.protocol", "6"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.destination_port_literals.0.type", "PortLiteral"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.destination_port_literals.0.port", "80"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.destination_port_literals.0.protocol", "6"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.log_begin", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.log_end", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_access_control_policy.test", "rules.0.send_events_to_fmc", "true"))
@@ -139,13 +143,13 @@ func testAccDataSourceFmcAccessControlPolicyConfig() string {
 	config += `		}]` + "\n"
 	config += `		source_port_literals = [{` + "\n"
 	config += `			type = "PortLiteral"` + "\n"
-	config += `			protocol = 17` + "\n"
-	config += `			port = 123` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `			protocol = "6"` + "\n"
 	config += `		}]` + "\n"
 	config += `		destination_port_literals = [{` + "\n"
 	config += `			type = "PortLiteral"` + "\n"
-	config += `			protocol = 17` + "\n"
-	config += `			port = 123` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `			protocol = "6"` + "\n"
 	config += `		}]` + "\n"
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"
@@ -204,13 +208,13 @@ func testAccNamedDataSourceFmcAccessControlPolicyConfig() string {
 	config += `		}]` + "\n"
 	config += `		source_port_literals = [{` + "\n"
 	config += `			type = "PortLiteral"` + "\n"
-	config += `			protocol = 17` + "\n"
-	config += `			port = 123` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `			protocol = "6"` + "\n"
 	config += `		}]` + "\n"
 	config += `		destination_port_literals = [{` + "\n"
 	config += `			type = "PortLiteral"` + "\n"
-	config += `			protocol = 17` + "\n"
-	config += `			port = 123` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `			protocol = "6"` + "\n"
 	config += `		}]` + "\n"
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"

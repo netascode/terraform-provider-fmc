@@ -79,8 +79,8 @@ resource "fmc_access_control_policy" "example" {
       source_port_literals = [
         {
           type      = "PortLiteral"
-          protocol  = "6"
           port      = "80"
+          protocol  = "6"
           icmp_type = "0"
         }
       ]
@@ -92,8 +92,8 @@ resource "fmc_access_control_policy" "example" {
       destination_port_literals = [
         {
           type      = "PortLiteral"
-          protocol  = "6"
           port      = "80"
+          protocol  = "6"
           icmp_type = "0"
         }
       ]
@@ -116,6 +116,11 @@ resource "fmc_access_control_policy" "example" {
       destination_zones = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      url_literals = [
+        {
+          url = "https://www.example.com/app"
         }
       ]
       url_objects = [
@@ -242,6 +247,7 @@ Optional:
 - `syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
 - `url_categories` (Attributes Set) Set of objects representing the URL Categories associated with the rule (fmc_url_category). (see [below for nested schema](#nestedatt--rules--url_categories))
+- `url_literals` (Attributes Set) Set of objects representing the URLs associated with the rule (literally specified). (see [below for nested schema](#nestedatt--rules--url_literals))
 - `url_objects` (Attributes Set) Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group). (see [below for nested schema](#nestedatt--rules--url_objects))
 - `vlan_tags_literals` (Attributes Set) Set of objects that represent vlan tags (literally specified). (see [below for nested schema](#nestedatt--rules--vlan_tags_literals))
 - `vlan_tags_objects` (Attributes Set) Set of objects that represent vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...). (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
@@ -281,12 +287,12 @@ Optional:
 Required:
 
 - `protocol` (String)
+- `type` (String) - Choices: `PortLiteral`, `ICMPv4PortLiteral`
 
 Optional:
 
 - `icmp_type` (String)
 - `port` (String)
-- `type` (String) - Choices: `PortLiteral`, `ICMPv4PortLiteral`
 
 
 <a id="nestedatt--rules--destination_port_objects"></a>
@@ -336,12 +342,12 @@ Optional:
 Required:
 
 - `protocol` (String)
+- `type` (String) - Choices: `PortLiteral`, `ICMPv4PortLiteral`
 
 Optional:
 
 - `icmp_type` (String)
 - `port` (String)
-- `type` (String) - Choices: `PortLiteral`, `ICMPv4PortLiteral`
 
 
 <a id="nestedatt--rules--source_port_objects"></a>
@@ -377,6 +383,14 @@ Optional:
 - `id` (String) UUID of the object (such as fmc_url_category.example.id, etc.).
 - `reputation` (String) Reputation applicable to the category.
   - Choices: `ANY_EXCEPT_UNKNOWN`, `TRUSTED`, `FAVORABLE`, `NEUTRAL`, `QUESTIONABLE`, `UNTRUSTED`, `ANY_AND_UNKNOWN`, `TRUSTED_AND_UNKNOWN`, `FAVORABLE_AND_UNKNOWN`, `NEUTRAL_AND_UNKNOWN`, `QUESTIONABLE_AND_UNKNOWN`, `UNTRUSTED_AND_UNKNOWN`
+
+
+<a id="nestedatt--rules--url_literals"></a>
+### Nested Schema for `rules.url_literals`
+
+Required:
+
+- `url` (String) URL such as https://www.example.com/app
 
 
 <a id="nestedatt--rules--url_objects"></a>
