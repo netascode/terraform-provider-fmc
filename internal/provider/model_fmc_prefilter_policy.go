@@ -69,6 +69,13 @@ type PrefilterPolicyRules struct {
 	DestinationNetworkObjects  []PrefilterPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
 	SourcePortObjects          []PrefilterPolicyRulesSourcePortObjects          `tfsdk:"source_port_objects"`
 	DestinationPortObjects     []PrefilterPolicyRulesDestinationPortObjects     `tfsdk:"destination_port_objects"`
+	SourceInterfaces           []PrefilterPolicyRulesSourceInterfaces           `tfsdk:"source_interfaces"`
+	DestinationInterfaces      []PrefilterPolicyRulesDestinationInterfaces      `tfsdk:"destination_interfaces"`
+	TunnelZone                 []PrefilterPolicyRulesTunnelZone                 `tfsdk:"tunnel_zone"`
+	EncapsulationPortsGre      types.Bool                                       `tfsdk:"encapsulation_ports_gre"`
+	EncapsulationPortsInInIp   types.Bool                                       `tfsdk:"encapsulation_ports_in_in_ip"`
+	EncapsulationPortsIpv6InIp types.Bool                                       `tfsdk:"encapsulation_ports_ipv6_in_ip"`
+	EncapsulationPortsTeredo   types.Bool                                       `tfsdk:"encapsulation_ports_teredo"`
 }
 
 type PrefilterPolicyRulesVlanTagsObjects struct {
@@ -92,6 +99,17 @@ type PrefilterPolicyRulesSourcePortObjects struct {
 	Id types.String `tfsdk:"id"`
 }
 type PrefilterPolicyRulesDestinationPortObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type PrefilterPolicyRulesSourceInterfaces struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type PrefilterPolicyRulesDestinationInterfaces struct {
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
+}
+type PrefilterPolicyRulesTunnelZone struct {
 	Id types.String `tfsdk:"id"`
 }
 
@@ -262,6 +280,55 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationPorts.objects.-1", itemChildBody)
 				}
+			}
+			if len(item.SourceInterfaces) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourceInterfaces.objects", []interface{}{})
+				for _, childItem := range item.SourceInterfaces {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourceInterfaces.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationInterfaces) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationInterfaces.objects", []interface{}{})
+				for _, childItem := range item.DestinationInterfaces {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationInterfaces.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.TunnelZone) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "tunnelZone.objects", []interface{}{})
+				for _, childItem := range item.TunnelZone {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "TunnelTag")
+					itemBody, _ = sjson.SetRaw(itemBody, "tunnelZone.objects.-1", itemChildBody)
+				}
+			}
+			if !item.EncapsulationPortsGre.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "gre", item.EncapsulationPortsGre.ValueBool())
+			}
+			if !item.EncapsulationPortsInInIp.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "ipInIP", item.EncapsulationPortsInInIp.ValueBool())
+			}
+			if !item.EncapsulationPortsIpv6InIp.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "ipv6InIP", item.EncapsulationPortsIpv6InIp.ValueBool())
+			}
+			if !item.EncapsulationPortsTeredo.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "teredo", item.EncapsulationPortsTeredo.ValueBool())
 			}
 			body, _ = sjson.SetRaw(body, "dummy_rules.-1", itemBody)
 		}
@@ -496,6 +563,78 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 					(*parent).DestinationPortObjects = append((*parent).DestinationPortObjects, data)
 					return true
 				})
+			}
+			if value := res.Get("sourceInterfaces.objects"); value.Exists() {
+				data.SourceInterfaces = make([]PrefilterPolicyRulesSourceInterfaces, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesSourceInterfaces{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringNull()
+					}
+					(*parent).SourceInterfaces = append((*parent).SourceInterfaces, data)
+					return true
+				})
+			}
+			if value := res.Get("destinationInterfaces.objects"); value.Exists() {
+				data.DestinationInterfaces = make([]PrefilterPolicyRulesDestinationInterfaces, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesDestinationInterfaces{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringNull()
+					}
+					(*parent).DestinationInterfaces = append((*parent).DestinationInterfaces, data)
+					return true
+				})
+			}
+			if value := res.Get("tunnelZone.objects"); value.Exists() {
+				data.TunnelZone = make([]PrefilterPolicyRulesTunnelZone, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesTunnelZone{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					(*parent).TunnelZone = append((*parent).TunnelZone, data)
+					return true
+				})
+			}
+			if value := res.Get("gre"); value.Exists() {
+				data.EncapsulationPortsGre = types.BoolValue(value.Bool())
+			} else {
+				data.EncapsulationPortsGre = types.BoolValue(false)
+			}
+			if value := res.Get("ipInIP"); value.Exists() {
+				data.EncapsulationPortsInInIp = types.BoolValue(value.Bool())
+			} else {
+				data.EncapsulationPortsInInIp = types.BoolValue(false)
+			}
+			if value := res.Get("ipv6InIP"); value.Exists() {
+				data.EncapsulationPortsIpv6InIp = types.BoolValue(value.Bool())
+			} else {
+				data.EncapsulationPortsIpv6InIp = types.BoolValue(false)
+			}
+			if value := res.Get("teredo"); value.Exists() {
+				data.EncapsulationPortsTeredo = types.BoolValue(value.Bool())
+			} else {
+				data.EncapsulationPortsTeredo = types.BoolValue(false)
 			}
 			(*parent).Rules = append((*parent).Rules, data)
 			return true
@@ -947,6 +1086,165 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 				data.Id = types.StringNull()
 			}
 			(*parent).DestinationPortObjects[i] = data
+		}
+		for i := 0; i < len(data.SourceInterfaces); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.SourceInterfaces[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).SourceInterfaces[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("sourceInterfaces.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourceInterfaces[%d] = %+v",
+					i,
+					(*parent).SourceInterfaces[i],
+				))
+				(*parent).SourceInterfaces = slices.Delete((*parent).SourceInterfaces, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
+			}
+			(*parent).SourceInterfaces[i] = data
+		}
+		for i := 0; i < len(data.DestinationInterfaces); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.DestinationInterfaces[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).DestinationInterfaces[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("destinationInterfaces.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing DestinationInterfaces[%d] = %+v",
+					i,
+					(*parent).DestinationInterfaces[i],
+				))
+				(*parent).DestinationInterfaces = slices.Delete((*parent).DestinationInterfaces, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
+			}
+			(*parent).DestinationInterfaces[i] = data
+		}
+		for i := 0; i < len(data.TunnelZone); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.TunnelZone[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).TunnelZone[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("tunnelZone.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing TunnelZone[%d] = %+v",
+					i,
+					(*parent).TunnelZone[i],
+				))
+				(*parent).TunnelZone = slices.Delete((*parent).TunnelZone, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			(*parent).TunnelZone[i] = data
+		}
+		if value := res.Get("gre"); value.Exists() && !data.EncapsulationPortsGre.IsNull() {
+			data.EncapsulationPortsGre = types.BoolValue(value.Bool())
+		} else if data.EncapsulationPortsGre.ValueBool() != false {
+			data.EncapsulationPortsGre = types.BoolNull()
+		}
+		if value := res.Get("ipInIP"); value.Exists() && !data.EncapsulationPortsInInIp.IsNull() {
+			data.EncapsulationPortsInInIp = types.BoolValue(value.Bool())
+		} else if data.EncapsulationPortsInInIp.ValueBool() != false {
+			data.EncapsulationPortsInInIp = types.BoolNull()
+		}
+		if value := res.Get("ipv6InIP"); value.Exists() && !data.EncapsulationPortsIpv6InIp.IsNull() {
+			data.EncapsulationPortsIpv6InIp = types.BoolValue(value.Bool())
+		} else if data.EncapsulationPortsIpv6InIp.ValueBool() != false {
+			data.EncapsulationPortsIpv6InIp = types.BoolNull()
+		}
+		if value := res.Get("teredo"); value.Exists() && !data.EncapsulationPortsTeredo.IsNull() {
+			data.EncapsulationPortsTeredo = types.BoolValue(value.Bool())
+		} else if data.EncapsulationPortsTeredo.ValueBool() != false {
+			data.EncapsulationPortsTeredo = types.BoolNull()
 		}
 		(*parent).Rules[i] = data
 	}

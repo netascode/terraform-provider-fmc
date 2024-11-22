@@ -277,7 +277,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"source_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -289,7 +289,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"destination_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -299,6 +299,74 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 									},
 								},
 							},
+						},
+						"source_interfaces": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent source interfaces.").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object.").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"destination_interfaces": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destination interfaces.").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
+										Optional:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object.").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"tunnel_zone": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted.").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"encapsulation_ports_gre": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicating whether to set the GRE encapsulation protocol in the TUNNEL rule.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"encapsulation_ports_in_in_ip": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicating whether to set the IP-in-IP encapsulation protocol in the TUNNEL rule.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"encapsulation_ports_ipv6_in_ip": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicating whether to set the IPv6-in-IP encapsulation protocol in the TUNNEL rule.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"encapsulation_ports_teredo": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicating whether to set the TEREDO encapsulation protocol in the TUNNEL rule.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
 						},
 					},
 				},

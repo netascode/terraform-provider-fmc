@@ -44,6 +44,15 @@ func TestAccDataSourceFmcPrefilterPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.send_events_to_fmc", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.0/24"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_network_literals.0.value", "10.2.2.0/24"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_interfaces.0.id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_interfaces.0.type", "ROUTED"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_interfaces.0.id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_interfaces.0.type", "ROUTED"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.tunnel_zone.0.id", "0050568A-7F57-0ed3-0000-004294975576"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.encapsulation_ports_gre", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.encapsulation_ports_in_in_ip", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.encapsulation_ports_ipv6_in_ip", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.encapsulation_ports_teredo", "false"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -98,6 +107,21 @@ func testAccDataSourceFmcPrefilterPolicyConfig() string {
 	config += `			id = fmc_host.test.id` + "\n"
 	config += `			type = fmc_host.test.type` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_interfaces = [{` + "\n"
+	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `			type = "ROUTED"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_interfaces = [{` + "\n"
+	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `			type = "ROUTED"` + "\n"
+	config += `		}]` + "\n"
+	config += `		tunnel_zone = [{` + "\n"
+	config += `			id = "0050568A-7F57-0ed3-0000-004294975576"` + "\n"
+	config += `		}]` + "\n"
+	config += `		encapsulation_ports_gre = false` + "\n"
+	config += `		encapsulation_ports_in_in_ip = false` + "\n"
+	config += `		encapsulation_ports_ipv6_in_ip = false` + "\n"
+	config += `		encapsulation_ports_teredo = false` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
@@ -140,6 +164,21 @@ func testAccNamedDataSourceFmcPrefilterPolicyConfig() string {
 	config += `			id = fmc_host.test.id` + "\n"
 	config += `			type = fmc_host.test.type` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_interfaces = [{` + "\n"
+	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `			type = "ROUTED"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_interfaces = [{` + "\n"
+	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `			type = "ROUTED"` + "\n"
+	config += `		}]` + "\n"
+	config += `		tunnel_zone = [{` + "\n"
+	config += `			id = "0050568A-7F57-0ed3-0000-004294975576"` + "\n"
+	config += `		}]` + "\n"
+	config += `		encapsulation_ports_gre = false` + "\n"
+	config += `		encapsulation_ports_in_in_ip = false` + "\n"
+	config += `		encapsulation_ports_ipv6_in_ip = false` + "\n"
+	config += `		encapsulation_ports_teredo = false` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

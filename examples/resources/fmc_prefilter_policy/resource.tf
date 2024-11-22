@@ -56,6 +56,27 @@ resource "fmc_prefilter_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
+      source_interfaces = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "ROUTED"
+        }
+      ]
+      destination_interfaces = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "ROUTED"
+        }
+      ]
+      tunnel_zone = [
+        {
+          id = "0050568A-7F57-0ed3-0000-004294975576"
+        }
+      ]
+      encapsulation_ports_gre        = false
+      encapsulation_ports_in_in_ip   = false
+      encapsulation_ports_ipv6_in_ip = false
+      encapsulation_ports_teredo     = false
     }
   ]
 }

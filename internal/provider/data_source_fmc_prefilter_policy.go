@@ -233,7 +233,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"source_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).",
+							MarkdownDescription: "Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -245,7 +245,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"destination_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).",
+							MarkdownDescription: "Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -255,6 +255,66 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 									},
 								},
 							},
+						},
+						"source_interfaces": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent source interfaces.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object.",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object.",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_interfaces": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent destination interfaces.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object.",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "Type of the object.",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"tunnel_zone": schema.SetNestedAttribute{
+							MarkdownDescription: "Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object.",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"encapsulation_ports_gre": schema.BoolAttribute{
+							MarkdownDescription: "Indicating whether to set the GRE encapsulation protocol in the TUNNEL rule.",
+							Computed:            true,
+						},
+						"encapsulation_ports_in_in_ip": schema.BoolAttribute{
+							MarkdownDescription: "Indicating whether to set the IP-in-IP encapsulation protocol in the TUNNEL rule.",
+							Computed:            true,
+						},
+						"encapsulation_ports_ipv6_in_ip": schema.BoolAttribute{
+							MarkdownDescription: "Indicating whether to set the IPv6-in-IP encapsulation protocol in the TUNNEL rule.",
+							Computed:            true,
+						},
+						"encapsulation_ports_teredo": schema.BoolAttribute{
+							MarkdownDescription: "Indicating whether to set the TEREDO encapsulation protocol in the TUNNEL rule.",
+							Computed:            true,
 						},
 					},
 				},

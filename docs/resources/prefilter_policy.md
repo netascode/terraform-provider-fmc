@@ -71,6 +71,27 @@ resource "fmc_prefilter_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
+      source_interfaces = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "ROUTED"
+        }
+      ]
+      destination_interfaces = [
+        {
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "ROUTED"
+        }
+      ]
+      tunnel_zone = [
+        {
+          id = "0050568A-7F57-0ed3-0000-004294975576"
+        }
+      ]
+      encapsulation_ports_gre        = false
+      encapsulation_ports_in_in_ip   = false
+      encapsulation_ports_ipv6_in_ip = false
+      encapsulation_ports_teredo     = false
     }
   ]
 }
@@ -119,11 +140,20 @@ Optional:
 
 - `bidirectional` (Boolean) Indicates whether the rule is bidirectional.
   - Default value: `false`
+- `destination_interfaces` (Attributes Set) Set of objects that represent destination interfaces. (see [below for nested schema](#nestedatt--rules--destination_interfaces))
 - `destination_network_literals` (Attributes Set) Set of objects that represent destinations of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_network_objects` (Attributes Set) Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
-- `destination_port_objects` (Attributes Set) Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). (see [below for nested schema](#nestedatt--rules--destination_port_objects))
+- `destination_port_objects` (Attributes Set) Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--destination_port_objects))
 - `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
+- `encapsulation_ports_gre` (Boolean) Indicating whether to set the GRE encapsulation protocol in the TUNNEL rule.
+  - Default value: `false`
+- `encapsulation_ports_in_in_ip` (Boolean) Indicating whether to set the IP-in-IP encapsulation protocol in the TUNNEL rule.
+  - Default value: `false`
+- `encapsulation_ports_ipv6_in_ip` (Boolean) Indicating whether to set the IPv6-in-IP encapsulation protocol in the TUNNEL rule.
+  - Default value: `false`
+- `encapsulation_ports_teredo` (Boolean) Indicating whether to set the TEREDO encapsulation protocol in the TUNNEL rule.
+  - Default value: `false`
 - `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection.
   - Default value: `false`
 - `log_end` (Boolean) Indicates whether the device will log events at the end of the connection.
@@ -133,17 +163,28 @@ Optional:
 - `send_syslog` (Boolean) Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.
   - Default value: `false`
 - `snmp_config_id` (String) UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.
+- `source_interfaces` (Attributes Set) Set of objects that represent source interfaces. (see [below for nested schema](#nestedatt--rules--source_interfaces))
 - `source_network_literals` (Attributes Set) Set of objects that represent sources of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (Attributes Set) Set of objects that represent sources of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--source_network_objects))
-- `source_port_objects` (Attributes Set) Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). (see [below for nested schema](#nestedatt--rules--source_port_objects))
+- `source_port_objects` (Attributes Set) Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--source_port_objects))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
+- `tunnel_zone` (Attributes Set) Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted. (see [below for nested schema](#nestedatt--rules--tunnel_zone))
 - `vlan_tags_objects` (Attributes Set) Set of objects representing vlan tags. (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
 
 Read-Only:
 
 - `id` (String) Unique identifier (UUID) of the prefilter rule.
+
+<a id="nestedatt--rules--destination_interfaces"></a>
+### Nested Schema for `rules.destination_interfaces`
+
+Optional:
+
+- `id` (String) UUID of the object.
+- `type` (String) Type of the object.
+
 
 <a id="nestedatt--rules--destination_network_literals"></a>
 ### Nested Schema for `rules.destination_network_literals`
@@ -170,6 +211,15 @@ Optional:
 - `id` (String) UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
 
 
+<a id="nestedatt--rules--source_interfaces"></a>
+### Nested Schema for `rules.source_interfaces`
+
+Optional:
+
+- `id` (String) UUID of the object.
+- `type` (String) Type of the object.
+
+
 <a id="nestedatt--rules--source_network_literals"></a>
 ### Nested Schema for `rules.source_network_literals`
 
@@ -193,6 +243,14 @@ Optional:
 Optional:
 
 - `id` (String) UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+
+
+<a id="nestedatt--rules--tunnel_zone"></a>
+### Nested Schema for `rules.tunnel_zone`
+
+Optional:
+
+- `id` (String) UUID of the object.
 
 
 <a id="nestedatt--rules--vlan_tags_objects"></a>
