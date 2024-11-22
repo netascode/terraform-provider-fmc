@@ -347,6 +347,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
 										Optional:            true,
 									},
+									"icmp_code": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
 								},
 							},
 						},
@@ -383,6 +387,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 										Required:            true,
 									},
 									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"icmp_code": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("").String,
 										Optional:            true,
 									},

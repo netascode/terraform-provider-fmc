@@ -125,6 +125,7 @@ Read-Only:
 
 Read-Only:
 
+- `icmp_code` (String)
 - `icmp_type` (String)
 - `port` (String)
 - `protocol` (String)
@@ -177,6 +178,7 @@ Read-Only:
 
 Read-Only:
 
+- `icmp_code` (String)
 - `icmp_type` (String)
 - `port` (String)
 - `protocol` (String)

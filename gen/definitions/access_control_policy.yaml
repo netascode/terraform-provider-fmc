@@ -332,7 +332,12 @@ attributes:
           - model_name: icmpType
             type: String
             example: "0"
-            exclude_test: true         
+            exclude_test: true
+          - model_name: code 
+            tf_name: icmp_code
+            type: String
+            example: "0"
+            exclude_test: true  
       - model_name: objects
         data_path: [sourcePorts]
         tf_name: source_port_objects
@@ -371,7 +376,12 @@ attributes:
           - model_name: icmpType
             type: String
             example: "0"
-            exclude_test: true           
+            exclude_test: true
+          - model_name: code 
+            tf_name: icmp_code
+            type: String
+            example: "0"
+            exclude_test: true  
       - model_name: objects
         data_path: [destinationPorts]
         tf_name: destination_port_objects

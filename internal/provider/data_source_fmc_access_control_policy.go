@@ -298,6 +298,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 										MarkdownDescription: "",
 										Computed:            true,
 									},
+									"icmp_code": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
 								},
 							},
 						},
@@ -331,6 +335,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 										Computed:            true,
 									},
 									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"icmp_code": schema.StringAttribute{
 										MarkdownDescription: "",
 										Computed:            true,
 									},

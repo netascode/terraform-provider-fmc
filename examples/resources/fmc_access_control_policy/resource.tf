@@ -67,6 +67,7 @@ resource "fmc_access_control_policy" "example" {
           port      = "80"
           protocol  = "6"
           icmp_type = "0"
+          icmp_code = "0"
         }
       ]
       source_port_objects = [
@@ -80,6 +81,7 @@ resource "fmc_access_control_policy" "example" {
           port      = "80"
           protocol  = "6"
           icmp_type = "0"
+          icmp_code = "0"
         }
       ]
       destination_port_objects = [

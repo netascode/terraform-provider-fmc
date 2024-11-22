@@ -134,6 +134,7 @@ type AccessControlPolicyRulesSourcePortLiterals struct {
 	Port     types.String `tfsdk:"port"`
 	Protocol types.String `tfsdk:"protocol"`
 	IcmpType types.String `tfsdk:"icmp_type"`
+	IcmpCode types.String `tfsdk:"icmp_code"`
 }
 type AccessControlPolicyRulesSourcePortObjects struct {
 	Id types.String `tfsdk:"id"`
@@ -143,6 +144,7 @@ type AccessControlPolicyRulesDestinationPortLiterals struct {
 	Port     types.String `tfsdk:"port"`
 	Protocol types.String `tfsdk:"protocol"`
 	IcmpType types.String `tfsdk:"icmp_type"`
+	IcmpCode types.String `tfsdk:"icmp_code"`
 }
 type AccessControlPolicyRulesDestinationPortObjects struct {
 	Id types.String `tfsdk:"id"`
@@ -397,6 +399,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					if !childItem.IcmpType.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "icmpType", childItem.IcmpType.ValueString())
 					}
+					if !childItem.IcmpCode.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "code", childItem.IcmpCode.ValueString())
+					}
 					itemBody, _ = sjson.SetRaw(itemBody, "sourcePorts.literals.-1", itemChildBody)
 				}
 			}
@@ -426,6 +431,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 					}
 					if !childItem.IcmpType.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "icmpType", childItem.IcmpType.ValueString())
+					}
+					if !childItem.IcmpCode.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "code", childItem.IcmpCode.ValueString())
 					}
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationPorts.literals.-1", itemChildBody)
 				}
@@ -824,6 +832,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 					} else {
 						data.IcmpType = types.StringNull()
 					}
+					if value := res.Get("code"); value.Exists() {
+						data.IcmpCode = types.StringValue(value.String())
+					} else {
+						data.IcmpCode = types.StringNull()
+					}
 					(*parent).SourcePortLiterals = append((*parent).SourcePortLiterals, data)
 					return true
 				})
@@ -866,6 +879,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 						data.IcmpType = types.StringValue(value.String())
 					} else {
 						data.IcmpType = types.StringNull()
+					}
+					if value := res.Get("code"); value.Exists() {
+						data.IcmpCode = types.StringValue(value.String())
+					} else {
+						data.IcmpCode = types.StringNull()
 					}
 					(*parent).DestinationPortLiterals = append((*parent).DestinationPortLiterals, data)
 					return true
@@ -1541,8 +1559,8 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			(*parent).DestinationDynamicObjects[i] = data
 		}
 		for i := 0; i < len(data.SourcePortLiterals); i++ {
-			keys := [...]string{"type", "port", "protocol", "icmpType"}
-			keyValues := [...]string{data.SourcePortLiterals[i].Type.ValueString(), data.SourcePortLiterals[i].Port.ValueString(), data.SourcePortLiterals[i].Protocol.ValueString(), data.SourcePortLiterals[i].IcmpType.ValueString()}
+			keys := [...]string{"type", "port", "protocol", "icmpType", "code"}
+			keyValues := [...]string{data.SourcePortLiterals[i].Type.ValueString(), data.SourcePortLiterals[i].Port.ValueString(), data.SourcePortLiterals[i].Protocol.ValueString(), data.SourcePortLiterals[i].IcmpType.ValueString(), data.SourcePortLiterals[i].IcmpCode.ValueString()}
 
 			parent := &data
 			data := (*parent).SourcePortLiterals[i]
@@ -1596,6 +1614,11 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			} else {
 				data.IcmpType = types.StringNull()
 			}
+			if value := res.Get("code"); value.Exists() && !data.IcmpCode.IsNull() {
+				data.IcmpCode = types.StringValue(value.String())
+			} else {
+				data.IcmpCode = types.StringNull()
+			}
 			(*parent).SourcePortLiterals[i] = data
 		}
 		for i := 0; i < len(data.SourcePortObjects); i++ {
@@ -1642,8 +1665,8 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			(*parent).SourcePortObjects[i] = data
 		}
 		for i := 0; i < len(data.DestinationPortLiterals); i++ {
-			keys := [...]string{"type", "port", "protocol", "icmpType"}
-			keyValues := [...]string{data.DestinationPortLiterals[i].Type.ValueString(), data.DestinationPortLiterals[i].Port.ValueString(), data.DestinationPortLiterals[i].Protocol.ValueString(), data.DestinationPortLiterals[i].IcmpType.ValueString()}
+			keys := [...]string{"type", "port", "protocol", "icmpType", "code"}
+			keyValues := [...]string{data.DestinationPortLiterals[i].Type.ValueString(), data.DestinationPortLiterals[i].Port.ValueString(), data.DestinationPortLiterals[i].Protocol.ValueString(), data.DestinationPortLiterals[i].IcmpType.ValueString(), data.DestinationPortLiterals[i].IcmpCode.ValueString()}
 
 			parent := &data
 			data := (*parent).DestinationPortLiterals[i]
@@ -1696,6 +1719,11 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 				data.IcmpType = types.StringValue(value.String())
 			} else {
 				data.IcmpType = types.StringNull()
+			}
+			if value := res.Get("code"); value.Exists() && !data.IcmpCode.IsNull() {
+				data.IcmpCode = types.StringValue(value.String())
+			} else {
+				data.IcmpCode = types.StringNull()
 			}
 			(*parent).DestinationPortLiterals[i] = data
 		}
