@@ -117,10 +117,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- end}}
 				{{- if or .Reference .Mandatory}}
 				Required:            true,
-				{{- else if not .ResourceId}}
+				{{- else if and (not .ResourceId) (not .ReadOnly)}}
 				Optional:            true,
 				{{- end}}
-				{{- if or (len .DefaultValue) .ResourceId}}
+				{{- if or (len .DefaultValue) .ResourceId .ReadOnly}}
 				Computed:            true,
 				{{- end}}
 				{{- if len .EnumValues}}
@@ -152,9 +152,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace}}
+				{{- if or .Id .Reference .RequiresReplace .ReadOnly}}
 				PlanModifiers: []planmodifier.{{.Type}}{
+					{{- if or .Id .Reference .RequiresReplace}}
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
+					{{end}}
+					{{- if .ReadOnly}}
+					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+					{{end}}
 				},
 				{{- end}}
 				{{- if isNestedListMapSet .}}
@@ -183,10 +188,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or .Reference .Mandatory}}
 							Required:            true,
-							{{- else if not .ResourceId}}
+							{{- else if and (not .ResourceId) (not .ReadOnly)}}
 							Optional:            true,
 							{{- end}}
-							{{- if or (len .DefaultValue) .ResourceId}}
+							{{- if or (len .DefaultValue) .ResourceId .ReadOnly}}
 							Computed:            true,
 							{{- end}}
 							{{- if len .EnumValues}}
@@ -218,7 +223,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
-							{{- if and .ResourceId $useStateForUnknown}}
+							{{- if or (and .ResourceId $useStateForUnknown) .ReadOnly}}
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},
@@ -507,6 +512,15 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
+	{{- range .Attributes}}
+	{{- if and (len .ReadOnly) (eq .Type "Int64")}}
+	plan.{{toGoName .TfName}} = types.Int64Value({{.ReadOnly}})
+	{{- else if and (len .ReadOnly) (eq .Type "Bool")}}
+	plan.{{toGoName .TfName}} = types.BoolValue({{.ReadOnly}})
+	{{- else if and (len .ReadOnly) (eq .Type "String")}}
+	plan.{{toGoName .TfName}} = types.StringValue("{{.ReadOnly}}")
+	{{- end}}
+	{{- end}}
 
 	{{- if hasResourceId .Attributes}}
 	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)

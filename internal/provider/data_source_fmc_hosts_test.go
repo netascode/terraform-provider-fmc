@@ -34,6 +34,7 @@ func TestAccDataSourceFmcHosts(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_hosts.test", "items.hosts_1.description", "My Host 1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_hosts.test", "items.hosts_1.overridable", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_hosts.test", "items.hosts_1.ip", "10.1.1.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_hosts.test", "items.hosts_1.type", "Host"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

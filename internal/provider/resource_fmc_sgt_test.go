@@ -32,6 +32,7 @@ import (
 func TestAccFmcSGT(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "name", "SGT1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "type", "SecurityGroupTag"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "description", "My SGT object"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgt.test", "tag", "11"))
 

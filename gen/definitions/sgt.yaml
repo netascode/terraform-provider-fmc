@@ -12,10 +12,8 @@ attributes:
   - model_name: type
     type: String
     description: Type of the object; this value is always 'SecurityGroupTag'.
-    default_value: SecurityGroupTag
-    requires_replace: true
+    read_only: SecurityGroupTag
     exclude_example: true
-    exclude_test: true
   - model_name: description
     type: String
     description: Description

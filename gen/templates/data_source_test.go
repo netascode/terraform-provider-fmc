@@ -47,7 +47,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}"))
 	{{- end}}
 	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not (isSet .)) }}
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}", "{{.Example}}"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}", "{{if .ReadOnly}}{{.ReadOnly}}{{else}}{{.Example}}{{end}}"))
 	{{- end}}
 	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) ( isSet . ) }}
 	{{- $clist := .TfName }}
@@ -129,7 +129,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 		checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
 	}
 	{{- else}}
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{if .ReadOnly}}{{.ReadOnly}}{{else}}{{.Example}}{{end}}"))
 	{{- end}}
 	{{- end}}
 	{{- end}}
@@ -169,6 +169,7 @@ const testAccDataSourceFmc{{camelCase .Name}}PrerequisitesConfig = `
 func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
+	{{- if .ReadOnly}}{{- continue }}{{- end}}
 	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId)}}
 	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
@@ -180,6 +181,7 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 	config += `	{{.TfName}} = { "{{.MapKeyExample}}" = {` + "\n"
 	{{- end}}
 		{{- range  .Attributes}}
+		{{- if .ReadOnly}}{{- continue }}{{- end}}
 		{{- if and (not .ExcludeTest) (not .Value)}}
 		{{- if isNestedListSet .}}
 		{{- if len .TestTags}}
@@ -284,6 +286,7 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
+	{{- if .ReadOnly}}{{- continue }}{{- end}}
 	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId)}}
 	{{- if isNestedListSet .}}
 	{{- if len .TestTags}}

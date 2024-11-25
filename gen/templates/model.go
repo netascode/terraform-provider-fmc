@@ -146,6 +146,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
 	{{- range .Attributes}}
+	{{- if .ReadOnly}}{{- continue}}{{- end}}
 	{{- if .Value}}
 	body, _ = sjson.Set(body, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 	{{- else if .ResourceId}}
@@ -174,6 +175,7 @@ func (data {{camelCase .Name}}) toBody(ctx context.Context, state {{camelCase .N
 			itemBody := ""
 		{{- end}}
 			{{- range .Attributes}}
+			{{- if .ReadOnly}}{{- continue}}{{- end}}
 			{{- if .Value}}
 			itemBody, _ = sjson.Set(itemBody, "{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}", {{if eq .Type "String"}}"{{end}}{{.Value}}{{if eq .Type "String"}}"{{end}})
 			{{- else if not .Reference}}
@@ -267,6 +269,8 @@ func (data *{{camelCase .Name}}) fromBody(ctx context.Context, res gjson.Result)
 	} else {
 		{{- if .DefaultValue}}
 		data.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}})
+		{{- else if .ReadOnly}}
+		data.{{toGoName .TfName}} = types.{{.Type}}Value({{if eq .Type "String"}}"{{end}}{{.ReadOnly}}{{if eq .Type "String"}}"{{end}})
 		{{- else}}
 		data.{{toGoName .TfName}} = types.{{.Type}}Null()
 		{{- end}}
@@ -340,10 +344,18 @@ func (data *{{camelCase .Name}}) fromBodyPartial(ctx context.Context, res gjson.
 	{{- range .Attributes}}
 	{{- if and (not .Value) (not .WriteOnly) (not .Reference)}}
 	{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
-	if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists(){{if not .ResourceId}} && !data.{{toGoName .TfName}}.IsNull(){{end}} {
+	if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists(){{if and (not .ResourceId) (not .ReadOnly)}} && !data.{{toGoName .TfName}}.IsNull(){{end}} {
 		data.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 	} else {{if .DefaultValue}}if data.{{toGoName .TfName}}.Value{{.Type}}() != {{if eq .Type "String"}}"{{end}}{{.DefaultValue}}{{if eq .Type "String"}}"{{end}} {{end}}{
+		{{- if and (len .ReadOnly) (eq .Type "Int64")}}
+		data.{{toGoName .TfName}} = types.Int64Value({{.ReadOnly}})
+		{{- else if and (len .ReadOnly) (eq .Type "Bool")}}
+		data.{{toGoName .TfName}} = types.BoolValue({{.ReadOnly}})
+		{{- else if and (len .ReadOnly) (eq .Type "String")}}
+		data.{{toGoName .TfName}} = types.StringValue("{{.ReadOnly}}")
+		{{- else}}
 		data.{{toGoName .TfName}} = types.{{.Type}}Null()
+		{{- end}}
 	}
 	{{- else if isListSet .}}
 	if value := res.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() && !data.{{toGoName .TfName}}.IsNull() {
@@ -506,13 +518,17 @@ func (data *{{camelCase .Name}}) fromBodyUnknowns(ctx context.Context, res gjson
 	{{- end}}
 
 		{{- range .Attributes}}
-		{{- if and .ResourceId (not .Reference)}}
+		{{- if or (and .ResourceId (not .Reference)) .ReadOnly}}
 		{{- if or (eq .Type "String") (eq .Type "Int64") (eq .Type "Float64") (eq .Type "Bool")}}
 		if v := data.{{$list}}[i]; v.{{toGoName .TfName}}.IsUnknown() {
 			if value := r.Get("{{range .DataPath}}{{.}}.{{end}}{{.ModelName}}"); value.Exists() {
 				v.{{toGoName .TfName}} = types.{{.Type}}Value(value.{{if eq .Type "Int64"}}Int{{else if eq .Type "Float64"}}Float{{else}}{{.Type}}{{end}}())
 			} else {
+				{{- if .ReadOnly}}
+				v.{{toGoName .TfName}} = types.{{.Type}}Value("{{.ReadOnly}}")
+				{{- else}}
 				v.{{toGoName .TfName}} = types.{{.Type}}Null()
+				{{- end}}
 			}
 			data.{{$list}}[i] = v
 		}

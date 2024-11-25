@@ -54,7 +54,7 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 	{{- end}}
 	{{- end}}
 	{{- else if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not (isSet .))}}
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}", "{{.Example}}"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}", "{{if .ReadOnly}}{{.ReadOnly}}{{else}}{{.Example}}{{end}}"))
 	{{- end}}
 	{{- end}}
 	{{- end}}
@@ -125,7 +125,7 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 		checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
 	}
 	{{- else}}
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{if .ReadOnly}}{{.ReadOnly}}{{else}}{{.Example}}{{end}}"))
 	{{- end}}
 	{{- end}}
 	{{- end}}
@@ -175,6 +175,7 @@ const testAccFmc{{camelCase .Name}}PrerequisitesConfig = `
 func testAccFmc{{camelCase .Name}}Config_minimum() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
+	{{- if .ReadOnly}}{{- continue }}{{- end}}
 	{{- if or .Id .Reference .Mandatory .MinimumTestValue}}
 	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
@@ -270,6 +271,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 func testAccFmc{{camelCase .Name}}Config_all() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
+	{{- if .ReadOnly}}{{- continue }}{{- end}}
 	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId)}}
 	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
@@ -281,6 +283,7 @@ func testAccFmc{{camelCase .Name}}Config_all() string {
 	config += `	{{.TfName}} = { "{{.MapKeyExample}}" = {` + "\n"
 	{{- end}}
 		{{- range  .Attributes}}
+		{{- if .ReadOnly}}{{- continue }}{{- end}}
 		{{- if and (not .ExcludeTest) (not .Value)}}
 		{{- if isNestedListSet .}}
 		{{- if len .TestTags}}

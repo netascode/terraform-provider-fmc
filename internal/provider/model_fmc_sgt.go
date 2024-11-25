@@ -59,9 +59,6 @@ func (data SGT) toBody(ctx context.Context, state SGT) string {
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
-	}
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "description", data.Description.ValueString())
 	}
@@ -112,10 +109,10 @@ func (data *SGT) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "SecurityGroupTag" {
-		data.Type = types.StringNull()
+	} else {
+		data.Type = types.StringValue("SecurityGroupTag")
 	}
 	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
 		data.Description = types.StringValue(value.String())
