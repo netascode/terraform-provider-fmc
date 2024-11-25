@@ -58,11 +58,11 @@ func TestAccDataSourceFmcPrefilterPolicy(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceFmcPrefilterPolicyConfig(),
+				Config: testAccDataSourceFmcPrefilterPolicyPrerequisitesConfig + testAccDataSourceFmcPrefilterPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 			{
-				Config: testAccNamedDataSourceFmcPrefilterPolicyConfig(),
+				Config: testAccDataSourceFmcPrefilterPolicyPrerequisitesConfig + testAccNamedDataSourceFmcPrefilterPolicyConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -72,6 +72,31 @@ func TestAccDataSourceFmcPrefilterPolicy(t *testing.T) {
 // End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccDataSourceFmcPrefilterPolicyPrerequisitesConfig = `
+resource "fmc_network" "test" {
+  name   = "NET_fmc_access_control_policy"
+  prefix = "10.0.0.0/24"
+}
+
+resource "fmc_host" "test" {
+  name = "HOST_fmc_access_control_policy"
+  ip   = "10.1.1.1"
+}
+
+resource "fmc_port" "test" {
+  name     = "test_fmc_access_control_policy"
+  protocol = "UDP"
+  port     = "53"
+}
+
+resource "fmc_vlan_tag" "test" {
+  name      = "VLAN_TAG_fmc_access_control_policy"
+  start_tag = "10"
+  end_tag   = "11" 
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig

@@ -58,11 +58,11 @@ func TestAccFmcPrefilterPolicy(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcPrefilterPolicyConfig_minimum(),
+			Config: testAccFmcPrefilterPolicyPrerequisitesConfig + testAccFmcPrefilterPolicyConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcPrefilterPolicyConfig_all(),
+		Config: testAccFmcPrefilterPolicyPrerequisitesConfig + testAccFmcPrefilterPolicyConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 	steps = append(steps, resource.TestStep{
@@ -80,6 +80,31 @@ func TestAccFmcPrefilterPolicy(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+
+const testAccFmcPrefilterPolicyPrerequisitesConfig = `
+resource "fmc_network" "test" {
+  name   = "NET_fmc_access_control_policy"
+  prefix = "10.0.0.0/24"
+}
+
+resource "fmc_host" "test" {
+  name = "HOST_fmc_access_control_policy"
+  ip   = "10.1.1.1"
+}
+
+resource "fmc_port" "test" {
+  name     = "test_fmc_access_control_policy"
+  protocol = "UDP"
+  port     = "53"
+}
+
+resource "fmc_vlan_tag" "test" {
+  name      = "VLAN_TAG_fmc_access_control_policy"
+  start_tag = "10"
+  end_tag   = "11" 
+}
+`
+
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal

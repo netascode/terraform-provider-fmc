@@ -22,7 +22,9 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -616,13 +618,65 @@ func (r *PrefilterPolicyResource) updateSubresources(ctx context.Context, tfsdkP
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	err := r.createRulesAt(ctx, plan, bodyRules.Array(), &state, reqMods...)
+	err := r.truncateRulesAt(ctx, &state, reqMods...)
+	if err != nil {
+		diags.AddError("Client Error", err.Error())
+		return state, diags
+	}
+
+	if len(plan.Rules) == 0 {
+		state.Rules = plan.Rules
+	}
+
+	err = r.createRulesAt(ctx, plan, bodyRules.Array(), &state, reqMods...)
 	if err != nil {
 		diags.AddError("Client Error", err.Error())
 		return state, diags
 	}
 
 	return state, diags
+}
+
+func (r *PrefilterPolicyResource) truncateRulesAt(ctx context.Context, state *PrefilterPolicy, reqMods ...func(*fmc.Req)) error {
+	var b strings.Builder
+	var bulks []string
+	var counts []int
+	count := 0
+
+	for i := 0; i < len(state.Rules); i++ {
+		if b.Len() != 0 {
+			b.WriteString(",")
+		}
+		b.WriteString(state.Rules[i].Id.ValueString())
+		count++
+		if b.Len() >= 3700-2 {
+			bulks = append(bulks, b.String())
+			b.Reset()
+			counts = append(counts, count)
+			count = 0
+		}
+	}
+	if b.Len() > 0 {
+		bulks = append(bulks, b.String())
+		counts = append(counts, count)
+	}
+
+	defer func() {
+		// Apparently, the bulk DELETE has a race. Stabilize:
+		time.Sleep(2 * time.Second)
+	}()
+
+	for i, bulk := range bulks {
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+
+			"/prefilterrules?bulk=true&filter=ids:"+url.QueryEscape(bulk), reqMods...)
+		if err != nil {
+			return fmt.Errorf("Failed to bulk-delete rules, got error: %v, %s", err, res.String())
+		}
+
+		state.Rules = slices.Delete(state.Rules, 0, counts[i])
+	}
+
+	return nil
 }
 
 func (r *PrefilterPolicyResource) createRulesAt(ctx context.Context, plan PrefilterPolicy, body []gjson.Result, state *PrefilterPolicy, reqMods ...func(*fmc.Req)) error {

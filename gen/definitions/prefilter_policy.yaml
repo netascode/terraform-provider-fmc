@@ -353,3 +353,26 @@ attributes:
         description: Indicating whether to set the TEREDO encapsulation protocol in the TUNNEL rule.
         default_value: "false"
         example: "false"
+
+test_prerequisites: |-
+  resource "fmc_network" "test" {
+    name   = "NET_fmc_access_control_policy"
+    prefix = "10.0.0.0/24"
+  }
+
+  resource "fmc_host" "test" {
+    name = "HOST_fmc_access_control_policy"
+    ip   = "10.1.1.1"
+  }
+
+  resource "fmc_port" "test" {
+    name     = "test_fmc_access_control_policy"
+    protocol = "UDP"
+    port     = "53"
+  }
+
+  resource "fmc_vlan_tag" "test" {
+    name      = "VLAN_TAG_fmc_access_control_policy"
+    start_tag = "10"
+    end_tag   = "11" 
+  }
