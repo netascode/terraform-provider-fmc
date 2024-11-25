@@ -16,9 +16,8 @@ This plural resource manages a bulk of Port Groups. The FMC API supports quick b
 resource "fmc_port_groups" "example" {
   items = {
     port_group_1 = {
-      type        = "PortObjectGroup"
       description = "My port group description"
-      ports = [
+      objects = [
         {
           id   = "0050568A-232D-0ed3-0000-004294971602"
           type = "ProtocolPortObject"
@@ -49,20 +48,21 @@ resource "fmc_port_groups" "example" {
 
 Required:
 
-- `ports` (Attributes Set) (see [below for nested schema](#nestedatt--items--ports))
-- `type` (String)
+- `objects` (Attributes Set) (see [below for nested schema](#nestedatt--items--objects))
 
 Optional:
 
 - `description` (String) Optional user-created description.
 - `overridable` (Boolean) Indicates whether object values can be overridden.
+- `type` (String) Type of the object; this value is always 'PortObjectGroup'.
+  - Default value: `PortObjectGroup`
 
 Read-Only:
 
 - `id` (String) UUID of the managed Port Groups.
 
-<a id="nestedatt--items--ports"></a>
-### Nested Schema for `items.ports`
+<a id="nestedatt--items--objects"></a>
+### Nested Schema for `items.objects`
 
 Required:
 

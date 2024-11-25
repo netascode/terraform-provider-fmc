@@ -321,12 +321,16 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewRangesResource,
 		NewSecurityZoneResource,
 		NewSecurityZonesResource,
+		NewSGTResource,
 		NewStandardACLResource,
 		NewURLResource,
 		NewURLGroupResource,
+		NewURLGroupsResource,
 		NewURLsResource,
 		NewVLANTagResource,
 		NewVLANTagGroupResource,
+		NewVLANTagGroupsResource,
+		NewVLANTagsResource,
 	}
 }
 
@@ -364,12 +368,16 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewRangesDataSource,
 		NewSecurityZoneDataSource,
 		NewSecurityZonesDataSource,
+		NewSGTDataSource,
 		NewStandardACLDataSource,
 		NewURLDataSource,
 		NewURLGroupDataSource,
+		NewURLGroupsDataSource,
 		NewURLsDataSource,
 		NewVLANTagDataSource,
 		NewVLANTagGroupDataSource,
+		NewVLANTagGroupsDataSource,
+		NewVLANTagsDataSource,
 	}
 }
 
