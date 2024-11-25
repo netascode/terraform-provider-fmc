@@ -141,7 +141,7 @@ func (r *HostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
-	plan.Type = types.StringValue("Host")
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 

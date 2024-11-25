@@ -512,15 +512,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
-	{{- range .Attributes}}
-	{{- if and (len .ReadOnly) (eq .Type "Int64")}}
-	plan.{{toGoName .TfName}} = types.Int64Value({{.ReadOnly}})
-	{{- else if and (len .ReadOnly) (eq .Type "Bool")}}
-	plan.{{toGoName .TfName}} = types.BoolValue({{.ReadOnly}})
-	{{- else if and (len .ReadOnly) (eq .Type "String")}}
-	plan.{{toGoName .TfName}} = types.StringValue("{{.ReadOnly}}")
-	{{- end}}
-	{{- end}}
+	plan.fromBodyUnknowns(ctx, res)
 
 	{{- if hasResourceId .Attributes}}
 	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)

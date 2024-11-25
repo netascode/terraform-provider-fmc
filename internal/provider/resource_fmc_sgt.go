@@ -137,7 +137,7 @@ func (r *SGTResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
-	plan.Type = types.StringValue("SecurityGroupTag")
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
