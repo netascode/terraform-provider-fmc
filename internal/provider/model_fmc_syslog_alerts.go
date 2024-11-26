@@ -90,7 +90,7 @@ func (data *SyslogAlerts) fromBody(ctx context.Context, res gjson.Result) {
 
 		parentRes.Get("items").ForEach(
 			func(_, v gjson.Result) bool {
-				if v.Get("id").String() == data.Id.ValueString() && data.Id.ValueString() != "" {
+				if v.Get("name").String() == k {
 					res = v
 					return false // break ForEach
 				}
@@ -98,7 +98,7 @@ func (data *SyslogAlerts) fromBody(ctx context.Context, res gjson.Result) {
 			},
 		)
 		if !res.Exists() {
-			tflog.Debug(ctx, fmt.Sprintf("subresource not found, removing: uuid=%s, key=%v", data.Id, k))
+			tflog.Debug(ctx, fmt.Sprintf("subresource not found, removing: name=%v", k))
 			delete((*parent).Items, k)
 			continue
 		}

@@ -15,7 +15,7 @@ This data source can read the SNMP Alerts.
 ```terraform
 data "fmc_snmp_alerts" "example" {
   items = {
-    "snmp_alert_1" = {
+    "test_snmp_alert_1" = {
     }
   }
 }
