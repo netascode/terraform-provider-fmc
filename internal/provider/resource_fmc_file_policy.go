@@ -22,19 +22,25 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -131,14 +137,6 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 							MarkdownDescription: helpers.NewAttributeDescription("Unique identifier representing the FileRule.").String,
 							Computed:            true,
 						},
-						"name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Name of the FileRule object.").String,
-							Optional:            true,
-						},
-						"description": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Description of the file rule.").String,
-							Optional:            true,
-						},
 						"application_protocol": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).").AddStringEnumDescription("ANY", "HTTP", "SMTP", "IMAP", "POP3", "FTP", "SMB").String,
 							Required:            true,
@@ -214,8 +212,6 @@ func (r *FilePolicyResource) Configure(_ context.Context, req resource.Configure
 
 // End of section. //template:end model
 
-// Section below is generated&owned by "gen/generator.go". //template:begin create
-
 func (r *FilePolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan FilePolicy
 
@@ -233,32 +229,39 @@ func (r *FilePolicyResource) Create(ctx context.Context, req resource.CreateRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
+	planBody := plan.toBody(ctx, FilePolicy{})
+
 	// Create object
-	body := plan.toBody(ctx, FilePolicy{})
+	body := planBody
+	body, _ = sjson.Delete(body, "dummy_file_rules")
+
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
-	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
+
+	read, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
 	}
-	plan.fromBodyUnknowns(ctx, res)
+	plan.fromBodyUnknowns(ctx, read)
+
+	state := plan
+	state.FileRules = nil
+
+	state, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, tfsdk.State{}, state)
+	resp.Diagnostics.Append(diags...)
+
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
-	diags = resp.State.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end create
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state FilePolicy
@@ -278,20 +281,36 @@ func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get(urlPath, reqMods...)
+	resGet, err := r.client.Get(urlPath, reqMods...)
 
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
 		return
 	}
+
+	resRules, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/filerules", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
+		return
+	}
+
+	s := resGet.String()
+
+	replaceRules := resRules.Get("items").String()
+	if replaceRules == "" {
+		replaceRules = "[]"
+	}
+	s, _ = sjson.SetRaw(s, "dummy_file_rules", replaceRules)
 
 	imp, diags := helpers.IsFlagImporting(ctx, req)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
+
+	res := gjson.Parse(s)
 
 	// After `terraform import` we switch to a full read.
 	if imp {
@@ -307,8 +326,6 @@ func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
-
-// End of section. //template:end read
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
@@ -397,14 +414,123 @@ func (r *FilePolicyResource) ImportState(ctx context.Context, req resource.Impor
 
 // End of section. //template:end import
 
-// Section below is generated&owned by "gen/generator.go". //template:begin createSubresources
+func (r *FilePolicyResource) updateSubresources(ctx context.Context, tfsdkPlan tfsdk.Plan, plan FilePolicy, planBody string, tfsdkState tfsdk.State, state FilePolicy) (FilePolicy, diag.Diagnostics) {
+	var diags diag.Diagnostics
 
-// End of section. //template:end createSubresources
+	p := gjson.Parse(planBody)
+	bodyRules := p.Get("dummy_file_rules").Array()
 
-// Section below is generated&owned by "gen/generator.go". //template:begin deleteSubresources
+	// Set request domain if provided
+	reqMods := [](func(*fmc.Req)){}
+	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
+		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
+	}
 
-// End of section. //template:end deleteSubresources
+	keptRules := 0
 
-// Section below is generated&owned by "gen/generator.go". //template:begin updateSubresources
+	err := r.truncateRulesAt(ctx, &state, keptRules, reqMods...)
+	if err != nil {
+		diags.AddError("Client Error", err.Error())
+		return state, diags
+	}
 
-// End of section. //template:end updateSubresources
+	if len(plan.FileRules) == 0 {
+		state.FileRules = plan.FileRules
+	}
+
+	err = r.createRulesAt(ctx, plan, bodyRules, keptRules, &state, reqMods...)
+	if err != nil {
+		diags.AddError("Client Error", err.Error())
+		return state, diags
+	}
+
+	return state, diags
+}
+
+func (r *FilePolicyResource) truncateRulesAt(ctx context.Context, state *FilePolicy, kept int, reqMods ...func(*fmc.Req)) error {
+	var b strings.Builder
+	var bulks []string
+	var counts []int
+	count := 0
+
+	for i := kept; i < len(state.FileRules); i++ {
+		b.WriteString(state.FileRules[i].Id.ValueString() + ",")
+		count++
+		if b.Len() >= maxUrlParamLength {
+			bulks = append(bulks, b.String())
+			counts = append(counts, count)
+			b.Reset()
+			count = 0
+		}
+	}
+
+	if b.Len() > 0 {
+		bulks = append(bulks, b.String())
+		counts = append(counts, count)
+	}
+
+	defer func() {
+		time.Sleep(2 * time.Second)
+	}()
+
+	for i, bulk := range bulks {
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/filerules?bulk=true&filter=ids:"+url.QueryEscape(bulk), reqMods...)
+		if err != nil {
+			return fmt.Errorf("failed to delete object (DELETE), got error: %s, %s", err, res.String())
+		}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Truncate finished successfully", state.Id.ValueString()))
+
+		state.FileRules = slices.Delete(state.FileRules, kept, kept+counts[i])
+	}
+
+	return nil
+}
+
+func (r *FilePolicyResource) createRulesAt(ctx context.Context, plan FilePolicy, body []gjson.Result, startIndex int, state *FilePolicy, reqMods ...func(*fmc.Req)) error {
+	for i := startIndex; i < len(body); i++ {
+		bulk := `{"dummy_file_rules":[]}`
+		j := i
+		bulkCount := 0
+		bodyLen := 0
+
+		for ; i < len(body); i++ {
+			rule := body[i].String()
+
+			// Check if the body is too big for a single POST
+			bodyLen += len(rule)
+			if bodyLen >= maxPayloadSize {
+				i--
+				break
+			}
+
+			bulk, _ = sjson.SetRaw(bulk, "dummy_file_rules.-1", rule)
+			bulkCount++
+			if bulkCount >= bulkSizeCreate {
+				break
+			}
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("Bulk: %s", bulk))
+
+		param := "?bulk=true"
+		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/filerules"+param, gjson.Parse(bulk).Get("dummy_file_rules").String(), reqMods...)
+		if err != nil {
+			return fmt.Errorf("failed to configure object (POST), got error: %s, %s", err, res.String())
+		}
+
+		for _, v := range res.Get("items").Array() {
+			item := plan.FileRules[j]
+			item.Id = types.StringValue(v.Get("id").String())
+
+			if len(state.FileRules) <= j {
+				state.FileRules = append(state.FileRules, item)
+			} else {
+				state.FileRules[j] = item
+			}
+
+			j++
+		}
+	}
+
+	return nil
+}

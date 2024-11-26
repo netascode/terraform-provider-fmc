@@ -47,12 +47,10 @@ Read-Only:
 
 - `action` (String) Action to be performed on a file (DETECT, BLOCK_WITH_RESET, DETECT_MALWARE, BLOCK_MALWARE_WITH_RESET).
 - `application_protocol` (String) Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).
-- `description` (String) Description of the file rule.
 - `direction_of_transfer` (String) Direction of file transfer (ANY, UPLOAD, DOWNLOAD).
 - `file_type_categories` (Attributes List) Defines a list of file categories for inspection. (see [below for nested schema](#nestedatt--file_rules--file_type_categories))
 - `file_types` (Attributes List) Defines a list of file types for inspection. (see [below for nested schema](#nestedatt--file_rules--file_types))
 - `id` (String) Unique identifier representing the FileRule.
-- `name` (String) Name of the FileRule object.
 - `store_files` (Set of String) List of file dispositions that should be stored (MALWARE, CUSTOM, CLEAN, UNKNOWN).
 
 <a id="nestedatt--file_rules--file_type_categories"></a>

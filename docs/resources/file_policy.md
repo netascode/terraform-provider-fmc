@@ -88,9 +88,7 @@ Required:
 
 Optional:
 
-- `description` (String) Description of the file rule.
 - `file_types` (Attributes List) Defines a list of file types for inspection. (see [below for nested schema](#nestedatt--file_rules--file_types))
-- `name` (String) Name of the FileRule object.
 - `store_files` (Set of String) List of file dispositions that should be stored (MALWARE, CUSTOM, CLEAN, UNKNOWN).
 
 Read-Only:

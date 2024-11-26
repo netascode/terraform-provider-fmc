@@ -120,14 +120,6 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 							MarkdownDescription: "Unique identifier representing the FileRule.",
 							Computed:            true,
 						},
-						"name": schema.StringAttribute{
-							MarkdownDescription: "Name of the FileRule object.",
-							Computed:            true,
-						},
-						"description": schema.StringAttribute{
-							MarkdownDescription: "Description of the file rule.",
-							Computed:            true,
-						},
 						"application_protocol": schema.StringAttribute{
 							MarkdownDescription: "Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).",
 							Computed:            true,

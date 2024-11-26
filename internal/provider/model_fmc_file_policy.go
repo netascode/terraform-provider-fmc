@@ -52,8 +52,6 @@ type FilePolicy struct {
 
 type FilePolicyFileRules struct {
 	Id                  types.String                            `tfsdk:"id"`
-	Name                types.String                            `tfsdk:"name"`
-	Description         types.String                            `tfsdk:"description"`
 	ApplicationProtocol types.String                            `tfsdk:"application_protocol"`
 	Action              types.String                            `tfsdk:"action"`
 	StoreFiles          types.Set                               `tfsdk:"store_files"`
@@ -125,12 +123,7 @@ func (data FilePolicy) toBody(ctx context.Context, state FilePolicy) string {
 			if !item.Id.IsNull() && !item.Id.IsUnknown() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
-			if !item.Name.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
-			}
-			if !item.Description.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
-			}
+			itemBody, _ = sjson.Set(itemBody, "type", "FileRule")
 			if !item.ApplicationProtocol.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "protocol", item.ApplicationProtocol.ValueString())
 			}
@@ -243,16 +236,6 @@ func (data *FilePolicy) fromBody(ctx context.Context, res gjson.Result) {
 				data.Id = types.StringValue(value.String())
 			} else {
 				data.Id = types.StringNull()
-			}
-			if value := res.Get("name"); value.Exists() {
-				data.Name = types.StringValue(value.String())
-			} else {
-				data.Name = types.StringNull()
-			}
-			if value := res.Get("description"); value.Exists() {
-				data.Description = types.StringValue(value.String())
-			} else {
-				data.Description = types.StringNull()
 			}
 			if value := res.Get("protocol"); value.Exists() {
 				data.ApplicationProtocol = types.StringValue(value.String())
@@ -396,16 +379,6 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 			data.Id = types.StringValue(value.String())
 		} else {
 			data.Id = types.StringNull()
-		}
-		if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
-			data.Name = types.StringValue(value.String())
-		} else {
-			data.Name = types.StringNull()
-		}
-		if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
-			data.Description = types.StringValue(value.String())
-		} else {
-			data.Description = types.StringNull()
 		}
 		if value := res.Get("protocol"); value.Exists() && !data.ApplicationProtocol.IsNull() {
 			data.ApplicationProtocol = types.StringValue(value.String())
