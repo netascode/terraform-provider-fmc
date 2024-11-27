@@ -35,9 +35,10 @@ type Deployment struct {
 	Id             types.String `tfsdk:"id"`
 	Domain         types.String `tfsdk:"domain"`
 	Version        types.String `tfsdk:"version"`
+	Jobid          types.String `tfsdk:"jobid"`
 	ForceDeploy    types.Bool   `tfsdk:"force_deploy"`
 	IgnoreWarning  types.Bool   `tfsdk:"ignore_warning"`
-	DeviceList     types.Set    `tfsdk:"device_list"`
+	DeviceList     types.List   `tfsdk:"device_list"`
 	DeploymentNote types.String `tfsdk:"deployment_note"`
 }
 
@@ -61,6 +62,9 @@ func (data Deployment) toBody(ctx context.Context, state Deployment) string {
 	body, _ = sjson.Set(body, "type", "DeploymentRequest")
 	if !data.Version.IsNull() {
 		body, _ = sjson.Set(body, "version", data.Version.ValueString())
+	}
+	if !data.Jobid.IsNull() {
+		body, _ = sjson.Set(body, "jobid", data.Jobid.ValueString())
 	}
 	if !data.ForceDeploy.IsNull() {
 		body, _ = sjson.Set(body, "ForceDeploy", data.ForceDeploy.ValueBool())
@@ -89,6 +93,11 @@ func (data *Deployment) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Version = types.StringNull()
 	}
+	if value := res.Get("jobid"); value.Exists() {
+		data.Jobid = types.StringValue(value.String())
+	} else {
+		data.Jobid = types.StringNull()
+	}
 	if value := res.Get("ForceDeploy"); value.Exists() {
 		data.ForceDeploy = types.BoolValue(value.Bool())
 	} else {
@@ -100,9 +109,9 @@ func (data *Deployment) fromBody(ctx context.Context, res gjson.Result) {
 		data.IgnoreWarning = types.BoolNull()
 	}
 	if value := res.Get("deviceList"); value.Exists() {
-		data.DeviceList = helpers.GetStringSet(value.Array())
+		data.DeviceList = helpers.GetStringList(value.Array())
 	} else {
-		data.DeviceList = types.SetNull(types.StringType)
+		data.DeviceList = types.ListNull(types.StringType)
 	}
 	if value := res.Get("deploymentNote"); value.Exists() {
 		data.DeploymentNote = types.StringValue(value.String())
@@ -125,6 +134,11 @@ func (data *Deployment) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Version = types.StringNull()
 	}
+	if value := res.Get("jobid"); value.Exists() && !data.Jobid.IsNull() {
+		data.Jobid = types.StringValue(value.String())
+	} else {
+		data.Jobid = types.StringNull()
+	}
 	if value := res.Get("ForceDeploy"); value.Exists() && !data.ForceDeploy.IsNull() {
 		data.ForceDeploy = types.BoolValue(value.Bool())
 	} else {
@@ -136,9 +150,9 @@ func (data *Deployment) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.IgnoreWarning = types.BoolNull()
 	}
 	if value := res.Get("deviceList"); value.Exists() && !data.DeviceList.IsNull() {
-		data.DeviceList = helpers.GetStringSet(value.Array())
+		data.DeviceList = helpers.GetStringList(value.Array())
 	} else {
-		data.DeviceList = types.SetNull(types.StringType)
+		data.DeviceList = types.ListNull(types.StringType)
 	}
 	if value := res.Get("deploymentNote"); value.Exists() && !data.DeploymentNote.IsNull() {
 		data.DeploymentNote = types.StringValue(value.String())

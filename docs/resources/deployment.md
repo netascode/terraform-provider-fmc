@@ -24,8 +24,7 @@ resource "fmc_deployment" "example" {
 
 ### Required
 
-- `device_list` (Set of String) List of device ids to be deployed.
-- `version` (String) Epoch unix time stamp (13 digits).
+- `device_list` (List of String) List of device ids to be deployed.
 
 ### Optional
 
@@ -33,6 +32,8 @@ resource "fmc_deployment" "example" {
 - `domain` (String) The name of the FMC domain
 - `force_deploy` (Boolean) Force deployment (even if there are no configuration changes).
 - `ignore_warning` (Boolean) Ignore warnings during deployment.
+- `jobid` (String) JobId of deployment.
+- `version` (String) Epoch unix time stamp (13 digits).
 
 ### Read-Only
 

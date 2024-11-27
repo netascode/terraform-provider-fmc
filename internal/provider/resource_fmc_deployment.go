@@ -21,19 +21,25 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	// "net/url"
 	"strings"
 
-	"github.com/tidwall/gjson"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/tidwall/gjson"
+
+	// "github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 )
+
+// End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
@@ -76,7 +82,11 @@ func (r *DeploymentResource) Schema(ctx context.Context, req resource.SchemaRequ
 			},
 			"version": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Epoch unix time stamp (13 digits).").String,
-				Required:            true,
+				Optional:            true,
+			},
+			"jobid": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("JobId of deployment.").String,
+				Optional:            true,
 			},
 			"force_deploy": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Force deployment (even if there are no configuration changes).").String,
@@ -86,7 +96,7 @@ func (r *DeploymentResource) Schema(ctx context.Context, req resource.SchemaRequ
 				MarkdownDescription: helpers.NewAttributeDescription("Ignore warnings during deployment.").String,
 				Optional:            true,
 			},
-			"device_list": schema.SetAttribute{
+			"device_list": schema.ListAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("List of device ids to be deployed.").String,
 				ElementType:         types.StringType,
 				Required:            true,
@@ -254,76 +264,11 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 	// BoCODE
 
 	// Target job ID to match
-	// my_job_id := "0050568A-2561-0ed3-0000-004294994451"
-	my_job_id := state.Id.ValueString()
+	jobId := state.Id.ValueString()
+	// state.Jobid = types.StringValue(jobId)
 
-	// https://10.50.202.94/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/deployment/jobhistories?expanded=true
-	// urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
-
-	// urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
-	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories/" + my_job_id
-
+	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories/" + jobId
 	res, err := r.client.Get(urlPath, reqMods...)
-	jsonString := res.String()
-	var resMap map[string]interface{}
-	err = json.Unmarshal([]byte(jsonString), &resMap)
-	if err != nil {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
-	}
-
-	// Get resource details from job history
-	resDeviceList := state.DeviceList.Elements()
-	// Modify matchingItem to be in resource format
-	resMap["deviceList"] = resDeviceList
-
-	// Convert the modified resMap back to JSON
-	updatedJSON, err := json.Marshal(resMap)
-	if err != nil {
-		fmt.Printf("Error converting map to JSON: %v\n", err)
-		return
-	}
-
-	res = gjson.Parse(string(updatedJSON))
-
-	matchingItem := resMap
-
-	// // Variable to store the matching item
-	// var matchingItem map[string]interface{}
-
-	// // Access "items"
-	// items, ok := resMap["items"].([]interface{})
-	// if !ok {
-	// 	tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
-	// }
-
-	// // Iterate over items to find the matching ID
-	// for _, item := range items {
-	// 	itemMap, ok := item.(map[string]interface{})
-	// 	if !ok {
-	// 		continue
-	// 	}
-
-	// 	// // Navigate to data
-	// 	// data, ok := itemMap["data"].(map[string]interface{})
-	// 	// if !ok {
-	// 	// 	continue
-	// 	// }
-
-	// 	// Check if the ID matches
-	// 	if id, ok := itemMap["id"].(string); ok && id == my_job_id {
-	// 		matchingItem = itemMap
-	// 		break // Exit the loop as we found the match
-	// 	}
-	// }
-
-	// Print the matching item
-	if matchingItem != nil {
-		tflog.Debug(ctx, fmt.Sprintf("Matching item: %+v\n", matchingItem))
-	} else {
-		tflog.Debug(ctx, fmt.Sprintf("No matching item found. %+v\n", ""))
-	}
-
-	// EoCODE
 
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
@@ -338,12 +283,48 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
+	// Update res with required key (tfsate)
+	jsonString := res.String()
+	var resMap map[string]interface{}
+	err = json.Unmarshal([]byte(jsonString), &resMap)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
+	}
+	resMap["version"] = "1732274866000"
+	// resMap["ignore_warning"] = "true"
+	resMapJSON, err := json.Marshal(resMap)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to marshal JSON: %v", err))
+	}
+	res = gjson.Parse(string(resMapJSON))
+
+	// Read device list
+	resDeviceId := res.Get("deviceList.0.deviceUUID").String()
+	// resIgnoreWarning := res.Get("ignoreWarning").Bool()
+	// resVersion := res.Get("version").String()
+
+	// Define the type of elements in the list
+	elementType := types.StringType
+	// Define the list values
+	values := []attr.Value{
+		types.StringValue(resDeviceId),
+	}
+	// Create the ListValue
+	deviceList, diags := types.ListValue(elementType, values)
+	if diags.HasError() {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error creating deviceList (jobhistories)", ""))
+	}
+
 	// After `terraform import` we switch to a full read.
 	if imp {
 		state.fromBody(ctx, res)
 	} else {
 		state.fromBodyPartial(ctx, res)
 	}
+
+	state.DeviceList = deviceList
+	// state.IgnoreWarning = types.BoolValue(resIgnoreWarning)
+	// state.Version = types.StringValue(resVersion)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 

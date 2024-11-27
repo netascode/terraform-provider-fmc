@@ -14,9 +14,15 @@ attributes:
   - model_name: version
     type: String
     description: Epoch unix time stamp (13 digits).
-    mandatory: true
+    mandatory: false
     example: "1457566762351"
     test_value: var.timestamp
+  - model_name: jobid
+    type: String
+    description: JobId of deployment.
+    mandatory: false
+    exclude_example: true
+    exclude_test: true
   - model_name: ForceDeploy
     tf_name: force_deploy
     type: Bool
@@ -34,7 +40,7 @@ attributes:
     minimum_test_value: true
   - model_name: deviceList
     tf_name: device_list
-    type: Set
+    type: List
     description: List of device ids to be deployed.
     mandatory: true
     element_type: String

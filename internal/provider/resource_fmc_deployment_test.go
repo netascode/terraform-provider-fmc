@@ -71,7 +71,6 @@ variable "device_id_list" {             // tests will set $TF_VAR_device_id_list
 
 func testAccFmcDeploymentConfig_minimum() string {
 	config := `resource "fmc_deployment" "test" {` + "\n"
-	config += `	version = var.timestamp` + "\n"
 	config += `	ignore_warning = true` + "\n"
 	config += `	device_list = var.device_id_list` + "\n"
 	config += `}` + "\n"
