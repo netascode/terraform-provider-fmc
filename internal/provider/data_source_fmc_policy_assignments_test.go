@@ -27,42 +27,31 @@ import (
 
 // End of section. //template:end imports
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAcc
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
-func TestAccFmcPolicyAssignments(t *testing.T) {
+func TestAccDataSourceFmcPolicyAssignments(t *testing.T) {
 	if os.Getenv("TF_VAR_target_id") == "" {
 		t.Skip("skipping test, set environment variable TF_VAR_target_id")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_policy_assignments.test", "targets.0.type", "DeviceGroup"))
-
-	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccFmcPolicyAssignmentsPrerequisitesConfig + testAccFmcPolicyAssignmentsConfig_minimum(),
-		})
-	}
-	steps = append(steps, resource.TestStep{
-		Config: testAccFmcPolicyAssignmentsPrerequisitesConfig + testAccFmcPolicyAssignmentsConfig_all(),
-		Check:  resource.ComposeTestCheckFunc(checks...),
-	})
-	steps = append(steps, resource.TestStep{
-		ResourceName: "fmc_policy_assignments.test",
-		ImportState:  true,
-	})
-
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_policy_assignments.test", "targets.0.type", "DeviceGroup"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps:                    steps,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceFmcPolicyAssignmentsPrerequisitesConfig + testAccDataSourceFmcPolicyAssignmentsConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+		},
 	})
 }
 
-// End of section. //template:end testAcc
+// End of section. //template:end testAccDataSource
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
-const testAccFmcPolicyAssignmentsPrerequisitesConfig = `
+const testAccDataSourceFmcPolicyAssignmentsPrerequisitesConfig = `
 resource "fmc_access_control_policy" "example" {
     categories                        = []
     default_action                    = "BLOCK"
@@ -79,9 +68,9 @@ variable "target_id" { default = null } // tests will set $TF_VAR_target_id
 
 // End of section. //template:end testPrerequisites
 
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
 
-func testAccFmcPolicyAssignmentsConfig_minimum() string {
+func testAccDataSourceFmcPolicyAssignmentsConfig() string {
 	config := `resource "fmc_policy_assignments" "test" {` + "\n"
 	config += `	policy_id = fmc_access_control_policy.example.id` + "\n"
 	config += `	targets = [{` + "\n"
@@ -89,22 +78,13 @@ func testAccFmcPolicyAssignmentsConfig_minimum() string {
 	config += `		type = "DeviceGroup"` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
+
+	config += `
+		data "fmc_policy_assignments" "test" {
+			id = fmc_policy_assignments.test.id
+		}
+	`
 	return config
 }
 
-// End of section. //template:end testAccConfigMinimal
-
-// Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
-
-func testAccFmcPolicyAssignmentsConfig_all() string {
-	config := `resource "fmc_policy_assignments" "test" {` + "\n"
-	config += `	policy_id = fmc_access_control_policy.example.id` + "\n"
-	config += `	targets = [{` + "\n"
-	config += `		id = var.target_id` + "\n"
-	config += `		type = "DeviceGroup"` + "\n"
-	config += `	}]` + "\n"
-	config += `}` + "\n"
-	return config
-}
-
-// End of section. //template:end testAccConfigAll
+// End of section. //template:end testAccDataSourceConfig

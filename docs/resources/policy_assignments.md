@@ -53,3 +53,11 @@ Required:
 Optional:
 
 - `name` (String)
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import fmc_policy_assignments.example "<policy_id>"
+```
