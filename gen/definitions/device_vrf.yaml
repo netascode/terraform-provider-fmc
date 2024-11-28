@@ -3,7 +3,7 @@ name: Device VRF
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/virtualrouters
 data_source_name_query: true
 doc_category: Devices
-test_tags: [TF_VAR_device_id, TF_VAR_interface_id, TF_VAR_interface_logical_name]
+test_tags: [TF_VAR_device_id, TF_VAR_interface_name ]
 attributes:
   - model_name: device_id
     type: String
@@ -39,14 +39,25 @@ attributes:
         description: >-
           UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.
         id: true
-        exclude_example: true
+        mandatory: true
+        #exclude_example: true
         test_value: var.interface_id
       - model_name: name
-        tf_name: interface_logical_name
+        tf_name: interface_name
+        mandatory: true
         type: String
-        test_value: var.interface_logical_name
+        test_value: var.interface_name          
+      - model_name: ifname
+        tf_name: interface_logical_name
+        mandatory: true
+        type: String
+        test_value: var.interface_logical_name       
 test_prerequisites: |-
 
   variable "device_id" { default = null } // tests will set $TF_VAR_device_id
-  variable "interface_id" { default = null } // tests will set $TF_VAR_interface_id
-  variable "interface_logical_name" { default = null } // tests will set $TF_VAR_interface_logical_name
+  variable "interface_name" { default = null } // tests will set $TF_VAR_interface_name
+
+  data "fmc_device_physical_interface" "example" {
+    name        = var.interface_name
+    device_id   = var.device_id
+  }
