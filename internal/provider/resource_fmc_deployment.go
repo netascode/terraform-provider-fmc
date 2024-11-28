@@ -176,7 +176,7 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	// Iterate over items to find the JobID based on devices UUID
-JonbIdLookup:
+JobIdLookup:
 	for _, item := range items {
 		itemMap, ok := item.(map[string]interface{})
 		if !ok {
@@ -220,7 +220,7 @@ JonbIdLookup:
 			if deviceUUID == myInterfaceUUID {
 				plan.Id = types.StringValue(jobId)
 				matchingData = append(matchingData, deviceMap)
-				break JonbIdLookup
+				break JobIdLookup
 			}
 		}
 	}
@@ -283,15 +283,17 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	// Update res with required key (tfsate)
+	// Update res with required key (tfsate) becuse we are using different API call to read device state
 	jsonString := res.String()
 	var resMap map[string]interface{}
 	err = json.Unmarshal([]byte(jsonString), &resMap)
 	if err != nil {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
 	}
-	resMap["version"] = "1732274866000"
-	// resMap["ignore_warning"] = "true"
+
+	// Add hash values to res which are not exists in res but exists in state
+	resMap["version"] = state.Version.ValueString()
+	resMap["ignoreWarning"] = state.IgnoreWarning.ValueBool()
 	resMapJSON, err := json.Marshal(resMap)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to marshal JSON: %v", err))
@@ -300,15 +302,15 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	// Read device list
 	resDeviceId := res.Get("deviceList.0.deviceUUID").String()
-	// resIgnoreWarning := res.Get("ignoreWarning").Bool()
-	// resVersion := res.Get("version").String()
 
 	// Define the type of elements in the list
 	elementType := types.StringType
+
 	// Define the list values
 	values := []attr.Value{
 		types.StringValue(resDeviceId),
 	}
+
 	// Create the ListValue
 	deviceList, diags := types.ListValue(elementType, values)
 	if diags.HasError() {
@@ -323,8 +325,6 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	state.DeviceList = deviceList
-	// state.IgnoreWarning = types.BoolValue(resIgnoreWarning)
-	// state.Version = types.StringValue(resVersion)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
