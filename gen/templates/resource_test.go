@@ -38,23 +38,23 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	{{- $name := .Name }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .ResourceId)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .ResourceId) (not .Computed)}}
 	{{- if isNestedMap .}}
 	{{- $list := .TfName }}
 	{{- $map := .MapKeyExample }}
 	{{- range  .Attributes}}
-	{{- if eq .TfName "id" }}
+	{{- if or (eq .TfName "id") (and .Computed (not .ExcludeTest)) }}
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}"))
 	{{- end}}
 	{{- if isNestedListSet .}}
 	{{- $clist := .TfName }}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not (isSet .))}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .Computed) (not (isSet .))}}
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{$clist}}.0.{{.TfName}}", "{{.Example}}"))
 	{{- end}}
 	{{- end}}
-	{{- else if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not (isSet .))}}
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}", "{{if .ReadOnly}}{{.ReadOnly}}{{else}}{{.Example}}{{end}}"))
+	{{- else if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .Computed) (not (isSet .))}}
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{$list}}.{{$map}}.{{.TfName}}", "{{.Example}}"))
 	{{- end}}
 	{{- end}}
 	{{- end}}
@@ -64,21 +64,21 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .Computed)}}
 	{{- if isNestedListSet .}}
 	{{- $clist := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue)}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .Computed)}}
 	{{- if isNestedListSet .}}
 	{{- $cclist := .TfName }}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 	{{- end}}
 	{{- range  .Attributes}}
-	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not (isSet .))}}
+	{{- if and (not .WriteOnly) (not .ExcludeTest) (not .Value) (not .TestValue) (not .Computed) (not (isSet .))}}
 	{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
 		checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{$list}}.0.{{$clist}}.0.{{$cclist}}.0.{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
@@ -125,9 +125,12 @@ func TestAccFmc{{camelCase .Name}}(t *testing.T) {
 		checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
 	}
 	{{- else}}
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{if .ReadOnly}}{{.ReadOnly}}{{else}}{{.Example}}{{end}}"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_{{snakeCase $name}}.test", "{{.TfName}}{{if isList .}}.0{{end}}", "{{.Example}}"))
 	{{- end}}
 	{{- end}}
+	{{- end}}
+	{{- if and (.Computed) (not .ExcludeTest)}}
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_{{snakeCase $name}}.test", "{{.TfName}}"))
 	{{- end}}
 	{{- end}}
 
@@ -175,7 +178,7 @@ const testAccFmc{{camelCase .Name}}PrerequisitesConfig = `
 func testAccFmc{{camelCase .Name}}Config_minimum() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
-	{{- if .ReadOnly}}{{- continue }}{{- end}}
+	{{- if .Computed}}{{- continue }}{{- end}}
 	{{- if or .Id .Reference .Mandatory .MinimumTestValue}}
 	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
@@ -271,7 +274,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 func testAccFmc{{camelCase .Name}}Config_all() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
-	{{- if .ReadOnly}}{{- continue }}{{- end}}
+	{{- if .Computed}}{{- continue }}{{- end}}
 	{{- if and (not .ExcludeTest) (not .Value) (not .ResourceId)}}
 	{{- if isNestedListMapSet .}}
 	{{- if len .TestTags}}
@@ -283,7 +286,7 @@ func testAccFmc{{camelCase .Name}}Config_all() string {
 	config += `	{{.TfName}} = { "{{.MapKeyExample}}" = {` + "\n"
 	{{- end}}
 		{{- range  .Attributes}}
-		{{- if .ReadOnly}}{{- continue }}{{- end}}
+		{{- if .Computed}}{{- continue }}{{- end}}
 		{{- if and (not .ExcludeTest) (not .Value)}}
 		{{- if isNestedListSet .}}
 		{{- if len .TestTags}}

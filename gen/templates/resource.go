@@ -117,10 +117,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- end}}
 				{{- if or .Reference .Mandatory}}
 				Required:            true,
-				{{- else if and (not .ResourceId) (not .ReadOnly)}}
+				{{- else if and (not .ResourceId) (not .Computed)}}
 				Optional:            true,
 				{{- end}}
-				{{- if or (len .DefaultValue) .ResourceId .ReadOnly}}
+				{{- if or (len .DefaultValue) .ResourceId .Computed}}
 				Computed:            true,
 				{{- end}}
 				{{- if len .EnumValues}}
@@ -152,12 +152,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace .ReadOnly}}
+				{{- if or .Id .Reference .RequiresReplace .Computed}}
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{- if or .Id .Reference .RequiresReplace}}
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
 					{{end}}
-					{{- if .ReadOnly}}
+					{{- if .Computed}}
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 					{{end}}
 				},
@@ -188,10 +188,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or .Reference .Mandatory}}
 							Required:            true,
-							{{- else if and (not .ResourceId) (not .ReadOnly)}}
+							{{- else if and (not .ResourceId) (not .Computed)}}
 							Optional:            true,
 							{{- end}}
-							{{- if or (len .DefaultValue) .ResourceId .ReadOnly}}
+							{{- if or (len .DefaultValue) .ResourceId .Computed}}
 							Computed:            true,
 							{{- end}}
 							{{- if len .EnumValues}}
@@ -223,7 +223,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
-							{{- if or (and .ResourceId $useStateForUnknown) .ReadOnly}}
+							{{- if or (and .ResourceId $useStateForUnknown) .Computed}}
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},

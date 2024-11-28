@@ -134,7 +134,7 @@ func (data *Hosts) fromBody(ctx context.Context, res gjson.Result) {
 		if value := res.Get("type"); value.Exists() {
 			data.Type = types.StringValue(value.String())
 		} else {
-			data.Type = types.StringValue("Host")
+			data.Type = types.StringNull()
 		}
 		(*parent).Items[k] = data
 	}
@@ -184,10 +184,10 @@ func (data *Hosts) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		} else {
 			data.Ip = types.StringNull()
 		}
-		if value := res.Get("type"); value.Exists() {
+		if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 			data.Type = types.StringValue(value.String())
 		} else {
-			data.Type = types.StringValue("Host")
+			data.Type = types.StringNull()
 		}
 		(*parent).Items[i] = data
 	}
@@ -231,7 +231,7 @@ func (data *Hosts) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 			if value := r.Get("type"); value.Exists() {
 				v.Type = types.StringValue(value.String())
 			} else {
-				v.Type = types.StringValue("Host")
+				v.Type = types.StringNull()
 			}
 			data.Items[i] = v
 		}
