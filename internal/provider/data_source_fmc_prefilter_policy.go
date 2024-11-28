@@ -76,7 +76,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Description",
+				MarkdownDescription: "Description.",
 				Computed:            true,
 			},
 			"default_action": schema.StringAttribute{
@@ -108,7 +108,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:            true,
 			},
 			"rules": schema.ListNestedAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The ordered list of rules.",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -117,7 +117,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"name": schema.StringAttribute{
-							MarkdownDescription: "User-specified unique string.",
+							MarkdownDescription: "Name of the rule.",
 							Computed:            true,
 						},
 						"action": schema.StringAttribute{
@@ -125,31 +125,31 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"rule_type": schema.StringAttribute{
-							MarkdownDescription: "Indicates whether the rule is prefilter rule or tunnel rule.",
+							MarkdownDescription: "Indicates whether the rule is PREFILTER rule or TUNNEL rule. At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the access rule is in effect (true) or not (false). Default is true.",
+							MarkdownDescription: "Indicates whether the prefilter rule is in effect (true) or not (false). Default is true.",
 							Computed:            true,
 						},
 						"bidirectional": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the rule is bidirectional.",
+							MarkdownDescription: "Indicates whether the rule is bidirectional. Can be true only for TUNNEL rules. Default is false.",
 							Computed:            true,
 						},
 						"log_begin": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection.",
+							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. Default is false.",
 							Computed:            true,
 						},
 						"log_end": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will log events at the end of the connection.",
+							MarkdownDescription: "Indicates whether the device will log events at the end of the connection. Default is false.",
 							Computed:            true,
 						},
 						"send_events_to_fmc": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer.",
+							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer. Default is false.",
 							Computed:            true,
 						},
 						"send_syslog": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.",
+							MarkdownDescription: "Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging. Default is false.",
 							Computed:            true,
 						},
 						"syslog_config_id": schema.StringAttribute{
@@ -161,16 +161,32 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"snmp_config_id": schema.StringAttribute{
-							MarkdownDescription: "UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.",
+							MarkdownDescription: "UUID of the SNMP alert associated with the prefilter rule. Can be set only when either log_begin or log_end is true.",
 							Computed:            true,
 						},
-						"vlan_tags_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing vlan tags.",
+						"vlan_tag_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent vlan tags (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"start_tag": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"end_tag": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"vlan_tag_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects representing vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID of the object.",
+										MarkdownDescription: "UUID of the object (such as fmc_vlan_tag.example.id, etc.).",
 										Computed:            true,
 									},
 								},
@@ -232,6 +248,22 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 								},
 							},
 						},
+						"source_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent protocol/port (literally specified). Can be only set for PREFILTER rules.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
 						"source_port_objects": schema.SetNestedAttribute{
 							MarkdownDescription: "Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.",
 							Computed:            true,
@@ -239,6 +271,22 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: "UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"destination_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent protocol/port (literally specified). Can be only set for PREFILTER rules.",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: "",
 										Computed:            true,
 									},
 								},

@@ -62,12 +62,15 @@ type PrefilterPolicyRules struct {
 	SyslogConfigId             types.String                                     `tfsdk:"syslog_config_id"`
 	SyslogSeverity             types.String                                     `tfsdk:"syslog_severity"`
 	SnmpConfigId               types.String                                     `tfsdk:"snmp_config_id"`
-	VlanTagsObjects            []PrefilterPolicyRulesVlanTagsObjects            `tfsdk:"vlan_tags_objects"`
+	VlanTagLiterals            []PrefilterPolicyRulesVlanTagLiterals            `tfsdk:"vlan_tag_literals"`
+	VlanTagObjects             []PrefilterPolicyRulesVlanTagObjects             `tfsdk:"vlan_tag_objects"`
 	SourceNetworkLiterals      []PrefilterPolicyRulesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
 	SourceNetworkObjects       []PrefilterPolicyRulesSourceNetworkObjects       `tfsdk:"source_network_objects"`
 	DestinationNetworkLiterals []PrefilterPolicyRulesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
 	DestinationNetworkObjects  []PrefilterPolicyRulesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
+	SourcePortLiterals         []PrefilterPolicyRulesSourcePortLiterals         `tfsdk:"source_port_literals"`
 	SourcePortObjects          []PrefilterPolicyRulesSourcePortObjects          `tfsdk:"source_port_objects"`
+	DestinationPortLiterals    []PrefilterPolicyRulesDestinationPortLiterals    `tfsdk:"destination_port_literals"`
 	DestinationPortObjects     []PrefilterPolicyRulesDestinationPortObjects     `tfsdk:"destination_port_objects"`
 	SourceInterfaces           []PrefilterPolicyRulesSourceInterfaces           `tfsdk:"source_interfaces"`
 	DestinationInterfaces      []PrefilterPolicyRulesDestinationInterfaces      `tfsdk:"destination_interfaces"`
@@ -78,7 +81,11 @@ type PrefilterPolicyRules struct {
 	EncapsulationPortsTeredo   types.Bool                                       `tfsdk:"encapsulation_ports_teredo"`
 }
 
-type PrefilterPolicyRulesVlanTagsObjects struct {
+type PrefilterPolicyRulesVlanTagLiterals struct {
+	StartTag types.String `tfsdk:"start_tag"`
+	EndTag   types.String `tfsdk:"end_tag"`
+}
+type PrefilterPolicyRulesVlanTagObjects struct {
 	Id types.String `tfsdk:"id"`
 }
 type PrefilterPolicyRulesSourceNetworkLiterals struct {
@@ -95,8 +102,16 @@ type PrefilterPolicyRulesDestinationNetworkObjects struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
 }
+type PrefilterPolicyRulesSourcePortLiterals struct {
+	Protocol types.String `tfsdk:"protocol"`
+	Port     types.String `tfsdk:"port"`
+}
 type PrefilterPolicyRulesSourcePortObjects struct {
 	Id types.String `tfsdk:"id"`
+}
+type PrefilterPolicyRulesDestinationPortLiterals struct {
+	Protocol types.String `tfsdk:"protocol"`
+	Port     types.String `tfsdk:"port"`
 }
 type PrefilterPolicyRulesDestinationPortObjects struct {
 	Id types.String `tfsdk:"id"`
@@ -199,9 +214,23 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 			if !item.SnmpConfigId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "snmpConfig.id", item.SnmpConfigId.ValueString())
 			}
-			if len(item.VlanTagsObjects) > 0 {
+			if len(item.VlanTagLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "vlanTags.literals", []interface{}{})
+				for _, childItem := range item.VlanTagLiterals {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
+					if !childItem.StartTag.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "startTag", childItem.StartTag.ValueString())
+					}
+					if !childItem.EndTag.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "endTag", childItem.EndTag.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "vlanTags.literals.-1", itemChildBody)
+				}
+			}
+			if len(item.VlanTagObjects) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "vlanTags.objects", []interface{}{})
-				for _, childItem := range item.VlanTagsObjects {
+				for _, childItem := range item.VlanTagObjects {
 					itemChildBody := ""
 					if !childItem.Id.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
@@ -257,6 +286,20 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 					itemBody, _ = sjson.SetRaw(itemBody, "destinationNetworks.objects.-1", itemChildBody)
 				}
 			}
+			if len(item.SourcePortLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "sourcePorts.literals", []interface{}{})
+				for _, childItem := range item.SourcePortLiterals {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "PortLiteral")
+					if !childItem.Protocol.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "protocol", childItem.Protocol.ValueString())
+					}
+					if !childItem.Port.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "port", childItem.Port.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "sourcePorts.literals.-1", itemChildBody)
+				}
+			}
 			if len(item.SourcePortObjects) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "sourcePorts.objects", []interface{}{})
 				for _, childItem := range item.SourcePortObjects {
@@ -266,6 +309,20 @@ func (data PrefilterPolicy) toBody(ctx context.Context, state PrefilterPolicy) s
 					}
 					itemChildBody, _ = sjson.Set(itemChildBody, "type", "AnyNonEmptyString")
 					itemBody, _ = sjson.SetRaw(itemBody, "sourcePorts.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.DestinationPortLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "destinationPorts.literals", []interface{}{})
+				for _, childItem := range item.DestinationPortLiterals {
+					itemChildBody := ""
+					itemChildBody, _ = sjson.Set(itemChildBody, "type", "PortLiteral")
+					if !childItem.Protocol.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "protocol", childItem.Protocol.ValueString())
+					}
+					if !childItem.Port.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "port", childItem.Port.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "destinationPorts.literals.-1", itemChildBody)
 				}
 			}
 			if len(item.DestinationPortObjects) > 0 {
@@ -458,17 +515,36 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				data.SnmpConfigId = types.StringNull()
 			}
-			if value := res.Get("vlanTags.objects"); value.Exists() {
-				data.VlanTagsObjects = make([]PrefilterPolicyRulesVlanTagsObjects, 0)
+			if value := res.Get("vlanTags.literals"); value.Exists() {
+				data.VlanTagLiterals = make([]PrefilterPolicyRulesVlanTagLiterals, 0)
 				value.ForEach(func(k, res gjson.Result) bool {
 					parent := &data
-					data := PrefilterPolicyRulesVlanTagsObjects{}
+					data := PrefilterPolicyRulesVlanTagLiterals{}
+					if value := res.Get("startTag"); value.Exists() {
+						data.StartTag = types.StringValue(value.String())
+					} else {
+						data.StartTag = types.StringNull()
+					}
+					if value := res.Get("endTag"); value.Exists() {
+						data.EndTag = types.StringValue(value.String())
+					} else {
+						data.EndTag = types.StringNull()
+					}
+					(*parent).VlanTagLiterals = append((*parent).VlanTagLiterals, data)
+					return true
+				})
+			}
+			if value := res.Get("vlanTags.objects"); value.Exists() {
+				data.VlanTagObjects = make([]PrefilterPolicyRulesVlanTagObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesVlanTagObjects{}
 					if value := res.Get("id"); value.Exists() {
 						data.Id = types.StringValue(value.String())
 					} else {
 						data.Id = types.StringNull()
 					}
-					(*parent).VlanTagsObjects = append((*parent).VlanTagsObjects, data)
+					(*parent).VlanTagObjects = append((*parent).VlanTagObjects, data)
 					return true
 				})
 			}
@@ -538,6 +614,25 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 					return true
 				})
 			}
+			if value := res.Get("sourcePorts.literals"); value.Exists() {
+				data.SourcePortLiterals = make([]PrefilterPolicyRulesSourcePortLiterals, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesSourcePortLiterals{}
+					if value := res.Get("protocol"); value.Exists() {
+						data.Protocol = types.StringValue(value.String())
+					} else {
+						data.Protocol = types.StringNull()
+					}
+					if value := res.Get("port"); value.Exists() {
+						data.Port = types.StringValue(value.String())
+					} else {
+						data.Port = types.StringNull()
+					}
+					(*parent).SourcePortLiterals = append((*parent).SourcePortLiterals, data)
+					return true
+				})
+			}
 			if value := res.Get("sourcePorts.objects"); value.Exists() {
 				data.SourcePortObjects = make([]PrefilterPolicyRulesSourcePortObjects, 0)
 				value.ForEach(func(k, res gjson.Result) bool {
@@ -549,6 +644,25 @@ func (data *PrefilterPolicy) fromBody(ctx context.Context, res gjson.Result) {
 						data.Id = types.StringNull()
 					}
 					(*parent).SourcePortObjects = append((*parent).SourcePortObjects, data)
+					return true
+				})
+			}
+			if value := res.Get("destinationPorts.literals"); value.Exists() {
+				data.DestinationPortLiterals = make([]PrefilterPolicyRulesDestinationPortLiterals, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := PrefilterPolicyRulesDestinationPortLiterals{}
+					if value := res.Get("protocol"); value.Exists() {
+						data.Protocol = types.StringValue(value.String())
+					} else {
+						data.Protocol = types.StringNull()
+					}
+					if value := res.Get("port"); value.Exists() {
+						data.Port = types.StringValue(value.String())
+					} else {
+						data.Port = types.StringNull()
+					}
+					(*parent).DestinationPortLiterals = append((*parent).DestinationPortLiterals, data)
 					return true
 				})
 			}
@@ -781,12 +895,60 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 		} else {
 			data.SnmpConfigId = types.StringNull()
 		}
-		for i := 0; i < len(data.VlanTagsObjects); i++ {
-			keys := [...]string{"id"}
-			keyValues := [...]string{data.VlanTagsObjects[i].Id.ValueString()}
+		for i := 0; i < len(data.VlanTagLiterals); i++ {
+			keys := [...]string{"startTag", "endTag"}
+			keyValues := [...]string{data.VlanTagLiterals[i].StartTag.ValueString(), data.VlanTagLiterals[i].EndTag.ValueString()}
 
 			parent := &data
-			data := (*parent).VlanTagsObjects[i]
+			data := (*parent).VlanTagLiterals[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("vlanTags.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagLiterals[%d] = %+v",
+					i,
+					(*parent).VlanTagLiterals[i],
+				))
+				(*parent).VlanTagLiterals = slices.Delete((*parent).VlanTagLiterals, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("startTag"); value.Exists() && !data.StartTag.IsNull() {
+				data.StartTag = types.StringValue(value.String())
+			} else {
+				data.StartTag = types.StringNull()
+			}
+			if value := res.Get("endTag"); value.Exists() && !data.EndTag.IsNull() {
+				data.EndTag = types.StringValue(value.String())
+			} else {
+				data.EndTag = types.StringNull()
+			}
+			(*parent).VlanTagLiterals[i] = data
+		}
+		for i := 0; i < len(data.VlanTagObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.VlanTagObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).VlanTagObjects[i]
 			parentRes := &res
 			var res gjson.Result
 
@@ -808,11 +970,11 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 				},
 			)
 			if !res.Exists() {
-				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagsObjects[%d] = %+v",
+				tflog.Debug(ctx, fmt.Sprintf("removing VlanTagObjects[%d] = %+v",
 					i,
-					(*parent).VlanTagsObjects[i],
+					(*parent).VlanTagObjects[i],
 				))
-				(*parent).VlanTagsObjects = slices.Delete((*parent).VlanTagsObjects, i, i+1)
+				(*parent).VlanTagObjects = slices.Delete((*parent).VlanTagObjects, i, i+1)
 				i--
 
 				continue
@@ -822,7 +984,7 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 			} else {
 				data.Id = types.StringNull()
 			}
-			(*parent).VlanTagsObjects[i] = data
+			(*parent).VlanTagObjects[i] = data
 		}
 		for i := 0; i < len(data.SourceNetworkLiterals); i++ {
 			keys := [...]string{"value"}
@@ -1006,6 +1168,54 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 			}
 			(*parent).DestinationNetworkObjects[i] = data
 		}
+		for i := 0; i < len(data.SourcePortLiterals); i++ {
+			keys := [...]string{"protocol", "port"}
+			keyValues := [...]string{data.SourcePortLiterals[i].Protocol.ValueString(), data.SourcePortLiterals[i].Port.ValueString()}
+
+			parent := &data
+			data := (*parent).SourcePortLiterals[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("sourcePorts.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourcePortLiterals[%d] = %+v",
+					i,
+					(*parent).SourcePortLiterals[i],
+				))
+				(*parent).SourcePortLiterals = slices.Delete((*parent).SourcePortLiterals, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("protocol"); value.Exists() && !data.Protocol.IsNull() {
+				data.Protocol = types.StringValue(value.String())
+			} else {
+				data.Protocol = types.StringNull()
+			}
+			if value := res.Get("port"); value.Exists() && !data.Port.IsNull() {
+				data.Port = types.StringValue(value.String())
+			} else {
+				data.Port = types.StringNull()
+			}
+			(*parent).SourcePortLiterals[i] = data
+		}
 		for i := 0; i < len(data.SourcePortObjects); i++ {
 			keys := [...]string{"id"}
 			keyValues := [...]string{data.SourcePortObjects[i].Id.ValueString()}
@@ -1048,6 +1258,54 @@ func (data *PrefilterPolicy) fromBodyPartial(ctx context.Context, res gjson.Resu
 				data.Id = types.StringNull()
 			}
 			(*parent).SourcePortObjects[i] = data
+		}
+		for i := 0; i < len(data.DestinationPortLiterals); i++ {
+			keys := [...]string{"protocol", "port"}
+			keyValues := [...]string{data.DestinationPortLiterals[i].Protocol.ValueString(), data.DestinationPortLiterals[i].Port.ValueString()}
+
+			parent := &data
+			data := (*parent).DestinationPortLiterals[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("destinationPorts.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing DestinationPortLiterals[%d] = %+v",
+					i,
+					(*parent).DestinationPortLiterals[i],
+				))
+				(*parent).DestinationPortLiterals = slices.Delete((*parent).DestinationPortLiterals, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("protocol"); value.Exists() && !data.Protocol.IsNull() {
+				data.Protocol = types.StringValue(value.String())
+			} else {
+				data.Protocol = types.StringNull()
+			}
+			if value := res.Get("port"); value.Exists() && !data.Port.IsNull() {
+				data.Port = types.StringValue(value.String())
+			} else {
+				data.Port = types.StringNull()
+			}
+			(*parent).DestinationPortLiterals[i] = data
 		}
 		for i := 0; i < len(data.DestinationPortObjects); i++ {
 			keys := [...]string{"id"}

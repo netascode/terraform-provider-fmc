@@ -36,8 +36,8 @@ data "fmc_prefilter_policy" "example" {
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
 - `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
-- `description` (String) Description
-- `rules` (Attributes List) (see [below for nested schema](#nestedatt--rules))
+- `description` (String) Description.
+- `rules` (Attributes List) The ordered list of rules. (see [below for nested schema](#nestedatt--rules))
 
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
@@ -45,32 +45,35 @@ data "fmc_prefilter_policy" "example" {
 Read-Only:
 
 - `action` (String) What to do when the conditions defined by the rule are met.
-- `bidirectional` (Boolean) Indicates whether the rule is bidirectional.
+- `bidirectional` (Boolean) Indicates whether the rule is bidirectional. Can be true only for TUNNEL rules. Default is false.
 - `destination_interfaces` (Attributes Set) Set of objects that represent destination interfaces. (see [below for nested schema](#nestedatt--rules--destination_interfaces))
 - `destination_network_literals` (Attributes Set) Set of objects that represent destinations of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_network_objects` (Attributes Set) Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
+- `destination_port_literals` (Attributes Set) Set of objects that represent protocol/port (literally specified). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--destination_port_literals))
 - `destination_port_objects` (Attributes Set) Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--destination_port_objects))
-- `enabled` (Boolean) Indicates whether the access rule is in effect (true) or not (false). Default is true.
+- `enabled` (Boolean) Indicates whether the prefilter rule is in effect (true) or not (false). Default is true.
 - `encapsulation_ports_gre` (Boolean) Indicating whether to set the GRE encapsulation protocol in the TUNNEL rule.
 - `encapsulation_ports_in_in_ip` (Boolean) Indicating whether to set the IP-in-IP encapsulation protocol in the TUNNEL rule.
 - `encapsulation_ports_ipv6_in_ip` (Boolean) Indicating whether to set the IPv6-in-IP encapsulation protocol in the TUNNEL rule.
 - `encapsulation_ports_teredo` (Boolean) Indicating whether to set the TEREDO encapsulation protocol in the TUNNEL rule.
 - `id` (String) Unique identifier (UUID) of the prefilter rule.
-- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection.
-- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection.
-- `name` (String) User-specified unique string.
-- `rule_type` (String) Indicates whether the rule is prefilter rule or tunnel rule.
-- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer.
-- `send_syslog` (Boolean) Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging.
-- `snmp_config_id` (String) UUID of the SNMP alert associated with the access rule. Can be set only when either log_begin or log_end is true.
+- `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. Default is false.
+- `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. Default is false.
+- `name` (String) Name of the rule.
+- `rule_type` (String) Indicates whether the rule is PREFILTER rule or TUNNEL rule. At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.
+- `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. Default is false.
+- `send_syslog` (Boolean) Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging. Default is false.
+- `snmp_config_id` (String) UUID of the SNMP alert associated with the prefilter rule. Can be set only when either log_begin or log_end is true.
 - `source_interfaces` (Attributes Set) Set of objects that represent source interfaces. (see [below for nested schema](#nestedatt--rules--source_interfaces))
 - `source_network_literals` (Attributes Set) Set of objects that represent sources of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--source_network_literals))
 - `source_network_objects` (Attributes Set) Set of objects that represent sources of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--source_network_objects))
+- `source_port_literals` (Attributes Set) Set of objects that represent protocol/port (literally specified). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--source_port_literals))
 - `source_port_objects` (Attributes Set) Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--source_port_objects))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
 - `tunnel_zone` (Attributes List) Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted. (see [below for nested schema](#nestedatt--rules--tunnel_zone))
-- `vlan_tags_objects` (Attributes Set) Set of objects representing vlan tags. (see [below for nested schema](#nestedatt--rules--vlan_tags_objects))
+- `vlan_tag_literals` (Attributes Set) Set of objects that represent vlan tags (literally specified). (see [below for nested schema](#nestedatt--rules--vlan_tag_literals))
+- `vlan_tag_objects` (Attributes Set) Set of objects representing vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...). (see [below for nested schema](#nestedatt--rules--vlan_tag_objects))
 
 <a id="nestedatt--rules--destination_interfaces"></a>
 ### Nested Schema for `rules.destination_interfaces`
@@ -96,6 +99,15 @@ Read-Only:
 
 - `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
 - `type` (String) Type of the object (such as fmc_network.example.type, etc.).
+
+
+<a id="nestedatt--rules--destination_port_literals"></a>
+### Nested Schema for `rules.destination_port_literals`
+
+Read-Only:
+
+- `port` (String)
+- `protocol` (String)
 
 
 <a id="nestedatt--rules--destination_port_objects"></a>
@@ -132,6 +144,15 @@ Read-Only:
 - `type` (String) Type of the object (such as fmc_network.example.type, etc.).
 
 
+<a id="nestedatt--rules--source_port_literals"></a>
+### Nested Schema for `rules.source_port_literals`
+
+Read-Only:
+
+- `port` (String)
+- `protocol` (String)
+
+
 <a id="nestedatt--rules--source_port_objects"></a>
 ### Nested Schema for `rules.source_port_objects`
 
@@ -148,9 +169,18 @@ Read-Only:
 - `id` (String) UUID of the object.
 
 
-<a id="nestedatt--rules--vlan_tags_objects"></a>
-### Nested Schema for `rules.vlan_tags_objects`
+<a id="nestedatt--rules--vlan_tag_literals"></a>
+### Nested Schema for `rules.vlan_tag_literals`
 
 Read-Only:
 
-- `id` (String) UUID of the object.
+- `end_tag` (String)
+- `start_tag` (String)
+
+
+<a id="nestedatt--rules--vlan_tag_objects"></a>
+### Nested Schema for `rules.vlan_tag_objects`
+
+Read-Only:
+
+- `id` (String) UUID of the object (such as fmc_vlan_tag.example.id, etc.).

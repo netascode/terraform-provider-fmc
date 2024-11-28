@@ -42,12 +42,16 @@ func TestAccDataSourceFmcPrefilterPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.log_begin", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.log_end", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.send_events_to_fmc", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.vlan_tag_literals.0.start_tag", "11"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.vlan_tag_literals.0.end_tag", "22"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_network_literals.0.value", "10.1.1.0/24"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_network_literals.0.value", "10.2.2.0/24"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_interfaces.0.id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_interfaces.0.type", "ROUTED"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_interfaces.0.id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_interfaces.0.type", "ROUTED"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_port_literals.0.protocol", "6"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_port_literals.0.port", "80"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_port_literals.0.protocol", "6"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_port_literals.0.port", "80"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.source_interfaces.0.type", "SecurityZone"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.destination_interfaces.0.type", "SecurityZone"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.tunnel_zone.0.id", "0050568A-7F57-0ed3-0000-004294975576"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.encapsulation_ports_gre", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_prefilter_policy.test", "rules.0.encapsulation_ports_in_in_ip", "false"))
@@ -95,6 +99,11 @@ resource "fmc_vlan_tag" "test" {
   start_tag = "10"
   end_tag   = "11" 
 }
+
+resource "fmc_security_zone" "test" {
+  name           = "security_zone_1"
+  interface_mode = "ROUTED"
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -118,6 +127,10 @@ func testAccDataSourceFmcPrefilterPolicyConfig() string {
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"
 	config += `		send_events_to_fmc = true` + "\n"
+	config += `		vlan_tag_literals = [{` + "\n"
+	config += `			start_tag = "11"` + "\n"
+	config += `			end_tag = "22"` + "\n"
+	config += `		}]` + "\n"
 	config += `		source_network_literals = [{` + "\n"
 	config += `			value = "10.1.1.0/24"` + "\n"
 	config += `		}]` + "\n"
@@ -132,13 +145,21 @@ func testAccDataSourceFmcPrefilterPolicyConfig() string {
 	config += `			id = fmc_host.test.id` + "\n"
 	config += `			type = fmc_host.test.type` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_port_literals = [{` + "\n"
+	config += `			protocol = "6"` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_port_literals = [{` + "\n"
+	config += `			protocol = "6"` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `		}]` + "\n"
 	config += `		source_interfaces = [{` + "\n"
-	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `			type = "ROUTED"` + "\n"
+	config += `			id = fmc_security_zone.test.id` + "\n"
+	config += `			type = "SecurityZone"` + "\n"
 	config += `		}]` + "\n"
 	config += `		destination_interfaces = [{` + "\n"
-	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `			type = "ROUTED"` + "\n"
+	config += `			id = fmc_security_zone.test.id` + "\n"
+	config += `			type = "SecurityZone"` + "\n"
 	config += `		}]` + "\n"
 	config += `		tunnel_zone = [{` + "\n"
 	config += `			id = "0050568A-7F57-0ed3-0000-004294975576"` + "\n"
@@ -175,6 +196,10 @@ func testAccNamedDataSourceFmcPrefilterPolicyConfig() string {
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"
 	config += `		send_events_to_fmc = true` + "\n"
+	config += `		vlan_tag_literals = [{` + "\n"
+	config += `			start_tag = "11"` + "\n"
+	config += `			end_tag = "22"` + "\n"
+	config += `		}]` + "\n"
 	config += `		source_network_literals = [{` + "\n"
 	config += `			value = "10.1.1.0/24"` + "\n"
 	config += `		}]` + "\n"
@@ -189,13 +214,21 @@ func testAccNamedDataSourceFmcPrefilterPolicyConfig() string {
 	config += `			id = fmc_host.test.id` + "\n"
 	config += `			type = fmc_host.test.type` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_port_literals = [{` + "\n"
+	config += `			protocol = "6"` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_port_literals = [{` + "\n"
+	config += `			protocol = "6"` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `		}]` + "\n"
 	config += `		source_interfaces = [{` + "\n"
-	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `			type = "ROUTED"` + "\n"
+	config += `			id = fmc_security_zone.test.id` + "\n"
+	config += `			type = "SecurityZone"` + "\n"
 	config += `		}]` + "\n"
 	config += `		destination_interfaces = [{` + "\n"
-	config += `			id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `			type = "ROUTED"` + "\n"
+	config += `			id = fmc_security_zone.test.id` + "\n"
+	config += `			type = "SecurityZone"` + "\n"
 	config += `		}]` + "\n"
 	config += `		tunnel_zone = [{` + "\n"
 	config += `			id = "0050568A-7F57-0ed3-0000-004294975576"` + "\n"
