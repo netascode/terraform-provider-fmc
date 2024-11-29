@@ -2,7 +2,7 @@
 name: Device Physical Interface
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/physicalinterfaces
 put_create: true
-no_delete: true
+#no_delete: true
 data_source_name_query: true
 doc_category: Devices
 test_tags: [TF_VAR_device_id]
@@ -70,16 +70,15 @@ attributes:
     tf_name: security_zone_type
     data_path: [securityZone]
     type: String
-    default_value: SecurityZone
+    value: SecurityZone #default_value: SecurityZone
     test_value: SecurityZone
   - model_name: name
     type: String
     description: Name of the interface; it must already be present on the device.
-    reference: true
     mandatory: true
     example: GigabitEthernet0/1
   - model_name: MTU
-    if_name: mtu
+    tf_name: mtu
     type: Int64
     description: Maximum transmission unit. Can only be used when logical_name is set.
     min_int: 64
@@ -107,9 +106,9 @@ attributes:
       Used for VTEP's source interface to restrict it to NVE only.
       For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic.
       For transparent firewall modes, the `nve_only` is automatically enabled.
-    default_value: false
+    #default_value: false
     test_value: "false"
-    exclude_example: true    
+    exclude_example: true
 #IPv4 - Static
   - model_name: address
     data_path: [ipv4, static]
@@ -292,12 +291,12 @@ attributes:
         exclude_example: true
         exclude_test: true
 #IPv6 Settings:
-  - model_name: enableRA
+  - model_name: enableDADLoopback #model_name: enableRA
     data_path: [ipv6]
     tf_name: ipv6_enable_dad
     description: Indicates whether to enable IPv6 DAD Loopback Detect (DAD).
     type: Bool
-    example: false
+    #example: false
     exclude_example: true
     exclude_test: true
   - model_name: dadAttempts
@@ -332,7 +331,8 @@ attributes:
     tf_name: ipv6_enable_ra
     description: Indicates whether to enable IPv6 router advertisement (RA).
     type: Bool
-    example: false
+    #example: false
+    exclude_example: true
   - model_name: raLifeTime
     data_path: [ipv6]
     tf_name: ipv6_ra_life_time
@@ -379,7 +379,7 @@ attributes:
     data_path: [ipv6,ipv6DHCPPool]
     type: String
     description: Type of the object; this value is always 'IPv6AddressPool'.
-    default_value: IPv6AddressPool
+    #default_value: IPv6AddressPool
     exclude_example: true
     exclude_test: true
   - model_name: enableDHCPAddrConfig
@@ -442,7 +442,7 @@ attributes:
     tf_name: auto_negotiation
     type: Bool
     description: Enables auto negotiation of duplex and speed.
-    default_value: true
+    #default_value: true
     example: true
     exclude_example: true  
   - model_name: duplex
@@ -523,11 +523,13 @@ attributes:
         exclude_test: true
 # Advanced - Information
   - model_name: activeMACAddress
+    tf_name: active_mac_address
     type: String
     example: 0123.4567.89ab
     exclude_example: true
     exclude_test: true     
   - model_name: standbyMACAddress
+    tf_name: standby_mac_address
     type: String
     example: 0123.4567.89ab
     exclude_example: true

@@ -74,29 +74,37 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				MarkdownDescription: "UUID of the parent device (fmc_device.example.id).",
 				Required:            true,
 			},
-			"enabled": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to enable the interface.",
-				Computed:            true,
-			},
-			"mode": schema.StringAttribute{
-				MarkdownDescription: "Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.",
-				Computed:            true,
-			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the interface; it must already be present on the device.",
-				Optional:            true,
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Type of the resource.",
 				Computed:            true,
 			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: "Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.",
 				Computed:            true,
 			},
-			"description": schema.StringAttribute{
-				MarkdownDescription: "Optional user-created description.",
+			"enabled": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable the interface.",
 				Computed:            true,
 			},
 			"management_only": schema.BoolAttribute{
 				MarkdownDescription: "Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.",
+				Computed:            true,
+			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: "Optional user-created description.",
+				Computed:            true,
+			},
+			"mode": schema.StringAttribute{
+				MarkdownDescription: "Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.",
+				Computed:            true,
+			},
+			"security_zone_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.",
+				Computed:            true,
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name of the interface; it must already be present on the device.",
+				Optional:            true,
 				Computed:            true,
 			},
 			"mtu": schema.Int64Attribute{
@@ -107,8 +115,12 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				MarkdownDescription: "Priority 0-65535. Can only be set for routed interfaces.",
 				Computed:            true,
 			},
-			"security_zone_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.",
+			"enable_sgt_propagate": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to propagate SGT.",
+				Computed:            true,
+			},
+			"nve_only": schema.BoolAttribute{
+				MarkdownDescription: "Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.",
 				Computed:            true,
 			},
 			"ipv4_static_address": schema.StringAttribute{
@@ -127,6 +139,34 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				MarkdownDescription: "The metric for ipv4_dhcp_obtain_route. Any non-null value enables DHCP as a side effect. Must be null when using ipv4_static_address.",
 				Computed:            true,
 			},
+			"ipv4_pppoe_vpdn_group_name": schema.StringAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE Group Name.",
+				Computed:            true,
+			},
+			"ipv4_pppoe_user": schema.StringAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE User.",
+				Computed:            true,
+			},
+			"ipv4_pppoe_password": schema.StringAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE Password.",
+				Computed:            true,
+			},
+			"ipv4_pppoe_authentication": schema.StringAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE Authentication, can be one of PAP, CHAP, MSCHAP.",
+				Computed:            true,
+			},
+			"ipv4_pppoe_route_metric": schema.Int64Attribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE route metric, can be value between 1 - 255.",
+				Computed:            true,
+			},
+			"ipv4_pppoe_route_settings": schema.BoolAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE Enable Route Settings.",
+				Computed:            true,
+			},
+			"ipv4_pppoe_store_credentials_in_flash": schema.BoolAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE store username and password in Flash.",
+				Computed:            true,
+			},
 			"ipv6_enable": schema.BoolAttribute{
 				MarkdownDescription: "Indicates whether to enable IPv6.",
 				Computed:            true,
@@ -135,20 +175,12 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				MarkdownDescription: "Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).",
 				Computed:            true,
 			},
+			"ipv6_link_local_address": schema.StringAttribute{
+				MarkdownDescription: "IPv6 Configuration - Link-Local Address.",
+				Computed:            true,
+			},
 			"ipv6_enable_auto_config": schema.BoolAttribute{
 				MarkdownDescription: "Indicates whether to enable IPv6 autoconfiguration.",
-				Computed:            true,
-			},
-			"ipv6_enable_dhcp_address": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to enable DHCPv6 for address config.",
-				Computed:            true,
-			},
-			"ipv6_enable_dhcp_nonaddress": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to enable DHCPv6 for non-address config.",
-				Computed:            true,
-			},
-			"ipv6_enable_ra": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to enable IPv6 router advertisement (RA).",
 				Computed:            true,
 			},
 			"ipv6_addresses": schema.ListNestedAttribute{
@@ -171,8 +203,188 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 					},
 				},
 			},
-			"nve_only": schema.BoolAttribute{
-				MarkdownDescription: "Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.",
+			"ipv6_prefixes": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"address": schema.StringAttribute{
+							MarkdownDescription: "IPv6 address without a slash and prefix.",
+							Computed:            true,
+						},
+						"default": schema.StringAttribute{
+							MarkdownDescription: "Prefix width for the IPv6 address.",
+							Computed:            true,
+						},
+						"enforce_eui": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"ipv6_enable_dad": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable IPv6 DAD Loopback Detect (DAD).",
+				Computed:            true,
+			},
+			"ipv6_dad_attempts": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_ns_interval": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_reachable_time": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_enable_ra": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable IPv6 router advertisement (RA).",
+				Computed:            true,
+			},
+			"ipv6_ra_life_time": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_ra_interval": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_dhcp": schema.BoolAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_default_route_by_dhcp": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to obtain default route.",
+				Computed:            true,
+			},
+			"ipv6_dhcp_pool_id": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_dhcp_pool_type": schema.StringAttribute{
+				MarkdownDescription: "Type of the object; this value is always 'IPv6AddressPool'.",
+				Computed:            true,
+			},
+			"ipv6_enable_dhcp_address_config": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable DHCPv6 for address config.",
+				Computed:            true,
+			},
+			"ipv6_enable_dhcp_nonaddress_config": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable DHCPv6 for non-address config.",
+				Computed:            true,
+			},
+			"ipv6_dhcp_client_pd_prefix_name": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ipv6_dhcp_client_pd_hint_prefixes": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ip_based_monitoring": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable IP based Monitoring.",
+				Computed:            true,
+			},
+			"ip_based_monitoring_type": schema.StringAttribute{
+				MarkdownDescription: "PPPoE Configuration - PPPoE route metric, [ AUTO, PEER_IPV4, PEER_IPV6, AUTO4, AUTO6 ]",
+				Computed:            true,
+			},
+			"ip_based_monitoring_next_hop": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"auto_negotiation": schema.BoolAttribute{
+				MarkdownDescription: "Enables auto negotiation of duplex and speed.",
+				Computed:            true,
+			},
+			"duplex": schema.StringAttribute{
+				MarkdownDescription: "Duplex configuraion, can be one of INLINE, PASSIVE, TAP, ERSPAN.",
+				Computed:            true,
+			},
+			"speed": schema.StringAttribute{
+				MarkdownDescription: "Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP",
+				Computed:            true,
+			},
+			"lldp_receive": schema.BoolAttribute{
+				MarkdownDescription: "LLDP receive configuraion.",
+				Computed:            true,
+			},
+			"lldp_transmit": schema.BoolAttribute{
+				MarkdownDescription: "LLDP transmit configuraion.",
+				Computed:            true,
+			},
+			"flow_control_send": schema.StringAttribute{
+				MarkdownDescription: "Flow Control Send configuraion, can be one of ON, OFF.",
+				Computed:            true,
+			},
+			"fec_mode": schema.StringAttribute{
+				MarkdownDescription: "Path Monitoring - Monitoring Type, can be one of AUTO, CL108RS, CL74FC, CL91RS, DISABLE.",
+				Computed:            true,
+			},
+			"management_access": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable Management Access.",
+				Computed:            true,
+			},
+			"management_access_network_objects": schema.SetNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"active_mac_address": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"standby_mac_address": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"arp_table_entries": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"mac_address": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ip_address": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"enable_alias": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"enable_anti_spoofing": schema.BoolAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"allow_full_fragment_reassembly": schema.BoolAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"override_default_fragment_setting_chain": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"override_default_fragment_setting_size": schema.Int64Attribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"override_default_fragment_setting_timeout": schema.Int64Attribute{
+				MarkdownDescription: "",
 				Computed:            true,
 			},
 		},
