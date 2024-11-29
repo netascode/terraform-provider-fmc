@@ -109,7 +109,7 @@ attributes:
         tf_name: original_source_id
         type: String
         data_path: [originalSource]
-        description: ID of original source network object
+        description: ID of original source network object (host, network or range)
         example: 76d24097-41c4-4558-a4d0-a8c07ac08471
         test_value: fmc_hosts.test.items.nat_host1.id
       - model_name: id
@@ -124,7 +124,7 @@ attributes:
         tf_name: original_destination_id
         type: String
         data_path: [originalDestination]
-        description: ID of original destination network object
+        description: ID of original destination network object (host, network or range)
         example: 76d24097-41c4-4558-a4d0-a8c07ac08473
         exclude_test: true
         exclude_example: true
@@ -155,7 +155,7 @@ attributes:
         tf_name: translated_source_id
         type: String
         data_path: [translatedSource]
-        description: ID of translated source network object
+        description: ID of translated source network object (host, network or range)
         example: 76d24097-41c4-4558-a4d0-a8c07ac08476
         test_value: fmc_hosts.test.items.nat_host2.id
       - model_name: id
@@ -177,7 +177,7 @@ attributes:
         tf_name: translated_destination_id
         type: String
         data_path: [translatedDestination]
-        description: ID of translated destination network object
+        description: ID of translated destination network object (host, network or range)
         example: 76d24097-41c4-4558-a4d0-a8c07ac08478
         exclude_test: true
         exclude_example: true
@@ -250,7 +250,7 @@ attributes:
         tf_name: original_network_id
         type: String
         data_path: [originalNetwork]
-        description: ID of original network object
+        description: ID of original network object (host, network or range)
         example: 76d24097-41c4-4558-a4d0-a8c07ac08481
         test_value: fmc_hosts.test.items.nat_host3.id
       - model_name: originalPort
@@ -296,7 +296,7 @@ attributes:
         tf_name: translated_network_id
         type: String
         data_path: [translatedNetwork]
-        description: ID of translated network object
+        description: ID of translated network object (host, network or range)
         example: 76d24097-41c4-4558-a4d0-a8c07ac08483
         test_value: fmc_hosts.test.items.nat_host4.id
       - model_name: interfaceInTranslatedNetwork

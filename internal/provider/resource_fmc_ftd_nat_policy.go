@@ -157,7 +157,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"original_source_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of original source network object").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of original source network object (host, network or range)").String,
 							Optional:            true,
 						},
 						"original_source_port_id": schema.StringAttribute{
@@ -165,7 +165,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"original_destination_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of original destination network object").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of original destination network object (host, network or range)").String,
 							Optional:            true,
 						},
 						"original_destination_port_id": schema.StringAttribute{
@@ -181,7 +181,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"translated_source_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of translated source network object").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of translated source network object (host, network or range)").String,
 							Optional:            true,
 						},
 						"translated_source_port_id": schema.StringAttribute{
@@ -193,7 +193,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"translated_destination_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of translated destination network object").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of translated destination network object (host, network or range)").String,
 							Optional:            true,
 						},
 						"translated_destination_port_id": schema.StringAttribute{
@@ -240,7 +240,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"original_network_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of original network object").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of original network object (host, network or range)").String,
 							Optional:            true,
 						},
 						"original_port": schema.Int64Attribute{
@@ -267,7 +267,7 @@ func (r *FTDNATPolicyResource) Schema(ctx context.Context, req resource.SchemaRe
 							Optional:            true,
 						},
 						"translated_network_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("ID of translated network object").String,
+							MarkdownDescription: helpers.NewAttributeDescription("ID of translated network object (host, network or range)").String,
 							Optional:            true,
 						},
 						"translated_network_is_destination_interface": schema.BoolAttribute{
