@@ -105,6 +105,26 @@ func (r *DeviceVRFResource) Schema(ctx context.Context, req resource.SchemaReque
 				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
 				Optional:            true,
 			},
+			"interfaces": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Set of interfaces (fmc_device_physical_interface, fmc_device_subinterface, ...).").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"interface_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.").String,
+							Required:            true,
+						},
+						"interface_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Required:            true,
+						},
+						"interface_logical_name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Required:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

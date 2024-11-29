@@ -30,8 +30,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
 func TestAccDataSourceFmcDeviceVRF(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id")
+	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_interface_name") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_interface_name")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_vrf.test", "name", "VRF_A"))
@@ -59,6 +59,12 @@ func TestAccDataSourceFmcDeviceVRF(t *testing.T) {
 const testAccDataSourceFmcDeviceVRFPrerequisitesConfig = `
 
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+variable "interface_name" { default = null } // tests will set $TF_VAR_interface_name
+
+data "fmc_device_physical_interface" "example" {
+  name        = var.interface_name
+  device_id   = var.device_id
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -70,6 +76,11 @@ func testAccDataSourceFmcDeviceVRFConfig() string {
 	config += `	device_id = var.device_id` + "\n"
 	config += `	name = "VRF_A"` + "\n"
 	config += `	description = "My VRF object"` + "\n"
+	config += `	interfaces = [{` + "\n"
+	config += `		interface_id = var.interface_id` + "\n"
+	config += `		interface_name = var.interface_name` + "\n"
+	config += `		interface_logical_name = var.interface_logical_name` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -86,6 +97,11 @@ func testAccNamedDataSourceFmcDeviceVRFConfig() string {
 	config += `	device_id = var.device_id` + "\n"
 	config += `	name = "VRF_A"` + "\n"
 	config += `	description = "My VRF object"` + "\n"
+	config += `	interfaces = [{` + "\n"
+	config += `		interface_id = var.interface_id` + "\n"
+	config += `		interface_name = var.interface_name` + "\n"
+	config += `		interface_logical_name = var.interface_logical_name` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `

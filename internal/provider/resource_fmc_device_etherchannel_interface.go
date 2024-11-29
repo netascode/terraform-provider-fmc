@@ -254,9 +254,9 @@ func (r *DeviceEtherChannelInterfaceResource) Create(ctx context.Context, req re
 	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
-	tflog.Debug(ctx, fmt.Sprintf("%s: considering object EtherChannel_Id %s", plan.Id, plan.EtherChannelId))
+	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
 
-	if plan.Id.ValueString() == "" && plan.EtherChannelId.ValueString() != "" {
+	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
@@ -268,9 +268,9 @@ func (r *DeviceEtherChannelInterfaceResource) Create(ctx context.Context, req re
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if plan.EtherChannelId.ValueString() == v.Get("name").String() {
+					if plan.Name.ValueString() == v.Get("name").String() {
 						plan.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%s', id: %s", plan.Id, plan.EtherChannelId.ValueString(), plan.Id))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%s', id: %s", plan.Id, plan.Name.ValueString(), plan.Id))
 						return false
 					}
 					return true
@@ -283,7 +283,7 @@ func (r *DeviceEtherChannelInterfaceResource) Create(ctx context.Context, req re
 		}
 
 		if plan.Id.ValueString() == "" {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.EtherChannelId.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.Name.ValueString()))
 			return
 		}
 	}

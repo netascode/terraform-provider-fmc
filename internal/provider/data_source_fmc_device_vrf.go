@@ -87,6 +87,26 @@ func (d *DeviceVRFDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "Description",
 				Computed:            true,
 			},
+			"interfaces": schema.SetNestedAttribute{
+				MarkdownDescription: "Set of interfaces (fmc_device_physical_interface, fmc_device_subinterface, ...).",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"interface_id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.",
+							Computed:            true,
+						},
+						"interface_name": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"interface_logical_name": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
