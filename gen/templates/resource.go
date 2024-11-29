@@ -257,10 +257,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- end}}
 										{{- if or .Reference .Mandatory}}
 										Required:            true,
-										{{- else if not .ResourceId}}
+										{{- else if and (not .ResourceId) (not .Computed)}}
 										Optional:            true,
 										{{- end}}
-										{{- if or (len .DefaultValue) .ResourceId}}
+										{{- if or (len .DefaultValue) .ResourceId .Computed}}
 										Computed:            true,
 										{{- end}}
 										{{- if len .EnumValues}}
@@ -292,9 +292,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- else if and (len .DefaultValue) (eq .Type "String")}}
 										Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 										{{- end}}
-										{{- if .RequiresReplace}}
+										{{- if or .RequiresReplace .Computed}}
 										PlanModifiers: []planmodifier.{{.Type}}{
+											{{- if .RequiresReplace}}
 											{{snakeCase .Type}}planmodifier.RequiresReplace(),
+											{{end}}
+											{{- if .Computed}}
+											{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+											{{end}}
 										},
 										{{- end}}
 										{{- if isNestedListMapSet .}}
@@ -322,10 +327,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- end}}
 													{{- if or .Reference .Mandatory}}
 													Required:            true,
-													{{- else if not .ResourceId}}
+													{{- else if and (not .ResourceId) (not .Computed)}}
 													Optional:            true,
 													{{- end}}
-													{{- if or (len .DefaultValue) .ResourceId}}
+													{{- if or (len .DefaultValue) .ResourceId .Computed}}
 													Computed:            true,
 													{{- end}}
 													{{- if len .EnumValues}}
@@ -357,9 +362,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- else if and (len .DefaultValue) (eq .Type "String")}}
 													Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 													{{- end}}
-													{{- if .RequiresReplace}}
+													{{- if or .RequiresReplace .Computed}}
 													PlanModifiers: []planmodifier.{{.Type}}{
+														{{- if .RequiresReplace}}
 														{{snakeCase .Type}}planmodifier.RequiresReplace(),
+														{{end}}
+														{{- if .Computed}}
+														{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+														{{end}}
 													},
 													{{- end}}
 												},
