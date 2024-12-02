@@ -4,7 +4,6 @@ resource "fmc_device_etherchannel_interface" "example" {
   description          = "my description"
   mode                 = "NONE"
   security_zone_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  name                 = ""
   mtu                  = 9000
   enable_sgt_propagate = false
   ether_channel_id     = "1"

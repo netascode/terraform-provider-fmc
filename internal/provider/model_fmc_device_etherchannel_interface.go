@@ -173,9 +173,6 @@ func (data DeviceEtherChannelInterface) toBody(ctx context.Context, state Device
 		body, _ = sjson.Set(body, "securityZone.id", data.SecurityZoneId.ValueString())
 	}
 	body, _ = sjson.Set(body, "securityZone.type", "SecurityZone")
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
-	}
 	if !data.Mtu.IsNull() {
 		body, _ = sjson.Set(body, "MTU", data.Mtu.ValueInt64())
 	}
@@ -1400,6 +1397,13 @@ func (data *DeviceEtherChannelInterface) fromBodyPartial(ctx context.Context, re
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *DeviceEtherChannelInterface) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Name.IsUnknown() {
+		if value := res.Get("name"); value.Exists() {
+			data.Name = types.StringValue(value.String())
+		} else {
+			data.Name = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns

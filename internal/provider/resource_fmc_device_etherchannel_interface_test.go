@@ -37,7 +37,7 @@ func TestAccFmcDeviceEtherChannelInterface(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "logical_name", "myinterface-0-1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "description", "my description"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "mode", "NONE"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "name", ""))
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_etherchannel_interface.test", "name"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "mtu", "9000"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "ether_channel_id", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_etherchannel_interface.test", "ipv4_static_address", "10.1.1.1"))
@@ -99,7 +99,6 @@ func testAccFmcDeviceEtherChannelInterfaceConfig_all() string {
 	config += `	management_only = false` + "\n"
 	config += `	description = "my description"` + "\n"
 	config += `	mode = "NONE"` + "\n"
-	config += `	name = ""` + "\n"
 	config += `	mtu = 9000` + "\n"
 	config += `	ether_channel_id = "1"` + "\n"
 	config += `	nve_only = false` + "\n"

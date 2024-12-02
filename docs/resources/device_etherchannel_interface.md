@@ -19,7 +19,6 @@ resource "fmc_device_etherchannel_interface" "example" {
   description          = "my description"
   mode                 = "NONE"
   security_zone_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  name                 = ""
   mtu                  = 9000
   enable_sgt_propagate = false
   ether_channel_id     = "1"
@@ -109,7 +108,6 @@ resource "fmc_device_etherchannel_interface" "example" {
 - `management_only` (Boolean) Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.
 - `mtu` (Number) Maximum transmission unit. Can only be used when logical_name is set.
   - Range: `64`-`9000`
-- `name` (String) Name of the interface; it must already be present on the device.
 - `nve_only` (Boolean) Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.
 - `override_default_fragment_setting_chain` (Number) - Range: `1`-`8200`
 - `override_default_fragment_setting_size` (Number) - Range: `1`-`30000`
@@ -127,6 +125,7 @@ resource "fmc_device_etherchannel_interface" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
+- `name` (String) Name of the interface; it must already be present on the device.
 
 <a id="nestedatt--arp_table_entries"></a>
 ### Nested Schema for `arp_table_entries`
