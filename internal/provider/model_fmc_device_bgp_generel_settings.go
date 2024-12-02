@@ -79,9 +79,6 @@ func (data DeviceBGPGenerelSettings) toBody(ctx context.Context, state DeviceBGP
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
-	}
 	body, _ = sjson.Set(body, "type", "VirtualRouter")
 	if !data.AsNumber.IsNull() {
 		body, _ = sjson.Set(body, "asNumber", data.AsNumber.ValueString())
@@ -420,6 +417,13 @@ func (data *DeviceBGPGenerelSettings) fromBodyPartial(ctx context.Context, res g
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *DeviceBGPGenerelSettings) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Name.IsUnknown() {
+		if value := res.Get("name"); value.Exists() {
+			data.Name = types.StringValue(value.String())
+		} else {
+			data.Name = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns

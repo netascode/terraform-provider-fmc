@@ -34,7 +34,7 @@ func TestAccDataSourceFmcDeviceBGPGenerelSettings(t *testing.T) {
 		t.Skip("skipping test, set environment variable TF_VAR_device_id")
 	}
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_generel_settings.test", "name", ""))
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_bgp_generel_settings.test", "name"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_generel_settings.test", "as_number", "65535"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_generel_settings.test", "router_id", "AUTOMATIC"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_generel_settings.test", "scanning_interval", ""))
@@ -76,7 +76,6 @@ variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 func testAccDataSourceFmcDeviceBGPGenerelSettingsConfig() string {
 	config := `resource "fmc_device_bgp_generel_settings" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
-	config += `	name = ""` + "\n"
 	config += `	as_number = "65535"` + "\n"
 	config += `	router_id = "AUTOMATIC"` + "\n"
 	config += `	scanning_interval = ` + "\n"
@@ -101,7 +100,6 @@ func testAccDataSourceFmcDeviceBGPGenerelSettingsConfig() string {
 func testAccNamedDataSourceFmcDeviceBGPGenerelSettingsConfig() string {
 	config := `resource "fmc_device_bgp_generel_settings" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
-	config += `	name = ""` + "\n"
 	config += `	as_number = "65535"` + "\n"
 	config += `	router_id = "AUTOMATIC"` + "\n"
 	config += `	scanning_interval = ` + "\n"

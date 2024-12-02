@@ -88,7 +88,10 @@ func (r *DeviceBGPGenerelSettingsResource) Schema(ctx context.Context, req resou
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"as_number": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
@@ -253,6 +256,7 @@ func (r *DeviceBGPGenerelSettingsResource) Create(ctx context.Context, req resou
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
