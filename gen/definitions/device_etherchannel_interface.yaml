@@ -72,8 +72,7 @@ attributes:
   - model_name: name
     type: String
     description: Name of the interface; it must already be present on the device.
-    mandatory: true
-    example: Port-channel1
+    computed: true
   - model_name: MTU
     tf_name: mtu
     type: Int64
@@ -112,7 +111,7 @@ attributes:
         type: String
         description: UUID of the object (such as fmc_device_physical_interface.example.id, ...).
         id: true
-        exclude_example: true
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
         test_value: var.physical_interface_id
       - model_name: type
         type: String

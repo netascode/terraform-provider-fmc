@@ -38,7 +38,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
-	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -90,11 +89,29 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource.").AddDefaultValueDescription("EtherChannelInterface").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString("EtherChannelInterface"),
+			},
+			"logical_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.").String,
+				Optional:            true,
+			},
 			"enabled": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable the interface.").AddDefaultValueDescription("true").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
+			},
+			"management_only": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.").String,
+				Optional:            true,
+			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
+				Optional:            true,
 			},
 			"mode": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.").AddStringEnumDescription("INLINE", "PASSIVE", "TAP", "ERSPAN", "NONE", "SWITCHPORT").String,
@@ -103,35 +120,56 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 					stringvalidator.OneOf("INLINE", "PASSIVE", "TAP", "ERSPAN", "NONE", "SWITCHPORT"),
 				},
 			},
+			"security_zone_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.").String,
+				Optional:            true,
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the interface; it must already be present on the device.").String,
+				Required:            true,
+			},
+			"mtu": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Maximum transmission unit. Can only be used when logical_name is set.").AddIntegerRangeDescription(64, 9000).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(64, 9000),
+				},
+			},
+			"priority": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Priority 0-65535. Can only be set for routed interfaces.").AddIntegerRangeDescription(0, 65535).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 65535),
+				},
+			},
+			"enable_sgt_propagate": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to propagate SGT.").AddDefaultValueDescription("false").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
 			"ether_channel_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Value of Ether Channel ID, allowed range 1 to 48.").String,
 				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+			},
+			"selected_interfaces": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing physical interfaces (data.fmc_device_physical_interface or fmc_device_physical_interface).").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_device_physical_interface.example.id, ...).").String,
+							Optional:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'PhysicalInterface'.").String,
+							Optional:            true,
+						},
+					},
 				},
 			},
-			"logical_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.").String,
-				Optional:            true,
-			},
-			"description": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
-				Optional:            true,
-			},
-			"management_only": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.").String,
-				Optional:            true,
-			},
-			"mtu": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Maximum transmission unit. Can only be used when logical_name is set.").String,
-				Optional:            true,
-			},
-			"priority": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Priority 0-65535. Can only be set for routed interfaces.").String,
-				Optional:            true,
-			},
-			"security_zone_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.").String,
+			"nve_only": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.").String,
 				Optional:            true,
 			},
 			"ipv4_static_address": schema.StringAttribute{
@@ -153,6 +191,40 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 					int64validator.Between(1, 255),
 				},
 			},
+			"ipv4_pppoe_vpdn_group_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE Group Name.").String,
+				Optional:            true,
+			},
+			"ipv4_pppoe_user": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE User.").String,
+				Optional:            true,
+			},
+			"ipv4_pppoe_password": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE Password.").String,
+				Optional:            true,
+			},
+			"ipv4_pppoe_authentication": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE Authentication, can be one of PAP, CHAP, MSCHAP.").AddStringEnumDescription("PAP", "CHAP", "MSCHAP").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("PAP", "CHAP", "MSCHAP"),
+				},
+			},
+			"ipv4_pppoe_route_metric": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE route metric, can be value between 1 - 255.").AddIntegerRangeDescription(1, 255).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 255),
+				},
+			},
+			"ipv4_pppoe_route_settings": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE Enable Route Settings.").String,
+				Optional:            true,
+			},
+			"ipv4_pppoe_store_credentials_in_flash": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE store username and password in Flash.").String,
+				Optional:            true,
+			},
 			"ipv6_enable": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6.").String,
 				Optional:            true,
@@ -161,20 +233,12 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).").String,
 				Optional:            true,
 			},
+			"ipv6_link_local_address": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("IPv6 Configuration - Link-Local Address.").String,
+				Optional:            true,
+			},
 			"ipv6_enable_auto_config": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6 autoconfiguration.").String,
-				Optional:            true,
-			},
-			"ipv6_enable_dhcp_address": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCPv6 for address config.").String,
-				Optional:            true,
-			},
-			"ipv6_enable_dhcp_nonaddress": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCPv6 for non-address config.").String,
-				Optional:            true,
-			},
-			"ipv6_enable_ra": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6 router advertisement (RA).").String,
 				Optional:            true,
 			},
 			"ipv6_addresses": schema.ListNestedAttribute{
@@ -197,31 +261,227 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 					},
 				},
 			},
-			"nve_only": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.").AddDefaultValueDescription("false").String,
+			"ipv6_prefixes": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("IPv6 address without a slash and prefix.").String,
+							Optional:            true,
+						},
+						"default": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Prefix width for the IPv6 address.").String,
+							Optional:            true,
+						},
+						"enforce_eui": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).").String,
+							Optional:            true,
+						},
+					},
+				},
 			},
-			"selected_interfaces": schema.SetNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).").String,
+			"ipv6_enable_dad": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6 DAD Loopback Detect (DAD).").String,
+				Optional:            true,
+			},
+			"ipv6_dad_attempts": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 600).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 600),
+				},
+			},
+			"ipv6_ns_interval": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1000, 3600000).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1000, 3600000),
+				},
+			},
+			"ipv6_reachable_time": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 3600000).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 3600000),
+				},
+			},
+			"ipv6_enable_ra": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IPv6 router advertisement (RA).").String,
+				Optional:            true,
+			},
+			"ipv6_ra_life_time": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 9000).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 9000),
+				},
+			},
+			"ipv6_ra_interval": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(3, 1800).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(3, 1800),
+				},
+			},
+			"ipv6_dhcp": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"ipv6_default_route_by_dhcp": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to obtain default route.").String,
+				Optional:            true,
+			},
+			"ipv6_dhcp_pool_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"ipv6_dhcp_pool_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'IPv6AddressPool'.").String,
+				Optional:            true,
+			},
+			"ipv6_enable_dhcp_address_config": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCPv6 for address config.").String,
+				Optional:            true,
+			},
+			"ipv6_enable_dhcp_nonaddress_config": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable DHCPv6 for non-address config.").String,
+				Optional:            true,
+			},
+			"ipv6_dhcp_client_pd_prefix_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"ipv6_dhcp_client_pd_hint_prefixes": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"ip_based_monitoring": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable IP based Monitoring.").String,
+				Optional:            true,
+			},
+			"ip_based_monitoring_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("PPPoE Configuration - PPPoE route metric, [ AUTO, PEER_IPV4, PEER_IPV6, AUTO4, AUTO6 ]").AddStringEnumDescription("AUTO", "PEER_IPV4", "PEER_IPV6", "AUTO4", "AUTO6").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "PEER_IPV4", "PEER_IPV6", "AUTO4", "AUTO6"),
+				},
+			},
+			"ip_based_monitoring_next_hop": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"auto_negotiation": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enables auto negotiation of duplex and speed.").String,
+				Optional:            true,
+			},
+			"duplex": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Duplex configuraion, can be one of INLINE, PASSIVE, TAP, ERSPAN.").AddStringEnumDescription("AUTO", "FULL", "HALF").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "FULL", "HALF"),
+				},
+			},
+			"speed": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP").AddStringEnumDescription("AUTO", "TEN", "HUNDRED", "THOUSAND", "TEN_THOUSAND", "TWENTY_FIVE_THOUSAND", "FORTY_THOUSAND", "HUNDRED_THOUSAND", "TWO_HUNDRED_THOUSAND", "DETECT_SFP").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "TEN", "HUNDRED", "THOUSAND", "TEN_THOUSAND", "TWENTY_FIVE_THOUSAND", "FORTY_THOUSAND", "HUNDRED_THOUSAND", "TWO_HUNDRED_THOUSAND", "DETECT_SFP"),
+				},
+			},
+			"lldp_receive": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("LLDP receive configuraion.").String,
+				Optional:            true,
+			},
+			"lldp_transmit": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("LLDP transmit configuraion.").String,
+				Optional:            true,
+			},
+			"flow_control_send": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Flow Control Send configuraion, can be one of ON, OFF.").AddStringEnumDescription("ON", "OFF").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ON", "OFF"),
+				},
+			},
+			"fec_mode": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Path Monitoring - Monitoring Type, can be one of AUTO, CL108RS, CL74FC, CL91RS, DISABLE.").AddStringEnumDescription("AUTO", "CL108RS", "CL74FC", "CL91RS", "DISABLE").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "CL108RS", "CL74FC", "CL91RS", "DISABLE"),
+				},
+			},
+			"management_access": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable Management Access.").String,
+				Optional:            true,
+			},
+			"management_access_network_objects": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_device_physical_interface.example.id, ...).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
-						},
-						"type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'PhysicalInterface'.").AddDefaultValueDescription("PhysicalInterface").String,
-							Optional:            true,
-							Computed:            true,
-							Default:             stringdefault.StaticString("PhysicalInterface"),
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
-							},
 						},
 					},
+				},
+			},
+			"active_mac_address": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"standby_mac_address": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"arp_table_entries": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"mac_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"ip_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"enable_alias": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
+			"enable_anti_spoofing": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"allow_full_fragment_reassembly": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+			},
+			"override_default_fragment_setting_chain": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8200).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 8200),
+				},
+			},
+			"override_default_fragment_setting_size": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 30000).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 30000),
+				},
+			},
+			"override_default_fragment_setting_timeout": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 30).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 30),
 				},
 			},
 		},
@@ -254,45 +514,12 @@ func (r *DeviceEtherChannelInterfaceResource) Create(ctx context.Context, req re
 	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
-	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
-
-	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
-		offset := 0
-		limit := 1000
-		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
-			res, err := r.client.Get(plan.getPath()+queryString, reqMods...)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-				return
-			}
-			if value := res.Get("items"); len(value.Array()) > 0 {
-				value.ForEach(func(k, v gjson.Result) bool {
-					if plan.Name.ValueString() == v.Get("name").String() {
-						plan.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%s', id: %s", plan.Id, plan.Name.ValueString(), plan.Id))
-						return false
-					}
-					return true
-				})
-			}
-			if plan.Id.ValueString() != "" || !res.Get("paging.next.0").Exists() {
-				break
-			}
-			offset += limit
-		}
-
-		if plan.Id.ValueString() == "" {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.Name.ValueString()))
-			return
-		}
-	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
 	body := plan.toBody(ctx, DeviceEtherChannelInterface{})
-	res, err := r.client.Put(plan.getPath()+"/"+url.PathEscape(plan.Id.ValueString()), body, reqMods...)
+	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
 		return
@@ -419,6 +646,11 @@ func (r *DeviceEtherChannelInterfaceResource) Delete(ctx context.Context, req re
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+		return
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
@@ -432,16 +664,15 @@ func (r *DeviceEtherChannelInterfaceResource) Delete(ctx context.Context, req re
 func (r *DeviceEtherChannelInterfaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
-	if len(idParts) != 3 || idParts[0] == "" || idParts[3] == "" || idParts[2] == "" {
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: <device_id>,<ether_channel_id>,<id>. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: <device_id>,<id>. Got: %q", req.ID),
 		)
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("device_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("ether_channel_id"), idParts[3])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[1])...)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
 }

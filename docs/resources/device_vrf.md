@@ -17,6 +17,13 @@ resource "fmc_device_vrf" "example" {
   device_id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   name        = "VRF_A"
   description = "My VRF object"
+  interfaces = [
+    {
+      interface_id           = ""
+      interface_name         = ""
+      interface_logical_name = ""
+    }
+  ]
 }
 ```
 
@@ -32,12 +39,22 @@ resource "fmc_device_vrf" "example" {
 
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
+- `interfaces` (Attributes Set) Set of interfaces (fmc_device_physical_interface, fmc_device_subinterface, ...). (see [below for nested schema](#nestedatt--interfaces))
 - `type` (String) Type of the object; this value is always 'VirtualRouter'.
   - Default value: `VirtualRouter`
 
 ### Read-Only
 
 - `id` (String) The id of the object
+
+<a id="nestedatt--interfaces"></a>
+### Nested Schema for `interfaces`
+
+Required:
+
+- `interface_id` (String) UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.
+- `interface_logical_name` (String)
+- `interface_name` (String)
 
 ## Import
 
