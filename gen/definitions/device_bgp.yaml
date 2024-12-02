@@ -1,5 +1,5 @@
 ---
-name: Device BGP Generel Settings
+name: Device BGP
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/bgp
 data_source_name_query: true
 doc_category: Devices
@@ -21,15 +21,155 @@ attributes:
   - model_name: asNumber
     type: String
     computed: true
-    #mandatory: true
-    #example: "65535"
 # BGP - IPv4 - General
   - model_name: type
+    tf_name: address_family_type
     data_path: [addressFamilyIPv4]
     type: String
     computed: true
-    
-
+  - model_name: id
+    tf_name: learned_route_map_id
+    data_path: [addressFamilyIPv4, aftableMap]
+    type: String
+    id: true
+  - model_name: defaultInformationOrginate
+    data_path: [addressFamilyIPv4]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true  
+    default_value: false
+    description: Generate default routes
+  - model_name: autoSummary
+    data_path: [addressFamilyIPv4]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true  
+    default_value: false
+    description: Summarize subnet routes into network level routes
+  - model_name: bgpSupressInactive
+    data_path: [addressFamilyIPv4]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true 
+    default_value: true
+    description: Suppresing advertise inactive routes
+  - model_name: synchronization
+    data_path: [addressFamilyIPv4]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true  
+    default_value: false
+    description: Synchronize between BGP and IGP systems
+  - model_name: bgpRedistributeInternal
+    data_path: [addressFamilyIPv4]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true 
+    default_value: false
+    description: Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)
+  - model_name: externalDistance
+    data_path: [addressFamilyIPv4, distance]
+    type: Int64
+    min_int: 1
+    max_int: 255
+    default_value: 20
+    exclude_example: true
+  - model_name: internalDistance
+    data_path: [addressFamilyIPv4, distance]
+    type: Int64
+    min_int: 1
+    max_int: 255
+    default_value: 200
+    exclude_example: true
+  - model_name: localDistance
+    data_path: [addressFamilyIPv4, distance]
+    type: Int64
+    min_int: 1
+    max_int: 255
+    default_value: 200
+    exclude_example: true
+  - model_name: ibgp
+    tf_name: forward_packets_over_multipath_ibgp
+    data_path: [addressFamilyIPv4]
+    type: Int64
+    min_int: 1
+    max_int: 8
+    default_value: 1
+    exclude_example: true
+  - model_name: ebgp
+    tf_name: forward_packets_over_multipath_ebgp
+    data_path: [addressFamilyIPv4]
+    type: Int64
+    min_int: 1
+    max_int: 8
+    default_value: 1
+    exclude_example: true
+# BGP - IPv4 - Neighbor
+  - model_name: neighbors
+    data_path: [addressFamilyIPv4]
+    type: Set
+    attributes:
+      - model_name: ipv4Address
+        tf_name: ipv4_address
+        type: String
+        example: "10.1.1.1"
+        exclude_test: true
+      - model_name: remoteAs
+        tf_name: romote_as
+        type: String
+        example: "65534"
+        exclude_test: true
+      - model_name: fallOverBFD
+        data_path: [neighborGeneral]
+        tf_name: bfd
+        type: String
+        enum_values: [ SINGLE_HOP, MULTI_HOP, AUTO_DETECT_HOP, NONE ]
+        example: "SINGLE_HOP"
+        exclude_test: true
+        default_value: "NONE"
+        exclude_example: true
+      - model_name: id
+        data_path: [neighborGeneral, updateSource]
+        tf_name: update_source_interface_id
+        id: true
+        type: String
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        exclude_test: true
+        exclude_example: true
+      - model_name: enableAddress
+        data_path: [neighborGeneral]
+        tf_name: address_family_ipv4
+        type: Bool
+        exclude_test: true
+        default_value: false
+        exclude_example: true
+      - model_name: shutdown
+        data_path: [neighborGeneral]
+        tf_name: shutdown
+        type: Bool
+        exclude_test: true
+        default_value: false
+        exclude_example: true
+      - model_name: description
+        data_path: [neighborGeneral]
+        type: String
+        example: "My BGP Peer"
+        exclude_test: true
+#  - model_name: maximumPaths
+#    data_path: [addressFamilyIPv4]
+#    type: Set
+#    attributes:
+#      - model_name: value
+#        type: Int64
+#        exclude_example: true
+#        min_int: 1
+#        max_int: 8
+#        default_value: 1
 
 
 test_prerequisites: |-

@@ -25,10 +25,14 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -43,26 +47,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &DeviceBGPGenerelSettingsResource{}
-	_ resource.ResourceWithImportState = &DeviceBGPGenerelSettingsResource{}
+	_ resource.Resource                = &DeviceBGPResource{}
+	_ resource.ResourceWithImportState = &DeviceBGPResource{}
 )
 
-func NewDeviceBGPGenerelSettingsResource() resource.Resource {
-	return &DeviceBGPGenerelSettingsResource{}
+func NewDeviceBGPResource() resource.Resource {
+	return &DeviceBGPResource{}
 }
 
-type DeviceBGPGenerelSettingsResource struct {
+type DeviceBGPResource struct {
 	client *fmc.Client
 }
 
-func (r *DeviceBGPGenerelSettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_bgp_generel_settings"
+func (r *DeviceBGPResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_bgp"
 }
 
-func (r *DeviceBGPGenerelSettingsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device BGP Generel Settings.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device BGP.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -102,131 +106,167 @@ func (r *DeviceBGPGenerelSettingsResource) Schema(ctx context.Context, req resou
 			},
 			"as_number": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Required:            true,
-			},
-			"router_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address").String,
-				Optional:            true,
-			},
-			"scanning_interval": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Integer stating Scanning interval of BGP routers for next hop validation.").AddIntegerRangeDescription(5, 60).String,
-				Optional:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(5, 60),
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"as_no_in_path_attribute": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Integer stating the range to discard routes that have as-path segments that exceed a specified value.").AddIntegerRangeDescription(1, 254).String,
-				Optional:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(1, 254),
+			"address_family_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"log_neighbor_changes": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating whether to enable logging when the status of BGP neighbor changes.").String,
-				Optional:            true,
-			},
-			"tcp_path_mtu_discovery": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating whether to enable logging when the status of BGP neighbor changes.").String,
-				Optional:            true,
-			},
-			"reset_session_upon_failover": schema.BoolAttribute{
+			"learned_route_map_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
-			},
-			"enforce_first_peer_as": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating whether to discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.").String,
-				Optional:            true,
-			},
-			"use_dot_notation": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.").String,
-				Optional:            true,
-			},
-			"aggregate_timer": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Integer stating Interval at which BGP routes will be aggregated or to disable timer-based router aggregation.").AddIntegerRangeDescription(6, 60).String,
-				Optional:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(6, 60),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"default_local_preference": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 4294967295).String,
+			"default_information_orginate": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Generate default routes").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"auto_summary": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Summarize subnet routes into network level routes").AddDefaultValueDescription("false").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"bgp_supress_inactive": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Suppresing advertise inactive routes").AddDefaultValueDescription("true").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"synchronization": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Synchronize between BGP and IGP systems").AddDefaultValueDescription("false").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"bgp_redistribute_internal": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)").AddDefaultValueDescription("false").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"external_distance": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("20").String,
+				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
-					int64validator.Between(0, 4294967295),
+					int64validator.Between(1, 255),
 				},
+				Default: int64default.StaticInt64(20),
 			},
-			"compare_med_from_different_neighbors": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Allow comparing MED from different neighbors").String,
+			"internal_distance": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("200").String,
 				Optional:            true,
-			},
-			"compare_router_id_in_path": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Compare Router ID for identical EBGP paths").String,
-				Optional:            true,
-			},
-			"pick_best_med": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Pick the best-MED path among paths advertised by neighbor AS").String,
-				Optional:            true,
-			},
-			"missing_med_as_best": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Treat missing MED as the best preferred path").String,
-				Optional:            true,
-			},
-			"keepalive_interval": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 65535).String,
-				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
-					int64validator.Between(0, 65535),
+					int64validator.Between(1, 255),
 				},
+				Default: int64default.StaticInt64(200),
 			},
-			"hold_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 65535).String,
+			"local_distance": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("200").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
-					int64validator.Between(0, 65535),
+					int64validator.Between(1, 255),
 				},
+				Default: int64default.StaticInt64(200),
 			},
-			"min_hold_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(3, 65535).String,
+			"forward_packets_over_multipath_ibgp": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8).AddDefaultValueDescription("1").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
-					int64validator.Between(3, 65535),
+					int64validator.Between(1, 8),
 				},
+				Default: int64default.StaticInt64(1),
 			},
-			"next_hop_address_tracking": schema.BoolAttribute{
+			"forward_packets_over_multipath_ebgp": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8).AddDefaultValueDescription("1").String,
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 8),
+				},
+				Default: int64default.StaticInt64(1),
+			},
+			"neighbors": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
-			},
-			"next_hop_delay_interval": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 100).String,
-				Optional:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(0, 100),
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"ipv4_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"romote_as": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"bfd": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("SINGLE_HOP", "MULTI_HOP", "AUTO_DETECT_HOP", "NONE").AddDefaultValueDescription("NONE").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("SINGLE_HOP", "MULTI_HOP", "AUTO_DETECT_HOP", "NONE"),
+							},
+							Default: stringdefault.StaticString("NONE"),
+						},
+						"update_source_interface_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"address_family_ipv4": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"shutdown": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+					},
 				},
 			},
-			"graceful_restart": schema.BoolAttribute{
+			"maximum_paths": schema.SetNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
-			},
-			"graceful_restart_restart_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 3600).String,
-				Optional:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(1, 3600),
-				},
-			},
-			"graceful_restart_stale_path_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 3600).String,
-				Optional:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(1, 3600),
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"value": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8).AddDefaultValueDescription("1").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 8),
+							},
+							Default: int64default.StaticInt64(1),
+						},
+					},
 				},
 			},
 		},
 	}
 }
 
-func (r *DeviceBGPGenerelSettingsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *DeviceBGPResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -238,8 +278,8 @@ func (r *DeviceBGPGenerelSettingsResource) Configure(_ context.Context, req reso
 
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
-func (r *DeviceBGPGenerelSettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan DeviceBGPGenerelSettings
+func (r *DeviceBGPResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan DeviceBGP
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -256,7 +296,7 @@ func (r *DeviceBGPGenerelSettingsResource) Create(ctx context.Context, req resou
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, DeviceBGPGenerelSettings{})
+	body := plan.toBody(ctx, DeviceBGP{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -277,8 +317,8 @@ func (r *DeviceBGPGenerelSettingsResource) Create(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (r *DeviceBGPGenerelSettingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state DeviceBGPGenerelSettings
+func (r *DeviceBGPResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state DeviceBGP
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -329,8 +369,8 @@ func (r *DeviceBGPGenerelSettingsResource) Read(ctx context.Context, req resourc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
-func (r *DeviceBGPGenerelSettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state DeviceBGPGenerelSettings
+func (r *DeviceBGPResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state DeviceBGP
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -369,8 +409,8 @@ func (r *DeviceBGPGenerelSettingsResource) Update(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *DeviceBGPGenerelSettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state DeviceBGPGenerelSettings
+func (r *DeviceBGPResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state DeviceBGP
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -400,10 +440,10 @@ func (r *DeviceBGPGenerelSettingsResource) Delete(ctx context.Context, req resou
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *DeviceBGPGenerelSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *DeviceBGPResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+	if len(idParts) != 3 || idParts[0] == "" || idParts[2] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
 			fmt.Sprintf("Expected import identifier with format: <device_id>,<id>. Got: %q", req.ID),
@@ -411,7 +451,8 @@ func (r *DeviceBGPGenerelSettingsResource) ImportState(ctx context.Context, req 
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("device_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("learned_route_map_id"), idParts[5])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[2])...)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)
 }

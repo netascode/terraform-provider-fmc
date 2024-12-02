@@ -61,6 +61,7 @@ resource "fmc_device_bgp_generel_settings" "example" {
 
 - `id` (String) The id of the object
 - `name` (String)
+- `type` (String)
 
 ## Import
 

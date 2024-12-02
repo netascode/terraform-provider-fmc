@@ -56,4 +56,5 @@ data "fmc_device_bgp_generel_settings" "example" {
 - `router_id` (String) String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address
 - `scanning_interval` (Number) Integer stating Scanning interval of BGP routers for next hop validation.
 - `tcp_path_mtu_discovery` (Boolean) Boolean stating whether to enable logging when the status of BGP neighbor changes.
+- `type` (String)
 - `use_dot_notation` (Boolean) Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.

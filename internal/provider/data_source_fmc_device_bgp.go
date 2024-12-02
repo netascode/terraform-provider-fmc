@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &DeviceBGPGenerelSettingsDataSource{}
-	_ datasource.DataSourceWithConfigure = &DeviceBGPGenerelSettingsDataSource{}
+	_ datasource.DataSource              = &DeviceBGPDataSource{}
+	_ datasource.DataSourceWithConfigure = &DeviceBGPDataSource{}
 )
 
-func NewDeviceBGPGenerelSettingsDataSource() datasource.DataSource {
-	return &DeviceBGPGenerelSettingsDataSource{}
+func NewDeviceBGPDataSource() datasource.DataSource {
+	return &DeviceBGPDataSource{}
 }
 
-type DeviceBGPGenerelSettingsDataSource struct {
+type DeviceBGPDataSource struct {
 	client *fmc.Client
 }
 
-func (d *DeviceBGPGenerelSettingsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_bgp_generel_settings"
+func (d *DeviceBGPDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_bgp"
 }
 
-func (d *DeviceBGPGenerelSettingsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Device BGP Generel Settings.",
+		MarkdownDescription: "This data source can read the Device BGP.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -87,98 +87,106 @@ func (d *DeviceBGPGenerelSettingsDataSource) Schema(ctx context.Context, req dat
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"router_id": schema.StringAttribute{
-				MarkdownDescription: "String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address",
-				Computed:            true,
-			},
-			"scanning_interval": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating Scanning interval of BGP routers for next hop validation.",
-				Computed:            true,
-			},
-			"as_no_in_path_attribute": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating the range to discard routes that have as-path segments that exceed a specified value.",
-				Computed:            true,
-			},
-			"log_neighbor_changes": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to enable logging when the status of BGP neighbor changes.",
-				Computed:            true,
-			},
-			"tcp_path_mtu_discovery": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to enable logging when the status of BGP neighbor changes.",
-				Computed:            true,
-			},
-			"reset_session_upon_failover": schema.BoolAttribute{
+			"address_family_type": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"enforce_first_peer_as": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.",
-				Computed:            true,
-			},
-			"use_dot_notation": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.",
-				Computed:            true,
-			},
-			"aggregate_timer": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating Interval at which BGP routes will be aggregated or to disable timer-based router aggregation.",
-				Computed:            true,
-			},
-			"default_local_preference": schema.Int64Attribute{
+			"learned_route_map_id": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"compare_med_from_different_neighbors": schema.BoolAttribute{
-				MarkdownDescription: "Allow comparing MED from different neighbors",
+			"default_information_orginate": schema.BoolAttribute{
+				MarkdownDescription: "Generate default routes",
 				Computed:            true,
 			},
-			"compare_router_id_in_path": schema.BoolAttribute{
-				MarkdownDescription: "Compare Router ID for identical EBGP paths",
+			"auto_summary": schema.BoolAttribute{
+				MarkdownDescription: "Summarize subnet routes into network level routes",
 				Computed:            true,
 			},
-			"pick_best_med": schema.BoolAttribute{
-				MarkdownDescription: "Pick the best-MED path among paths advertised by neighbor AS",
+			"bgp_supress_inactive": schema.BoolAttribute{
+				MarkdownDescription: "Suppresing advertise inactive routes",
 				Computed:            true,
 			},
-			"missing_med_as_best": schema.BoolAttribute{
-				MarkdownDescription: "Treat missing MED as the best preferred path",
+			"synchronization": schema.BoolAttribute{
+				MarkdownDescription: "Synchronize between BGP and IGP systems",
 				Computed:            true,
 			},
-			"keepalive_interval": schema.Int64Attribute{
+			"bgp_redistribute_internal": schema.BoolAttribute{
+				MarkdownDescription: "Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)",
+				Computed:            true,
+			},
+			"external_distance": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"hold_time": schema.Int64Attribute{
+			"internal_distance": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"min_hold_time": schema.Int64Attribute{
+			"local_distance": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"next_hop_address_tracking": schema.BoolAttribute{
+			"forward_packets_over_multipath_ibgp": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"next_hop_delay_interval": schema.Int64Attribute{
+			"forward_packets_over_multipath_ebgp": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"graceful_restart": schema.BoolAttribute{
+			"neighbors": schema.SetNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"ipv4_address": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"romote_as": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"bfd": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"update_source_interface_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"address_family_ipv4": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"shutdown": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"description": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
 			},
-			"graceful_restart_restart_time": schema.Int64Attribute{
+			"maximum_paths": schema.SetNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
-			},
-			"graceful_restart_stale_path_time": schema.Int64Attribute{
-				MarkdownDescription: "",
-				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"value": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
 			},
 		},
 	}
 }
-func (d *DeviceBGPGenerelSettingsDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *DeviceBGPDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -187,7 +195,7 @@ func (d *DeviceBGPGenerelSettingsDataSource) ConfigValidators(ctx context.Contex
 	}
 }
 
-func (d *DeviceBGPGenerelSettingsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *DeviceBGPDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -199,8 +207,8 @@ func (d *DeviceBGPGenerelSettingsDataSource) Configure(_ context.Context, req da
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (d *DeviceBGPGenerelSettingsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config DeviceBGPGenerelSettings
+func (d *DeviceBGPDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config DeviceBGP
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

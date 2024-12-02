@@ -37,6 +37,7 @@ type DeviceBGPGenerelSettings struct {
 	Domain                           types.String `tfsdk:"domain"`
 	DeviceId                         types.String `tfsdk:"device_id"`
 	Name                             types.String `tfsdk:"name"`
+	Type                             types.String `tfsdk:"type"`
 	AsNumber                         types.String `tfsdk:"as_number"`
 	RouterId                         types.String `tfsdk:"router_id"`
 	ScanningInterval                 types.Int64  `tfsdk:"scanning_interval"`
@@ -79,7 +80,6 @@ func (data DeviceBGPGenerelSettings) toBody(ctx context.Context, state DeviceBGP
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	body, _ = sjson.Set(body, "type", "VirtualRouter")
 	if !data.AsNumber.IsNull() {
 		body, _ = sjson.Set(body, "asNumber", data.AsNumber.ValueString())
 	}
@@ -161,6 +161,11 @@ func (data *DeviceBGPGenerelSettings) fromBody(ctx context.Context, res gjson.Re
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("type"); value.Exists() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("asNumber"); value.Exists() {
 		data.AsNumber = types.StringValue(value.String())
@@ -293,6 +298,11 @@ func (data *DeviceBGPGenerelSettings) fromBodyPartial(ctx context.Context, res g
 	} else {
 		data.Name = types.StringNull()
 	}
+	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
+	}
 	if value := res.Get("asNumber"); value.Exists() && !data.AsNumber.IsNull() {
 		data.AsNumber = types.StringValue(value.String())
 	} else {
@@ -422,6 +432,13 @@ func (data *DeviceBGPGenerelSettings) fromBodyUnknowns(ctx context.Context, res 
 			data.Name = types.StringValue(value.String())
 		} else {
 			data.Name = types.StringNull()
+		}
+	}
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
 		}
 	}
 }

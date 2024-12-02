@@ -35,6 +35,7 @@ func TestAccFmcDeviceBGPGenerelSettings(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_bgp_generel_settings.test", "name"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_bgp_generel_settings.test", "type"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp_generel_settings.test", "as_number", "65535"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp_generel_settings.test", "router_id", "AUTOMATIC"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp_generel_settings.test", "scanning_interval", ""))
