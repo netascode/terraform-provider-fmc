@@ -14,9 +14,8 @@ attributes:
     test_value: var.device_id
   - model_name: name
     type: String
-    default_value: AsaBGPGeneralTable
-    exclude_example: true
-    exclude_test: true
+    #default_value: AsaBGPGeneralTable
+    computed: true
   - model_name: type
     type: String
     description: Type of the object; this value is always 'VirtualRouter'.

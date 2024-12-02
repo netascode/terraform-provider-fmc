@@ -163,7 +163,7 @@ func (data *DeviceBGPGenerelSettings) fromBody(ctx context.Context, res gjson.Re
 	if value := res.Get("name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringValue("AsaBGPGeneralTable")
+		data.Name = types.StringNull()
 	}
 	if value := res.Get("asNumber"); value.Exists() {
 		data.AsNumber = types.StringValue(value.String())
@@ -293,7 +293,7 @@ func (data *DeviceBGPGenerelSettings) fromBody(ctx context.Context, res gjson.Re
 func (data *DeviceBGPGenerelSettings) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
-	} else if data.Name.ValueString() != "AsaBGPGeneralTable" {
+	} else {
 		data.Name = types.StringNull()
 	}
 	if value := res.Get("asNumber"); value.Exists() && !data.AsNumber.IsNull() {

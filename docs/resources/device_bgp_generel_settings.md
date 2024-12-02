@@ -15,6 +15,7 @@ This resource can manage a Device BGP Generel Settings.
 ```terraform
 resource "fmc_device_bgp_generel_settings" "example" {
   device_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  name      = ""
   as_number = "65535"
   router_id = "AUTOMATIC"
 }
@@ -47,7 +48,7 @@ resource "fmc_device_bgp_generel_settings" "example" {
 - `log_neighbor_changes` (Boolean) Boolean stating whether to enable logging when the status of BGP neighbor changes.
 - `min_hold_time` (Number) - Range: `3`-`65535`
 - `missing_med_as_best` (Boolean) Treat missing MED as the best preferred path
-- `name` (String) - Default value: `AsaBGPGeneralTable`
+- `name` (String)
 - `next_hop_address_tracking` (Boolean)
 - `next_hop_delay_interval` (Number) - Range: `0`-`100`
 - `pick_best_med` (Boolean) Pick the best-MED path among paths advertised by neighbor AS
