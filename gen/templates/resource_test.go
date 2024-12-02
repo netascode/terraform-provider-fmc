@@ -190,6 +190,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 	config += `	{{.TfName}} = { "{{.MapKeyExample}}" = {` + "\n"
 	{{- end}}
 		{{- range  .Attributes}}
+		{{- if .Computed}}{{- continue }}{{- end}}
 		{{- if or .Id .Reference .Mandatory .MinimumTestValue}}
 		{{- if isNestedListSet .}}
 		{{- if len .TestTags}}
@@ -197,6 +198,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 		{{- end}}
 	config += `		{{.TfName}} = [{` + "\n"
 			{{- range  .Attributes}}
+			{{- if .Computed}}{{- continue }}{{- end}}
 			{{- if or .Id .Reference .Mandatory .MinimumTestValue}}
 			{{- if isNestedListSet .}}
 			{{- if len .TestTags}}
@@ -204,6 +206,7 @@ func testAccFmc{{camelCase .Name}}Config_minimum() string {
 			{{- end}}
 	config += `			{{.TfName}} = [{` + "\n"
 				{{- range  .Attributes}}
+				{{- if .Computed}}{{- continue }}{{- end}}
 				{{- if or .Id .Reference .Mandatory .MinimumTestValue}}
 				{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
@@ -294,6 +297,7 @@ func testAccFmc{{camelCase .Name}}Config_all() string {
 		{{- end}}
 	config += `		{{.TfName}} = [{` + "\n"
 			{{- range  .Attributes}}
+			{{- if .Computed}}{{- continue }}{{- end}}
 			{{- if and (not .ExcludeTest) (not .Value)}}
 			{{- if isNestedListSet .}}
 			{{- if len .TestTags}}
@@ -301,6 +305,7 @@ func testAccFmc{{camelCase .Name}}Config_all() string {
 			{{- end}}
 	config += `			{{.TfName}} = [{` + "\n"
 				{{- range  .Attributes}}
+				{{- if .Computed}}{{- continue }}{{- end}}
 				{{- if and (not .ExcludeTest) (not .Value)}}
 				{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {

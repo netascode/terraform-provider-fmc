@@ -192,6 +192,7 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 		{{- end}}
 	config += `		{{.TfName}} = [{` + "\n"
 			{{- range  .Attributes}}
+			{{- if .Computed}}{{- continue }}{{- end}}
 			{{- if and (not .ExcludeTest) (not .Value)}}
 			{{- if isNestedListSet .}}
 			{{- if len .TestTags}}
@@ -199,6 +200,7 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 			{{- end}}
 	config += `			{{.TfName}} = [{` + "\n"
 				{{- range  .Attributes}}
+				{{- if .Computed}}{{- continue }}{{- end}}
 				{{- if and (not .ExcludeTest) (not .Value)}}
 				{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
@@ -297,6 +299,7 @@ func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 	{{- end}}
 	config += `	{{.TfName}} = [{` + "\n"
 		{{- range  .Attributes}}
+		{{- if .Computed}}{{- continue }}{{- end}}
 		{{- if and (not .ExcludeTest) (not .Value)}}
 		{{- if isNestedListSet .}}
 		{{- if len .TestTags}}
@@ -304,6 +307,7 @@ func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 		{{- end}}
 	config += `		{{.TfName}} = [{` + "\n"
 			{{- range  .Attributes}}
+			{{- if .Computed}}{{- continue }}{{- end}}
 			{{- if and (not .ExcludeTest) (not .Value)}}
 			{{- if isNestedListSet .}}
 			{{- if len .TestTags}}
@@ -311,6 +315,7 @@ func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 			{{- end}}
 	config += `			{{.TfName}} = [{` + "\n"
 				{{- range  .Attributes}}
+				{{- if .Computed}}{{- continue }}{{- end}}
 				{{- if and (not .ExcludeTest) (not .Value)}}
 				{{- if len .TestTags}}
 	if {{range $i, $e := .TestTags}}{{if $i}} || {{end}}os.Getenv("{{$e}}") != ""{{end}} {
