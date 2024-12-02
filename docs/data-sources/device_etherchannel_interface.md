@@ -144,4 +144,5 @@ Read-Only:
 Read-Only:
 
 - `id` (String) UUID of the object (such as fmc_device_physical_interface.example.id, ...).
-- `type` (String) Type of the object; this value is always 'PhysicalInterface'.
+- `name` (String) Name of the selected interface
+- `type` (String) Type of the selected interface

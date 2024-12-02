@@ -14,9 +14,7 @@ attributes:
     test_value: var.device_id    
   - model_name: type
     type: String
-    default_value: PhysicalInterface
-    exclude_example: true
-    exclude_test: true  
+    computed: true
     description: Type of the resource.
 # General
   - model_name: ifname
@@ -87,16 +85,13 @@ attributes:
     description: Priority 0-65535. Can only be set for routed interfaces.
     min_int: 0
     max_int: 65535
-    example: 0
     exclude_example: true
     exclude_test: true
   - model_name: enableSGTPropagate
     tf_name: enable_sgt_propagate
     type: Bool
     description: Indicates whether to propagate SGT.
-    default_value: false
     example: false
-    exclude_example: false
     exclude_test: true
   - model_name: nveOnly
     type: Bool
@@ -130,7 +125,6 @@ attributes:
       Value `true` indicates to enable DHCPv4 and obtain the route and also requires ipv4_dhcp_route_metric to be
       non-null.
       The ipv4_dhcp_obtain_route must be null when using ipv4_static_address.
-    example: false
     exclude_example: true
     exclude_test: true
   - model_name: dhcpRouteMetric
@@ -142,7 +136,6 @@ attributes:
       null when using ipv4_static_address.
     min_int: 1
     max_int: 255
-    example: 1
     exclude_example: true
     exclude_test: true
 #IPv4 - PPPoE
@@ -327,6 +320,7 @@ attributes:
     tf_name: ipv6_enable_ra
     description: Indicates whether to enable IPv6 router advertisement (RA).
     type: Bool
+    test_value: false
     exclude_example: true
   - model_name: raLifeTime
     data_path: [ipv6]
@@ -427,7 +421,6 @@ attributes:
   - model_name: monitoredIp
     tf_name: ip_based_monitoring_next_hop
     type: String
-    example: "10.1.1.1"
     exclude_example: true
     exclude_test: true    
 #hardware
@@ -436,8 +429,8 @@ attributes:
     tf_name: auto_negotiation
     type: Bool
     description: Enables auto negotiation of duplex and speed.
-    example: true
-    exclude_example: true  
+    exclude_example: true
+    exclude_test: true  
   - model_name: duplex
     data_path: [hardware]
     type: String

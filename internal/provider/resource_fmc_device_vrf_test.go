@@ -30,8 +30,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
 func TestAccFmcDeviceVRF(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_interface_name") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_interface_name")
+	if os.Getenv("TF_VAR_device_id") == "" || os.Getenv("TF_VAR_interface_name") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id and TF_VAR_interface_name")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_vrf.test", "name", "VRF_A"))

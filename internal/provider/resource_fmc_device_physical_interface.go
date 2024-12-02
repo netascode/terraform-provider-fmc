@@ -31,7 +31,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -92,10 +91,11 @@ func (r *DevicePhysicalInterfaceResource) Schema(ctx context.Context, req resour
 				},
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource.").AddDefaultValueDescription("PhysicalInterface").String,
-				Optional:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource.").String,
 				Computed:            true,
-				Default:             stringdefault.StaticString("PhysicalInterface"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.").String,
@@ -145,10 +145,8 @@ func (r *DevicePhysicalInterfaceResource) Schema(ctx context.Context, req resour
 				},
 			},
 			"enable_sgt_propagate": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to propagate SGT.").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to propagate SGT.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
 			},
 			"nve_only": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.").String,

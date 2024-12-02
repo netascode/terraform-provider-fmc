@@ -31,13 +31,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -90,10 +90,11 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 				},
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource.").AddDefaultValueDescription("EtherChannelInterface").String,
-				Optional:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource.").String,
 				Computed:            true,
-				Default:             stringdefault.StaticString("EtherChannelInterface"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.").String,
@@ -165,7 +166,11 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 							Optional:            true,
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'PhysicalInterface'.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the selected interface").String,
+							Optional:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the selected interface").String,
 							Optional:            true,
 						},
 					},
@@ -592,8 +597,6 @@ func (r *DeviceEtherChannelInterfaceResource) Read(ctx context.Context, req reso
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
-
 func (r *DeviceEtherChannelInterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeviceEtherChannelInterface
 
@@ -618,6 +621,10 @@ func (r *DeviceEtherChannelInterfaceResource) Update(ctx context.Context, req re
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
+	// Name is computed field, but it's needed in the request anyways
+	if !plan.Name.IsNull() {
+		body, _ = sjson.Set(body, "name", plan.Name.ValueString())
+	}
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
@@ -629,8 +636,6 @@ func (r *DeviceEtherChannelInterfaceResource) Update(ctx context.Context, req re
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 

@@ -110,6 +110,7 @@ type DeviceEtherChannelInterface struct {
 type DeviceEtherChannelInterfaceSelectedInterfaces struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
+	Name types.String `tfsdk:"name"`
 }
 
 type DeviceEtherChannelInterfaceIpv6Addresses struct {
@@ -151,9 +152,6 @@ func (data DeviceEtherChannelInterface) toBody(ctx context.Context, state Device
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
-	}
 	if !data.LogicalName.IsNull() {
 		body, _ = sjson.Set(body, "ifname", data.LogicalName.ValueString())
 	}
@@ -194,6 +192,9 @@ func (data DeviceEtherChannelInterface) toBody(ctx context.Context, state Device
 			}
 			if !item.Type.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
+			}
+			if !item.Name.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "selectedInterfaces.-1", itemBody)
 		}
@@ -415,7 +416,7 @@ func (data *DeviceEtherChannelInterface) fromBody(ctx context.Context, res gjson
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("EtherChannelInterface")
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("ifname"); value.Exists() {
 		data.LogicalName = types.StringValue(value.String())
@@ -486,6 +487,11 @@ func (data *DeviceEtherChannelInterface) fromBody(ctx context.Context, res gjson
 				data.Type = types.StringValue(value.String())
 			} else {
 				data.Type = types.StringNull()
+			}
+			if value := res.Get("name"); value.Exists() {
+				data.Name = types.StringValue(value.String())
+			} else {
+				data.Name = types.StringNull()
 			}
 			(*parent).SelectedInterfaces = append((*parent).SelectedInterfaces, data)
 			return true
@@ -835,7 +841,7 @@ func (data *DeviceEtherChannelInterface) fromBody(ctx context.Context, res gjson
 func (data *DeviceEtherChannelInterface) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "EtherChannelInterface" {
+	} else {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("ifname"); value.Exists() && !data.LogicalName.IsNull() {
@@ -938,6 +944,11 @@ func (data *DeviceEtherChannelInterface) fromBodyPartial(ctx context.Context, re
 			data.Type = types.StringValue(value.String())
 		} else {
 			data.Type = types.StringNull()
+		}
+		if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
+			data.Name = types.StringValue(value.String())
+		} else {
+			data.Name = types.StringNull()
 		}
 		(*parent).SelectedInterfaces[i] = data
 	}
@@ -1397,6 +1408,13 @@ func (data *DeviceEtherChannelInterface) fromBodyPartial(ctx context.Context, re
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *DeviceEtherChannelInterface) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 	if data.Name.IsUnknown() {
 		if value := res.Get("name"); value.Exists() {
 			data.Name = types.StringValue(value.String())

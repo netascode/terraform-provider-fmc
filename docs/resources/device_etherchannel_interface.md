@@ -119,13 +119,12 @@ resource "fmc_device_etherchannel_interface" "example" {
 - `speed` (String) Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP
   - Choices: `AUTO`, `TEN`, `HUNDRED`, `THOUSAND`, `TEN_THOUSAND`, `TWENTY_FIVE_THOUSAND`, `FORTY_THOUSAND`, `HUNDRED_THOUSAND`, `TWO_HUNDRED_THOUSAND`, `DETECT_SFP`
 - `standby_mac_address` (String)
-- `type` (String) Type of the resource.
-  - Default value: `EtherChannelInterface`
 
 ### Read-Only
 
 - `id` (String) The id of the object
 - `name` (String) Name of the interface; it must already be present on the device.
+- `type` (String) Type of the resource.
 
 <a id="nestedatt--arp_table_entries"></a>
 ### Nested Schema for `arp_table_entries`
@@ -171,7 +170,8 @@ Optional:
 Optional:
 
 - `id` (String) UUID of the object (such as fmc_device_physical_interface.example.id, ...).
-- `type` (String) Type of the object; this value is always 'PhysicalInterface'.
+- `name` (String) Name of the selected interface
+- `type` (String) Type of the selected interface
 
 ## Import
 

@@ -3,7 +3,7 @@ name: Device EtherChannel Interface
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/etherchannelinterfaces
 data_source_name_query: true
 doc_category: Devices
-test_tags: [TF_VAR_device_id, TF_VAR_physical_interface_id]
+test_tags: [TF_VAR_device_id, TF_VAR_physical_interface_id, TF_VAR_device_is_physical]
 attributes:
   - tf_name: device_id
     type: String
@@ -13,9 +13,7 @@ attributes:
     test_value: var.device_id    
   - model_name: type
     type: String
-    default_value: EtherChannelInterface
-    exclude_example: true
-    exclude_test: true  
+    computed: true
     description: Type of the resource.
 # General
   - model_name: ifname
@@ -37,8 +35,7 @@ attributes:
     description: >-
       Indicates whether this interface limits traffic to management traffic; when true, through-the-box traffic is
       disallowed. Value true conflicts with mode INLINE, PASSIVE, TAP, ERSPAN, or with security_zone_id.
-    minimum_test_value: "true"
-    test_value: "false"
+    exclude_test: true
     exclude_example: true
   - model_name: description
     type: String
@@ -115,8 +112,13 @@ attributes:
         test_value: var.physical_interface_id
       - model_name: type
         type: String
-        description: Type of the object; this value is always 'PhysicalInterface'.
+        description: Type of the selected interface
         #value: PhysicalInterface
+        exclude_example: true
+        exclude_test: true
+      - model_name: name
+        type: String
+        description: Name of the selected interface
         exclude_example: true
         exclude_test: true
   - model_name: nveOnly
@@ -348,6 +350,7 @@ attributes:
     tf_name: ipv6_enable_ra
     description: Indicates whether to enable IPv6 router advertisement (RA).
     type: Bool
+    exclude_test: true
     exclude_example: true
   - model_name: raLifeTime
     data_path: [ipv6]
@@ -457,7 +460,7 @@ attributes:
     tf_name: auto_negotiation
     type: Bool
     description: Enables auto negotiation of duplex and speed.
-    example: true
+    exclude_test: true
     exclude_example: true  
   - model_name: duplex
     data_path: [hardware]

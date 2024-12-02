@@ -133,7 +133,11 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 							Computed:            true,
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: "Type of the object; this value is always 'PhysicalInterface'.",
+							MarkdownDescription: "Type of the selected interface",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Name of the selected interface",
 							Computed:            true,
 						},
 					},

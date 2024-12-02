@@ -49,7 +49,6 @@ resource "fmc_device_physical_interface" "example" {
   - Choices: `AUTO`, `FULL`, `HALF`
 - `enable_anti_spoofing` (Boolean)
 - `enable_sgt_propagate` (Boolean) Indicates whether to propagate SGT.
-  - Default value: `false`
 - `enabled` (Boolean) Indicates whether to enable the interface.
   - Default value: `true`
 - `fec_mode` (String) Path Monitoring - Monitoring Type, can be one of AUTO, CL108RS, CL74FC, CL91RS, DISABLE.
@@ -113,12 +112,11 @@ resource "fmc_device_physical_interface" "example" {
 - `speed` (String) Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP
   - Choices: `AUTO`, `TEN`, `HUNDRED`, `THOUSAND`, `TEN_THOUSAND`, `TWENTY_FIVE_THOUSAND`, `FORTY_THOUSAND`, `HUNDRED_THOUSAND`, `TWO_HUNDRED_THOUSAND`, `DETECT_SFP`
 - `standby_mac_address` (String)
-- `type` (String) Type of the resource.
-  - Default value: `PhysicalInterface`
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `type` (String) Type of the resource.
 
 <a id="nestedatt--arp_table_entries"></a>
 ### Nested Schema for `arp_table_entries`

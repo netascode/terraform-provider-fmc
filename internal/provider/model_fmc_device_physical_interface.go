@@ -144,9 +144,6 @@ func (data DevicePhysicalInterface) toBody(ctx context.Context, state DevicePhys
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
-	}
 	if !data.LogicalName.IsNull() {
 		body, _ = sjson.Set(body, "ifname", data.LogicalName.ValueString())
 	}
@@ -395,7 +392,7 @@ func (data *DevicePhysicalInterface) fromBody(ctx context.Context, res gjson.Res
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("PhysicalInterface")
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("ifname"); value.Exists() {
 		data.LogicalName = types.StringValue(value.String())
@@ -445,7 +442,7 @@ func (data *DevicePhysicalInterface) fromBody(ctx context.Context, res gjson.Res
 	if value := res.Get("enableSGTPropagate"); value.Exists() {
 		data.EnableSgtPropagate = types.BoolValue(value.Bool())
 	} else {
-		data.EnableSgtPropagate = types.BoolValue(false)
+		data.EnableSgtPropagate = types.BoolNull()
 	}
 	if value := res.Get("nveOnly"); value.Exists() {
 		data.NveOnly = types.BoolValue(value.Bool())
@@ -791,7 +788,7 @@ func (data *DevicePhysicalInterface) fromBody(ctx context.Context, res gjson.Res
 func (data *DevicePhysicalInterface) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "PhysicalInterface" {
+	} else {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("ifname"); value.Exists() && !data.LogicalName.IsNull() {
@@ -841,7 +838,7 @@ func (data *DevicePhysicalInterface) fromBodyPartial(ctx context.Context, res gj
 	}
 	if value := res.Get("enableSGTPropagate"); value.Exists() && !data.EnableSgtPropagate.IsNull() {
 		data.EnableSgtPropagate = types.BoolValue(value.Bool())
-	} else if data.EnableSgtPropagate.ValueBool() != false {
+	} else {
 		data.EnableSgtPropagate = types.BoolNull()
 	}
 	if value := res.Get("nveOnly"); value.Exists() && !data.NveOnly.IsNull() {
@@ -1300,6 +1297,13 @@ func (data *DevicePhysicalInterface) fromBodyPartial(ctx context.Context, res gj
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *DevicePhysicalInterface) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns

@@ -34,6 +34,7 @@ func TestAccFmcDevicePhysicalInterface(t *testing.T) {
 		t.Skip("skipping test, set environment variable TF_VAR_device_id")
 	}
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_physical_interface.test", "type"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "logical_name", "myinterface-0-1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "description", "my description"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "mode", "NONE"))
@@ -41,8 +42,6 @@ func TestAccFmcDevicePhysicalInterface(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "mtu", "9000"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "ipv4_static_address", "10.1.1.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "ipv4_static_netmask", "24"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "ipv6_enable_ra", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_physical_interface.test", "auto_negotiation", "true"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -102,8 +101,7 @@ func testAccFmcDevicePhysicalInterfaceConfig_all() string {
 	config += `	nve_only = false` + "\n"
 	config += `	ipv4_static_address = "10.1.1.1"` + "\n"
 	config += `	ipv4_static_netmask = "24"` + "\n"
-	config += `	ipv6_enable_ra = ` + "\n"
-	config += `	auto_negotiation = true` + "\n"
+	config += `	ipv6_enable_ra = false` + "\n"
 	config += `}` + "\n"
 	return config
 }

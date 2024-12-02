@@ -30,10 +30,11 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
 func TestAccDataSourceFmcDeviceEtherChannelInterface(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_physical_interface_id") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_physical_interface_id")
+	if os.Getenv("TF_VAR_device_id") == "" || os.Getenv("TF_VAR_physical_interface_id") == "" || os.Getenv("TF_VAR_device_is_physical") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id and TF_VAR_physical_interface_id and TF_VAR_device_is_physical")
 	}
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_etherchannel_interface.test", "type"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "logical_name", "myinterface-0-1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "description", "my description"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "mode", "NONE"))
@@ -42,8 +43,6 @@ func TestAccDataSourceFmcDeviceEtherChannelInterface(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "ether_channel_id", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "ipv4_static_address", "10.1.1.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "ipv4_static_netmask", "24"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "ipv6_enable_ra", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_etherchannel_interface.test", "auto_negotiation", "true"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -78,7 +77,6 @@ func testAccDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 	config += `	device_id = var.device_id` + "\n"
 	config += `	logical_name = "myinterface-0-1"` + "\n"
 	config += `	enabled = true` + "\n"
-	config += `	management_only = false` + "\n"
 	config += `	description = "my description"` + "\n"
 	config += `	mode = "NONE"` + "\n"
 	config += `	mtu = 9000` + "\n"
@@ -86,8 +84,6 @@ func testAccDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 	config += `	nve_only = false` + "\n"
 	config += `	ipv4_static_address = "10.1.1.1"` + "\n"
 	config += `	ipv4_static_netmask = "24"` + "\n"
-	config += `	ipv6_enable_ra = ` + "\n"
-	config += `	auto_negotiation = true` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -104,7 +100,6 @@ func testAccNamedDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 	config += `	device_id = var.device_id` + "\n"
 	config += `	logical_name = "myinterface-0-1"` + "\n"
 	config += `	enabled = true` + "\n"
-	config += `	management_only = false` + "\n"
 	config += `	description = "my description"` + "\n"
 	config += `	mode = "NONE"` + "\n"
 	config += `	mtu = 9000` + "\n"
@@ -112,8 +107,6 @@ func testAccNamedDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 	config += `	nve_only = false` + "\n"
 	config += `	ipv4_static_address = "10.1.1.1"` + "\n"
 	config += `	ipv4_static_netmask = "24"` + "\n"
-	config += `	ipv6_enable_ra = ` + "\n"
-	config += `	auto_negotiation = true` + "\n"
 	config += `}` + "\n"
 
 	config += `
