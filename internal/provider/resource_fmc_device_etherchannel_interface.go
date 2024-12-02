@@ -126,7 +126,7 @@ func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req re
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Name of the interface; it must already be present on the device.").String,
-				Required:            true,
+				Optional:            true,
 			},
 			"mtu": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Maximum transmission unit. Can only be used when logical_name is set.").AddIntegerRangeDescription(64, 9000).String,
