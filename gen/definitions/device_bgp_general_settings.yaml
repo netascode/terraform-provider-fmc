@@ -18,10 +18,7 @@ attributes:
     computed: true
   - model_name: type
     type: String
-    description: Type of the object; this value is always 'VirtualRouter'.
-    value: VirtualRouter
-    exclude_example: true
-    exclude_test: true
+    computed: true
   - model_name: asNumber
     type: String
     mandatory: true
