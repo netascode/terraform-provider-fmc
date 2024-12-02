@@ -1,0 +1,186 @@
+---
+name: Device BGP Generel Settings
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/bgpgeneralsettings
+data_source_name_query: true
+doc_category: Devices
+test_tags: [TF_VAR_device_id]
+attributes:
+  - model_name: device_id
+    type: String
+    reference: true
+    requires_replace: true
+    description: UUID of the parent device (fmc_device.example.id).
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: var.device_id
+  - model_name: name
+    type: String
+    default_value: AsaBGPGeneralTable
+    exclude_example: true
+    exclude_test: true
+  - model_name: type
+    type: String
+    description: Type of the object; this value is always 'VirtualRouter'.
+    value: VirtualRouter
+    exclude_example: true
+    exclude_test: true
+  - model_name: asNumber
+    type: String
+    mandatory: true
+    example: "65535"
+  - model_name: routerId
+    type: String
+    example: "AUTOMATIC"
+    description: String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address  
+# BGP - General
+  - model_name: scanTime
+    tf_name: scanning_interval
+    type: Int64
+    min_int: 5
+    max_int: 60
+    exclude_example: true
+    description: Integer stating Scanning interval of BGP routers for next hop validation.
+  - model_name: maxasLimit
+    tf_name: as_no_in_path_attribute
+    type: Int64
+    min_int: 1
+    max_int: 254
+    exclude_example: true
+    description: Integer stating the range to discard routes that have as-path segments that exceed a specified value.
+  - model_name: logNeighborChanges
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true    
+    description: Boolean stating whether to enable logging when the status of BGP neighbor changes.
+  - model_name: transportPathMtuDiscovery
+    tf_name: tcp_path_mtu_discovery
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true    
+    description: Boolean stating whether to enable logging when the status of BGP neighbor changes.
+  - model_name: fastExternalFallOver
+    tf_name: reset_session_upon_failover
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true    
+  - model_name: enforceFirstAs
+    tf_name: enforce_first_peer_as
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true    
+    description: Boolean stating whether to discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.
+  - model_name: asnotationDot
+    tf_name: use_dot_notation
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true    
+    description: Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.
+  - model_name: aggregateTimer
+    type: Int64
+    min_int: 6
+    max_int: 60
+    exclude_example: true
+    description: Integer stating Interval at which BGP routes will be aggregated or to disable timer-based router aggregation.
+# BGP - Best Path Selection
+  - model_name: defaultLocalPreferenceValue
+    tf_name: default_local_preference
+    data_path: [bestPath]
+    type: Int64
+    min_int: 0
+    max_int: 4294967295
+    exclude_example: true
+  - model_name: alwaysCompareMed
+    tf_name: compare_med_from_different_neighbors
+    data_path: [bestPath]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true   
+    description: Allow comparing MED from different neighbors
+  - model_name: deterministicMed
+    tf_name: compare_router_id_in_path
+    data_path: [bestPath]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true   
+    description: Compare Router ID for identical EBGP paths
+  - model_name: bestPathCompareRouterId
+    tf_name: pick_best_med
+    data_path: [bestPath]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true
+    description: Pick the best-MED path among paths advertised by neighbor AS
+  - model_name: bestPathMedMissingAsWorst
+    tf_name: missing_med_as_best
+    data_path: [bestPath]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true  
+    description: Treat missing MED as the best preferred path
+# BGP - Neighbor Timers
+  - model_name: keepAlive
+    tf_name: keepalive_interval
+    data_path: [bgptimers]
+    type: Int64
+    min_int: 0
+    max_int: 65535
+    exclude_example: true
+  - model_name: holdTime
+    data_path: [bgptimers]
+    type: Int64
+    min_int: 0
+    max_int: 65535
+    exclude_example: true
+  - model_name: minHoldTime
+    data_path: [bgptimers]
+    type: Int64
+    min_int: 3
+    max_int: 65535
+    exclude_example: true
+# BGP - Next Hop
+  - model_name: bgpNextHopTriggerEnable
+    tf_name: next_hop_address_tracking
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true  
+  - model_name: bgpNextHopTriggerDelay
+    tf_name: next_hop_delay_interval
+    type: Int64
+    min_int: 0
+    max_int: 100
+    exclude_example: true
+# BGP - Graceful Restart (used in HA or Cluster setup)
+  - model_name: gracefulRestart
+    data_path: [bgpGracefulRestart]
+    type: Bool
+    example: False
+    exclude_example: true
+    exclude_test: true
+  - model_name: gracefulRestartRestartTime
+    data_path: [bgpGracefulRestart]
+    type: Int64
+    min_int: 1
+    max_int: 3600
+    example: False
+    exclude_example: true
+    exclude_test: true
+  - model_name: gracefulRestartStalePathTime
+    data_path: [bgpGracefulRestart]
+    type: Int64
+    min_int: 1
+    max_int: 3600
+    example: False
+    exclude_example: true
+    exclude_test: true
+
+test_prerequisites: |-
+  variable "device_id" { default = null } // tests will set $TF_VAR_device_id
