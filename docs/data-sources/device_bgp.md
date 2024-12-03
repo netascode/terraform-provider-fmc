@@ -34,40 +34,159 @@ data "fmc_device_bgp" "example" {
 
 ### Read-Only
 
-- `address_family_type` (String)
 - `as_number` (String)
-- `auto_summary` (Boolean) Summarize subnet routes into network level routes
-- `bgp_redistribute_internal` (Boolean) Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)
-- `bgp_supress_inactive` (Boolean) Suppresing advertise inactive routes
-- `default_information_orginate` (Boolean) Generate default routes
-- `external_distance` (Number)
-- `forward_packets_over_multipath_ebgp` (Number)
-- `forward_packets_over_multipath_ibgp` (Number)
-- `internal_distance` (Number)
-- `learned_route_map_id` (String)
-- `local_distance` (Number)
-- `maximum_paths` (Attributes Set) (see [below for nested schema](#nestedatt--maximum_paths))
-- `neighbors` (Attributes Set) (see [below for nested schema](#nestedatt--neighbors))
-- `synchronization` (Boolean) Synchronize between BGP and IGP systems
+- `ipv4_address_family_type` (String)
+- `ipv4_aggregate_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_aggregate_addresses))
+- `ipv4_auto_aummary` (Boolean) Summarize subnet routes into network level routes
+- `ipv4_bgp_redistribute_internal` (Boolean) Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)
+- `ipv4_bgp_supress_inactive` (Boolean) Suppresing advertise inactive routes
+- `ipv4_default_information_orginate` (Boolean) Generate default routes
+- `ipv4_external_distance` (Number)
+- `ipv4_filterings` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_filterings))
+- `ipv4_forward_packets_over_multipath_ebgp` (Number)
+- `ipv4_forward_packets_over_multipath_ibgp` (Number)
+- `ipv4_internal_distance` (Number)
+- `ipv4_learned_route_map_id` (String)
+- `ipv4_local_distance` (Number)
+- `ipv4_neighbors` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors))
+- `ipv4_networks` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_networks))
+- `ipv4_redistributions` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_redistributions))
+- `ipv4_route_injections` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_route_injections))
+- `ipv4_synchronization` (Boolean) Synchronize between BGP and IGP systems
 - `type` (String)
 
-<a id="nestedatt--maximum_paths"></a>
-### Nested Schema for `maximum_paths`
+<a id="nestedatt--ipv4_aggregate_addresses"></a>
+### Nested Schema for `ipv4_aggregate_addresses`
 
 Read-Only:
 
-- `value` (Number)
+- `advertise_map_id` (String)
+- `attribute_map_id` (String)
+- `filter` (Boolean)
+- `generate_as` (Boolean)
+- `network_id` (String)
+- `suppress_map_id` (String)
 
 
-<a id="nestedatt--neighbors"></a>
-### Nested Schema for `neighbors`
+<a id="nestedatt--ipv4_filterings"></a>
+### Nested Schema for `ipv4_filterings`
 
 Read-Only:
 
-- `address_family_ipv4` (Boolean)
-- `bfd` (String)
-- `description` (String)
-- `ipv4_address` (String)
-- `romote_as` (String)
-- `shutdown` (Boolean)
-- `update_source_interface_id` (String)
+- `network_direction` (String) Possible values - incomingroutefilter, outgoingroutefilter
+- `network_id` (String)
+- `prorocol_process` (String)
+- `protocol` (String)
+
+
+<a id="nestedatt--ipv4_neighbors"></a>
+### Nested Schema for `ipv4_neighbors`
+
+Read-Only:
+
+- `ipv4_address_family_ipv4` (Boolean)
+- `ipv4_neighbor_address` (String)
+- `ipv4_neighbor_authentication_password` (String) Setting password enables authentication.
+- `ipv4_neighbor_bfd` (String)
+- `ipv4_neighbor_customized_accept_both_as` (Boolean) Replace real AS number with localAS number in routes received from neighbor
+- `ipv4_neighbor_customized_local_as_number` (String)
+- `ipv4_neighbor_customized_no_prepend` (Boolean) Do not prepend local AS number to routes received from neighbor
+- `ipv4_neighbor_customized_replace_as` (Boolean) Replace real AS number with localAS number in routes received from neighbor
+- `ipv4_neighbor_description` (String)
+- `ipv4_neighbor_disable_connection_verification` (Boolean) Disable Connection Verification
+- `ipv4_neighbor_filter_access_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_access_lists))
+- `ipv4_neighbor_filter_as_path_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_as_path_lists))
+- `ipv4_neighbor_filter_max_prefix` (Number)
+- `ipv4_neighbor_filter_prefix_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_prefix_lists))
+- `ipv4_neighbor_filter_restart_interval` (Number)
+- `ipv4_neighbor_filter_route_map_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_route_map_lists))
+- `ipv4_neighbor_filter_threshold_value` (Number)
+- `ipv4_neighbor_generate_default_route_map` (String) Generate default routes - Route Map
+- `ipv4_neighbor_hold_time` (Number)
+- `ipv4_neighbor_keepalive_interval` (Number)
+- `ipv4_neighbor_max_hop_count` (Number)
+- `ipv4_neighbor_min_hold_time` (Number)
+- `ipv4_neighbor_nexthop_self` (Boolean) Use itself as next hop for this neighbor
+- `ipv4_neighbor_routes_advertise_exist_nonexist_map` (String) Specified route maps are advertised when the prefix exists only in the Advertise Map.
+- `ipv4_neighbor_routes_advertise_map` (String) Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
+- `ipv4_neighbor_routes_advertise_map_use_exist` (Boolean) Use Exist Map or Non-Exist Map
+- `ipv4_neighbor_routes_advertisement_interval` (Number)
+- `ipv4_neighbor_routes_remove_private_as` (Boolean)
+- `ipv4_neighbor_send_community_attribute` (Boolean) Send Community attribute to this neighbor
+- `ipv4_neighbor_shutdown` (Boolean)
+- `ipv4_neighbor_tcp_mtu_path_discovery` (Boolean) Use TCP path MTU discovery.
+- `ipv4_neighbor_tcp_transport_mode` (Boolean) True set it to active, False to passive.
+- `ipv4_neighbor_version` (String) 0 - default, 4 - IPv4
+- `ipv4_neighbor_weight` (Number)
+- `ipv4_update_source_interface_id` (String)
+- `pv4_neighbor_romote_as` (String)
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_access_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_access_lists`
+
+Read-Only:
+
+- `access_list_id` (String)
+- `update_direction` (String)
+
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_as_path_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_as_path_lists`
+
+Read-Only:
+
+- `as_path_id` (String)
+- `update_direction` (String)
+
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_prefix_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_prefix_lists`
+
+Read-Only:
+
+- `route_map_id` (String)
+- `update_direction` (String)
+
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_route_map_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_route_map_lists`
+
+Read-Only:
+
+- `route_map_id` (String)
+- `update_direction` (String)
+
+
+
+<a id="nestedatt--ipv4_networks"></a>
+### Nested Schema for `ipv4_networks`
+
+Read-Only:
+
+- `network_id` (String)
+- `route_map_id` (String)
+
+
+<a id="nestedatt--ipv4_redistributions"></a>
+### Nested Schema for `ipv4_redistributions`
+
+Read-Only:
+
+- `match_external1` (Boolean)
+- `match_external2` (Boolean)
+- `match_internal` (Boolean)
+- `match_nssa_external1` (Boolean)
+- `match_nssa_external2` (Boolean)
+- `metric` (Number)
+- `process_id` (String)
+- `route_map_id` (String)
+- `source_protocol` (String) Possible values - RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP
+
+
+<a id="nestedatt--ipv4_route_injections"></a>
+### Nested Schema for `ipv4_route_injections`
+
+Read-Only:
+
+- `exist_route_map_id` (String)
+- `inject_route_map_id` (String)

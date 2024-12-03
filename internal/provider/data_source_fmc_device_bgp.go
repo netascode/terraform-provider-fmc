@@ -87,96 +87,380 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"address_family_type": schema.StringAttribute{
+			"ipv4_address_family_type": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"learned_route_map_id": schema.StringAttribute{
+			"ipv4_learned_route_map_id": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"default_information_orginate": schema.BoolAttribute{
+			"ipv4_default_information_orginate": schema.BoolAttribute{
 				MarkdownDescription: "Generate default routes",
 				Computed:            true,
 			},
-			"auto_summary": schema.BoolAttribute{
+			"ipv4_auto_aummary": schema.BoolAttribute{
 				MarkdownDescription: "Summarize subnet routes into network level routes",
 				Computed:            true,
 			},
-			"bgp_supress_inactive": schema.BoolAttribute{
+			"ipv4_bgp_supress_inactive": schema.BoolAttribute{
 				MarkdownDescription: "Suppresing advertise inactive routes",
 				Computed:            true,
 			},
-			"synchronization": schema.BoolAttribute{
+			"ipv4_synchronization": schema.BoolAttribute{
 				MarkdownDescription: "Synchronize between BGP and IGP systems",
 				Computed:            true,
 			},
-			"bgp_redistribute_internal": schema.BoolAttribute{
+			"ipv4_bgp_redistribute_internal": schema.BoolAttribute{
 				MarkdownDescription: "Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)",
 				Computed:            true,
 			},
-			"external_distance": schema.Int64Attribute{
+			"ipv4_external_distance": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"internal_distance": schema.Int64Attribute{
+			"ipv4_internal_distance": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"local_distance": schema.Int64Attribute{
+			"ipv4_local_distance": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"forward_packets_over_multipath_ibgp": schema.Int64Attribute{
+			"ipv4_forward_packets_over_multipath_ibgp": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"forward_packets_over_multipath_ebgp": schema.Int64Attribute{
+			"ipv4_forward_packets_over_multipath_ebgp": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"neighbors": schema.SetNestedAttribute{
+			"ipv4_neighbors": schema.ListNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"ipv4_address": schema.StringAttribute{
+						"ipv4_neighbor_address": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
-						"romote_as": schema.StringAttribute{
+						"pv4_neighbor_romote_as": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
-						"bfd": schema.StringAttribute{
+						"ipv4_neighbor_bfd": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
-						"update_source_interface_id": schema.StringAttribute{
+						"ipv4_update_source_interface_id": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
-						"address_family_ipv4": schema.BoolAttribute{
+						"ipv4_address_family_ipv4": schema.BoolAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
-						"shutdown": schema.BoolAttribute{
+						"ipv4_neighbor_shutdown": schema.BoolAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
-						"description": schema.StringAttribute{
+						"ipv4_neighbor_description": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_filter_access_lists": schema.ListNestedAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"access_list_id": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_route_map_lists": schema.ListNestedAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"route_map_id": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_prefix_lists": schema.ListNestedAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"route_map_id": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_as_path_lists": schema.ListNestedAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"as_path_id": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_max_prefix": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_filter_threshold_value": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_filter_restart_interval": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_routes_advertisement_interval": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_routes_remove_private_as": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_generate_default_route_map": schema.StringAttribute{
+							MarkdownDescription: "Generate default routes - Route Map",
+							Computed:            true,
+						},
+						"ipv4_neighbor_routes_advertise_map_use_exist": schema.BoolAttribute{
+							MarkdownDescription: "Use Exist Map or Non-Exist Map",
+							Computed:            true,
+						},
+						"ipv4_neighbor_routes_advertise_map": schema.StringAttribute{
+							MarkdownDescription: "Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.",
+							Computed:            true,
+						},
+						"ipv4_neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
+							MarkdownDescription: "Specified route maps are advertised when the prefix exists only in the Advertise Map.",
+							Computed:            true,
+						},
+						"ipv4_neighbor_keepalive_interval": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_hold_time": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_min_hold_time": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_authentication_password": schema.StringAttribute{
+							MarkdownDescription: "Setting password enables authentication.",
+							Computed:            true,
+						},
+						"ipv4_neighbor_send_community_attribute": schema.BoolAttribute{
+							MarkdownDescription: "Send Community attribute to this neighbor",
+							Computed:            true,
+						},
+						"ipv4_neighbor_nexthop_self": schema.BoolAttribute{
+							MarkdownDescription: "Use itself as next hop for this neighbor",
+							Computed:            true,
+						},
+						"ipv4_neighbor_disable_connection_verification": schema.BoolAttribute{
+							MarkdownDescription: "Disable Connection Verification",
+							Computed:            true,
+						},
+						"ipv4_neighbor_tcp_mtu_path_discovery": schema.BoolAttribute{
+							MarkdownDescription: "Use TCP path MTU discovery.",
+							Computed:            true,
+						},
+						"ipv4_neighbor_max_hop_count": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_tcp_transport_mode": schema.BoolAttribute{
+							MarkdownDescription: "True set it to active, False to passive.",
+							Computed:            true,
+						},
+						"ipv4_neighbor_weight": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_version": schema.StringAttribute{
+							MarkdownDescription: "0 - default, 4 - IPv4",
+							Computed:            true,
+						},
+						"ipv4_neighbor_customized_local_as_number": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"ipv4_neighbor_customized_no_prepend": schema.BoolAttribute{
+							MarkdownDescription: "Do not prepend local AS number to routes received from neighbor",
+							Computed:            true,
+						},
+						"ipv4_neighbor_customized_replace_as": schema.BoolAttribute{
+							MarkdownDescription: "Replace real AS number with localAS number in routes received from neighbor",
+							Computed:            true,
+						},
+						"ipv4_neighbor_customized_accept_both_as": schema.BoolAttribute{
+							MarkdownDescription: "Replace real AS number with localAS number in routes received from neighbor",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"ipv4_aggregate_addresses": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"generate_as": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"filter": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"network_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"advertise_map_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"attribute_map_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"suppress_map_id": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
 					},
 				},
 			},
-			"maximum_paths": schema.SetNestedAttribute{
+			"ipv4_filterings": schema.ListNestedAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"value": schema.Int64Attribute{
+						"network_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"network_direction": schema.StringAttribute{
+							MarkdownDescription: "Possible values - incomingroutefilter, outgoingroutefilter",
+							Computed:            true,
+						},
+						"protocol": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"prorocol_process": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"ipv4_networks": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"network_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"route_map_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"ipv4_redistributions": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"route_map_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"metric": schema.Int64Attribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"process_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"source_protocol": schema.StringAttribute{
+							MarkdownDescription: "Possible values - RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP",
+							Computed:            true,
+						},
+						"match_external1": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"match_external2": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"match_internal": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"match_nssa_external1": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"match_nssa_external2": schema.BoolAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+					},
+				},
+			},
+			"ipv4_route_injections": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"inject_route_map_id": schema.StringAttribute{
+							MarkdownDescription: "",
+							Computed:            true,
+						},
+						"exist_route_map_id": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},

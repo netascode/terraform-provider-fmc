@@ -66,7 +66,7 @@ func (r *DeviceBGPResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device BGP.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Under BGP General Settings, BGP has to be enabled and AS Number assigned first.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -111,51 +111,51 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"address_family_type": schema.StringAttribute{
+			"ipv4_address_family_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"learned_route_map_id": schema.StringAttribute{
+			"ipv4_learned_route_map_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"default_information_orginate": schema.BoolAttribute{
+			"ipv4_default_information_orginate": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Generate default routes").AddDefaultValueDescription("false").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
-			"auto_summary": schema.BoolAttribute{
+			"ipv4_auto_aummary": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Summarize subnet routes into network level routes").AddDefaultValueDescription("false").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
-			"bgp_supress_inactive": schema.BoolAttribute{
+			"ipv4_bgp_supress_inactive": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Suppresing advertise inactive routes").AddDefaultValueDescription("true").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
 			},
-			"synchronization": schema.BoolAttribute{
+			"ipv4_synchronization": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Synchronize between BGP and IGP systems").AddDefaultValueDescription("false").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
-			"bgp_redistribute_internal": schema.BoolAttribute{
+			"ipv4_bgp_redistribute_internal": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)").AddDefaultValueDescription("false").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
 			},
-			"external_distance": schema.Int64Attribute{
+			"ipv4_external_distance": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("20").String,
 				Optional:            true,
 				Computed:            true,
@@ -164,7 +164,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 				Default: int64default.StaticInt64(20),
 			},
-			"internal_distance": schema.Int64Attribute{
+			"ipv4_internal_distance": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("200").String,
 				Optional:            true,
 				Computed:            true,
@@ -173,7 +173,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 				Default: int64default.StaticInt64(200),
 			},
-			"local_distance": schema.Int64Attribute{
+			"ipv4_local_distance": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("200").String,
 				Optional:            true,
 				Computed:            true,
@@ -182,7 +182,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 				Default: int64default.StaticInt64(200),
 			},
-			"forward_packets_over_multipath_ibgp": schema.Int64Attribute{
+			"ipv4_forward_packets_over_multipath_ibgp": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8).AddDefaultValueDescription("1").String,
 				Optional:            true,
 				Computed:            true,
@@ -191,7 +191,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 				Default: int64default.StaticInt64(1),
 			},
-			"forward_packets_over_multipath_ebgp": schema.Int64Attribute{
+			"ipv4_forward_packets_over_multipath_ebgp": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8).AddDefaultValueDescription("1").String,
 				Optional:            true,
 				Computed:            true,
@@ -200,20 +200,20 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 				Default: int64default.StaticInt64(1),
 			},
-			"neighbors": schema.SetNestedAttribute{
+			"ipv4_neighbors": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"ipv4_address": schema.StringAttribute{
+						"ipv4_neighbor_address": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
 						},
-						"romote_as": schema.StringAttribute{
+						"pv4_neighbor_romote_as": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
 						},
-						"bfd": schema.StringAttribute{
+						"ipv4_neighbor_bfd": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("SINGLE_HOP", "MULTI_HOP", "AUTO_DETECT_HOP", "NONE").AddDefaultValueDescription("NONE").String,
 							Optional:            true,
 							Computed:            true,
@@ -222,42 +222,402 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							},
 							Default: stringdefault.StaticString("NONE"),
 						},
-						"update_source_interface_id": schema.StringAttribute{
+						"ipv4_update_source_interface_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
 						},
-						"address_family_ipv4": schema.BoolAttribute{
+						"ipv4_address_family_ipv4": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
-						"shutdown": schema.BoolAttribute{
+						"ipv4_neighbor_shutdown": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
 							Optional:            true,
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
-						"description": schema.StringAttribute{
+						"ipv4_neighbor_description": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_filter_access_lists": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"access_list_id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("IN", "OUT").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("IN", "OUT"),
+										},
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_route_map_lists": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"route_map_id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("IN", "OUT").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("IN", "OUT"),
+										},
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_prefix_lists": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"route_map_id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("IN", "OUT").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("IN", "OUT"),
+										},
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_as_path_lists": schema.ListNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"update_direction": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("IN", "OUT").String,
+										Optional:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("IN", "OUT"),
+										},
+									},
+									"as_path_id": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"ipv4_neighbor_filter_max_prefix": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 2147483647).AddDefaultValueDescription("1").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 2147483647),
+							},
+							Default: int64default.StaticInt64(1),
+						},
+						"ipv4_neighbor_filter_threshold_value": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 100).AddDefaultValueDescription("1").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 100),
+							},
+							Default: int64default.StaticInt64(1),
+						},
+						"ipv4_neighbor_filter_restart_interval": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 65535).AddDefaultValueDescription("1").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 65535),
+							},
+							Default: int64default.StaticInt64(1),
+						},
+						"ipv4_neighbor_routes_advertisement_interval": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 600).AddDefaultValueDescription("1").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(0, 600),
+							},
+							Default: int64default.StaticInt64(1),
+						},
+						"ipv4_neighbor_routes_remove_private_as": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_generate_default_route_map": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Generate default routes - Route Map").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_routes_advertise_map_use_exist": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Use Exist Map or Non-Exist Map").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_routes_advertise_map": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Specified route maps are advertised when the prefix exists only in the Advertise Map.").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_keepalive_interval": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 65535).AddDefaultValueDescription("60").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(0, 65535),
+							},
+							Default: int64default.StaticInt64(60),
+						},
+						"ipv4_neighbor_hold_time": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(3, 65535).AddDefaultValueDescription("180").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(3, 65535),
+							},
+							Default: int64default.StaticInt64(180),
+						},
+						"ipv4_neighbor_min_hold_time": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(3, 65535).AddDefaultValueDescription("0").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(3, 65535),
+							},
+							Default: int64default.StaticInt64(0),
+						},
+						"ipv4_neighbor_authentication_password": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Setting password enables authentication.").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_send_community_attribute": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Send Community attribute to this neighbor").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_nexthop_self": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Use itself as next hop for this neighbor").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_disable_connection_verification": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Disable Connection Verification").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_tcp_mtu_path_discovery": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Use TCP path MTU discovery.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"ipv4_neighbor_max_hop_count": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 255).AddDefaultValueDescription("1").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(1, 255),
+							},
+							Default: int64default.StaticInt64(1),
+						},
+						"ipv4_neighbor_tcp_transport_mode": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("True set it to active, False to passive.").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"ipv4_neighbor_weight": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 65535).AddDefaultValueDescription("0").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(0, 65535),
+							},
+							Default: int64default.StaticInt64(0),
+						},
+						"ipv4_neighbor_version": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("0 - default, 4 - IPv4").AddStringEnumDescription("0", "4").AddDefaultValueDescription("0").String,
+							Optional:            true,
+							Computed:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("0", "4"),
+							},
+							Default: stringdefault.StaticString("0"),
+						},
+						"ipv4_neighbor_customized_local_as_number": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"ipv4_neighbor_customized_no_prepend": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Do not prepend local AS number to routes received from neighbor").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"ipv4_neighbor_customized_replace_as": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Replace real AS number with localAS number in routes received from neighbor").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+						"ipv4_neighbor_customized_accept_both_as": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Replace real AS number with localAS number in routes received from neighbor").AddDefaultValueDescription("false").String,
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+					},
+				},
+			},
+			"ipv4_aggregate_addresses": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"generate_as": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"filter": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"network_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"advertise_map_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"attribute_map_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"suppress_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
 						},
 					},
 				},
 			},
-			"maximum_paths": schema.SetNestedAttribute{
+			"ipv4_filterings": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"value": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 8).AddDefaultValueDescription("1").String,
+						"network_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
 							Optional:            true,
-							Computed:            true,
-							Validators: []validator.Int64{
-								int64validator.Between(1, 8),
+						},
+						"network_direction": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Possible values - incomingroutefilter, outgoingroutefilter").AddStringEnumDescription("incomingroutefilter", "outgoingroutefilter").String,
+							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("incomingroutefilter", "outgoingroutefilter"),
 							},
-							Default: int64default.StaticInt64(1),
+						},
+						"protocol": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"prorocol_process": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
+			"ipv4_networks": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"network_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"route_map_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
+			"ipv4_redistributions": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"route_map_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"metric": schema.Int64Attribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 4294967295).String,
+							Optional:            true,
+							Validators: []validator.Int64{
+								int64validator.Between(0, 4294967295),
+							},
+						},
+						"process_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"source_protocol": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Possible values - RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP").AddStringEnumDescription("RedistributeConnected", "RedistributeStatic", "RedistributeOSPF", "RedistributeEIGRP").String,
+							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.OneOf("RedistributeConnected", "RedistributeStatic", "RedistributeOSPF", "RedistributeEIGRP"),
+							},
+						},
+						"match_external1": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"match_external2": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"match_internal": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"match_nssa_external1": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"match_nssa_external2": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
+			"ipv4_route_injections": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"inject_route_map_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
+						},
+						"exist_route_map_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("").String,
+							Optional:            true,
 						},
 					},
 				},
@@ -451,7 +811,7 @@ func (r *DeviceBGPResource) ImportState(ctx context.Context, req resource.Import
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("device_id"), idParts[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("learned_route_map_id"), idParts[5])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("ipv4_learned_route_map_id"), idParts[5])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), idParts[2])...)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)

@@ -3,27 +3,63 @@
 page_title: "fmc_device_bgp Resource - terraform-provider-fmc"
 subcategory: "Devices"
 description: |-
-  This resource can manage a Device BGP.
+  Under BGP General Settings, BGP has to be enabled and AS Number assigned first.
 ---
 
 # fmc_device_bgp (Resource)
 
-This resource can manage a Device BGP.
+Under BGP General Settings, BGP has to be enabled and AS Number assigned first.
 
 ## Example Usage
 
 ```terraform
 resource "fmc_device_bgp" "example" {
-  device_id            = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  learned_route_map_id = ""
-  neighbors = [
+  device_id                 = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  ipv4_learned_route_map_id = ""
+  ipv4_neighbors = [
     {
-      ipv4_address = "10.1.1.1"
-      romote_as    = "65534"
-      description  = "My BGP Peer"
+      ipv4_neighbor_address     = "10.1.1.1"
+      pv4_neighbor_romote_as    = "65534"
+      ipv4_neighbor_description = "My BGP Peer"
+      ipv4_neighbor_filter_access_lists = [
+        {
+        }
+      ]
+      ipv4_neighbor_filter_route_map_lists = [
+        {
+        }
+      ]
+      ipv4_neighbor_filter_prefix_lists = [
+        {
+        }
+      ]
+      ipv4_neighbor_filter_as_path_lists = [
+        {
+        }
+      ]
+      ipv4_neighbor_generate_default_route_map          = ""
+      ipv4_neighbor_routes_advertise_map                = ""
+      ipv4_neighbor_routes_advertise_exist_nonexist_map = ""
+      ipv4_neighbor_authentication_password             = ""
     }
   ]
-  maximum_paths = [
+  ipv4_aggregate_addresses = [
+    {
+    }
+  ]
+  ipv4_filterings = [
+    {
+    }
+  ]
+  ipv4_networks = [
+    {
+    }
+  ]
+  ipv4_redistributions = [
+    {
+    }
+  ]
+  ipv4_route_injections = [
     {
     }
   ]
@@ -39,66 +75,202 @@ resource "fmc_device_bgp" "example" {
 
 ### Optional
 
-- `auto_summary` (Boolean) Summarize subnet routes into network level routes
-  - Default value: `false`
-- `bgp_redistribute_internal` (Boolean) Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)
-  - Default value: `false`
-- `bgp_supress_inactive` (Boolean) Suppresing advertise inactive routes
-  - Default value: `true`
-- `default_information_orginate` (Boolean) Generate default routes
-  - Default value: `false`
 - `domain` (String) The name of the FMC domain
-- `external_distance` (Number) - Range: `1`-`255`
+- `ipv4_aggregate_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_aggregate_addresses))
+- `ipv4_auto_aummary` (Boolean) Summarize subnet routes into network level routes
+  - Default value: `false`
+- `ipv4_bgp_redistribute_internal` (Boolean) Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)
+  - Default value: `false`
+- `ipv4_bgp_supress_inactive` (Boolean) Suppresing advertise inactive routes
+  - Default value: `true`
+- `ipv4_default_information_orginate` (Boolean) Generate default routes
+  - Default value: `false`
+- `ipv4_external_distance` (Number) - Range: `1`-`255`
   - Default value: `20`
-- `forward_packets_over_multipath_ebgp` (Number) - Range: `1`-`8`
+- `ipv4_filterings` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_filterings))
+- `ipv4_forward_packets_over_multipath_ebgp` (Number) - Range: `1`-`8`
   - Default value: `1`
-- `forward_packets_over_multipath_ibgp` (Number) - Range: `1`-`8`
+- `ipv4_forward_packets_over_multipath_ibgp` (Number) - Range: `1`-`8`
   - Default value: `1`
-- `internal_distance` (Number) - Range: `1`-`255`
+- `ipv4_internal_distance` (Number) - Range: `1`-`255`
   - Default value: `200`
-- `learned_route_map_id` (String)
-- `local_distance` (Number) - Range: `1`-`255`
+- `ipv4_learned_route_map_id` (String)
+- `ipv4_local_distance` (Number) - Range: `1`-`255`
   - Default value: `200`
-- `maximum_paths` (Attributes Set) (see [below for nested schema](#nestedatt--maximum_paths))
-- `neighbors` (Attributes Set) (see [below for nested schema](#nestedatt--neighbors))
-- `synchronization` (Boolean) Synchronize between BGP and IGP systems
+- `ipv4_neighbors` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors))
+- `ipv4_networks` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_networks))
+- `ipv4_redistributions` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_redistributions))
+- `ipv4_route_injections` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_route_injections))
+- `ipv4_synchronization` (Boolean) Synchronize between BGP and IGP systems
   - Default value: `false`
 
 ### Read-Only
 
-- `address_family_type` (String)
 - `as_number` (String)
 - `id` (String) The id of the object
+- `ipv4_address_family_type` (String)
 - `name` (String)
 - `type` (String)
 
-<a id="nestedatt--maximum_paths"></a>
-### Nested Schema for `maximum_paths`
+<a id="nestedatt--ipv4_aggregate_addresses"></a>
+### Nested Schema for `ipv4_aggregate_addresses`
 
 Optional:
 
-- `value` (Number) - Range: `1`-`8`
-  - Default value: `1`
+- `advertise_map_id` (String)
+- `attribute_map_id` (String)
+- `filter` (Boolean)
+- `generate_as` (Boolean)
+- `network_id` (String)
+- `suppress_map_id` (String)
 
 
-<a id="nestedatt--neighbors"></a>
-### Nested Schema for `neighbors`
+<a id="nestedatt--ipv4_filterings"></a>
+### Nested Schema for `ipv4_filterings`
 
 Optional:
 
-- `address_family_ipv4` (Boolean) - Default value: `false`
-- `bfd` (String) - Choices: `SINGLE_HOP`, `MULTI_HOP`, `AUTO_DETECT_HOP`, `NONE`
+- `network_direction` (String) Possible values - incomingroutefilter, outgoingroutefilter
+  - Choices: `incomingroutefilter`, `outgoingroutefilter`
+- `network_id` (String)
+- `prorocol_process` (String)
+- `protocol` (String)
+
+
+<a id="nestedatt--ipv4_neighbors"></a>
+### Nested Schema for `ipv4_neighbors`
+
+Optional:
+
+- `ipv4_address_family_ipv4` (Boolean) - Default value: `false`
+- `ipv4_neighbor_address` (String)
+- `ipv4_neighbor_authentication_password` (String) Setting password enables authentication.
+- `ipv4_neighbor_bfd` (String) - Choices: `SINGLE_HOP`, `MULTI_HOP`, `AUTO_DETECT_HOP`, `NONE`
   - Default value: `NONE`
-- `description` (String)
-- `ipv4_address` (String)
-- `romote_as` (String)
-- `shutdown` (Boolean) - Default value: `false`
-- `update_source_interface_id` (String)
+- `ipv4_neighbor_customized_accept_both_as` (Boolean) Replace real AS number with localAS number in routes received from neighbor
+  - Default value: `false`
+- `ipv4_neighbor_customized_local_as_number` (String)
+- `ipv4_neighbor_customized_no_prepend` (Boolean) Do not prepend local AS number to routes received from neighbor
+  - Default value: `false`
+- `ipv4_neighbor_customized_replace_as` (Boolean) Replace real AS number with localAS number in routes received from neighbor
+  - Default value: `false`
+- `ipv4_neighbor_description` (String)
+- `ipv4_neighbor_disable_connection_verification` (Boolean) Disable Connection Verification
+- `ipv4_neighbor_filter_access_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_access_lists))
+- `ipv4_neighbor_filter_as_path_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_as_path_lists))
+- `ipv4_neighbor_filter_max_prefix` (Number) - Range: `1`-`2147483647`
+  - Default value: `1`
+- `ipv4_neighbor_filter_prefix_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_prefix_lists))
+- `ipv4_neighbor_filter_restart_interval` (Number) - Range: `1`-`65535`
+  - Default value: `1`
+- `ipv4_neighbor_filter_route_map_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--ipv4_neighbor_filter_route_map_lists))
+- `ipv4_neighbor_filter_threshold_value` (Number) - Range: `1`-`100`
+  - Default value: `1`
+- `ipv4_neighbor_generate_default_route_map` (String) Generate default routes - Route Map
+- `ipv4_neighbor_hold_time` (Number) - Range: `3`-`65535`
+  - Default value: `180`
+- `ipv4_neighbor_keepalive_interval` (Number) - Range: `0`-`65535`
+  - Default value: `60`
+- `ipv4_neighbor_max_hop_count` (Number) - Range: `1`-`255`
+  - Default value: `1`
+- `ipv4_neighbor_min_hold_time` (Number) - Range: `3`-`65535`
+  - Default value: `0`
+- `ipv4_neighbor_nexthop_self` (Boolean) Use itself as next hop for this neighbor
+- `ipv4_neighbor_routes_advertise_exist_nonexist_map` (String) Specified route maps are advertised when the prefix exists only in the Advertise Map.
+- `ipv4_neighbor_routes_advertise_map` (String) Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
+- `ipv4_neighbor_routes_advertise_map_use_exist` (Boolean) Use Exist Map or Non-Exist Map
+- `ipv4_neighbor_routes_advertisement_interval` (Number) - Range: `0`-`600`
+  - Default value: `1`
+- `ipv4_neighbor_routes_remove_private_as` (Boolean)
+- `ipv4_neighbor_send_community_attribute` (Boolean) Send Community attribute to this neighbor
+- `ipv4_neighbor_shutdown` (Boolean) - Default value: `false`
+- `ipv4_neighbor_tcp_mtu_path_discovery` (Boolean) Use TCP path MTU discovery.
+  - Default value: `false`
+- `ipv4_neighbor_tcp_transport_mode` (Boolean) True set it to active, False to passive.
+  - Default value: `false`
+- `ipv4_neighbor_version` (String) 0 - default, 4 - IPv4
+  - Choices: `0`, `4`
+  - Default value: `0`
+- `ipv4_neighbor_weight` (Number) - Range: `0`-`65535`
+  - Default value: `0`
+- `ipv4_update_source_interface_id` (String)
+- `pv4_neighbor_romote_as` (String)
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_access_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_access_lists`
+
+Optional:
+
+- `access_list_id` (String)
+- `update_direction` (String) - Choices: `IN`, `OUT`
+
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_as_path_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_as_path_lists`
+
+Optional:
+
+- `as_path_id` (String)
+- `update_direction` (String) - Choices: `IN`, `OUT`
+
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_prefix_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_prefix_lists`
+
+Optional:
+
+- `route_map_id` (String)
+- `update_direction` (String) - Choices: `IN`, `OUT`
+
+
+<a id="nestedatt--ipv4_neighbors--ipv4_neighbor_filter_route_map_lists"></a>
+### Nested Schema for `ipv4_neighbors.ipv4_neighbor_filter_route_map_lists`
+
+Optional:
+
+- `route_map_id` (String)
+- `update_direction` (String) - Choices: `IN`, `OUT`
+
+
+
+<a id="nestedatt--ipv4_networks"></a>
+### Nested Schema for `ipv4_networks`
+
+Optional:
+
+- `network_id` (String)
+- `route_map_id` (String)
+
+
+<a id="nestedatt--ipv4_redistributions"></a>
+### Nested Schema for `ipv4_redistributions`
+
+Optional:
+
+- `match_external1` (Boolean)
+- `match_external2` (Boolean)
+- `match_internal` (Boolean)
+- `match_nssa_external1` (Boolean)
+- `match_nssa_external2` (Boolean)
+- `metric` (Number) - Range: `0`-`4294967295`
+- `process_id` (String)
+- `route_map_id` (String)
+- `source_protocol` (String) Possible values - RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP
+  - Choices: `RedistributeConnected`, `RedistributeStatic`, `RedistributeOSPF`, `RedistributeEIGRP`
+
+
+<a id="nestedatt--ipv4_route_injections"></a>
+### Nested Schema for `ipv4_route_injections`
+
+Optional:
+
+- `exist_route_map_id` (String)
+- `inject_route_map_id` (String)
 
 ## Import
 
 Import is supported using the following syntax:
 
 ```shell
-terraform import fmc_device_bgp.example "<learned_route_map_id>"
+terraform import fmc_device_bgp.example "<ipv4_learned_route_map_id>"
 ```

@@ -1,6 +1,7 @@
 ---
 name: Device BGP
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/bgp
+res_description: Under BGP General Settings, BGP has to be enabled and AS Number assigned first.
 data_source_name_query: true
 doc_category: Devices
 test_tags: [TF_VAR_device_id]
@@ -23,16 +24,17 @@ attributes:
     computed: true
 # BGP - IPv4 - General
   - model_name: type
-    tf_name: address_family_type
+    tf_name: ipv4_address_family_type
     data_path: [addressFamilyIPv4]
     type: String
     computed: true
   - model_name: id
-    tf_name: learned_route_map_id
+    tf_name: ipv4_learned_route_map_id
     data_path: [addressFamilyIPv4, aftableMap]
     type: String
     id: true
   - model_name: defaultInformationOrginate
+    tf_name: ipv4_default_information_orginate
     data_path: [addressFamilyIPv4]
     type: Bool
     example: False
@@ -41,6 +43,7 @@ attributes:
     default_value: false
     description: Generate default routes
   - model_name: autoSummary
+    tf_name: ipv4_auto_aummary
     data_path: [addressFamilyIPv4]
     type: Bool
     example: False
@@ -49,6 +52,7 @@ attributes:
     default_value: false
     description: Summarize subnet routes into network level routes
   - model_name: bgpSupressInactive
+    tf_name: ipv4_bgp_supress_inactive
     data_path: [addressFamilyIPv4]
     type: Bool
     example: False
@@ -57,6 +61,7 @@ attributes:
     default_value: true
     description: Suppresing advertise inactive routes
   - model_name: synchronization
+    tf_name: ipv4_synchronization
     data_path: [addressFamilyIPv4]
     type: Bool
     example: False
@@ -65,6 +70,7 @@ attributes:
     default_value: false
     description: Synchronize between BGP and IGP systems
   - model_name: bgpRedistributeInternal
+    tf_name: ipv4_bgp_redistribute_internal
     data_path: [addressFamilyIPv4]
     type: Bool
     example: False
@@ -73,6 +79,7 @@ attributes:
     default_value: false
     description: Redistribute IBGP into IGP. (Use filtering to limit the number of prefixes that are redistributed)
   - model_name: externalDistance
+    tf_name: ipv4_external_distance
     data_path: [addressFamilyIPv4, distance]
     type: Int64
     min_int: 1
@@ -80,6 +87,7 @@ attributes:
     default_value: 20
     exclude_example: true
   - model_name: internalDistance
+    tf_name: ipv4_internal_distance
     data_path: [addressFamilyIPv4, distance]
     type: Int64
     min_int: 1
@@ -87,6 +95,7 @@ attributes:
     default_value: 200
     exclude_example: true
   - model_name: localDistance
+    tf_name: ipv4_local_distance
     data_path: [addressFamilyIPv4, distance]
     type: Int64
     min_int: 1
@@ -94,7 +103,7 @@ attributes:
     default_value: 200
     exclude_example: true
   - model_name: ibgp
-    tf_name: forward_packets_over_multipath_ibgp
+    tf_name: ipv4_forward_packets_over_multipath_ibgp
     data_path: [addressFamilyIPv4]
     type: Int64
     min_int: 1
@@ -102,7 +111,7 @@ attributes:
     default_value: 1
     exclude_example: true
   - model_name: ebgp
-    tf_name: forward_packets_over_multipath_ebgp
+    tf_name: ipv4_forward_packets_over_multipath_ebgp
     data_path: [addressFamilyIPv4]
     type: Int64
     min_int: 1
@@ -111,22 +120,25 @@ attributes:
     exclude_example: true
 # BGP - IPv4 - Neighbor
   - model_name: neighbors
+    tf_name: ipv4_neighbors
     data_path: [addressFamilyIPv4]
-    type: Set
+    type: List
     attributes:
       - model_name: ipv4Address
-        tf_name: ipv4_address
+        tf_name: ipv4_neighbor_address
         type: String
+        id: true
         example: "10.1.1.1"
         exclude_test: true
       - model_name: remoteAs
-        tf_name: romote_as
+        tf_name: pv4_neighbor_romote_as
         type: String
+        id: true
         example: "65534"
         exclude_test: true
       - model_name: fallOverBFD
         data_path: [neighborGeneral]
-        tf_name: bfd
+        tf_name: ipv4_neighbor_bfd
         type: String
         enum_values: [ SINGLE_HOP, MULTI_HOP, AUTO_DETECT_HOP, NONE ]
         example: "SINGLE_HOP"
@@ -135,7 +147,7 @@ attributes:
         exclude_example: true
       - model_name: id
         data_path: [neighborGeneral, updateSource]
-        tf_name: update_source_interface_id
+        tf_name: ipv4_update_source_interface_id
         id: true
         type: String
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
@@ -143,34 +155,449 @@ attributes:
         exclude_example: true
       - model_name: enableAddress
         data_path: [neighborGeneral]
-        tf_name: address_family_ipv4
+        tf_name: ipv4_address_family_ipv4
         type: Bool
         exclude_test: true
         default_value: false
         exclude_example: true
       - model_name: shutdown
         data_path: [neighborGeneral]
-        tf_name: shutdown
+        tf_name: ipv4_neighbor_shutdown
         type: Bool
         exclude_test: true
         default_value: false
         exclude_example: true
       - model_name: description
+        tf_name: ipv4_neighbor_description
         data_path: [neighborGeneral]
         type: String
         example: "My BGP Peer"
         exclude_test: true
-#  - model_name: maximumPaths
-#    data_path: [addressFamilyIPv4]
-#    type: Set
-#    attributes:
-#      - model_name: value
-#        type: Int64
-#        exclude_example: true
-#        min_int: 1
-#        max_int: 8
-#        default_value: 1
+# BGP - IPv4 - Neighbor - Filtering Routes    
+      - model_name: neighborDistributeLists
+        tf_name: ipv4_neighbor_filter_access_lists
+        data_path: [neighborFiltering]
+        type: List
+        attributes:               
+          - model_name: id
+            tf_name: access_list_id
+            data_path: [accessList]
+            type: String
+            exclude_test: true
+            exclude_example: true
+          - model_name: filterUpdateAction
+            tf_name: update_direction
+            type: String
+            enum_values: [ IN, OUT ]
+            exclude_test: true
+            exclude_example: true 
+      - model_name: neighborRouteMap
+        tf_name: ipv4_neighbor_filter_route_map_lists
+        data_path: [neighborFiltering]
+        type: List
+        attributes:               
+          - model_name: id
+            tf_name: route_map_id
+            data_path: [RouteMap]
+            type: String
+            exclude_test: true
+            exclude_example: true
+          - model_name: filterUpdateAction
+            tf_name: update_direction
+            type: String
+            enum_values: [ IN, OUT ]
+            exclude_test: true
+            exclude_example: true   
+      - model_name: ipv4PrefixListFilter
+        tf_name: ipv4_neighbor_filter_prefix_lists
+        data_path: [neighborFiltering]
+        type: List
+        attributes:               
+          - model_name: id
+            tf_name: route_map_id
+            data_path: [ipv4PrefixList]
+            type: String
+            exclude_test: true
+            exclude_example: true
+          - model_name: filterUpdateAction
+            tf_name: update_direction
+            type: String
+            enum_values: [ IN, OUT ]
+            exclude_test: true
+            exclude_example: true   
+      - model_name: neighborFilterList
+        tf_name: ipv4_neighbor_filter_as_path_lists
+        data_path: [neighborFilterList]
+        type: List
+        attributes:
+          - model_name: filterUpdateAction
+            tf_name: update_direction
+            type: String
+            enum_values: [ IN, OUT ]
+            exclude_test: true
+            exclude_example: true   
+          - model_name: id
+            tf_name: as_path_id
+            data_path: [asPathList]
+            type: String
+            exclude_test: true
+            exclude_example: true          
+      - model_name: maxPrefixLimit
+        data_path: [neighborFiltering, neighborMaximumPrefix]
+        tf_name: ipv4_neighbor_filter_max_prefix
+        type: Int64
+        min_int: 1
+        max_int: 2147483647
+        default_value: 1
+        exclude_test: true
+        exclude_example: true
+      - model_name: thresholdValue
+        data_path: [neighborFiltering, neighborMaximumPrefix]
+        tf_name: ipv4_neighbor_filter_threshold_value
+        type: Int64
+        min_int: 1
+        max_int: 100
+        default_value: 1
+        exclude_test: true
+        exclude_example: true
+      - model_name: restartInterval
+        data_path: [neighborFiltering, neighborMaximumPrefix]
+        tf_name: ipv4_neighbor_filter_restart_interval
+        type: Int64
+        min_int: 1
+        max_int: 65535
+        default_value: 1
+        exclude_test: true
+        exclude_example: true
+# BGP - IPv4 - Neighbor - Routes
+      - model_name: advertisementInterval
+        data_path: [neighborRoutes]
+        tf_name: ipv4_neighbor_routes_advertisement_interval
+        type: Int64
+        min_int: 0
+        max_int: 600
+        default_value: 1
+        exclude_test: true
+        exclude_example: true
+      - model_name: removePrivateAs
+        data_path: [neighborRoutes]
+        tf_name: ipv4_neighbor_routes_remove_private_as
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: ipv4_neighbor_generate_default_route_map
+        data_path: [neighborFiltering, neighborDefaultOriginate, routeMap]
+        type: String
+        id: true
+        description: Generate default routes - Route Map   
+      - model_name: existMap
+        data_path: [neighborRoutes, neighborAdvertiseMaps]
+        tf_name: ipv4_neighbor_routes_advertise_map_use_exist
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+        description: Use Exist Map or Non-Exist Map
+      - model_name: id
+        tf_name: ipv4_neighbor_routes_advertise_map
+        data_path: [neighborRoutes, neighborAdvertiseMaps, routeMap]
+        type: String
+        id: true
+        description: Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
+      - model_name: id
+        tf_name: ipv4_neighbor_routes_advertise_exist_nonexist_map
+        data_path: [neighborRoutes, neighborAdvertiseMaps, existRouteMap]
+        type: String
+        id: true
+        description: Specified route maps are advertised when the prefix exists only in the Advertise Map.
+# BGP - IPv4 - Neighbor - Timers
+      - model_name: keepAliveInterval
+        data_path: [neighborTimers]
+        tf_name: ipv4_neighbor_keepalive_interval
+        type: Int64
+        min_int: 0
+        max_int: 65535
+        default_value: 60
+        exclude_test: true
+        exclude_example: true
+      - model_name: holdTime
+        data_path: [neighborTimers]
+        tf_name: ipv4_neighbor_hold_time
+        type: Int64
+        min_int: 3
+        max_int: 65535
+        default_value: 180
+        exclude_test: true
+        exclude_example: true
+      - model_name: minimumHoldTime
+        data_path: [neighborTimers]
+        tf_name: ipv4_neighbor_min_hold_time
+        type: Int64
+        min_int: 3
+        max_int: 65535
+        default_value: 0
+        exclude_test: true
+        exclude_example: true
+# BGP - IPv4 - Neighbor - Advanced
+      - model_name: neighborSecret
+        tf_name: ipv4_neighbor_authentication_password
+        data_path: [neighborAdvanced]
+        type: String
+        description: Setting password enables authentication.
+      - model_name: sendCommunity
+        tf_name: ipv4_neighbor_send_community_attribute
+        data_path: [neighborAdvanced]
+        type: Bool
+        exclude_example: true
+        description: Send Community attribute to this neighbor
+      - model_name: nextHopSelf
+        tf_name: ipv4_neighbor_nexthop_self
+        data_path: [neighborAdvanced]
+        type: Bool
+        exclude_example: true
+        description: Use itself as next hop for this neighbor
+      - model_name: disableConnectedCheck
+        tf_name: ipv4_neighbor_disable_connection_verification
+        data_path: [neighborAdvanced, neighborHops]
+        type: Bool
+        exclude_example: true
+        description: Disable Connection Verification
+      - model_name: disable
+        tf_name: ipv4_neighbor_tcp_mtu_path_discovery
+        data_path: [neighborAdvanced, neighborTransportPathMTUDiscovery]
+        type: Bool
+        default_value: false
+        exclude_example: true
+        description: Use TCP path MTU discovery.
+      - model_name: maxHopCount
+        tf_name: ipv4_neighbor_max_hop_count
+        data_path: [neighborAdvanced, neighborHops]
+        type: Int64
+        min_int: 1
+        max_int: 255
+        default_value: 1
+        exclude_example: true
+      - model_name: establishTCPSession
+        tf_name: ipv4_neighbor_tcp_transport_mode
+        data_path: [neighborAdvanced, neighborTransportConnectionMode]
+        type: Bool
+        default_value: false
+        exclude_example: true
+        description: True set it to active, False to passive.
+      - model_name: neighborWeight
+        tf_name: ipv4_neighbor_weight
+        data_path: [neighborAdvanced]
+        type: Int64
+        min_int: 0
+        max_int: 65535
+        default_value: 0
+        exclude_example: true
+      - model_name: neighborVersion
+        tf_name: ipv4_neighbor_version
+        data_path: [neighborAdvanced]
+        type: String
+        enum_values: ["0", "4"]
+        default_value: "0"
+        exclude_example: true
+        description: 0 - default, 4 - IPv4 
+# BGP - IPv4 - Neighbor - Migration
+      - model_name: asNumber
+        tf_name: ipv4_neighbor_customized_local_as_number
+        data_path: [neighborLocalAs]
+        type: String
+        exclude_test: true
+        exclude_example: true
+      - model_name: noPrepend
+        tf_name: ipv4_neighbor_customized_no_prepend
+        data_path: [neighborLocalAs]
+        type: Bool
+        default_value: false
+        exclude_example: true
+        description: Do not prepend local AS number to routes received from neighbor
+      - model_name: replaceAs
+        tf_name: ipv4_neighbor_customized_replace_as
+        data_path: [neighborLocalAs]
+        type: Bool
+        default_value: false
+        exclude_example: true
+        description: Replace real AS number with localAS number in routes received from neighbor
+      - model_name: dualAs
+        tf_name: ipv4_neighbor_customized_accept_both_as
+        data_path: [neighborLocalAs]
+        type: Bool
+        default_value: false
+        exclude_example: true
+        description: Replace real AS number with localAS number in routes received from neighbor
+# BGP - IPv4 - Aggregate Address
+  - model_name: aggregateAddressesIPv4s
+    tf_name: ipv4_aggregate_addresses
+    data_path: [addressFamilyIPv4]
+    type: List
+    attributes:
+      - model_name: asSet
+        tf_name: generate_as
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: summaryOnly
+        tf_name: filter
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: network_id
+        data_path: [ipv4AggregateNetwork]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: advertise_map_id
+        data_path: [advertiseMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: attribute_map_id
+        data_path: [attributeMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: suppress_map_id
+        data_path: [suppressMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+# BGP - IPv4 - Filtering
+  - model_name: distributeLists
+    tf_name: ipv4_filterings
+    data_path: [addressFamilyIPv4]
+    type: List
+    attributes:
+      - model_name: id
+        tf_name: network_id
+        data_path: [ipv4AggregateNetwork]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: type
+        tf_name: network_direction
+        type: String
+        enum_values: [incomingroutefilter, outgoingroutefilter]
+        exclude_test: true
+        exclude_example: true
+        description: Possible values - incomingroutefilter, outgoingroutefilter
+      - model_name: protocol
+        tf_name: protocol
+        data_path: [protocol]
+        type: String
+        exclude_test: true
+        exclude_example: true
+      - model_name: processId
+        tf_name: prorocol_process
+        data_path: [protocol]
+        type: String
+        exclude_test: true
+        exclude_example: true
+# BGP - IPv4 - Networks
+  - model_name: networks
+    tf_name: ipv4_networks
+    data_path: [addressFamilyIPv4]
+    type: List
+    attributes:
+      - model_name: id
+        tf_name: network_id
+        data_path: [ipv4Address]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: route_map_id
+        data_path: [routeMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+# BGP - IPv4 - Redistribution
+  - model_name: redistributeProtocols
+    tf_name: ipv4_redistributions
+    data_path: [addressFamilyIPv4]
+    type: List
+    attributes:
+      - model_name: id
+        tf_name: route_map_id
+        data_path: [routeMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: metricValue
+        tf_name: metric
+        data_path: [routeMetric]
+        type: Int64
+        min_int: 0
+        max_int: 4294967295
+        exclude_test: true
+        exclude_example: true
+      - model_name: processId
+        type: String
+        exclude_test: true
+        exclude_example: true
+      - model_name: type
+        tf_name: source_protocol
+        type: String
+        enum_values: [RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP ]
+        exclude_test: true
+        exclude_example: true
+        description: Possible values - RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP
+      - model_name: matchExternal1
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: matchExternal2
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: matchInternal
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: matchNssaExternal1
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+      - model_name: matchNssaExternal2
+        type: Bool
+        exclude_test: true
+        exclude_example: true
+# BGP - IPv4 - Route Injection
+  - model_name: injectMaps
+    tf_name: ipv4_route_injections
+    data_path: [addressFamilyIPv4]
+    type: List
+    attributes:
+      - model_name: id
+        tf_name: inject_route_map_id
+        data_path: [injectMap, routeMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
+      - model_name: id
+        tf_name: exist_route_map_id
+        data_path: [existMap, routeMap]
+        type: String
+        id: true
+        exclude_test: true
+        exclude_example: true
 
+# BGP - IPv6 - TODO
 
 test_prerequisites: |-
   variable "device_id" { default = null } // tests will set $TF_VAR_device_id

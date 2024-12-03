@@ -1,5 +1,5 @@
 ---
-name: Device BGP Generel Settings
+name: Device BGP General Settings
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/bgpgeneralsettings
 data_source_name_query: true
 doc_category: Devices
