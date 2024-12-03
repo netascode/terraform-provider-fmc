@@ -118,7 +118,8 @@ type DevicePhysicalInterfaceIpv6Prefixes struct {
 }
 
 type DevicePhysicalInterfaceManagementAccessNetworkObjects struct {
-	Id types.String `tfsdk:"id"`
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
 }
 
 type DevicePhysicalInterfaceArpTableEntries struct {
@@ -340,7 +341,9 @@ func (data DevicePhysicalInterface) toBody(ctx context.Context, state DevicePhys
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
-			itemBody, _ = sjson.Set(itemBody, "type", "AnyNonEmptyString")
+			if !item.Type.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "fmcAccessConfig.allowedNetworks.-1", itemBody)
 		}
 	}
@@ -711,6 +714,11 @@ func (data *DevicePhysicalInterface) fromBody(ctx context.Context, res gjson.Res
 				data.Id = types.StringValue(value.String())
 			} else {
 				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
 			}
 			(*parent).ManagementAccessNetworkObjects = append((*parent).ManagementAccessNetworkObjects, data)
 			return true
@@ -1197,6 +1205,11 @@ func (data *DevicePhysicalInterface) fromBodyPartial(ctx context.Context, res gj
 			data.Id = types.StringValue(value.String())
 		} else {
 			data.Id = types.StringNull()
+		}
+		if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
 		}
 		(*parent).ManagementAccessNetworkObjects[i] = data
 	}

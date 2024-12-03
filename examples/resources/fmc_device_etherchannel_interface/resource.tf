@@ -9,7 +9,8 @@ resource "fmc_device_etherchannel_interface" "example" {
   ether_channel_id     = "1"
   selected_interfaces = [
     {
-      id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      name = "GigabitEthernet0/1"
     }
   ]
   ipv4_static_address = "10.1.1.1"

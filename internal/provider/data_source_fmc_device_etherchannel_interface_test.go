@@ -66,6 +66,11 @@ func TestAccDataSourceFmcDeviceEtherChannelInterface(t *testing.T) {
 const testAccDataSourceFmcDeviceEtherChannelInterfacePrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 variable "physical_interface_id" { default = null } // tests will set $TF_VAR_physical_interface_id
+
+data "fmc_device_physical_interface" "test" {
+  device_id = var.device_id
+  id = var.physical_interface_id
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -81,7 +86,10 @@ func testAccDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 	config += `	mode = "NONE"` + "\n"
 	config += `	mtu = 9000` + "\n"
 	config += `	ether_channel_id = "1"` + "\n"
-	config += `	nve_only = false` + "\n"
+	config += `	selected_interfaces = [{` + "\n"
+	config += `		id = data.fmc_device_physical_interface.test.id` + "\n"
+	config += `		name = data.fmc_device_physical_interface.test.name` + "\n"
+	config += `	}]` + "\n"
 	config += `	ipv4_static_address = "10.1.1.1"` + "\n"
 	config += `	ipv4_static_netmask = "24"` + "\n"
 	config += `}` + "\n"
@@ -104,7 +112,10 @@ func testAccNamedDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 	config += `	mode = "NONE"` + "\n"
 	config += `	mtu = 9000` + "\n"
 	config += `	ether_channel_id = "1"` + "\n"
-	config += `	nve_only = false` + "\n"
+	config += `	selected_interfaces = [{` + "\n"
+	config += `		id = data.fmc_device_physical_interface.test.id` + "\n"
+	config += `		name = data.fmc_device_physical_interface.test.name` + "\n"
+	config += `	}]` + "\n"
 	config += `	ipv4_static_address = "10.1.1.1"` + "\n"
 	config += `	ipv4_static_netmask = "24"` + "\n"
 	config += `}` + "\n"

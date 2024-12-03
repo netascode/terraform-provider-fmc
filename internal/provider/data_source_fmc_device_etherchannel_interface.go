@@ -252,15 +252,15 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 				Computed:            true,
 			},
 			"ipv6_dad_attempts": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Number of Duplicate Address Detection (DAD) attempts.",
 				Computed:            true,
 			},
 			"ipv6_ns_interval": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Neighbor Solicitation (NS) interval.",
 				Computed:            true,
 			},
 			"ipv6_reachable_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The amount of time that a remote IPv6 node is considered reachable after a reachability confirmation event has occurred",
 				Computed:            true,
 			},
 			"ipv6_enable_ra": schema.BoolAttribute{
@@ -268,23 +268,23 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 				Computed:            true,
 			},
 			"ipv6_ra_life_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Router Advertisement (RA) lifetime.",
 				Computed:            true,
 			},
 			"ipv6_ra_interval": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Interval between Router Advertisements (RA) transmissions",
 				Computed:            true,
 			},
 			"ipv6_dhcp": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Enable DHCPv6 client.",
 				Computed:            true,
 			},
 			"ipv6_default_route_by_dhcp": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether to obtain default route.",
+				MarkdownDescription: "Indicates whether to obtain default route from DHCPv6.",
 				Computed:            true,
 			},
 			"ipv6_dhcp_pool_id": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "UUID of the assigned DHCPv6 pool",
 				Computed:            true,
 			},
 			"ipv6_dhcp_pool_type": schema.StringAttribute{
@@ -300,11 +300,11 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 				Computed:            true,
 			},
 			"ipv6_dhcp_client_pd_prefix_name": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Prefix Name for Prefix Delegation",
 				Computed:            true,
 			},
 			"ipv6_dhcp_client_pd_hint_prefixes": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Hint Prefixes for Prefix Delegation (PD)",
 				Computed:            true,
 			},
 			"ip_based_monitoring": schema.BoolAttribute{
@@ -316,7 +316,7 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 				Computed:            true,
 			},
 			"ip_based_monitoring_next_hop": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "IP address to monitor.",
 				Computed:            true,
 			},
 			"auto_negotiation": schema.BoolAttribute{
@@ -357,18 +357,22 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "ID of the network object (host, network or range).",
+							Computed:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: "Type of the object",
 							Computed:            true,
 						},
 					},
 				},
 			},
 			"active_mac_address": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "MAC address for active interface in format 0123.4567.89ab.",
 				Computed:            true,
 			},
 			"standby_mac_address": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "MAC address for standby interface in format 0123.4567.89ab.",
 				Computed:            true,
 			},
 			"arp_table_entries": schema.ListNestedAttribute{
@@ -377,38 +381,38 @@ func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req 
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"mac_address": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "MAC address for custom ARP entry in format 0123.4567.89ab.",
 							Computed:            true,
 						},
 						"ip_address": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "IP address for custom ARP entry",
 							Computed:            true,
 						},
 						"enable_alias": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Enable Alias for custom ARP entry",
 							Computed:            true,
 						},
 					},
 				},
 			},
 			"enable_anti_spoofing": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Enable Anti Spoofing",
 				Computed:            true,
 			},
 			"allow_full_fragment_reassembly": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Allow Full Fragment Reassembly",
 				Computed:            true,
 			},
 			"override_default_fragment_setting_chain": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Override Default Fragment Setting - Chain value",
 				Computed:            true,
 			},
 			"override_default_fragment_setting_size": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Override Default Fragment Setting - Fragment Size value",
 				Computed:            true,
 			},
 			"override_default_fragment_setting_timeout": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Override Default Fragment Setting - Time Out value",
 				Computed:            true,
 			},
 		},

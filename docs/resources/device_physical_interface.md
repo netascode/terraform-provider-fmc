@@ -39,15 +39,15 @@ resource "fmc_device_physical_interface" "example" {
 
 ### Optional
 
-- `active_mac_address` (String)
-- `allow_full_fragment_reassembly` (Boolean)
+- `active_mac_address` (String) MAC address for active interface in format 0123.4567.89ab.
+- `allow_full_fragment_reassembly` (Boolean) Allow Full Fragment Reassembly
 - `arp_table_entries` (Attributes List) (see [below for nested schema](#nestedatt--arp_table_entries))
 - `auto_negotiation` (Boolean) Enables auto negotiation of duplex and speed.
 - `description` (String) Optional user-created description.
 - `domain` (String) The name of the FMC domain
 - `duplex` (String) Duplex configuraion, can be one of INLINE, PASSIVE, TAP, ERSPAN.
   - Choices: `AUTO`, `FULL`, `HALF`
-- `enable_anti_spoofing` (Boolean)
+- `enable_anti_spoofing` (Boolean) Enable Anti Spoofing
 - `enable_sgt_propagate` (Boolean) Indicates whether to propagate SGT.
 - `enabled` (Boolean) Indicates whether to enable the interface.
   - Default value: `true`
@@ -56,7 +56,7 @@ resource "fmc_device_physical_interface" "example" {
 - `flow_control_send` (String) Flow Control Send configuraion, can be one of ON, OFF.
   - Choices: `ON`, `OFF`
 - `ip_based_monitoring` (Boolean) Indicates whether to enable IP based Monitoring.
-- `ip_based_monitoring_next_hop` (String)
+- `ip_based_monitoring_next_hop` (String) IP address to monitor.
 - `ip_based_monitoring_type` (String) PPPoE Configuration - PPPoE route metric, [ AUTO, PEER_IPV4, PEER_IPV6, AUTO4, AUTO6 ]
   - Choices: `AUTO`, `PEER_IPV4`, `PEER_IPV6`, `AUTO4`, `AUTO6`
 - `ipv4_dhcp_obtain_route` (Boolean) Any non-null value here indicates to enable DHCPv4. Value `false` indicates to enable DHCPv4 without obtaining from there the default IPv4 route but anyway requires also ipv4_dhcp_route_metric to be set to exactly 1. Value `true` indicates to enable DHCPv4 and obtain the route and also requires ipv4_dhcp_route_metric to be non-null. The ipv4_dhcp_obtain_route must be null when using ipv4_static_address.
@@ -74,12 +74,13 @@ resource "fmc_device_physical_interface" "example" {
 - `ipv4_static_address` (String) Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.
 - `ipv4_static_netmask` (String) Netmask (width) for ipv4_static_address.
 - `ipv6_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_addresses))
-- `ipv6_dad_attempts` (Number) - Range: `0`-`600`
-- `ipv6_default_route_by_dhcp` (Boolean) Indicates whether to obtain default route.
-- `ipv6_dhcp` (Boolean)
-- `ipv6_dhcp_client_pd_hint_prefixes` (String)
-- `ipv6_dhcp_client_pd_prefix_name` (String)
-- `ipv6_dhcp_pool_id` (String)
+- `ipv6_dad_attempts` (Number) Number of Duplicate Address Detection (DAD) attempts.
+  - Range: `0`-`600`
+- `ipv6_default_route_by_dhcp` (Boolean) Indicates whether to obtain default route from DHCPv6.
+- `ipv6_dhcp` (Boolean) Enable DHCPv6 client.
+- `ipv6_dhcp_client_pd_hint_prefixes` (String) Hint Prefixes for Prefix Delegation (PD)
+- `ipv6_dhcp_client_pd_prefix_name` (String) Prefix Name for Prefix Delegation (PD)
+- `ipv6_dhcp_pool_id` (String) UUID of the assigned DHCPv6 pool
 - `ipv6_dhcp_pool_type` (String) Type of the object; this value is always 'IPv6AddressPool'.
 - `ipv6_enable` (Boolean) Indicates whether to enable IPv6.
 - `ipv6_enable_auto_config` (Boolean) Indicates whether to enable IPv6 autoconfiguration.
@@ -89,11 +90,15 @@ resource "fmc_device_physical_interface" "example" {
 - `ipv6_enable_ra` (Boolean) Indicates whether to enable IPv6 router advertisement (RA).
 - `ipv6_enforce_eui` (Boolean) Indicates whether to enforce IPv6 Extended Unique Identifier (EUI64 from RFC2373).
 - `ipv6_link_local_address` (String) IPv6 Configuration - Link-Local Address.
-- `ipv6_ns_interval` (Number) - Range: `1000`-`3600000`
+- `ipv6_ns_interval` (Number) Neighbor Solicitation (NS) interval.
+  - Range: `1000`-`3600000`
 - `ipv6_prefixes` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_prefixes))
-- `ipv6_ra_interval` (Number) - Range: `3`-`1800`
-- `ipv6_ra_life_time` (Number) - Range: `0`-`9000`
-- `ipv6_reachable_time` (Number) - Range: `0`-`3600000`
+- `ipv6_ra_interval` (Number) Interval between Router Advertisements (RA) transmissions
+  - Range: `3`-`1800`
+- `ipv6_ra_life_time` (Number) Router Advertisement (RA) lifetime.
+  - Range: `0`-`9000`
+- `ipv6_reachable_time` (Number) The amount of time that a remote IPv6 node is considered reachable after a reachability confirmation event has occurred
+  - Range: `0`-`3600000`
 - `lldp_receive` (Boolean) LLDP receive configuraion.
 - `lldp_transmit` (Boolean) LLDP transmit configuraion.
 - `logical_name` (String) Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.
@@ -103,15 +108,18 @@ resource "fmc_device_physical_interface" "example" {
 - `mtu` (Number) Maximum transmission unit. Can only be used when logical_name is set.
   - Range: `64`-`9000`
 - `nve_only` (Boolean) Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.
-- `override_default_fragment_setting_chain` (Number) - Range: `1`-`8200`
-- `override_default_fragment_setting_size` (Number) - Range: `1`-`30000`
-- `override_default_fragment_setting_timeout` (Number) - Range: `1`-`30`
+- `override_default_fragment_setting_chain` (Number) Override Default Fragment Setting - Chain value
+  - Range: `1`-`8200`
+- `override_default_fragment_setting_size` (Number) Override Default Fragment Setting - Fragment Size value
+  - Range: `1`-`30000`
+- `override_default_fragment_setting_timeout` (Number) Override Default Fragment Setting - Time Out value
+  - Range: `1`-`30`
 - `priority` (Number) Priority 0-65535. Can only be set for routed interfaces.
   - Range: `0`-`65535`
 - `security_zone_id` (String) UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.
 - `speed` (String) Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP
   - Choices: `AUTO`, `TEN`, `HUNDRED`, `THOUSAND`, `TEN_THOUSAND`, `TWENTY_FIVE_THOUSAND`, `FORTY_THOUSAND`, `HUNDRED_THOUSAND`, `TWO_HUNDRED_THOUSAND`, `DETECT_SFP`
-- `standby_mac_address` (String)
+- `standby_mac_address` (String) MAC address for standby interface in format 0123.4567.89ab.
 
 ### Read-Only
 
@@ -123,9 +131,9 @@ resource "fmc_device_physical_interface" "example" {
 
 Optional:
 
-- `enable_alias` (Boolean)
-- `ip_address` (String)
-- `mac_address` (String)
+- `enable_alias` (Boolean) Enable Alias for custom ARP entry
+- `ip_address` (String) IP address for custom ARP entry
+- `mac_address` (String) MAC address for custom ARP entry in format 0123.4567.89ab.
 
 
 <a id="nestedatt--ipv6_addresses"></a>
@@ -153,7 +161,8 @@ Optional:
 
 Optional:
 
-- `id` (String)
+- `id` (String) ID of the network object (host, network or range).
+- `type` (String) Type of the object
 
 ## Import
 

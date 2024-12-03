@@ -126,7 +126,8 @@ type DeviceEtherChannelInterfaceIpv6Prefixes struct {
 }
 
 type DeviceEtherChannelInterfaceManagementAccessNetworkObjects struct {
-	Id types.String `tfsdk:"id"`
+	Id   types.String `tfsdk:"id"`
+	Type types.String `tfsdk:"type"`
 }
 
 type DeviceEtherChannelInterfaceArpTableEntries struct {
@@ -364,7 +365,9 @@ func (data DeviceEtherChannelInterface) toBody(ctx context.Context, state Device
 			if !item.Id.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
-			itemBody, _ = sjson.Set(itemBody, "type", "AnyNonEmptyString")
+			if !item.Type.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
+			}
 			body, _ = sjson.SetRaw(body, "fmcAccessConfig.allowedNetworks.-1", itemBody)
 		}
 	}
@@ -764,6 +767,11 @@ func (data *DeviceEtherChannelInterface) fromBody(ctx context.Context, res gjson
 				data.Id = types.StringValue(value.String())
 			} else {
 				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
 			}
 			(*parent).ManagementAccessNetworkObjects = append((*parent).ManagementAccessNetworkObjects, data)
 			return true
@@ -1308,6 +1316,11 @@ func (data *DeviceEtherChannelInterface) fromBodyPartial(ctx context.Context, re
 			data.Id = types.StringValue(value.String())
 		} else {
 			data.Id = types.StringNull()
+		}
+		if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
 		}
 		(*parent).ManagementAccessNetworkObjects[i] = data
 	}
