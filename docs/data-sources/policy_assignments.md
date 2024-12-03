@@ -34,7 +34,6 @@ data "fmc_policy_assignments" "example" {
 - `name` (String) Name of the policy to be assigned.
 - `policy_id` (String) ID of the policy to be assigned.
 - `targets` (Attributes Set) (see [below for nested schema](#nestedatt--targets))
-- `type` (String) Type of the policy to be assigned.
 
 <a id="nestedatt--targets"></a>
 ### Nested Schema for `targets`
@@ -42,5 +41,4 @@ data "fmc_policy_assignments" "example" {
 Read-Only:
 
 - `id` (String)
-- `name` (String)
 - `type` (String)

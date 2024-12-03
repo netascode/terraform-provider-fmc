@@ -16,14 +16,6 @@ attributes:
     data_path: ["policy"]
     exclude_example: true
     exclude_test: true    
-  - model_name: type
-    type: String
-    description: Type of the policy to be assigned.
-    mandatory: false
-    example: AccessPolicy
-    data_path: ["policy"]
-    exclude_example: true
-    exclude_test: true    
   - model_name: id
     tf_name: policy_id
     type: String
@@ -48,12 +40,6 @@ attributes:
         enum_values: [Device,DeviceHAPair,DeviceGroup]
         mandatory: true
         example: DeviceGroup
-      - model_name: name
-        type: String
-        mandatory: false
-        example: FTD_Device1
-        exclude_example: true
-        exclude_test: true
 
 test_prerequisites: |-
   resource "fmc_access_control_policy" "example" {

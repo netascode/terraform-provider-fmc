@@ -36,7 +36,6 @@ resource "fmc_policy_assignments" "example" {
 
 - `domain` (String) The name of the FMC domain
 - `name` (String) Name of the policy to be assigned.
-- `type` (String) Type of the policy to be assigned.
 
 ### Read-Only
 
@@ -49,10 +48,6 @@ Required:
 
 - `id` (String)
 - `type` (String) - Choices: `Device`, `DeviceHAPair`, `DeviceGroup`
-
-Optional:
-
-- `name` (String)
 
 ## Import
 

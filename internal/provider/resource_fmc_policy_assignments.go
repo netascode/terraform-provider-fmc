@@ -83,10 +83,6 @@ func (r *PolicyAssignmentsResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: helpers.NewAttributeDescription("Name of the policy to be assigned.").String,
 				Optional:            true,
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the policy to be assigned.").String,
-				Optional:            true,
-			},
 			"policy_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of the policy to be assigned.").String,
 				Required:            true,
@@ -109,10 +105,6 @@ func (r *PolicyAssignmentsResource) Schema(ctx context.Context, req resource.Sch
 							Validators: []validator.String{
 								stringvalidator.OneOf("Device", "DeviceHAPair", "DeviceGroup"),
 							},
-						},
-						"name": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("").String,
-							Optional:            true,
 						},
 					},
 				},

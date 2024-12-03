@@ -37,7 +37,6 @@ type PolicyAssignments struct {
 	Id       types.String               `tfsdk:"id"`
 	Domain   types.String               `tfsdk:"domain"`
 	Name     types.String               `tfsdk:"name"`
-	Type     types.String               `tfsdk:"type"`
 	PolicyId types.String               `tfsdk:"policy_id"`
 	Targets  []PolicyAssignmentsTargets `tfsdk:"targets"`
 }
@@ -45,7 +44,6 @@ type PolicyAssignments struct {
 type PolicyAssignmentsTargets struct {
 	Id   types.String `tfsdk:"id"`
 	Type types.String `tfsdk:"type"`
-	Name types.String `tfsdk:"name"`
 }
 
 // End of section. //template:end types
@@ -69,9 +67,6 @@ func (data PolicyAssignments) toBody(ctx context.Context, state PolicyAssignment
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "policy.name", data.Name.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "policy.type", data.Type.ValueString())
-	}
 	if !data.PolicyId.IsNull() {
 		body, _ = sjson.Set(body, "policy.id", data.PolicyId.ValueString())
 	}
@@ -84,9 +79,6 @@ func (data PolicyAssignments) toBody(ctx context.Context, state PolicyAssignment
 			}
 			if !item.Type.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
-			}
-			if !item.Name.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
 			body, _ = sjson.SetRaw(body, "targets.-1", itemBody)
 		}
@@ -103,11 +95,6 @@ func (data *PolicyAssignments) fromBody(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
-	}
-	if value := res.Get("policy.type"); value.Exists() {
-		data.Type = types.StringValue(value.String())
-	} else {
-		data.Type = types.StringNull()
 	}
 	if value := res.Get("policy.id"); value.Exists() {
 		data.PolicyId = types.StringValue(value.String())
@@ -129,11 +116,6 @@ func (data *PolicyAssignments) fromBody(ctx context.Context, res gjson.Result) {
 			} else {
 				data.Type = types.StringNull()
 			}
-			if value := res.Get("name"); value.Exists() {
-				data.Name = types.StringValue(value.String())
-			} else {
-				data.Name = types.StringNull()
-			}
 			(*parent).Targets = append((*parent).Targets, data)
 			return true
 		})
@@ -153,11 +135,6 @@ func (data *PolicyAssignments) fromBodyPartial(ctx context.Context, res gjson.Re
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
-	}
-	if value := res.Get("policy.type"); value.Exists() && !data.Type.IsNull() {
-		data.Type = types.StringValue(value.String())
-	} else {
-		data.Type = types.StringNull()
 	}
 	if value := res.Get("policy.id"); value.Exists() && !data.PolicyId.IsNull() {
 		data.PolicyId = types.StringValue(value.String())
@@ -209,11 +186,6 @@ func (data *PolicyAssignments) fromBodyPartial(ctx context.Context, res gjson.Re
 			data.Type = types.StringValue(value.String())
 		} else {
 			data.Type = types.StringNull()
-		}
-		if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
-			data.Name = types.StringValue(value.String())
-		} else {
-			data.Name = types.StringNull()
 		}
 		(*parent).Targets[i] = data
 	}

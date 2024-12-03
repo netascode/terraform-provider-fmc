@@ -69,10 +69,6 @@ func (d *PolicyAssignmentsDataSource) Schema(ctx context.Context, req datasource
 				MarkdownDescription: "Name of the policy to be assigned.",
 				Computed:            true,
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "Type of the policy to be assigned.",
-				Computed:            true,
-			},
 			"policy_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the policy to be assigned.",
 				Computed:            true,
@@ -87,10 +83,6 @@ func (d *PolicyAssignmentsDataSource) Schema(ctx context.Context, req datasource
 							Computed:            true,
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: "",
-							Computed:            true,
-						},
-						"name": schema.StringAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 						},
