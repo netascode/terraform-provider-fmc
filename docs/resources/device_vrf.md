@@ -16,12 +16,12 @@ This resource can manage a Device VRF.
 resource "fmc_device_vrf" "example" {
   device_id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   name        = "VRF_A"
-  description = "My VRF object"
+  description = "My VRF instance"
   interfaces = [
     {
-      interface_id           = ""
-      interface_name         = ""
-      interface_logical_name = ""
+      interface_id           = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      interface_name         = "GigabitEthernet0/0"
+      interface_logical_name = "outside"
     }
   ]
 }
@@ -32,29 +32,28 @@ resource "fmc_device_vrf" "example" {
 
 ### Required
 
-- `device_id` (String) UUID of the parent device (fmc_device.example.id).
-- `name` (String) The name of the vrf object.
+- `device_id` (String) UUID of the parent device.
+- `name` (String) The name of the VRF
 
 ### Optional
 
-- `description` (String) Description
+- `description` (String) VRF description
 - `domain` (String) The name of the FMC domain
 - `interfaces` (Attributes Set) Set of interfaces (fmc_device_physical_interface, fmc_device_subinterface, ...). (see [below for nested schema](#nestedatt--interfaces))
-- `type` (String) Type of the object; this value is always 'VirtualRouter'.
-  - Default value: `VirtualRouter`
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `type` (String) Type of the object; this value is always 'VirtualRouter'.
 
 <a id="nestedatt--interfaces"></a>
 ### Nested Schema for `interfaces`
 
 Required:
 
-- `interface_id` (String) UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.
-- `interface_logical_name` (String)
-- `interface_name` (String)
+- `interface_id` (String) UUID of the member interface.
+- `interface_logical_name` (String) Logical name of the interface
+- `interface_name` (String) Name of the interface.
 
 ## Import
 

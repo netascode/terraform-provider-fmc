@@ -9,26 +9,23 @@ attributes:
     type: String
     reference: true
     requires_replace: true
-    description: UUID of the parent device (fmc_device.example.id).
+    description: UUID of the parent device.
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
     test_value: var.device_id
   - model_name: name
     type: String
     mandatory: true
     requires_replace: true
-    description: The name of the vrf object.
+    description: The name of the VRF
     example: VRF_A
   - model_name: type
     type: String
     description: Type of the object; this value is always 'VirtualRouter'.
-    default_value: VirtualRouter
-    requires_replace: true
-    exclude_example: true
-    exclude_test: true
+    computed: true
   - model_name: description
     type: String
-    description: Description
-    example: My VRF object
+    description: VRF description
+    example: My VRF instance
   - model_name: interfaces
     description: Set of interfaces (fmc_device_physical_interface, fmc_device_subinterface, ...).
     type: Set
@@ -36,28 +33,33 @@ attributes:
       - model_name: id
         tf_name: interface_id
         type: String
-        description: >-
-          UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.
+        description: UUID of the member interface.
         id: true
         mandatory: true
-        #exclude_example: true
-        test_value: var.interface_id
+        example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+        test_value: fmc_device_physical_interface.test.id
       - model_name: name
         tf_name: interface_name
         mandatory: true
         type: String
-        test_value: var.interface_name          
+        description: Name of the interface.
+        example: GigabitEthernet0/0
+        test_value: fmc_device_physical_interface.test.name
       - model_name: ifname
         tf_name: interface_logical_name
         mandatory: true
         type: String
-        test_value: var.interface_logical_name       
+        description: Logical name of the interface
+        example: outside
+        test_value: fmc_device_physical_interface.test.logical_name
 test_prerequisites: |-
 
   variable "device_id" { default = null } // tests will set $TF_VAR_device_id
   variable "interface_name" { default = null } // tests will set $TF_VAR_interface_name
 
-  data "fmc_device_physical_interface" "example" {
-    name        = var.interface_name
-    device_id   = var.device_id
+  resource "fmc_device_physical_interface" "test" {
+    device_id    = var.device_id
+    name         = var.interface_name
+    logical_name = "my_test_name"
+    mode         = "NONE"
   }

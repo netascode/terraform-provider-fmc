@@ -24,17 +24,17 @@ data "fmc_device_vrf" "example" {
 
 ### Required
 
-- `device_id` (String) UUID of the parent device (fmc_device.example.id).
+- `device_id` (String) UUID of the parent device.
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
-- `name` (String) The name of the vrf object.
+- `name` (String) The name of the VRF
 
 ### Read-Only
 
-- `description` (String) Description
+- `description` (String) VRF description
 - `interfaces` (Attributes Set) Set of interfaces (fmc_device_physical_interface, fmc_device_subinterface, ...). (see [below for nested schema](#nestedatt--interfaces))
 - `type` (String) Type of the object; this value is always 'VirtualRouter'.
 
@@ -43,6 +43,6 @@ data "fmc_device_vrf" "example" {
 
 Read-Only:
 
-- `interface_id` (String) UUID of the object (such as fmc_device_physical_interface.example.id, fmc_device_subinterface.example.id.
-- `interface_logical_name` (String)
-- `interface_name` (String)
+- `interface_id` (String) UUID of the member interface.
+- `interface_logical_name` (String) Logical name of the interface
+- `interface_name` (String) Name of the interface.

@@ -70,9 +70,6 @@ func (data DeviceVRF) toBody(ctx context.Context, state DeviceVRF) string {
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
-	}
 	if !data.Description.IsNull() {
 		body, _ = sjson.Set(body, "description", data.Description.ValueString())
 	}
@@ -108,7 +105,7 @@ func (data *DeviceVRF) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("VirtualRouter")
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() {
 		data.Description = types.StringValue(value.String())
@@ -157,7 +154,7 @@ func (data *DeviceVRF) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "VirtualRouter" {
+	} else {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
@@ -227,6 +224,13 @@ func (data *DeviceVRF) fromBodyPartial(ctx context.Context, res gjson.Result) {
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *DeviceVRF) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns

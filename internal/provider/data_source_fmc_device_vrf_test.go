@@ -35,7 +35,8 @@ func TestAccDataSourceFmcDeviceVRF(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_vrf.test", "name", "VRF_A"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_vrf.test", "description", "My VRF object"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_vrf.test", "type"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_vrf.test", "description", "My VRF instance"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -61,9 +62,11 @@ const testAccDataSourceFmcDeviceVRFPrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 variable "interface_name" { default = null } // tests will set $TF_VAR_interface_name
 
-data "fmc_device_physical_interface" "example" {
-  name        = var.interface_name
-  device_id   = var.device_id
+resource "fmc_device_physical_interface" "test" {
+  device_id    = var.device_id
+  name         = var.interface_name
+  logical_name = "my_test_name"
+  mode         = "NONE"
 }
 `
 
@@ -75,11 +78,11 @@ func testAccDataSourceFmcDeviceVRFConfig() string {
 	config := `resource "fmc_device_vrf" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
 	config += `	name = "VRF_A"` + "\n"
-	config += `	description = "My VRF object"` + "\n"
+	config += `	description = "My VRF instance"` + "\n"
 	config += `	interfaces = [{` + "\n"
-	config += `		interface_id = var.interface_id` + "\n"
-	config += `		interface_name = var.interface_name` + "\n"
-	config += `		interface_logical_name = var.interface_logical_name` + "\n"
+	config += `		interface_id = fmc_device_physical_interface.test.id` + "\n"
+	config += `		interface_name = fmc_device_physical_interface.test.name` + "\n"
+	config += `		interface_logical_name = fmc_device_physical_interface.test.logical_name` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 
@@ -96,11 +99,11 @@ func testAccNamedDataSourceFmcDeviceVRFConfig() string {
 	config := `resource "fmc_device_vrf" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
 	config += `	name = "VRF_A"` + "\n"
-	config += `	description = "My VRF object"` + "\n"
+	config += `	description = "My VRF instance"` + "\n"
 	config += `	interfaces = [{` + "\n"
-	config += `		interface_id = var.interface_id` + "\n"
-	config += `		interface_name = var.interface_name` + "\n"
-	config += `		interface_logical_name = var.interface_logical_name` + "\n"
+	config += `		interface_id = fmc_device_physical_interface.test.id` + "\n"
+	config += `		interface_name = fmc_device_physical_interface.test.name` + "\n"
+	config += `		interface_logical_name = fmc_device_physical_interface.test.logical_name` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 

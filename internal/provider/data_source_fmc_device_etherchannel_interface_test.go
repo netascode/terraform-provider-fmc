@@ -30,8 +30,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
 func TestAccDataSourceFmcDeviceEtherChannelInterface(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" || os.Getenv("TF_VAR_physical_interface_id") == "" || os.Getenv("TF_VAR_device_is_physical") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id and TF_VAR_physical_interface_id and TF_VAR_device_is_physical")
+	if os.Getenv("TF_VAR_device_id") == "" || os.Getenv("TF_VAR_interface_id") == "" || os.Getenv("TF_VAR_device_is_physical") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id and TF_VAR_interface_id and TF_VAR_device_is_physical")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_etherchannel_interface.test", "type"))
@@ -65,11 +65,11 @@ func TestAccDataSourceFmcDeviceEtherChannelInterface(t *testing.T) {
 
 const testAccDataSourceFmcDeviceEtherChannelInterfacePrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
-variable "physical_interface_id" { default = null } // tests will set $TF_VAR_physical_interface_id
+variable "interface_id" { default = null } // tests will set $TF_VAR_interface_id
 
 data "fmc_device_physical_interface" "test" {
   device_id = var.device_id
-  id = var.physical_interface_id
+  id = var.interface_id
 }
 `
 
