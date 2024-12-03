@@ -155,14 +155,58 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 	// we have to moinitor task status which available in response body of POST api call
 	// then, when deployment task is finished we need to store Deployment job into tf state
 
+	// Check deployemnt task status and waint until is finished
+	// Read task id from deployment response
+	resDeployment, err := resJson2Map(res)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting task url", ""))
+		return
+	}
+	deploymentTaskId := resDeployment["metadata"].(map[string]interface{})["task"].(map[string]interface{})["id"].(interface{}).(string)
+	// deploymentTaskUrl := resDeployment["metdata"].(map[string]interface{})["task"].(map[string]interface{})["links"].(map[string]interface{})["self"].(interface{}).(string)
+
+	// Get task status
+	for {
+		urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/job/taskstatuses/" + deploymentTaskId
+		res, err = r.client.Get(urlPath, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read job task status (POST/PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+		resTaskstaus, err := resJson2Map(res)
+		if err != nil {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Error getting task status", ""))
+			return
+		}
+		if resTaskstaus["status"].(interface{}).(string) == "Deployed" {
+			break
+		}
+	}
+	// jsonString := res.String()
+	// var resMap map[string]interface{}
+	// err = json.Unmarshal([]byte(jsonString), &resMap)
+	// if err != nil {
+	// 	tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data", ""))
+	// }
+
+	// Read deployment history
 	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
 	res, err = r.client.Get(urlPath, reqMods...)
-	jsonString := res.String()
-	var resMap map[string]interface{}
-	err = json.Unmarshal([]byte(jsonString), &resMap)
 	if err != nil {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read deployment history (POST/PUT), got error: %s, %s", err, res.String()))
+		return
 	}
+	resMap, err := resJson2Map(res)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting job histories", ""))
+		return
+	}
+	// jsonString := res.String()
+	// var resMap map[string]interface{}
+	// err = json.Unmarshal([]byte(jsonString), &resMap)
+	// if err != nil {
+	// 	tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data", ""))
+	// }
 
 	// Variable to store the matching item
 	var matchingItem map[string]interface{}
@@ -174,6 +218,11 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 	if !ok {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
 	}
+
+	// Wait until deployment task iis finished
+
+	// urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
+	// resTask, err = r.client.Get(urlPath, reqMods...)
 
 	// Iterate over items to find the JobID based on devices UUID
 JobIdLookup:
@@ -244,6 +293,24 @@ JobIdLookup:
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
+// Function to convert gjson.Result to a map
+func resJson2Map(res gjson.Result) (map[string]interface{}, error) {
+	// Convert gjson.Result to string
+	jsonString := res.String()
+
+	// Declare a map to hold the unmarshaled data
+	var resMap map[string]interface{}
+
+	// Unmarshal the JSON string into the map
+	err := json.Unmarshal([]byte(jsonString), &resMap)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing JSON data: %w", err)
+	}
+
+	// Return the map and nil error
+	return resMap, nil
+}
+
 func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Deployment
 
@@ -262,6 +329,32 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	// BoCODE
+
+	// Read list of deployable devices
+	urlPathDeployable := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/deployabledevices?expanded=true"
+	resDeployable, err := r.client.Get(urlPathDeployable, reqMods...)
+	jsonStringDeployable := resDeployable.String()
+	var resMapDeployable map[string]interface{}
+	err = json.Unmarshal([]byte(jsonStringDeployable), &resMapDeployable)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (deployabledevices)", ""))
+	}
+
+	// Access "items"
+	items, ok := resMapDeployable["items"].([]interface{})
+	var deviceIdDeployable []string
+	if !ok {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
+	}
+	for _, item := range items {
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		deviceIdDeployable = append(deviceIdDeployable, itemMap["device"].(map[string]interface{})["id"].(interface{}).(string))
+	}
+
+	// EO Read List of deployable devices
 
 	// Target job ID to match
 	jobId := state.Id.ValueString()
@@ -283,48 +376,62 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	// Update res with required key (tfsate) becuse we are using different API call to read device state
-	jsonString := res.String()
-	var resMap map[string]interface{}
-	err = json.Unmarshal([]byte(jsonString), &resMap)
-	if err != nil {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
-	}
-
-	// Add hash values to res which are not exists in res but exists in state
-	resMap["version"] = state.Version.ValueString()
-	resMap["ignoreWarning"] = state.IgnoreWarning.ValueBool()
-	resMapJSON, err := json.Marshal(resMap)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to marshal JSON: %v", err))
-	}
-	res = gjson.Parse(string(resMapJSON))
-
-	// Read device list
+	// Read device list ---- to be modified to parse list ----
 	resDeviceId := res.Get("deviceList.0.deviceUUID").String()
 
-	// Define the type of elements in the list
-	elementType := types.StringType
-
-	// Define the list values
-	values := []attr.Value{
-		types.StringValue(resDeviceId),
-	}
-
-	// Create the ListValue
-	deviceList, diags := types.ListValue(elementType, values)
-	if diags.HasError() {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Error creating deviceList (jobhistories)", ""))
-	}
-
-	// After `terraform import` we switch to a full read.
-	if imp {
-		state.fromBody(ctx, res)
+	// Check if deployemnt hasn't been rolbacked and device list is not showing up as deployable device
+	// Deployabale device list check
+	if contains(deviceIdDeployable, resDeviceId) {
+		// After `terraform import` we switch to a full read.
+		if imp {
+			state.fromBody(ctx, res)
+		} else {
+			state.fromBodyPartial(ctx, res)
+		}
 	} else {
-		state.fromBodyPartial(ctx, res)
-	}
+		// Update res with required key (tfsate) becuse we are using different API call to read device state
+		jsonString := res.String()
+		var resMap map[string]interface{}
+		err = json.Unmarshal([]byte(jsonString), &resMap)
+		if err != nil {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
+		}
 
-	state.DeviceList = deviceList
+		// Add hash values to res which are not exists in res but exists in state
+		resMap["version"] = state.Version.ValueString()
+		resMap["ignoreWarning"] = state.IgnoreWarning.ValueBool()
+		resMapJSON, err := json.Marshal(resMap)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to marshal JSON: %v", err))
+		}
+		res = gjson.Parse(string(resMapJSON))
+
+		// // Read device list
+		// resDeviceId := res.Get("deviceList.0.deviceUUID").String()
+
+		// Define the type of elements in the list
+		elementType := types.StringType
+
+		// Define the list values
+		values := []attr.Value{
+			types.StringValue(resDeviceId),
+		}
+
+		// Create the ListValue
+		deviceList, diags := types.ListValue(elementType, values)
+		if diags.HasError() {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Error creating deviceList (jobhistories)", ""))
+		}
+
+		// After `terraform import` we switch to a full read.
+		if imp {
+			state.fromBody(ctx, res)
+		} else {
+			state.fromBodyPartial(ctx, res)
+		}
+
+		state.DeviceList = deviceList
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
@@ -332,6 +439,15 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 	resp.Diagnostics.Append(diags...)
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
+}
+
+func contains(slice []string, item string) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
