@@ -116,6 +116,8 @@ type YamlConfig struct {
 	TestPrerequisites        string                `yaml:"test_prerequisites"`
 	IsBulk                   bool                  `yaml:"is_bulk"`
 	ImportNameQuery          bool                  `yaml:"import_name_query"`
+	ResourceCustomExample    string                `yaml:"resource_custom_example"`
+	DomainIndependent        bool                  `yaml:"domain_independent"`
 }
 
 type YamlConfigAttribute struct {
