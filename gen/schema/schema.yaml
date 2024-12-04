@@ -1,6 +1,7 @@
 ---
 name: str() # Name of the resource
 no_data_source: bool(required=False) # Set to true if no data-source should be created
+no_resource: bool(required=False) # Set to true if no resource should be created
 no_import: bool(required=False) # Set to true if the resource does not support `terraform import` command
 rest_endpoint: str(required=False) # REST endpoint path
 put_create: bool(required=False) # Set to true if the PUT request is used for create
@@ -50,6 +51,7 @@ attribute:
   string_patterns: list(str(), required=False) # List of regular expressions that the string must match, only relevant if type is "String"
   string_min_length: int(required=False) # Minimum length of a string, only relevant if type is "String"
   string_max_length: int(required=False) # Maximum length of a string, only relevant if type is "String"
+  computed: bool(required=False) # Defines field as read-only (computed) with value derived from the API
   default_value: any(str(), int(), bool(), required=False) # Default value for the attribute
   value: any(str(), int(), bool(), required=False) # Hardcoded value for the attribute
   test_value: str(required=False) # Value used for acceptance test

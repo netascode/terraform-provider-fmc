@@ -96,6 +96,7 @@ var templates = []t{
 type YamlConfig struct {
 	Name                     string                `yaml:"name"`
 	NoDataSource             bool                  `yaml:"no_data_source"`
+	NoResource               bool                  `yaml:"no_resource"`
 	NoImport                 bool                  `yaml:"no_import"`
 	TfName                   string                `yaml:"tf_name"`
 	RestEndpoint             string                `yaml:"rest_endpoint"`
@@ -148,6 +149,7 @@ type YamlConfigAttribute struct {
 	StringPatterns   []string              `yaml:"string_patterns"`
 	StringMinLength  int64                 `yaml:"string_min_length"`
 	StringMaxLength  int64                 `yaml:"string_max_length"`
+	Computed         string                `yaml:"computed"`
 	DefaultValue     string                `yaml:"default_value"`
 	Value            string                `yaml:"value"`
 	TestValue        string                `yaml:"test_value"`
@@ -268,7 +270,7 @@ func IsList(attribute YamlConfigAttribute) bool {
 
 // Templating helper function to return true if type is a set without nested elements
 func IsSet(attribute YamlConfigAttribute) bool {
-	if attribute.Type == "Set" && attribute.ElementType != "" {
+	if attribute.Type == "Set" && (attribute.ElementType != "" || len(attribute.Attributes) > 0) {
 		return true
 	}
 	return false
@@ -577,7 +579,12 @@ func main() {
 			if configs[i].NoImport && t.path == "./gen/templates/import.sh" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data_source.go" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data_source_test.go" ||
-				configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf" {
+				configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf" ||
+				configs[i].NoResource && t.path == "./gen/templates/resource.go" ||
+				configs[i].NoResource && t.path == "./gen/templates/resource_test.go" ||
+				configs[i].NoResource && t.path == "./gen/templates/resource.tf" ||
+				// Data source test cannot be generated if there is no corresponding resource
+				configs[i].NoResource && t.path == "./gen/templates/data_source_test.go" {
 				continue
 			}
 			renderTemplate(t.path, t.prefix+SnakeCase(configs[i].Name)+t.suffix, configs[i])

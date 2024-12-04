@@ -119,10 +119,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- end}}
 				{{- if or .Reference .Mandatory}}
 				Required:            true,
-				{{- else if not .ResourceId}}
+				{{- else if and (not .ResourceId) (not .Computed)}}
 				Optional:            true,
 				{{- end}}
-				{{- if or (len .DefaultValue) .ResourceId}}
+				{{- if or (len .DefaultValue) .ResourceId .Computed}}
 				Computed:            true,
 				{{- end}}
 				{{- if len .EnumValues}}
@@ -154,9 +154,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace}}
+				{{- if or .Id .Reference .RequiresReplace .Computed}}
 				PlanModifiers: []planmodifier.{{.Type}}{
+					{{- if or .Id .Reference .RequiresReplace}}
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
+					{{end}}
+					{{- if .Computed}}
+					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+					{{end}}
 				},
 				{{- end}}
 				{{- if isNestedListMapSet .}}
@@ -185,10 +190,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- end}}
 							{{- if or .Reference .Mandatory}}
 							Required:            true,
-							{{- else if not .ResourceId}}
+							{{- else if and (not .ResourceId) (not .Computed)}}
 							Optional:            true,
 							{{- end}}
-							{{- if or (len .DefaultValue) .ResourceId}}
+							{{- if or (len .DefaultValue) .ResourceId .Computed}}
 							Computed:            true,
 							{{- end}}
 							{{- if len .EnumValues}}
@@ -220,7 +225,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
-							{{- if and .ResourceId $useStateForUnknown}}
+							{{- if or (and .ResourceId $useStateForUnknown) .Computed}}
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},
@@ -254,10 +259,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- end}}
 										{{- if or .Reference .Mandatory}}
 										Required:            true,
-										{{- else if not .ResourceId}}
+										{{- else if and (not .ResourceId) (not .Computed)}}
 										Optional:            true,
 										{{- end}}
-										{{- if or (len .DefaultValue) .ResourceId}}
+										{{- if or (len .DefaultValue) .ResourceId .Computed}}
 										Computed:            true,
 										{{- end}}
 										{{- if len .EnumValues}}
@@ -289,9 +294,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										{{- else if and (len .DefaultValue) (eq .Type "String")}}
 										Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 										{{- end}}
-										{{- if .RequiresReplace}}
+										{{- if or .RequiresReplace .Computed}}
 										PlanModifiers: []planmodifier.{{.Type}}{
+											{{- if .RequiresReplace}}
 											{{snakeCase .Type}}planmodifier.RequiresReplace(),
+											{{end}}
+											{{- if .Computed}}
+											{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+											{{end}}
 										},
 										{{- end}}
 										{{- if isNestedListMapSet .}}
@@ -319,10 +329,10 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- end}}
 													{{- if or .Reference .Mandatory}}
 													Required:            true,
-													{{- else if not .ResourceId}}
+													{{- else if and (not .ResourceId) (not .Computed)}}
 													Optional:            true,
 													{{- end}}
-													{{- if or (len .DefaultValue) .ResourceId}}
+													{{- if or (len .DefaultValue) .ResourceId .Computed}}
 													Computed:            true,
 													{{- end}}
 													{{- if len .EnumValues}}
@@ -354,9 +364,14 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													{{- else if and (len .DefaultValue) (eq .Type "String")}}
 													Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 													{{- end}}
-													{{- if .RequiresReplace}}
+													{{- if or .RequiresReplace .Computed}}
 													PlanModifiers: []planmodifier.{{.Type}}{
+														{{- if .RequiresReplace}}
 														{{snakeCase .Type}}planmodifier.RequiresReplace(),
+														{{end}}
+														{{- if .Computed}}
+														{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
+														{{end}}
 													},
 													{{- end}}
 												},
@@ -509,6 +524,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
+	plan.fromBodyUnknowns(ctx, res)
 
 	{{- if hasResourceId .Attributes}}
 	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)

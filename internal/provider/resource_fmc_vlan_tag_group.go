@@ -101,6 +101,22 @@ func (r *VLANTagGroupResource) Schema(ctx context.Context, req resource.SchemaRe
 					},
 				},
 			},
+			"literals": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"start_tag": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("VLAN Tag literal starting value.").String,
+							Required:            true,
+						},
+						"end_tag": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("VLAN Tag literal end value.").String,
+							Optional:            true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -142,6 +158,7 @@ func (r *VLANTagGroupResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
