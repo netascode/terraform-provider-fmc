@@ -30,8 +30,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
 func TestAccFmcDeviceSubinterface(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_interface_id") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_interface_id")
+	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_interface_name") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_interface_name")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_subinterface.test", "type"))
@@ -69,7 +69,7 @@ func TestAccFmcDeviceSubinterface(t *testing.T) {
 const testAccFmcDeviceSubinterfacePrerequisitesConfig = `
 data "fmc_device_physical_interface" "test" {
   device_id = var.device_id
-  id        = var.interface_id
+  name        = var.interface_name
 }
 
 resource "fmc_security_zone" "test" {
@@ -78,7 +78,7 @@ resource "fmc_security_zone" "test" {
 }
 
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
-variable "interface_id" {default = null} // tests will set $TF_VAR_interface_id
+variable "interface_name" {default = null} // tests will set $TF_VAR_interface_name
 `
 
 // End of section. //template:end testPrerequisites
