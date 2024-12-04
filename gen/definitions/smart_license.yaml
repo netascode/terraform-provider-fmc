@@ -35,6 +35,7 @@ attributes:
     tf_name: registration_status
     type: String
     description: Status of a smart license.
+    computed: true
     example: EVALUATION
     exclude_test: true
     exclude_example: true

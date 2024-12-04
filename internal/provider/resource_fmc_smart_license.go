@@ -38,6 +38,8 @@ import (
 
 // End of section. //template:end imports
 
+// Section below is generated&owned by "gen/generator.go". //template:begin model
+
 // Ensure provider defined types fully satisfy framework interfaces
 var (
 	_ resource.Resource = &SmartLicenseResource{}
@@ -82,6 +84,9 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 			"registration_status": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Status of a smart license.").String,
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"force": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Set to true to re-register smart license.").String,
@@ -98,6 +103,8 @@ func (r *SmartLicenseResource) Configure(_ context.Context, req resource.Configu
 
 	r.client = req.ProviderData.(*FmcProviderData).Client
 }
+
+// End of section. //template:end model
 
 func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan SmartLicense
