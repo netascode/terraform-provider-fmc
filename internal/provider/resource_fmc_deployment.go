@@ -84,10 +84,6 @@ func (r *DeploymentResource) Schema(ctx context.Context, req resource.SchemaRequ
 				MarkdownDescription: helpers.NewAttributeDescription("Epoch unix time stamp (13 digits).").String,
 				Optional:            true,
 			},
-			"jobid": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("JobId of deployment.").String,
-				Optional:            true,
-			},
 			"force_deploy": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Force deployment (even if there are no configuration changes).").String,
 				Optional:            true,
@@ -128,7 +124,12 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	myInterfaceUUID := strings.ReplaceAll(plan.DeviceList.Elements()[0].String(), `"`, "")
+	// myInterfaceUUID := strings.ReplaceAll(plan.DeviceList.Elements()[0].String(), `"`, "")
+	interfaceUUIDList, err := extractDeviceList(plan.DeviceList)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting device list", ""))
+		return
+	}
 
 	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
@@ -146,7 +147,7 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	// BoCODE
+	// ############################################
 	// As there are no GET api call for /api/fmc_config/v1/domain/{domainUUID}/deployment/deploymentrequests
 	// We need to create abstraction state which reflects deployemnt
 	// We can use /api/fmc_config/v1/domain/{domainUUID}/deployment/jobhistories API
@@ -163,7 +164,6 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 	deploymentTaskId := resDeployment["metadata"].(map[string]interface{})["task"].(map[string]interface{})["id"].(interface{}).(string)
-	// deploymentTaskUrl := resDeployment["metdata"].(map[string]interface{})["task"].(map[string]interface{})["links"].(map[string]interface{})["self"].(interface{}).(string)
 
 	// Get task status
 	for {
@@ -182,12 +182,6 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 			break
 		}
 	}
-	// jsonString := res.String()
-	// var resMap map[string]interface{}
-	// err = json.Unmarshal([]byte(jsonString), &resMap)
-	// if err != nil {
-	// 	tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data", ""))
-	// }
 
 	// Read deployment history
 	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
@@ -201,12 +195,6 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting job histories", ""))
 		return
 	}
-	// jsonString := res.String()
-	// var resMap map[string]interface{}
-	// err = json.Unmarshal([]byte(jsonString), &resMap)
-	// if err != nil {
-	// 	tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data", ""))
-	// }
 
 	// Variable to store the matching item
 	var matchingItem map[string]interface{}
@@ -219,24 +207,13 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 		tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
 	}
 
-	// Wait until deployment task iis finished
-
-	// urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
-	// resTask, err = r.client.Get(urlPath, reqMods...)
-
-	// Iterate over items to find the JobID based on devices UUID
+	// Iterate over items to find latest JobID based on devices UUID
 JobIdLookup:
 	for _, item := range items {
 		itemMap, ok := item.(map[string]interface{})
 		if !ok {
 			continue
 		}
-
-		// // Check if the ID matches
-		// if id, ok := itemMap["id"].(string); ok && id == my_job_id {
-		// 	matchingItem = itemMap
-		// 	break // Exit the loop as we found the match
-		// }
 
 		if itemMap["jobType"].(interface{}).(string) != "DEPLOYMENT" {
 			continue
@@ -248,25 +225,20 @@ JobIdLookup:
 		if !ok {
 			continue
 		}
-		println(jobId)
 
-		// Iterate over deviceData to check deviceUUID
+		// Iterate over deviceData to check deviceUUID belongs to deployment
 		for _, device := range deviceList {
 			deviceMap, ok := device.(map[string]interface{})
 			if !ok {
 				continue
 			}
 
-			// deviceDetails, ok := deviceMap["data"].(map[string]interface{})
-			// if !ok {
-			// 	continue
-			// }
 			deviceUUID, ok := deviceMap["deviceUUID"].(interface{}).(string)
 			if !ok {
 				continue
 			}
 
-			if deviceUUID == myInterfaceUUID {
+			if contains(interfaceUUIDList, deviceUUID) {
 				plan.Id = types.StringValue(jobId)
 				matchingData = append(matchingData, deviceMap)
 				break JobIdLookup
@@ -281,9 +253,7 @@ JobIdLookup:
 		tflog.Debug(ctx, fmt.Sprintf("No matching item found. %+v\n", ""))
 	}
 
-	// EoCODE
-
-	// plan.Id = types.StringValue(res.Get("id").String())
+	// ############################################
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -291,6 +261,23 @@ JobIdLookup:
 	resp.Diagnostics.Append(diags...)
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
+}
+
+// Function to extract device UUIDs from plan
+func extractDeviceList(deviceList types.List) ([]string, error) {
+	var extractedList []string
+
+	// Iterate through each element in the ListValue
+	for _, elem := range deviceList.Elements() {
+		// Convert the element to a StringValue and extract its value
+		if stringValue, ok := elem.(types.String); ok {
+			extractedList = append(extractedList, stringValue.ValueString())
+		} else {
+			return nil, fmt.Errorf("element is not a StringValue")
+		}
+	}
+
+	return extractedList, nil
 }
 
 // Function to convert gjson.Result to a map
@@ -311,6 +298,63 @@ func resJson2Map(res gjson.Result) (map[string]interface{}, error) {
 	return resMap, nil
 }
 
+// Fubnction to check if item belongs to list
+func contains(list []string, item string) bool {
+	for _, v := range list {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
+
+// Function to heck if all elements of list2 are in list1 (ignoring order)
+func containsAllElements(list1, list2 []string) bool {
+	lookup := make(map[string]bool)
+	for _, item := range list1 {
+		lookup[item] = true
+	}
+	for _, item := range list2 {
+		if !lookup[item] {
+			return false
+		}
+	}
+	return true
+}
+
+func extractDeviceUUIDs(res string) ([]string, error) {
+	// Parse the JSON into a map
+	var resMap map[string]interface{}
+	err := json.Unmarshal([]byte(res), &resMap)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %v", err)
+	}
+
+	// Extract deviceList
+	deviceList, ok := resMap["deviceList"].([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("deviceList is not an array or is missing")
+	}
+
+	// Extract deviceUUIDs
+	var deviceUUIDs []string
+	for _, item := range deviceList {
+		device, ok := item.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("deviceList item is not an object")
+		}
+
+		uuid, ok := device["deviceUUID"].(string)
+		if !ok {
+			return nil, fmt.Errorf("deviceUUID is not a string or is missing")
+		}
+
+		deviceUUIDs = append(deviceUUIDs, uuid)
+	}
+
+	return deviceUUIDs, nil
+}
+
 func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state Deployment
 
@@ -328,7 +372,7 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	// BoCODE
+	// ############################################
 
 	// Read list of deployable devices
 	urlPathDeployable := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/deployabledevices?expanded=true"
@@ -358,7 +402,6 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	// Target job ID to match
 	jobId := state.Id.ValueString()
-	// state.Jobid = types.StringValue(jobId)
 
 	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories/" + jobId
 	res, err := r.client.Get(urlPath, reqMods...)
@@ -376,12 +419,32 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	// Read device list ---- to be modified to parse list ----
-	resDeviceId := res.Get("deviceList.0.deviceUUID").String()
+	// Read device list
+	resDeviceIdList, err := extractDeviceUUIDs(res.String())
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting device list", ""))
+		return
+	}
 
 	// Check if deployemnt hasn't been rolbacked and device list is not showing up as deployable device
 	// Deployabale device list check
-	if contains(deviceIdDeployable, resDeviceId) {
+	if containsAllElements(deviceIdDeployable, resDeviceIdList) {
+		// if contains(deviceIdDeployable, resDeviceId) {
+		var resMap map[string]interface{}
+		resMap, err = resJson2Map(res)
+		if err != nil {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Error getting job histories", ""))
+			return
+		}
+
+		resMap["deviceList"] = []interface{}{}
+
+		resMapJSON, err := json.Marshal(resMap)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to marshal JSON: %v", err))
+		}
+		res = gjson.Parse(string(resMapJSON))
+
 		// After `terraform import` we switch to a full read.
 		if imp {
 			state.fromBody(ctx, res)
@@ -390,9 +453,8 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 		}
 	} else {
 		// Update res with required key (tfsate) becuse we are using different API call to read device state
-		jsonString := res.String()
 		var resMap map[string]interface{}
-		err = json.Unmarshal([]byte(jsonString), &resMap)
+		resMap, err = resJson2Map(res)
 		if err != nil {
 			tflog.Debug(ctx, fmt.Sprintf("%s: Error parsing JSON data (jobhistories)", ""))
 		}
@@ -406,15 +468,15 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 		}
 		res = gjson.Parse(string(resMapJSON))
 
-		// // Read device list
-		// resDeviceId := res.Get("deviceList.0.deviceUUID").String()
-
 		// Define the type of elements in the list
 		elementType := types.StringType
 
 		// Define the list values
-		values := []attr.Value{
-			types.StringValue(resDeviceId),
+		var values []attr.Value
+
+		// Populate the values from resDeviceIdList
+		for _, deviceId := range resDeviceIdList {
+			values = append(values, types.StringValue(deviceId))
 		}
 
 		// Create the ListValue
@@ -439,15 +501,6 @@ func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest,
 	resp.Diagnostics.Append(diags...)
 
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
-}
-
-func contains(slice []string, item string) bool {
-	for _, v := range slice {
-		if v == item {
-			return true
-		}
-	}
-	return false
 }
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update

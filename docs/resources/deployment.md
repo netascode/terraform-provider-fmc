@@ -32,7 +32,6 @@ resource "fmc_deployment" "example" {
 - `domain` (String) The name of the FMC domain
 - `force_deploy` (Boolean) Force deployment (even if there are no configuration changes).
 - `ignore_warning` (Boolean) Ignore warnings during deployment.
-- `jobid` (String) JobId of deployment.
 - `version` (String) Epoch unix time stamp (13 digits).
 
 ### Read-Only

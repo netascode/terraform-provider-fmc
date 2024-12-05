@@ -17,12 +17,6 @@ attributes:
     mandatory: false
     example: "1457566762351"
     test_value: var.timestamp
-  - model_name: jobid
-    type: String
-    description: JobId of deployment.
-    mandatory: false
-    exclude_example: true
-    exclude_test: true
   - model_name: ForceDeploy
     tf_name: force_deploy
     type: Bool
