@@ -35,17 +35,25 @@ func TestAccDataSourceFmcDeviceBGPGeneralSettings(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_bgp_general_settings.test", "name"))
-	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_bgp_general_settings.test", "type"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "as_number", "65535"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "router_id", "AUTOMATIC"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "scanning_interval", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "as_no_in_path_attribute", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "aggregate_timer", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "default_local_preference", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "keepalive_interval", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "hold_time", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "min_hold_time", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "next_hop_delay_interval", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "scanning_interval", "60"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "as_number_in_path_attribute", "50"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "log_neighbor_changes", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "tcp_path_mtu_discovery", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "reset_session_upon_failover", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "enforce_first_peer_as", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "use_dot_notation", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "aggregate_timer", "30"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "default_local_preference", "100"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "compare_med_from_different_neighbors", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "compare_router_id_in_path", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "pick_best_med", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "missing_med_as_best", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "keepalive_interval", "60"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "hold_time", "180"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "min_hold_time", "0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bgp_general_settings.test", "next_hop_delay_interval", "5"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -79,14 +87,23 @@ func testAccDataSourceFmcDeviceBGPGeneralSettingsConfig() string {
 	config += `	device_id = var.device_id` + "\n"
 	config += `	as_number = "65535"` + "\n"
 	config += `	router_id = "AUTOMATIC"` + "\n"
-	config += `	scanning_interval = ` + "\n"
-	config += `	as_no_in_path_attribute = ` + "\n"
-	config += `	aggregate_timer = ` + "\n"
-	config += `	default_local_preference = ` + "\n"
-	config += `	keepalive_interval = ` + "\n"
-	config += `	hold_time = ` + "\n"
-	config += `	min_hold_time = ` + "\n"
-	config += `	next_hop_delay_interval = ` + "\n"
+	config += `	scanning_interval = 60` + "\n"
+	config += `	as_number_in_path_attribute = 50` + "\n"
+	config += `	log_neighbor_changes = false` + "\n"
+	config += `	tcp_path_mtu_discovery = true` + "\n"
+	config += `	reset_session_upon_failover = true` + "\n"
+	config += `	enforce_first_peer_as = true` + "\n"
+	config += `	use_dot_notation = false` + "\n"
+	config += `	aggregate_timer = 30` + "\n"
+	config += `	default_local_preference = 100` + "\n"
+	config += `	compare_med_from_different_neighbors = true` + "\n"
+	config += `	compare_router_id_in_path = true` + "\n"
+	config += `	pick_best_med = true` + "\n"
+	config += `	missing_med_as_best = false` + "\n"
+	config += `	keepalive_interval = 60` + "\n"
+	config += `	hold_time = 180` + "\n"
+	config += `	min_hold_time = 0` + "\n"
+	config += `	next_hop_delay_interval = 5` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -103,14 +120,23 @@ func testAccNamedDataSourceFmcDeviceBGPGeneralSettingsConfig() string {
 	config += `	device_id = var.device_id` + "\n"
 	config += `	as_number = "65535"` + "\n"
 	config += `	router_id = "AUTOMATIC"` + "\n"
-	config += `	scanning_interval = ` + "\n"
-	config += `	as_no_in_path_attribute = ` + "\n"
-	config += `	aggregate_timer = ` + "\n"
-	config += `	default_local_preference = ` + "\n"
-	config += `	keepalive_interval = ` + "\n"
-	config += `	hold_time = ` + "\n"
-	config += `	min_hold_time = ` + "\n"
-	config += `	next_hop_delay_interval = ` + "\n"
+	config += `	scanning_interval = 60` + "\n"
+	config += `	as_number_in_path_attribute = 50` + "\n"
+	config += `	log_neighbor_changes = false` + "\n"
+	config += `	tcp_path_mtu_discovery = true` + "\n"
+	config += `	reset_session_upon_failover = true` + "\n"
+	config += `	enforce_first_peer_as = true` + "\n"
+	config += `	use_dot_notation = false` + "\n"
+	config += `	aggregate_timer = 30` + "\n"
+	config += `	default_local_preference = 100` + "\n"
+	config += `	compare_med_from_different_neighbors = true` + "\n"
+	config += `	compare_router_id_in_path = true` + "\n"
+	config += `	pick_best_med = true` + "\n"
+	config += `	missing_med_as_best = false` + "\n"
+	config += `	keepalive_interval = 60` + "\n"
+	config += `	hold_time = 180` + "\n"
+	config += `	min_hold_time = 0` + "\n"
+	config += `	next_hop_delay_interval = 5` + "\n"
 	config += `}` + "\n"
 
 	config += `

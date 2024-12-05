@@ -87,70 +87,63 @@ func (r *DeviceBGPGeneralSettingsResource) Schema(ctx context.Context, req resou
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Object name; Always set to 'AsaBGPGeneralTable'").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"as_number": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Autonomous System (AS) number in asplain or asdot format").String,
 				Required:            true,
 			},
 			"router_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address").String,
+				MarkdownDescription: helpers.NewAttributeDescription("String value for the routerID. Possible values can be 'AUTOMATIC' or valid ipv4 address").String,
 				Optional:            true,
 			},
 			"scanning_interval": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Integer stating Scanning interval of BGP routers for next hop validation.").AddIntegerRangeDescription(5, 60).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Scanning interval of BGP routers for next hop validation in Seconds.").AddIntegerRangeDescription(5, 60).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(5, 60),
 				},
 			},
-			"as_no_in_path_attribute": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Integer stating the range to discard routes that have as-path segments that exceed a specified value.").AddIntegerRangeDescription(1, 254).String,
+			"as_number_in_path_attribute": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Range to discard routes that have as-path segments that exceed a specified value.").AddIntegerRangeDescription(1, 254).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 254),
 				},
 			},
 			"log_neighbor_changes": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating whether to enable logging when the status of BGP neighbor changes.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable logging of BGP neighbor status changes.").String,
 				Optional:            true,
 			},
 			"tcp_path_mtu_discovery": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating whether to enable logging when the status of BGP neighbor changes.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Use TCP path MTU discovery.").String,
 				Optional:            true,
 			},
 			"reset_session_upon_failover": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Reset session upon failover").String,
 				Optional:            true,
 			},
 			"enforce_first_peer_as": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating whether to discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.").String,
 				Optional:            true,
 			},
 			"use_dot_notation": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Change format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.").String,
 				Optional:            true,
 			},
 			"aggregate_timer": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Integer stating Interval at which BGP routes will be aggregated or to disable timer-based router aggregation.").AddIntegerRangeDescription(6, 60).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Interval at which BGP routes will be aggregated or to disable timer-based router aggregation (in seconds).").AddIntegerRangeDescription(6, 60).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(6, 60),
 				},
 			},
 			"default_local_preference": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 4294967295).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Default local preference").AddIntegerRangeDescription(0, 4294967295).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 4294967295),
@@ -173,50 +166,50 @@ func (r *DeviceBGPGeneralSettingsResource) Schema(ctx context.Context, req resou
 				Optional:            true,
 			},
 			"keepalive_interval": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 65535).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Keepalive interval in seconds").AddIntegerRangeDescription(0, 65535).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 65535),
 				},
 			},
 			"hold_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 65535).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Hold time in seconds").AddIntegerRangeDescription(0, 65535).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 65535),
 				},
 			},
 			"min_hold_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(3, 65535).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Minimum hold time (0 or 3-65535 seconds)").AddIntegerRangeDescription(0, 65535).String,
 				Optional:            true,
 				Validators: []validator.Int64{
-					int64validator.Between(3, 65535),
+					int64validator.Between(0, 65535),
 				},
 			},
 			"next_hop_address_tracking": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable next hop address tracking").String,
 				Optional:            true,
 			},
 			"next_hop_delay_interval": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(0, 100).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Next hop delay interval in seconds").AddIntegerRangeDescription(0, 100).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 100),
 				},
 			},
 			"graceful_restart": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enable graceful restart").String,
 				Optional:            true,
 			},
 			"graceful_restart_restart_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 3600).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Graceful Restart Time in seconds").AddIntegerRangeDescription(1, 3600).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 3600),
 				},
 			},
 			"graceful_restart_stale_path_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 3600).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Stalepath Time in seconds").AddIntegerRangeDescription(1, 3600).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 3600),

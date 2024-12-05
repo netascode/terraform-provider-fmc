@@ -37,11 +37,10 @@ type DeviceBGPGeneralSettings struct {
 	Domain                           types.String `tfsdk:"domain"`
 	DeviceId                         types.String `tfsdk:"device_id"`
 	Name                             types.String `tfsdk:"name"`
-	Type                             types.String `tfsdk:"type"`
 	AsNumber                         types.String `tfsdk:"as_number"`
 	RouterId                         types.String `tfsdk:"router_id"`
 	ScanningInterval                 types.Int64  `tfsdk:"scanning_interval"`
-	AsNoInPathAttribute              types.Int64  `tfsdk:"as_no_in_path_attribute"`
+	AsNumberInPathAttribute          types.Int64  `tfsdk:"as_number_in_path_attribute"`
 	LogNeighborChanges               types.Bool   `tfsdk:"log_neighbor_changes"`
 	TcpPathMtuDiscovery              types.Bool   `tfsdk:"tcp_path_mtu_discovery"`
 	ResetSessionUponFailover         types.Bool   `tfsdk:"reset_session_upon_failover"`
@@ -89,8 +88,8 @@ func (data DeviceBGPGeneralSettings) toBody(ctx context.Context, state DeviceBGP
 	if !data.ScanningInterval.IsNull() {
 		body, _ = sjson.Set(body, "scanTime", data.ScanningInterval.ValueInt64())
 	}
-	if !data.AsNoInPathAttribute.IsNull() {
-		body, _ = sjson.Set(body, "maxasLimit", data.AsNoInPathAttribute.ValueInt64())
+	if !data.AsNumberInPathAttribute.IsNull() {
+		body, _ = sjson.Set(body, "maxasLimit", data.AsNumberInPathAttribute.ValueInt64())
 	}
 	if !data.LogNeighborChanges.IsNull() {
 		body, _ = sjson.Set(body, "logNeighborChanges", data.LogNeighborChanges.ValueBool())
@@ -162,11 +161,6 @@ func (data *DeviceBGPGeneralSettings) fromBody(ctx context.Context, res gjson.Re
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("type"); value.Exists() {
-		data.Type = types.StringValue(value.String())
-	} else {
-		data.Type = types.StringNull()
-	}
 	if value := res.Get("asNumber"); value.Exists() {
 		data.AsNumber = types.StringValue(value.String())
 	} else {
@@ -183,9 +177,9 @@ func (data *DeviceBGPGeneralSettings) fromBody(ctx context.Context, res gjson.Re
 		data.ScanningInterval = types.Int64Null()
 	}
 	if value := res.Get("maxasLimit"); value.Exists() {
-		data.AsNoInPathAttribute = types.Int64Value(value.Int())
+		data.AsNumberInPathAttribute = types.Int64Value(value.Int())
 	} else {
-		data.AsNoInPathAttribute = types.Int64Null()
+		data.AsNumberInPathAttribute = types.Int64Null()
 	}
 	if value := res.Get("logNeighborChanges"); value.Exists() {
 		data.LogNeighborChanges = types.BoolValue(value.Bool())
@@ -298,11 +292,6 @@ func (data *DeviceBGPGeneralSettings) fromBodyPartial(ctx context.Context, res g
 	} else {
 		data.Name = types.StringNull()
 	}
-	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
-		data.Type = types.StringValue(value.String())
-	} else {
-		data.Type = types.StringNull()
-	}
 	if value := res.Get("asNumber"); value.Exists() && !data.AsNumber.IsNull() {
 		data.AsNumber = types.StringValue(value.String())
 	} else {
@@ -318,10 +307,10 @@ func (data *DeviceBGPGeneralSettings) fromBodyPartial(ctx context.Context, res g
 	} else {
 		data.ScanningInterval = types.Int64Null()
 	}
-	if value := res.Get("maxasLimit"); value.Exists() && !data.AsNoInPathAttribute.IsNull() {
-		data.AsNoInPathAttribute = types.Int64Value(value.Int())
+	if value := res.Get("maxasLimit"); value.Exists() && !data.AsNumberInPathAttribute.IsNull() {
+		data.AsNumberInPathAttribute = types.Int64Value(value.Int())
 	} else {
-		data.AsNoInPathAttribute = types.Int64Null()
+		data.AsNumberInPathAttribute = types.Int64Null()
 	}
 	if value := res.Get("logNeighborChanges"); value.Exists() && !data.LogNeighborChanges.IsNull() {
 		data.LogNeighborChanges = types.BoolValue(value.Bool())
@@ -432,13 +421,6 @@ func (data *DeviceBGPGeneralSettings) fromBodyUnknowns(ctx context.Context, res 
 			data.Name = types.StringValue(value.String())
 		} else {
 			data.Name = types.StringNull()
-		}
-	}
-	if data.Type.IsUnknown() {
-		if value := res.Get("type"); value.Exists() {
-			data.Type = types.StringValue(value.String())
-		} else {
-			data.Type = types.StringNull()
 		}
 	}
 }

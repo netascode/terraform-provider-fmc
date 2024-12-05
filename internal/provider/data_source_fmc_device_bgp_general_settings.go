@@ -75,56 +75,52 @@ func (d *DeviceBGPGeneralSettingsDataSource) Schema(ctx context.Context, req dat
 				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Object name; Always set to 'AsaBGPGeneralTable'",
 				Optional:            true,
 				Computed:            true,
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
 			"as_number": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Autonomous System (AS) number in asplain or asdot format",
 				Computed:            true,
 			},
 			"router_id": schema.StringAttribute{
-				MarkdownDescription: "String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address",
+				MarkdownDescription: "String value for the routerID. Possible values can be 'AUTOMATIC' or valid ipv4 address",
 				Computed:            true,
 			},
 			"scanning_interval": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating Scanning interval of BGP routers for next hop validation.",
+				MarkdownDescription: "Scanning interval of BGP routers for next hop validation in Seconds.",
 				Computed:            true,
 			},
-			"as_no_in_path_attribute": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating the range to discard routes that have as-path segments that exceed a specified value.",
+			"as_number_in_path_attribute": schema.Int64Attribute{
+				MarkdownDescription: "Range to discard routes that have as-path segments that exceed a specified value.",
 				Computed:            true,
 			},
 			"log_neighbor_changes": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to enable logging when the status of BGP neighbor changes.",
+				MarkdownDescription: "Enable logging of BGP neighbor status changes.",
 				Computed:            true,
 			},
 			"tcp_path_mtu_discovery": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to enable logging when the status of BGP neighbor changes.",
+				MarkdownDescription: "Use TCP path MTU discovery.",
 				Computed:            true,
 			},
 			"reset_session_upon_failover": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Reset session upon failover",
 				Computed:            true,
 			},
 			"enforce_first_peer_as": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.",
+				MarkdownDescription: "Discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.",
 				Computed:            true,
 			},
 			"use_dot_notation": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.",
+				MarkdownDescription: "Change format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.",
 				Computed:            true,
 			},
 			"aggregate_timer": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating Interval at which BGP routes will be aggregated or to disable timer-based router aggregation.",
+				MarkdownDescription: "Interval at which BGP routes will be aggregated or to disable timer-based router aggregation (in seconds).",
 				Computed:            true,
 			},
 			"default_local_preference": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Default local preference",
 				Computed:            true,
 			},
 			"compare_med_from_different_neighbors": schema.BoolAttribute{
@@ -144,35 +140,35 @@ func (d *DeviceBGPGeneralSettingsDataSource) Schema(ctx context.Context, req dat
 				Computed:            true,
 			},
 			"keepalive_interval": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Keepalive interval in seconds",
 				Computed:            true,
 			},
 			"hold_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Hold time in seconds",
 				Computed:            true,
 			},
 			"min_hold_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Minimum hold time (0 or 3-65535 seconds)",
 				Computed:            true,
 			},
 			"next_hop_address_tracking": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Enable next hop address tracking",
 				Computed:            true,
 			},
 			"next_hop_delay_interval": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Next hop delay interval in seconds",
 				Computed:            true,
 			},
 			"graceful_restart": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Enable graceful restart",
 				Computed:            true,
 			},
 			"graceful_restart_restart_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Graceful Restart Time in seconds",
 				Computed:            true,
 			},
 			"graceful_restart_stale_path_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Stalepath Time in seconds",
 				Computed:            true,
 			},
 		},
