@@ -30,7 +30,7 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
-type DeviceHAPairs struct {
+type DeviceHAPair struct {
 	Id                            types.String `tfsdk:"id"`
 	Domain                        types.String `tfsdk:"domain"`
 	Name                          types.String `tfsdk:"name"`
@@ -64,7 +64,7 @@ type DeviceHAPairs struct {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 
-func (data DeviceHAPairs) getPath() string {
+func (data DeviceHAPair) getPath() string {
 	return "/api/fmc_config/v1/domain/{DOMAIN_UUID}/devicehapairs/ftddevicehapairs"
 }
 
@@ -72,7 +72,7 @@ func (data DeviceHAPairs) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 
-func (data DeviceHAPairs) toBody(ctx context.Context, state DeviceHAPairs) string {
+func (data DeviceHAPair) toBody(ctx context.Context, state DeviceHAPair) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
@@ -160,7 +160,7 @@ func (data DeviceHAPairs) toBody(ctx context.Context, state DeviceHAPairs) strin
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
-func (data *DeviceHAPairs) fromBody(ctx context.Context, res gjson.Result) {
+func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -296,7 +296,7 @@ func (data *DeviceHAPairs) fromBody(ctx context.Context, res gjson.Result) {
 // uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
-func (data *DeviceHAPairs) fromBodyPartial(ctx context.Context, res gjson.Result) {
+func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
 		data.Name = types.StringValue(value.String())
 	} else {
@@ -430,7 +430,7 @@ func (data *DeviceHAPairs) fromBodyPartial(ctx context.Context, res gjson.Result
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *DeviceHAPairs) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+func (data *DeviceHAPair) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 }
 
 // End of section. //template:end fromBodyUnknowns

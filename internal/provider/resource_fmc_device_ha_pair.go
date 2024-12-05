@@ -44,26 +44,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &DeviceHAPairsResource{}
-	_ resource.ResourceWithImportState = &DeviceHAPairsResource{}
+	_ resource.Resource                = &DeviceHAPairResource{}
+	_ resource.ResourceWithImportState = &DeviceHAPairResource{}
 )
 
-func NewDeviceHAPairsResource() resource.Resource {
-	return &DeviceHAPairsResource{}
+func NewDeviceHAPairResource() resource.Resource {
+	return &DeviceHAPairResource{}
 }
 
-type DeviceHAPairsResource struct {
+type DeviceHAPairResource struct {
 	client *fmc.Client
 }
 
-func (r *DeviceHAPairsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_ha_pairs"
+func (r *DeviceHAPairResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_ha_pair"
 }
 
-func (r *DeviceHAPairsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device HA Pairs.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device HA Pair.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -93,19 +93,19 @@ func (r *DeviceHAPairsResource) Schema(ctx context.Context, req resource.SchemaR
 				Required:            true,
 			},
 			"is_encryption_enabled": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Boolean field to enable encryption").String,
 				Optional:            true,
 			},
 			"use_same_link_for_failovers": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Boolean field to enable same link for failovers").String,
 				Required:            true,
 			},
 			"shared_key": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Pass the unique shared key if needed.").String,
 				Optional:            true,
 			},
 			"enc_key_generation_scheme": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("AUTO", "CUSTOM").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Select the encyption key generation scheme.").AddStringEnumDescription("AUTO", "CUSTOM").String,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("AUTO", "CUSTOM"),
@@ -190,7 +190,7 @@ func (r *DeviceHAPairsResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 }
 
-func (r *DeviceHAPairsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *DeviceHAPairResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -200,8 +200,8 @@ func (r *DeviceHAPairsResource) Configure(_ context.Context, req resource.Config
 
 // End of section. //template:end model
 
-func (r *DeviceHAPairsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan DeviceHAPairs
+func (r *DeviceHAPairResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan DeviceHAPair
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -218,7 +218,7 @@ func (r *DeviceHAPairsResource) Create(ctx context.Context, req resource.CreateR
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, DeviceHAPairs{})
+	body := plan.toBody(ctx, DeviceHAPair{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -274,8 +274,8 @@ func (r *DeviceHAPairsResource) Create(ctx context.Context, req resource.CreateR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (r *DeviceHAPairsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state DeviceHAPairs
+func (r *DeviceHAPairResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state DeviceHAPair
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -326,8 +326,8 @@ func (r *DeviceHAPairsResource) Read(ctx context.Context, req resource.ReadReque
 
 // Section below is generated&owned by "gen/generator.go". //template:begin update
 
-func (r *DeviceHAPairsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state DeviceHAPairs
+func (r *DeviceHAPairResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state DeviceHAPair
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -366,8 +366,8 @@ func (r *DeviceHAPairsResource) Update(ctx context.Context, req resource.UpdateR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *DeviceHAPairsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state DeviceHAPairs
+func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state DeviceHAPair
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -397,7 +397,7 @@ func (r *DeviceHAPairsResource) Delete(ctx context.Context, req resource.DeleteR
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *DeviceHAPairsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *DeviceHAPairResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 
 	helpers.SetFlagImporting(ctx, true, resp.Private, &resp.Diagnostics)

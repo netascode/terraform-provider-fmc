@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &DeviceHAPairsDataSource{}
-	_ datasource.DataSourceWithConfigure = &DeviceHAPairsDataSource{}
+	_ datasource.DataSource              = &DeviceHAPairDataSource{}
+	_ datasource.DataSourceWithConfigure = &DeviceHAPairDataSource{}
 )
 
-func NewDeviceHAPairsDataSource() datasource.DataSource {
-	return &DeviceHAPairsDataSource{}
+func NewDeviceHAPairDataSource() datasource.DataSource {
+	return &DeviceHAPairDataSource{}
 }
 
-type DeviceHAPairsDataSource struct {
+type DeviceHAPairDataSource struct {
 	client *fmc.Client
 }
 
-func (d *DeviceHAPairsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_ha_pairs"
+func (d *DeviceHAPairDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_ha_pair"
 }
 
-func (d *DeviceHAPairsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Device HA Pairs.",
+		MarkdownDescription: "This data source can read the Device HA Pair.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -84,19 +84,19 @@ func (d *DeviceHAPairsDataSource) Schema(ctx context.Context, req datasource.Sch
 				Computed:            true,
 			},
 			"is_encryption_enabled": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Boolean field to enable encryption",
 				Computed:            true,
 			},
 			"use_same_link_for_failovers": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Boolean field to enable same link for failovers",
 				Computed:            true,
 			},
 			"shared_key": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Pass the unique shared key if needed.",
 				Computed:            true,
 			},
 			"enc_key_generation_scheme": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Select the encyption key generation scheme.",
 				Computed:            true,
 			},
 			"lan_failover_standby_ip": schema.StringAttribute{
@@ -176,7 +176,7 @@ func (d *DeviceHAPairsDataSource) Schema(ctx context.Context, req datasource.Sch
 		},
 	}
 }
-func (d *DeviceHAPairsDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *DeviceHAPairDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -185,7 +185,7 @@ func (d *DeviceHAPairsDataSource) ConfigValidators(ctx context.Context) []dataso
 	}
 }
 
-func (d *DeviceHAPairsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *DeviceHAPairDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -197,8 +197,8 @@ func (d *DeviceHAPairsDataSource) Configure(_ context.Context, req datasource.Co
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (d *DeviceHAPairsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config DeviceHAPairs
+func (d *DeviceHAPairDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config DeviceHAPair
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
