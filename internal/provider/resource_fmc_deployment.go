@@ -576,7 +576,7 @@ func (r *DeploymentResource) Delete(ctx context.Context, req resource.DeleteRequ
 		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting device list from state", ""))
 		return
 	}
-	stateDeploymentJobId := state.Id.String()
+	stateDeploymentJobId := state.Id.ValueString()
 	var rollbackToDeploymentJobId string
 
 	// Read deployment history
@@ -611,7 +611,7 @@ JobIdLookup:
 			continue
 		}
 
-		if (itemMap["jobId"].(interface{}).(string) != stateDeploymentJobId) || (rollbackToDeploymentJobId == "") {
+		if (itemMap["id"].(interface{}).(string) != stateDeploymentJobId) && (rollbackToDeploymentJobId == "") {
 			continue
 		}
 
@@ -641,7 +641,7 @@ JobIdLookup:
 					rollbackToDeploymentJobId = stateDeploymentJobId
 					continue
 				} else {
-					rollbackToDeploymentJobId = itemMap["jobId"].(interface{}).(string)
+					rollbackToDeploymentJobId = itemMap["id"].(interface{}).(string)
 					break JobIdLookup
 				}
 			}
@@ -649,21 +649,21 @@ JobIdLookup:
 	}
 
 	// Trigger rollback
-	if rollbackToDeploymentJobId != "" {
+	if rollbackToDeploymentJobId != "" && rollbackToDeploymentJobId != stateDeploymentJobId {
 
-		urlPath = "/api/fmc_config/v1/domain/{domainUUID}/deployment/rollbackrequests"
-		body := `{ ` + "\n"
-		body += `  "type": "RollbackRequest",` + "\n"
-		body += `  "rollbackDeviceList": [` + "\n"
-		body += `    {` + "\n"
-		body += `      "deploymentJobId": "` + rollbackToDeploymentJobId + `",` + "\n"
+		urlPath = "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/rollbackrequests"
+		body := `{ `
+		body += `  "type": "RollbackRequest",`
+		body += `  "rollbackDeviceList": [`
+		body += `    {`
+		body += `      "deploymentJobId": "` + rollbackToDeploymentJobId + `",`
 		// *** It has to be fixed to add device list rather than single device
-		body += `      "deviceList": [` + "\n"
-		body += `        "` + stateDeviceList[0] + `"` + "\n"
-		body += `      ]` + "\n"
-		body += `    }` + "\n"
-		body += `  ]` + "\n"
-		body += `}` + "\n"
+		body += `      "deviceList": [`
+		body += `        "` + stateDeviceList[0] + `"`
+		body += `      ]`
+		body += `    }`
+		body += `  ]`
+		body += `}`
 
 		res, err = r.client.Post(urlPath, body, reqMods...)
 		if err != nil {
