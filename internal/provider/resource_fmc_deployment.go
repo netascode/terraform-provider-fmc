@@ -23,6 +23,8 @@ import (
 	"fmt"
 
 	// "net/url"
+
+	// "net/url"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -219,6 +221,7 @@ JobIdLookup:
 			continue
 		}
 
+		// *** It has to be fixed to add device list rather than single device
 		deviceList, ok := itemMap["deviceList"].([]interface{})
 
 		jobId, ok := itemMap["id"].(string)
@@ -238,6 +241,7 @@ JobIdLookup:
 				continue
 			}
 
+			// *** It has to be fixed to add device list rather than single device
 			if contains(interfaceUUIDList, deviceUUID) {
 				plan.Id = types.StringValue(jobId)
 				matchingData = append(matchingData, deviceMap)
@@ -298,7 +302,7 @@ func resJson2Map(res gjson.Result) (map[string]interface{}, error) {
 	return resMap, nil
 }
 
-// Fubnction to check if item belongs to list
+// Function to check if item belongs to list
 func contains(list []string, item string) bool {
 	for _, v := range list {
 		if v == item {
@@ -536,8 +540,6 @@ func (r *DeploymentResource) Update(ctx context.Context, req resource.UpdateRequ
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
-
 func (r *DeploymentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state Deployment
 
@@ -554,13 +556,152 @@ func (r *DeploymentResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	// res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+	// 	return
+	// }
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
+	// As there are no DELETE api call for /api/fmc_config/v1/domain/{domainUUID}/deployment/deploymentrequests
+	// we can only roblback deployemnt to previous state
+	// we can use /api/fmc_config/v1/domain/{domainUUID}/deployment/rollbackrequests to execute rolback
+	// first we need to get deployemnt id and device list from state
+	// next get deployemnt job id to rollback to, it can be retrieved from deployemnt job history
+	// /api/fmc_config/v1/domain/{domainUUID}/deployment/jobhistories API
+	// next initiate rollback api and wait until the job is finished
 
-	resp.State.RemoveResource(ctx)
+	// Get data from state
+	stateDeviceList, err := extractDeviceList(state.DeviceList)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting device list from state", ""))
+		return
+	}
+	stateDeploymentJobId := state.Id.String()
+	var rollbackToDeploymentJobId string
+
+	// Read deployment history
+	urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/jobhistories?expanded=true"
+	res, err := r.client.Get(urlPath, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read deployment history (POST/PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+	resMap, err := resJson2Map(res)
+	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error getting job histories", ""))
+		return
+	}
+
+	// Access "items"
+	items, ok := resMap["items"].([]interface{})
+	if !ok {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Error: 'items' is not a valid array", ""))
+	}
+
+	// Iterate over items to find JobID for rollback based on latest deployment job id and devices UUID
+	// stateDeploymentJobId
+JobIdLookup:
+	for _, item := range items {
+		itemMap, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		if itemMap["jobType"].(interface{}).(string) != "DEPLOYMENT" {
+			continue
+		}
+
+		if (itemMap["jobId"].(interface{}).(string) != stateDeploymentJobId) || (rollbackToDeploymentJobId == "") {
+			continue
+		}
+
+		deviceList, ok := itemMap["deviceList"].([]interface{})
+		if !ok {
+			continue
+		}
+
+		// Iterate over deviceData to check deviceUUID belongs to deployment
+		for _, device := range deviceList {
+			deviceMap, ok := device.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			// *** It has to be fixed to add device list rather than single device
+			deviceUUID, ok := deviceMap["deviceUUID"].(interface{}).(string)
+			if !ok {
+				continue
+			}
+
+			// *** It has to be fixed to add device list rather than single device
+			if contains(stateDeviceList, deviceUUID) {
+				// set rollbackToDeploymentJobId to be equal fo stateDeploymentJobId
+				// and continuse to iterate to find previous deployemnt
+				if rollbackToDeploymentJobId == "" {
+					rollbackToDeploymentJobId = stateDeploymentJobId
+					continue
+				} else {
+					rollbackToDeploymentJobId = itemMap["jobId"].(interface{}).(string)
+					break JobIdLookup
+				}
+			}
+		}
+	}
+
+	// Trigger rollback
+	if rollbackToDeploymentJobId != "" {
+
+		urlPath = "/api/fmc_config/v1/domain/{domainUUID}/deployment/rollbackrequests"
+		body := `{ ` + "\n"
+		body += `  "type": "RollbackRequest",` + "\n"
+		body += `  "rollbackDeviceList": [` + "\n"
+		body += `    {` + "\n"
+		body += `      "deploymentJobId": "` + rollbackToDeploymentJobId + `",` + "\n"
+		// *** It has to be fixed to add device list rather than single device
+		body += `      "deviceList": [` + "\n"
+		body += `        "` + stateDeviceList[0] + `"` + "\n"
+		body += `      ]` + "\n"
+		body += `    }` + "\n"
+		body += `  ]` + "\n"
+		body += `}` + "\n"
+
+		res, err = r.client.Post(urlPath, body, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+
+		resDeployment, err := resJson2Map(res)
+		if err != nil {
+			tflog.Debug(ctx, fmt.Sprintf("%s: Error getting task url", ""))
+			return
+		}
+		deploymentTaskId := resDeployment["metadata"].(map[string]interface{})["task"].(map[string]interface{})["id"].(interface{}).(string)
+
+		// Get task status
+		for {
+			urlPath := "/api/fmc_config/v1/domain/{DOMAIN_UUID}/job/taskstatuses/" + deploymentTaskId
+			res, err = r.client.Get(urlPath, reqMods...)
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read job task status (POST/PUT), got error: %s, %s", err, res.String()))
+				return
+			}
+			resTaskstaus, err := resJson2Map(res)
+			if err != nil {
+				tflog.Debug(ctx, fmt.Sprintf("%s: Error getting task status", ""))
+				return
+			}
+			if resTaskstaus["status"].(interface{}).(string) == "Deployed" {
+				break
+			}
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
+		resp.State.RemoveResource(ctx)
+	} else {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Delete failed. Could not trigger rollback", state.Id.ValueString()))
+	}
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 // End of section. //template:end import

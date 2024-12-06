@@ -1,7 +1,6 @@
 ---
 name: Deployment
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/deploymentrequests
-no_delete: true
 no_update: true
 no_data_source: true
 no_import: true
@@ -30,8 +29,8 @@ attributes:
     description: Ignore warnings during deployment.
     mandatory: false
     exclude_example: true
-    test_value: true
-    minimum_test_value: true
+    test_value: "true"
+    minimum_test_value: "true"
   - model_name: deviceList
     tf_name: device_list
     type: List
