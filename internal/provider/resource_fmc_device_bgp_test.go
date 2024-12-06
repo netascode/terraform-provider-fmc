@@ -38,27 +38,38 @@ func TestAccFmcDeviceBGP(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_bgp.test", "type"))
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_bgp.test", "as_number"))
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_bgp.test", "ipv4_address_family_type"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_learned_route_map_id", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_external_distance", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_internal_distance", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_local_distance", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_forward_packets_over_multipath_ibgp", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_forward_packets_over_multipath_ebgp", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_generate_default_route_map", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_routes_advertise_map", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_routes_advertise_exist_nonexist_map", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_authentication_password", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_send_community_attribute", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_nexthop_self", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_disable_connection_verification", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_tcp_mtu_path_discovery", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_max_hop_count", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_tcp_transport_mode", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_weight", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_version", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_customized_no_prepend", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_customized_replace_as", ""))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.ipv4_neighbor_customized_accept_both_as", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_default_information_orginate", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_auto_aummary", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_bgp_supress_inactive", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_synchronization", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_bgp_redistribute_internal", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_external_distance", "20"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_internal_distance", "200"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_local_distance", "200"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_forward_packets_over_multipath_ibgp", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_forward_packets_over_multipath_ebgp", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_address", "10.1.1.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_remote_as", "65534"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_bfd", "SINGLE_HOP"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.enable_address_family", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_shutdown", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_description", "My BGP Peer"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_filter_max_prefix", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_filter_threshold_value", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_filter_restart_interval", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_routes_advertisement_interval", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_routes_remove_private_as", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_keepalive_interval", "60"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_hold_time", "180"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_min_hold_time", "3"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_send_community_attribute", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_nexthop_self", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_disable_connection_verification", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_tcp_mtu_path_discovery", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_max_hop_count", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_tcp_transport_mode", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_weight", "0"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bgp.test", "ipv4_neighbors.0.neighbor_version", "0"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -84,6 +95,11 @@ func TestAccFmcDeviceBGP(t *testing.T) {
 
 const testAccFmcDeviceBGPPrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+
+resource "fmc_device_bgp_general_settings" "test" {
+  device_id                   = var.device_id
+  as_number                   = "6353"
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -93,7 +109,6 @@ variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 func testAccFmcDeviceBGPConfig_minimum() string {
 	config := `resource "fmc_device_bgp" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
-	config += `	ipv4_learned_route_map_id = ""` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -105,46 +120,39 @@ func testAccFmcDeviceBGPConfig_minimum() string {
 func testAccFmcDeviceBGPConfig_all() string {
 	config := `resource "fmc_device_bgp" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
-	config += `	ipv4_learned_route_map_id = ""` + "\n"
-	config += `	ipv4_external_distance = ` + "\n"
-	config += `	ipv4_internal_distance = ` + "\n"
-	config += `	ipv4_local_distance = ` + "\n"
-	config += `	ipv4_forward_packets_over_multipath_ibgp = ` + "\n"
-	config += `	ipv4_forward_packets_over_multipath_ebgp = ` + "\n"
+	config += `	ipv4_default_information_orginate = false` + "\n"
+	config += `	ipv4_auto_aummary = false` + "\n"
+	config += `	ipv4_bgp_supress_inactive = false` + "\n"
+	config += `	ipv4_synchronization = false` + "\n"
+	config += `	ipv4_bgp_redistribute_internal = false` + "\n"
+	config += `	ipv4_external_distance = 20` + "\n"
+	config += `	ipv4_internal_distance = 200` + "\n"
+	config += `	ipv4_local_distance = 200` + "\n"
+	config += `	ipv4_forward_packets_over_multipath_ibgp = 1` + "\n"
+	config += `	ipv4_forward_packets_over_multipath_ebgp = 1` + "\n"
 	config += `	ipv4_neighbors = [{` + "\n"
-	config += `		ipv4_neighbor_filter_access_lists = [{` + "\n"
-	config += `		}]` + "\n"
-	config += `		ipv4_neighbor_filter_route_map_lists = [{` + "\n"
-	config += `		}]` + "\n"
-	config += `		ipv4_neighbor_filter_prefix_lists = [{` + "\n"
-	config += `		}]` + "\n"
-	config += `		ipv4_neighbor_filter_as_path_lists = [{` + "\n"
-	config += `		}]` + "\n"
-	config += `		ipv4_neighbor_generate_default_route_map = ""` + "\n"
-	config += `		ipv4_neighbor_routes_advertise_map = ""` + "\n"
-	config += `		ipv4_neighbor_routes_advertise_exist_nonexist_map = ""` + "\n"
-	config += `		ipv4_neighbor_authentication_password = ""` + "\n"
-	config += `		ipv4_neighbor_send_community_attribute = ` + "\n"
-	config += `		ipv4_neighbor_nexthop_self = ` + "\n"
-	config += `		ipv4_neighbor_disable_connection_verification = ` + "\n"
-	config += `		ipv4_neighbor_tcp_mtu_path_discovery = ` + "\n"
-	config += `		ipv4_neighbor_max_hop_count = ` + "\n"
-	config += `		ipv4_neighbor_tcp_transport_mode = ` + "\n"
-	config += `		ipv4_neighbor_weight = ` + "\n"
-	config += `		ipv4_neighbor_version = ""` + "\n"
-	config += `		ipv4_neighbor_customized_no_prepend = ` + "\n"
-	config += `		ipv4_neighbor_customized_replace_as = ` + "\n"
-	config += `		ipv4_neighbor_customized_accept_both_as = ` + "\n"
-	config += `	}]` + "\n"
-	config += `	ipv4_aggregate_addresses = [{` + "\n"
-	config += `	}]` + "\n"
-	config += `	ipv4_filterings = [{` + "\n"
-	config += `	}]` + "\n"
-	config += `	ipv4_networks = [{` + "\n"
-	config += `	}]` + "\n"
-	config += `	ipv4_redistributions = [{` + "\n"
-	config += `	}]` + "\n"
-	config += `	ipv4_route_injections = [{` + "\n"
+	config += `		neighbor_address = "10.1.1.1"` + "\n"
+	config += `		neighbor_remote_as = "65534"` + "\n"
+	config += `		neighbor_bfd = "SINGLE_HOP"` + "\n"
+	config += `		enable_address_family = true` + "\n"
+	config += `		neighbor_shutdown = false` + "\n"
+	config += `		neighbor_description = "My BGP Peer"` + "\n"
+	config += `		neighbor_filter_max_prefix = 1` + "\n"
+	config += `		neighbor_filter_threshold_value = 1` + "\n"
+	config += `		neighbor_filter_restart_interval = 1` + "\n"
+	config += `		neighbor_routes_advertisement_interval = 1` + "\n"
+	config += `		neighbor_routes_remove_private_as = false` + "\n"
+	config += `		neighbor_keepalive_interval = 60` + "\n"
+	config += `		neighbor_hold_time = 180` + "\n"
+	config += `		neighbor_min_hold_time = 3` + "\n"
+	config += `		neighbor_send_community_attribute = false` + "\n"
+	config += `		neighbor_nexthop_self = false` + "\n"
+	config += `		neighbor_disable_connection_verification = false` + "\n"
+	config += `		neighbor_tcp_mtu_path_discovery = false` + "\n"
+	config += `		neighbor_max_hop_count = 1` + "\n"
+	config += `		neighbor_tcp_transport_mode = false` + "\n"
+	config += `		neighbor_weight = 0` + "\n"
+	config += `		neighbor_version = "0"` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

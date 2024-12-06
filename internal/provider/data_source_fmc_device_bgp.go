@@ -75,16 +75,16 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Required:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Name of the object; this is always 'bgp'",
 				Optional:            true,
 				Computed:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Name of the object; this is always 'bgp'",
 				Computed:            true,
 			},
 			"as_number": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Autonomus System (AS) Number",
 				Computed:            true,
 			},
 			"ipv4_address_family_type": schema.StringAttribute{
@@ -92,7 +92,7 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"ipv4_learned_route_map_id": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Learned Route Map ID",
 				Computed:            true,
 			},
 			"ipv4_default_information_orginate": schema.BoolAttribute{
@@ -116,23 +116,23 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"ipv4_external_distance": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Administrative route distance for external routes",
 				Computed:            true,
 			},
 			"ipv4_internal_distance": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Administrative route distance for internal routes",
 				Computed:            true,
 			},
 			"ipv4_local_distance": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Administrative route distance for local routes",
 				Computed:            true,
 			},
 			"ipv4_forward_packets_over_multipath_ibgp": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Number of paths to use for IBGP",
 				Computed:            true,
 			},
 			"ipv4_forward_packets_over_multipath_ebgp": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Number of paths to use for EBGP",
 				Computed:            true,
 			},
 			"ipv4_neighbors": schema.ListNestedAttribute{
@@ -140,196 +140,196 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"ipv4_neighbor_address": schema.StringAttribute{
-							MarkdownDescription: "",
+						"neighbor_address": schema.StringAttribute{
+							MarkdownDescription: "IP address of the BGP neighbor",
 							Computed:            true,
 						},
-						"pv4_neighbor_romote_as": schema.StringAttribute{
-							MarkdownDescription: "",
+						"neighbor_remote_as": schema.StringAttribute{
+							MarkdownDescription: "AS number of the BGP neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_bfd": schema.StringAttribute{
-							MarkdownDescription: "",
+						"neighbor_bfd": schema.StringAttribute{
+							MarkdownDescription: "BFD Fallover",
 							Computed:            true,
 						},
-						"ipv4_update_source_interface_id": schema.StringAttribute{
-							MarkdownDescription: "",
+						"update_source_interface_id": schema.StringAttribute{
+							MarkdownDescription: "Interface ID for the update source",
 							Computed:            true,
 						},
-						"ipv4_address_family_ipv4": schema.BoolAttribute{
-							MarkdownDescription: "",
+						"enable_address_family": schema.BoolAttribute{
+							MarkdownDescription: "Enable IPv4 address family",
 							Computed:            true,
 						},
-						"ipv4_neighbor_shutdown": schema.BoolAttribute{
-							MarkdownDescription: "",
+						"neighbor_shutdown": schema.BoolAttribute{
+							MarkdownDescription: "Shutdown administratively",
 							Computed:            true,
 						},
-						"ipv4_neighbor_description": schema.StringAttribute{
-							MarkdownDescription: "",
+						"neighbor_description": schema.StringAttribute{
+							MarkdownDescription: "Description of the neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_filter_access_lists": schema.ListNestedAttribute{
+						"neighbor_filter_access_lists": schema.ListNestedAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"access_list_id": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Access List ID",
 										Computed:            true,
 									},
 									"update_direction": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Filter direction",
 										Computed:            true,
 									},
 								},
 							},
 						},
-						"ipv4_neighbor_filter_route_map_lists": schema.ListNestedAttribute{
+						"neighbor_filter_route_map_lists": schema.ListNestedAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"route_map_id": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Route Map ID",
 										Computed:            true,
 									},
 									"update_direction": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Filter direction",
 										Computed:            true,
 									},
 								},
 							},
 						},
-						"ipv4_neighbor_filter_prefix_lists": schema.ListNestedAttribute{
+						"neighbor_filter_prefix_lists": schema.ListNestedAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"route_map_id": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Route Map ID",
 										Computed:            true,
 									},
 									"update_direction": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Filter direction",
 										Computed:            true,
 									},
 								},
 							},
 						},
-						"ipv4_neighbor_filter_as_path_lists": schema.ListNestedAttribute{
+						"neighbor_filter_as_path_lists": schema.ListNestedAttribute{
 							MarkdownDescription: "",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"update_direction": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "Filter direction",
 										Computed:            true,
 									},
 									"as_path_id": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "AS Path ID",
 										Computed:            true,
 									},
 								},
 							},
 						},
-						"ipv4_neighbor_filter_max_prefix": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_filter_max_prefix": schema.Int64Attribute{
+							MarkdownDescription: "Maximum number of prefixes allowed from the neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_filter_threshold_value": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_filter_threshold_value": schema.Int64Attribute{
+							MarkdownDescription: "Threshold value for the maximum number of prefixes allowed from the neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_filter_restart_interval": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_filter_restart_interval": schema.Int64Attribute{
+							MarkdownDescription: "Time interval to restart the maximum prefix limit in Minutes",
 							Computed:            true,
 						},
-						"ipv4_neighbor_routes_advertisement_interval": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_routes_advertisement_interval": schema.Int64Attribute{
+							MarkdownDescription: "Time interval to advertise routes in seconds",
 							Computed:            true,
 						},
-						"ipv4_neighbor_routes_remove_private_as": schema.BoolAttribute{
-							MarkdownDescription: "",
+						"neighbor_routes_remove_private_as": schema.BoolAttribute{
+							MarkdownDescription: "Remove private AS numbers from outgoing routing updates",
 							Computed:            true,
 						},
-						"ipv4_neighbor_generate_default_route_map": schema.StringAttribute{
+						"neighbor_generate_default_route_map": schema.StringAttribute{
 							MarkdownDescription: "Generate default routes - Route Map",
 							Computed:            true,
 						},
-						"ipv4_neighbor_routes_advertise_map_use_exist": schema.BoolAttribute{
+						"neighbor_routes_advertise_map_use_exist": schema.BoolAttribute{
 							MarkdownDescription: "Use Exist Map or Non-Exist Map",
 							Computed:            true,
 						},
-						"ipv4_neighbor_routes_advertise_map": schema.StringAttribute{
+						"neighbor_routes_advertise_map": schema.StringAttribute{
 							MarkdownDescription: "Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.",
 							Computed:            true,
 						},
-						"ipv4_neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
+						"neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
 							MarkdownDescription: "Specified route maps are advertised when the prefix exists only in the Advertise Map.",
 							Computed:            true,
 						},
-						"ipv4_neighbor_keepalive_interval": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_keepalive_interval": schema.Int64Attribute{
+							MarkdownDescription: "Time interval to send keepalive messages in seconds",
 							Computed:            true,
 						},
-						"ipv4_neighbor_hold_time": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_hold_time": schema.Int64Attribute{
+							MarkdownDescription: "Time interval to hold the neighbor in seconds",
 							Computed:            true,
 						},
-						"ipv4_neighbor_min_hold_time": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_min_hold_time": schema.Int64Attribute{
+							MarkdownDescription: "Minimum hold time in seconds",
 							Computed:            true,
 						},
-						"ipv4_neighbor_authentication_password": schema.StringAttribute{
+						"neighbor_authentication_password": schema.StringAttribute{
 							MarkdownDescription: "Setting password enables authentication.",
 							Computed:            true,
 						},
-						"ipv4_neighbor_send_community_attribute": schema.BoolAttribute{
+						"neighbor_send_community_attribute": schema.BoolAttribute{
 							MarkdownDescription: "Send Community attribute to this neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_nexthop_self": schema.BoolAttribute{
+						"neighbor_nexthop_self": schema.BoolAttribute{
 							MarkdownDescription: "Use itself as next hop for this neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_disable_connection_verification": schema.BoolAttribute{
+						"neighbor_disable_connection_verification": schema.BoolAttribute{
 							MarkdownDescription: "Disable Connection Verification",
 							Computed:            true,
 						},
-						"ipv4_neighbor_tcp_mtu_path_discovery": schema.BoolAttribute{
+						"neighbor_tcp_mtu_path_discovery": schema.BoolAttribute{
 							MarkdownDescription: "Use TCP path MTU discovery.",
 							Computed:            true,
 						},
-						"ipv4_neighbor_max_hop_count": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_max_hop_count": schema.Int64Attribute{
+							MarkdownDescription: "Maximum number of hops to reach the neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_tcp_transport_mode": schema.BoolAttribute{
+						"neighbor_tcp_transport_mode": schema.BoolAttribute{
 							MarkdownDescription: "True set it to active, False to passive.",
 							Computed:            true,
 						},
-						"ipv4_neighbor_weight": schema.Int64Attribute{
-							MarkdownDescription: "",
+						"neighbor_weight": schema.Int64Attribute{
+							MarkdownDescription: "Weight of the neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_version": schema.StringAttribute{
-							MarkdownDescription: "0 - default, 4 - IPv4",
+						"neighbor_version": schema.StringAttribute{
+							MarkdownDescription: "Set BPG version: 0 - default, 4 - IPv4",
 							Computed:            true,
 						},
-						"ipv4_neighbor_customized_local_as_number": schema.StringAttribute{
-							MarkdownDescription: "",
+						"neighbor_customized_local_as_number": schema.StringAttribute{
+							MarkdownDescription: "Customize the AS number for the routes received from neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_customized_no_prepend": schema.BoolAttribute{
+						"neighbor_customized_no_prepend": schema.BoolAttribute{
 							MarkdownDescription: "Do not prepend local AS number to routes received from neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_customized_replace_as": schema.BoolAttribute{
-							MarkdownDescription: "Replace real AS number with localAS number in routes received from neighbor",
+						"neighbor_customized_replace_as": schema.BoolAttribute{
+							MarkdownDescription: "Replace real AS number with local AS number in routes received from neighbor",
 							Computed:            true,
 						},
-						"ipv4_neighbor_customized_accept_both_as": schema.BoolAttribute{
-							MarkdownDescription: "Replace real AS number with localAS number in routes received from neighbor",
+						"neighbor_customized_accept_both_as": schema.BoolAttribute{
+							MarkdownDescription: "Accept either real AS number or local AS number in routes experienced from neighbor",
 							Computed:            true,
 						},
 					},
@@ -341,27 +341,27 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"generate_as": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Generate AS set path information",
 							Computed:            true,
 						},
 						"filter": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Filter all routes from updates (summary only)",
 							Computed:            true,
 						},
 						"network_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Network ID",
 							Computed:            true,
 						},
 						"advertise_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Advertise Map ID",
 							Computed:            true,
 						},
 						"attribute_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Attribute Map ID",
 							Computed:            true,
 						},
 						"suppress_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Suppress Map ID",
 							Computed:            true,
 						},
 					},
@@ -372,20 +372,20 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"network_id": schema.StringAttribute{
-							MarkdownDescription: "",
+						"access_list_id": schema.StringAttribute{
+							MarkdownDescription: "Standard Access List ID",
 							Computed:            true,
 						},
 						"network_direction": schema.StringAttribute{
-							MarkdownDescription: "Possible values - incomingroutefilter, outgoingroutefilter",
+							MarkdownDescription: "Filtering directrion",
 							Computed:            true,
 						},
 						"protocol": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Protocol",
 							Computed:            true,
 						},
 						"prorocol_process": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Process ID",
 							Computed:            true,
 						},
 					},
@@ -397,11 +397,11 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"network_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Network object ID",
 							Computed:            true,
 						},
 						"route_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Route Map ID",
 							Computed:            true,
 						},
 					},
@@ -412,40 +412,40 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"source_protocol": schema.StringAttribute{
+							MarkdownDescription: "Protocol to redistribute",
+							Computed:            true,
+						},
 						"route_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Route Map ID",
 							Computed:            true,
 						},
 						"metric": schema.Int64Attribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Metric value",
 							Computed:            true,
 						},
 						"process_id": schema.StringAttribute{
-							MarkdownDescription: "",
-							Computed:            true,
-						},
-						"source_protocol": schema.StringAttribute{
-							MarkdownDescription: "Possible values - RedistributeConnected, RedistributeStatic, RedistributeOSPF, RedistributeEIGRP",
+							MarkdownDescription: "process ID",
 							Computed:            true,
 						},
 						"match_external1": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Match OSPF External 1 metrics",
 							Computed:            true,
 						},
 						"match_external2": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Match OSPF External 2 metrics",
 							Computed:            true,
 						},
 						"match_internal": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Match OSPF Internal metrics",
 							Computed:            true,
 						},
 						"match_nssa_external1": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Match OSPF NSSA External 1 metrics",
 							Computed:            true,
 						},
 						"match_nssa_external2": schema.BoolAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Match OSPF NSSA External 2 metrics",
 							Computed:            true,
 						},
 					},
@@ -457,11 +457,11 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"inject_route_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Inject Route Map ID",
 							Computed:            true,
 						},
 						"exist_route_map_id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Exist Route Map ID",
 							Computed:            true,
 						},
 					},
