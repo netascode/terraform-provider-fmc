@@ -37,7 +37,7 @@ type DeviceHAPairMonitoring struct {
 	Domain             types.String `tfsdk:"domain"`
 	DeviceId           types.String `tfsdk:"device_id"`
 	Type               types.String `tfsdk:"type"`
-	Name               types.String `tfsdk:"name"`
+	LogicalName        types.String `tfsdk:"logical_name"`
 	MonitorInterface   types.Bool   `tfsdk:"monitor_interface"`
 	Ipv4ActiveAddress  types.String `tfsdk:"ipv4_active_address"`
 	Ipv4StandbyAddress types.String `tfsdk:"ipv4_standby_address"`
@@ -61,8 +61,8 @@ func (data DeviceHAPairMonitoring) toBody(ctx context.Context, state DeviceHAPai
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
+	if !data.LogicalName.IsNull() {
+		body, _ = sjson.Set(body, "name", data.LogicalName.ValueString())
 	}
 	if !data.MonitorInterface.IsNull() {
 		body, _ = sjson.Set(body, "monitorForFailures", data.MonitorInterface.ValueBool())
@@ -84,9 +84,9 @@ func (data *DeviceHAPairMonitoring) fromBody(ctx context.Context, res gjson.Resu
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("name"); value.Exists() {
-		data.Name = types.StringValue(value.String())
+		data.LogicalName = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.LogicalName = types.StringNull()
 	}
 	if value := res.Get("monitorForFailures"); value.Exists() {
 		data.MonitorInterface = types.BoolValue(value.Bool())
@@ -124,10 +124,10 @@ func (data *DeviceHAPairMonitoring) fromBodyPartial(ctx context.Context, res gjs
 	} else {
 		data.Type = types.StringNull()
 	}
-	if value := res.Get("name"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
+	if value := res.Get("name"); value.Exists() && !data.LogicalName.IsNull() {
+		data.LogicalName = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.LogicalName = types.StringNull()
 	}
 	if value := res.Get("monitorForFailures"); value.Exists() && !data.MonitorInterface.IsNull() {
 		data.MonitorInterface = types.BoolValue(value.Bool())
@@ -198,8 +198,8 @@ func (data DeviceHAPairMonitoring) toBodyPutDelete(ctx context.Context, state De
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
+	if !data.LogicalName.IsNull() {
+		body, _ = sjson.Set(body, "name", data.LogicalName.ValueString())
 	}
 	return body
 }

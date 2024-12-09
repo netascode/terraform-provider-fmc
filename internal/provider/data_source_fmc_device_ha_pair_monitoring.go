@@ -78,7 +78,7 @@ func (d *DeviceHAPairMonitoringDataSource) Schema(ctx context.Context, req datas
 				MarkdownDescription: "Type of the resource.",
 				Computed:            true,
 			},
-			"name": schema.StringAttribute{
+			"logical_name": schema.StringAttribute{
 				MarkdownDescription: "Logical Name of the monitored interface.",
 				Optional:            true,
 				Computed:            true,
@@ -106,7 +106,7 @@ func (d *DeviceHAPairMonitoringDataSource) ConfigValidators(ctx context.Context)
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
-			path.MatchRoot("name"),
+			path.MatchRoot("logical_name"),
 		),
 	}
 }
@@ -140,7 +140,7 @@ func (d *DeviceHAPairMonitoringDataSource) Read(ctx context.Context, req datasou
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.Name.IsNull() {
+	if config.Id.IsNull() && !config.LogicalName.IsNull() {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
@@ -152,9 +152,9 @@ func (d *DeviceHAPairMonitoringDataSource) Read(ctx context.Context, req datasou
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if config.Name.ValueString() == v.Get("name").String() {
+					if config.LogicalName.ValueString() == v.Get("name").String() {
 						config.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with logical_name '%v', id: %v", config.Id.String(), config.LogicalName.ValueString(), config.Id.String()))
 						return false
 					}
 					return true
@@ -167,7 +167,7 @@ func (d *DeviceHAPairMonitoringDataSource) Read(ctx context.Context, req datasou
 		}
 
 		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", config.Name.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with logical_name: %s", config.LogicalName.ValueString()))
 			return
 		}
 	}

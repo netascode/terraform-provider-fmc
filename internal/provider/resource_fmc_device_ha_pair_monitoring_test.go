@@ -35,7 +35,7 @@ func TestAccFmcDeviceHAPairMonitoring(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_ha_pair_monitoring.test", "type"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "name", "outside"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "logical_name", "outside"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "monitor_interface", "true"))
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_ha_pair_monitoring.test", "ipv4_active_address"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "ipv4_standby_address", "10.1.1.2"))
@@ -85,7 +85,7 @@ func testAccFmcDeviceHAPairMonitoringConfig_minimum() string {
 func testAccFmcDeviceHAPairMonitoringConfig_all() string {
 	config := `resource "fmc_device_ha_pair_monitoring" "test" {` + "\n"
 	config += `	device_id = var.device_ha_id` + "\n"
-	config += `	name = "outside"` + "\n"
+	config += `	logical_name = "outside"` + "\n"
 	config += `	monitor_interface = true` + "\n"
 	config += `	ipv4_standby_address = "10.1.1.2"` + "\n"
 	config += `}` + "\n"

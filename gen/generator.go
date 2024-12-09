@@ -104,6 +104,7 @@ type YamlConfig struct {
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoDelete                 bool                  `yaml:"no_delete"`
 	DataSourceNameQuery      bool                  `yaml:"data_source_name_query"`
+	DataSourceQueryParameter string                `yaml:"data_source_query_parameter"`
 	MinimumVersion           string                `yaml:"minimum_version"`
 	MinimumVersionBulkDelete string                `yaml:"minimum_version_bulk_delete"`
 	DsDescription            string                `yaml:"ds_description"`
@@ -348,6 +349,16 @@ func Subtract(a, b int) int {
 	return a - b
 }
 
+// Templating helper function to get Model Name based on the TF Name
+func GetModelName(attributes []YamlConfigAttribute, tfName string) string {
+	for _, attr := range attributes {
+		if attr.TfName == tfName {
+			return attr.ModelName
+		}
+	}
+	return ""
+}
+
 // Map of templating functions
 var functions = template.FuncMap{
 	"toGoName":           ToGoName,
@@ -372,6 +383,7 @@ var functions = template.FuncMap{
 	"isNestedSet":        IsNestedSet,
 	"importParts":        ImportParts,
 	"subtract":           Subtract,
+	"getModelName":       GetModelName,
 }
 
 func (attr *YamlConfigAttribute) init(parentGoTypeName string) error {
@@ -456,6 +468,13 @@ func NewYamlConfig(bytes []byte) (YamlConfig, error) {
 	}
 	if config.TfName == "" {
 		config.TfName = strings.Replace(config.Name, " ", "_", -1)
+	}
+
+	if config.DataSourceNameQuery && config.DataSourceQueryParameter != "" {
+		return YamlConfig{}, fmt.Errorf("%q: both `data_source_name_query` and `data_source_query_parameter` cannot be set", config.Name)
+	} else if config.DataSourceNameQuery {
+		config.DataSourceQueryParameter = "name"
+		config.DataSourceNameQuery = false
 	}
 
 	return config, nil
