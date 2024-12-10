@@ -25,6 +25,7 @@ attributes:
         exclude_example: true
         exclude_test: true
       - model_name: interfaceMode
+        tf_name: interface_type
         type: String
         mandatory: true
         description: >-

@@ -10,6 +10,7 @@ attributes:
     description: User-provided resource name.
     example: security_zone_1
   - model_name: interfaceMode
+    tf_name: interface_type
     type: String
     mandatory: true
     description: >-

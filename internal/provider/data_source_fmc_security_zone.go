@@ -75,7 +75,7 @@ func (d *SecurityZoneDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            true,
 				Computed:            true,
 			},
-			"interface_mode": schema.StringAttribute{
+			"interface_type": schema.StringAttribute{
 				MarkdownDescription: "The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.",
 				Computed:            true,
 			},
