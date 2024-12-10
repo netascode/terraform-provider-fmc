@@ -294,6 +294,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 	return []func() resource.Resource{
 		NewAccessControlPolicyResource,
 		NewDeviceResource,
+		NewDeviceHAPairResource,
 		NewDeviceIPv4StaticRouteResource,
 		NewDeviceIPv6StaticRouteResource,
 		NewDevicePhysicalInterfaceResource,
@@ -344,6 +345,7 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 	return []func() datasource.DataSource{
 		NewAccessControlPolicyDataSource,
 		NewDeviceDataSource,
+		NewDeviceHAPairDataSource,
 		NewDeviceIPv4StaticRouteDataSource,
 		NewDeviceIPv6StaticRouteDataSource,
 		NewDevicePhysicalInterfaceDataSource,
