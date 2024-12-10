@@ -31,7 +31,7 @@ data "fmc_device_subinterface" "example" {
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
 - `interface_name` (String) Name of the parent interface (fmc_device_physical_interface.example.name).
-- `name` (String) Name of the subinterface in fromat `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).
+- `name` (String) Name of the subinterface in format `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).
 
 ### Read-Only
 
