@@ -53,11 +53,6 @@ func TestAccFmcPrefilterPolicy(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.destination_port_literals.0.port", "80"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.source_interfaces.0.type", "SecurityZone"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.destination_interfaces.0.type", "SecurityZone"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.tunnel_zone.0.id", "0050568A-7F57-0ed3-0000-004294975576"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.encapsulation_ports_gre", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.encapsulation_ports_in_in_ip", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.encapsulation_ports_ipv6_in_ip", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_prefilter_policy.test", "rules.0.encapsulation_ports_teredo", "false"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -142,7 +137,7 @@ func testAccFmcPrefilterPolicyConfig_all() string {
 	config += `		action = "FASTPATH"` + "\n"
 	config += `		rule_type = "PREFILTER"` + "\n"
 	config += `		enabled = true` + "\n"
-	config += `		bidirectional = true` + "\n"
+	config += `		bidirectional = false` + "\n"
 	config += `		log_begin = true` + "\n"
 	config += `		log_end = true` + "\n"
 	config += `		send_events_to_fmc = true` + "\n"
@@ -168,9 +163,15 @@ func testAccFmcPrefilterPolicyConfig_all() string {
 	config += `			protocol = "6"` + "\n"
 	config += `			port = "80"` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_port_objects = [{` + "\n"
+	config += `			id = fmc_port.test.id` + "\n"
+	config += `		}]` + "\n"
 	config += `		destination_port_literals = [{` + "\n"
 	config += `			protocol = "6"` + "\n"
 	config += `			port = "80"` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_port_objects = [{` + "\n"
+	config += `			id = fmc_port.test.id` + "\n"
 	config += `		}]` + "\n"
 	config += `		source_interfaces = [{` + "\n"
 	config += `			id = fmc_security_zone.test.id` + "\n"
@@ -180,13 +181,6 @@ func testAccFmcPrefilterPolicyConfig_all() string {
 	config += `			id = fmc_security_zone.test.id` + "\n"
 	config += `			type = "SecurityZone"` + "\n"
 	config += `		}]` + "\n"
-	config += `		tunnel_zone = [{` + "\n"
-	config += `			id = "0050568A-7F57-0ed3-0000-004294975576"` + "\n"
-	config += `		}]` + "\n"
-	config += `		encapsulation_ports_gre = false` + "\n"
-	config += `		encapsulation_ports_in_in_ip = false` + "\n"
-	config += `		encapsulation_ports_ipv6_in_ip = false` + "\n"
-	config += `		encapsulation_ports_teredo = false` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config

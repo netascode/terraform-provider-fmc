@@ -522,13 +522,19 @@ func (r *PrefilterPolicyResource) Read(ctx context.Context, req resource.ReadReq
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve prefilter policy object (GET), got error: %s, %s", err, resGet.String()))
+		return
+	}
+
+	resDefaultAction, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/defaultactions/"+state.DefaultActionId.String(), reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve default action object (GET), got error: %s, %s", err, resDefaultAction.String()))
 		return
 	}
 
 	resRules, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/prefilterrules?expanded=true&offset=0&limit=1000", reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve rules object (GET), got error: %s, %s", err, resGet.String()))
 		return
 	}
 
@@ -539,6 +545,7 @@ func (r *PrefilterPolicyResource) Read(ctx context.Context, req resource.ReadReq
 		replaceRules = "[]"
 	}
 	s, _ = sjson.SetRaw(s, "dummy_rules", replaceRules)
+	s, _ = sjson.SetRaw(s, "defaultAction", resDefaultAction.String())
 
 	res := gjson.Parse(s)
 
@@ -656,10 +663,6 @@ func (r *PrefilterPolicyResource) updateSubresources(ctx context.Context, tfsdkP
 	p := gjson.Parse(planBody)
 	bodyRules := p.Get("dummy_rules")
 
-	if len(plan.Rules) == 0 {
-		state.Rules = plan.Rules
-	}
-
 	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
 	if !plan.Domain.IsNull() && plan.Domain.ValueString() != "" {
@@ -728,37 +731,39 @@ func (r *PrefilterPolicyResource) truncateRulesAt(ctx context.Context, state *Pr
 }
 
 func (r *PrefilterPolicyResource) createRulesAt(ctx context.Context, plan PrefilterPolicy, body []gjson.Result, state *PrefilterPolicy, reqMods ...func(*fmc.Req)) error {
-	bulk := `{"dummy_rules":[]}`
 	for i := 0; i < len(body); i++ {
-		rule := body[i].String()
-		rule, _ = sjson.Delete(rule, "id")
+		bulk := `{"dummy_rules":[]}`
+		j := i
+		for ; i < len(body); i++ {
+			rule := body[i].String()
+			rule, _ = sjson.Delete(rule, "id")
 
-		bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", rule)
-	}
-	res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/prefilterrules?bulk=true",
-		gjson.Parse(bulk).Get("dummy_rules").String(),
-		reqMods...)
-	if err != nil {
-		return fmt.Errorf("failed to configure object (POST), got error: %s, %s", err, res.String())
-	}
-
-	j := 0
-	for _, v := range res.Get("items").Array() {
-		if v.Get("name").String() == "" {
-			tflog.Debug(ctx, fmt.Sprintf("ignoring a bogus item in POST reply, it can happen: %s", v))
-			continue
+			bulk, _ = sjson.SetRaw(bulk, "dummy_rules.-1", rule)
+		}
+		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/prefilterrules?bulk=true",
+			gjson.Parse(bulk).Get("dummy_rules").String(),
+			reqMods...)
+		if err != nil {
+			return fmt.Errorf("failed to configure object (POST), got error: %s, %s", err, res.String())
 		}
 
-		item := plan.Rules[j]
-		item.Id = types.StringValue(v.Get("id").String())
+		for _, v := range res.Get("items").Array() {
+			if v.Get("name").String() == "" {
+				tflog.Debug(ctx, fmt.Sprintf("ignoring a bogus item in POST reply, it can happen: %s", v))
+				continue
+			}
 
-		if len(state.Rules) <= j {
-			state.Rules = append(state.Rules, item)
-		} else {
-			state.Rules[j] = item
+			item := plan.Rules[j]
+			item.Id = types.StringValue(v.Get("id").String())
+
+			if len(state.Rules) <= j {
+				state.Rules = append(state.Rules, item)
+			} else {
+				state.Rules[j] = item
+			}
+
+			j++
 		}
-
-		j++
 	}
 
 	return nil
