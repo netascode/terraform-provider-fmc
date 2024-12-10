@@ -296,8 +296,6 @@ func (r *DeviceHAPairMonitoringResource) Update(ctx context.Context, req resourc
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
-
 func (r *DeviceHAPairMonitoringResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state DeviceHAPairMonitoring
 
@@ -325,8 +323,6 @@ func (r *DeviceHAPairMonitoringResource) Delete(ctx context.Context, req resourc
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
