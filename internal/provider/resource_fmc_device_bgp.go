@@ -272,7 +272,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"route_map_id": schema.StringAttribute{
+									"prefix_list_id": schema.StringAttribute{
 										MarkdownDescription: helpers.NewAttributeDescription("Route Map ID").String,
 										Optional:            true,
 									},

@@ -144,7 +144,7 @@ Read-Only:
 
 Read-Only:
 
-- `route_map_id` (String) Route Map ID
+- `prefix_list_id` (String) Route Map ID
 - `update_direction` (String) Filter direction
 
 

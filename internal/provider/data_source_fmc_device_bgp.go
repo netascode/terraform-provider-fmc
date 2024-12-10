@@ -205,7 +205,7 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"route_map_id": schema.StringAttribute{
+									"prefix_list_id": schema.StringAttribute{
 										MarkdownDescription: "Route Map ID",
 										Computed:            true,
 									},

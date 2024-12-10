@@ -219,7 +219,7 @@ attributes:
         exclude_example: true
         attributes:
           - model_name: id
-            tf_name: route_map_id
+            tf_name: prefix_list_id
             data_path: [ipv4PrefixList]
             type: String
             description: Route Map ID

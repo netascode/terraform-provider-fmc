@@ -147,7 +147,7 @@ type DeviceBGPIpv4NeighborsNeighborFilterRouteMapLists struct {
 	UpdateDirection types.String `tfsdk:"update_direction"`
 }
 type DeviceBGPIpv4NeighborsNeighborFilterPrefixLists struct {
-	RouteMapId      types.String `tfsdk:"route_map_id"`
+	PrefixListId    types.String `tfsdk:"prefix_list_id"`
 	UpdateDirection types.String `tfsdk:"update_direction"`
 }
 type DeviceBGPIpv4NeighborsNeighborFilterAsPathLists struct {
@@ -260,8 +260,8 @@ func (data DeviceBGP) toBody(ctx context.Context, state DeviceBGP) string {
 				itemBody, _ = sjson.Set(itemBody, "neighborFiltering.ipv4PrefixListFilter", []interface{}{})
 				for _, childItem := range item.NeighborFilterPrefixLists {
 					itemChildBody := ""
-					if !childItem.RouteMapId.IsNull() {
-						itemChildBody, _ = sjson.Set(itemChildBody, "ipv4PrefixList.id", childItem.RouteMapId.ValueString())
+					if !childItem.PrefixListId.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "ipv4PrefixList.id", childItem.PrefixListId.ValueString())
 					}
 					if !childItem.UpdateDirection.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "filterUpdateAction", childItem.UpdateDirection.ValueString())
@@ -631,9 +631,9 @@ func (data *DeviceBGP) fromBody(ctx context.Context, res gjson.Result) {
 					parent := &data
 					data := DeviceBGPIpv4NeighborsNeighborFilterPrefixLists{}
 					if value := res.Get("ipv4PrefixList.id"); value.Exists() {
-						data.RouteMapId = types.StringValue(value.String())
+						data.PrefixListId = types.StringValue(value.String())
 					} else {
-						data.RouteMapId = types.StringNull()
+						data.PrefixListId = types.StringNull()
 					}
 					if value := res.Get("filterUpdateAction"); value.Exists() {
 						data.UpdateDirection = types.StringValue(value.String())
@@ -1207,7 +1207,7 @@ func (data *DeviceBGP) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		}
 		for i := 0; i < len(data.NeighborFilterPrefixLists); i++ {
 			keys := [...]string{"ipv4PrefixList.id", "filterUpdateAction"}
-			keyValues := [...]string{data.NeighborFilterPrefixLists[i].RouteMapId.ValueString(), data.NeighborFilterPrefixLists[i].UpdateDirection.ValueString()}
+			keyValues := [...]string{data.NeighborFilterPrefixLists[i].PrefixListId.ValueString(), data.NeighborFilterPrefixLists[i].UpdateDirection.ValueString()}
 
 			parent := &data
 			data := (*parent).NeighborFilterPrefixLists[i]
@@ -1241,10 +1241,10 @@ func (data *DeviceBGP) fromBodyPartial(ctx context.Context, res gjson.Result) {
 
 				continue
 			}
-			if value := res.Get("ipv4PrefixList.id"); value.Exists() && !data.RouteMapId.IsNull() {
-				data.RouteMapId = types.StringValue(value.String())
+			if value := res.Get("ipv4PrefixList.id"); value.Exists() && !data.PrefixListId.IsNull() {
+				data.PrefixListId = types.StringValue(value.String())
 			} else {
-				data.RouteMapId = types.StringNull()
+				data.PrefixListId = types.StringNull()
 			}
 			if value := res.Get("filterUpdateAction"); value.Exists() && !data.UpdateDirection.IsNull() {
 				data.UpdateDirection = types.StringValue(value.String())
