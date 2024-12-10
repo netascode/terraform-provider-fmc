@@ -131,15 +131,13 @@ Optional:
 - `neighbor_filter_as_path_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--neighbor_filter_as_path_lists))
 - `neighbor_filter_max_prefix` (Number) Maximum number of prefixes allowed from the neighbor
   - Range: `1`-`2147483647`
-  - Default value: `1`
 - `neighbor_filter_prefix_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--neighbor_filter_prefix_lists))
 - `neighbor_filter_restart_interval` (Number) Time interval to restart the maximum prefix limit in Minutes
   - Range: `1`-`65535`
-  - Default value: `1`
 - `neighbor_filter_route_map_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--neighbor_filter_route_map_lists))
 - `neighbor_filter_threshold_value` (Number) Threshold value for the maximum number of prefixes allowed from the neighbor
   - Range: `1`-`100`
-  - Default value: `1`
+- `neighbor_filter_warning_only` (Boolean) Give only warning message when prefix limit exceeded or terminate peering when prefix limit is exceeded.
 - `neighbor_generate_default_route_map` (String) Generate default routes - Route Map
 - `neighbor_hold_time` (Number) Time interval to hold the neighbor in seconds
   - Range: `3`-`65535`

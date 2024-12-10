@@ -306,31 +306,29 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							},
 						},
 						"neighbor_filter_max_prefix": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Maximum number of prefixes allowed from the neighbor").AddIntegerRangeDescription(1, 2147483647).AddDefaultValueDescription("1").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Maximum number of prefixes allowed from the neighbor").AddIntegerRangeDescription(1, 2147483647).String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(1, 2147483647),
 							},
-							Default: int64default.StaticInt64(1),
+						},
+						"neighbor_filter_warning_only": schema.BoolAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Give only warning message when prefix limit exceeded or terminate peering when prefix limit is exceeded.").String,
+							Optional:            true,
 						},
 						"neighbor_filter_threshold_value": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Threshold value for the maximum number of prefixes allowed from the neighbor").AddIntegerRangeDescription(1, 100).AddDefaultValueDescription("1").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Threshold value for the maximum number of prefixes allowed from the neighbor").AddIntegerRangeDescription(1, 100).String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(1, 100),
 							},
-							Default: int64default.StaticInt64(1),
 						},
 						"neighbor_filter_restart_interval": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Time interval to restart the maximum prefix limit in Minutes").AddIntegerRangeDescription(1, 65535).AddDefaultValueDescription("1").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Time interval to restart the maximum prefix limit in Minutes").AddIntegerRangeDescription(1, 65535).String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(1, 65535),
 							},
-							Default: int64default.StaticInt64(1),
 						},
 						"neighbor_routes_advertisement_interval": schema.Int64Attribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Time interval to advertise routes in seconds").AddIntegerRangeDescription(0, 600).AddDefaultValueDescription("1").String,

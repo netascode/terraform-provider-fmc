@@ -236,6 +236,10 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 							MarkdownDescription: "Maximum number of prefixes allowed from the neighbor",
 							Computed:            true,
 						},
+						"neighbor_filter_warning_only": schema.BoolAttribute{
+							MarkdownDescription: "Give only warning message when prefix limit exceeded or terminate peering when prefix limit is exceeded.",
+							Computed:            true,
+						},
 						"neighbor_filter_threshold_value": schema.Int64Attribute{
 							MarkdownDescription: "Threshold value for the maximum number of prefixes allowed from the neighbor",
 							Computed:            true,

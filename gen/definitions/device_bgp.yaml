@@ -260,9 +260,15 @@ attributes:
         description: Maximum number of prefixes allowed from the neighbor
         min_int: 1
         max_int: 2147483647
-        default_value: 1
         example: 1
         exclude_example: true
+      - model_name: warningOnly
+        data_path: [neighborFiltering, neighborMaximumPrefix]
+        tf_name: neighbor_filter_warning_only
+        type: Bool
+        description: Give only warning message when prefix limit exceeded or terminate peering when prefix limit is exceeded.
+        example: true
+        exclude_example: true      
       - model_name: thresholdValue
         data_path: [neighborFiltering, neighborMaximumPrefix]
         tf_name: neighbor_filter_threshold_value
@@ -270,7 +276,6 @@ attributes:
         description: Threshold value for the maximum number of prefixes allowed from the neighbor
         min_int: 1
         max_int: 100
-        default_value: 1
         example: 1
         exclude_example: true
       - model_name: restartInterval
@@ -280,7 +285,6 @@ attributes:
         description: Time interval to restart the maximum prefix limit in Minutes
         min_int: 1
         max_int: 65535
-        default_value: 1
         example: 1
         exclude_example: true
 # BGP - IPv4 - Neighbor - Routes

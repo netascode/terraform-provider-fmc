@@ -74,6 +74,7 @@ type DeviceBGPIpv4Neighbors struct {
 	NeighborFilterPrefixLists               []DeviceBGPIpv4NeighborsNeighborFilterPrefixLists   `tfsdk:"neighbor_filter_prefix_lists"`
 	NeighborFilterAsPathLists               []DeviceBGPIpv4NeighborsNeighborFilterAsPathLists   `tfsdk:"neighbor_filter_as_path_lists"`
 	NeighborFilterMaxPrefix                 types.Int64                                         `tfsdk:"neighbor_filter_max_prefix"`
+	NeighborFilterWarningOnly               types.Bool                                          `tfsdk:"neighbor_filter_warning_only"`
 	NeighborFilterThresholdValue            types.Int64                                         `tfsdk:"neighbor_filter_threshold_value"`
 	NeighborFilterRestartInterval           types.Int64                                         `tfsdk:"neighbor_filter_restart_interval"`
 	NeighborRoutesAdvertisementInterval     types.Int64                                         `tfsdk:"neighbor_routes_advertisement_interval"`
@@ -284,6 +285,9 @@ func (data DeviceBGP) toBody(ctx context.Context, state DeviceBGP) string {
 			}
 			if !item.NeighborFilterMaxPrefix.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "neighborFiltering.neighborMaximumPrefix.maxPrefixLimit", item.NeighborFilterMaxPrefix.ValueInt64())
+			}
+			if !item.NeighborFilterWarningOnly.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "neighborFiltering.neighborMaximumPrefix.warningOnly", item.NeighborFilterWarningOnly.ValueBool())
 			}
 			if !item.NeighborFilterThresholdValue.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "neighborFiltering.neighborMaximumPrefix.thresholdValue", item.NeighborFilterThresholdValue.ValueInt64())
@@ -666,17 +670,22 @@ func (data *DeviceBGP) fromBody(ctx context.Context, res gjson.Result) {
 			if value := res.Get("neighborFiltering.neighborMaximumPrefix.maxPrefixLimit"); value.Exists() {
 				data.NeighborFilterMaxPrefix = types.Int64Value(value.Int())
 			} else {
-				data.NeighborFilterMaxPrefix = types.Int64Value(1)
+				data.NeighborFilterMaxPrefix = types.Int64Null()
+			}
+			if value := res.Get("neighborFiltering.neighborMaximumPrefix.warningOnly"); value.Exists() {
+				data.NeighborFilterWarningOnly = types.BoolValue(value.Bool())
+			} else {
+				data.NeighborFilterWarningOnly = types.BoolNull()
 			}
 			if value := res.Get("neighborFiltering.neighborMaximumPrefix.thresholdValue"); value.Exists() {
 				data.NeighborFilterThresholdValue = types.Int64Value(value.Int())
 			} else {
-				data.NeighborFilterThresholdValue = types.Int64Value(1)
+				data.NeighborFilterThresholdValue = types.Int64Null()
 			}
 			if value := res.Get("neighborFiltering.neighborMaximumPrefix.restartInterval"); value.Exists() {
 				data.NeighborFilterRestartInterval = types.Int64Value(value.Int())
 			} else {
-				data.NeighborFilterRestartInterval = types.Int64Value(1)
+				data.NeighborFilterRestartInterval = types.Int64Null()
 			}
 			if value := res.Get("neighborRoutes.advertisementInterval"); value.Exists() {
 				data.NeighborRoutesAdvertisementInterval = types.Int64Value(value.Int())
@@ -1303,17 +1312,22 @@ func (data *DeviceBGP) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		}
 		if value := res.Get("neighborFiltering.neighborMaximumPrefix.maxPrefixLimit"); value.Exists() && !data.NeighborFilterMaxPrefix.IsNull() {
 			data.NeighborFilterMaxPrefix = types.Int64Value(value.Int())
-		} else if data.NeighborFilterMaxPrefix.ValueInt64() != 1 {
+		} else {
 			data.NeighborFilterMaxPrefix = types.Int64Null()
+		}
+		if value := res.Get("neighborFiltering.neighborMaximumPrefix.warningOnly"); value.Exists() && !data.NeighborFilterWarningOnly.IsNull() {
+			data.NeighborFilterWarningOnly = types.BoolValue(value.Bool())
+		} else {
+			data.NeighborFilterWarningOnly = types.BoolNull()
 		}
 		if value := res.Get("neighborFiltering.neighborMaximumPrefix.thresholdValue"); value.Exists() && !data.NeighborFilterThresholdValue.IsNull() {
 			data.NeighborFilterThresholdValue = types.Int64Value(value.Int())
-		} else if data.NeighborFilterThresholdValue.ValueInt64() != 1 {
+		} else {
 			data.NeighborFilterThresholdValue = types.Int64Null()
 		}
 		if value := res.Get("neighborFiltering.neighborMaximumPrefix.restartInterval"); value.Exists() && !data.NeighborFilterRestartInterval.IsNull() {
 			data.NeighborFilterRestartInterval = types.Int64Value(value.Int())
-		} else if data.NeighborFilterRestartInterval.ValueInt64() != 1 {
+		} else {
 			data.NeighborFilterRestartInterval = types.Int64Null()
 		}
 		if value := res.Get("neighborRoutes.advertisementInterval"); value.Exists() && !data.NeighborRoutesAdvertisementInterval.IsNull() {
