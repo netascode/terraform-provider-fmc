@@ -59,8 +59,8 @@ resource "fmc_device_ha_pair" "example" {
 
 ### Optional
 
-- `action` (String) FTD HA PUT operation action. Specifically used for breaking FTD HA or manual switch.
-  - Choices: `SWITCH`, `HABREAK`
+- `action` (String) FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy
+  - Choices: `SWITCH`
 - `domain` (String) The name of the FMC domain
 - `enc_key_generation_scheme` (String) Select the encyption key generation scheme.
   - Choices: `AUTO`, `CUSTOM`

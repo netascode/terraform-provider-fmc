@@ -31,7 +31,7 @@ data "fmc_device_ha_pair" "example" {
 
 ### Read-Only
 
-- `action` (String) FTD HA PUT operation action. Specifically used for breaking FTD HA or manual switch.
+- `action` (String) FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy
 - `enc_key_generation_scheme` (String) Select the encyption key generation scheme.
 - `force_break` (Boolean) FTD HA Force Break option (PUT Option).
 - `is_encryption_enabled` (Boolean) Boolean field to enable encryption

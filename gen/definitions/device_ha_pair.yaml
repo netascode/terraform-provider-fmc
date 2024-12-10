@@ -146,8 +146,8 @@ attributes:
     example: PhysicalInterface
   - model_name: action
     type: String
-    description: FTD HA PUT operation action. Specifically used for breaking FTD HA or manual switch.
-    enum_values: [ SWITCH, HABREAK ]
+    description: FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy
+    enum_values: [ SWITCH ]
     exclude_test: true
     example: SWITCH
   - model_name: forceBreak

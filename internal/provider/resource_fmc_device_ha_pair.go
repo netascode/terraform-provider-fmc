@@ -179,10 +179,10 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:            true,
 			},
 			"action": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("FTD HA PUT operation action. Specifically used for breaking FTD HA or manual switch.").AddStringEnumDescription("SWITCH", "HABREAK").String,
+				MarkdownDescription: helpers.NewAttributeDescription("FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy").AddStringEnumDescription("SWITCH").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("SWITCH", "HABREAK"),
+					stringvalidator.OneOf("SWITCH"),
 				},
 			},
 			"force_break": schema.BoolAttribute{
@@ -381,13 +381,20 @@ func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRe
 	if !state.Domain.IsNull() && state.Domain.ValueString() != "" {
 		reqMods = append(reqMods, fmc.DomainName(state.Domain.ValueString()))
 	}
-
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	// Start of HA Break code
+	body := state.toBodyPutDelete(ctx, DeviceHAPair{})
+	res, err := r.client.Put(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), body, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to remove object configuration phase 1 (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
+	// End of HA Break code
+	// tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Break", state.Id.ValueString()))
+	// res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to Break HA, got error: %s, %s", err, res.String()))
+	// 	return
+	// }
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
