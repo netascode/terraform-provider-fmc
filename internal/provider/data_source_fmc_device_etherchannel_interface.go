@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -40,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &DeviceSubinterfaceDataSource{}
-	_ datasource.DataSourceWithConfigure = &DeviceSubinterfaceDataSource{}
+	_ datasource.DataSource              = &DeviceEtherChannelInterfaceDataSource{}
+	_ datasource.DataSourceWithConfigure = &DeviceEtherChannelInterfaceDataSource{}
 )
 
-func NewDeviceSubinterfaceDataSource() datasource.DataSource {
-	return &DeviceSubinterfaceDataSource{}
+func NewDeviceEtherChannelInterfaceDataSource() datasource.DataSource {
+	return &DeviceEtherChannelInterfaceDataSource{}
 }
 
-type DeviceSubinterfaceDataSource struct {
+type DeviceEtherChannelInterfaceDataSource struct {
 	client *fmc.Client
 }
 
-func (d *DeviceSubinterfaceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_subinterface"
+func (d *DeviceEtherChannelInterfaceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_etherchannel_interface"
 }
 
-func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DeviceEtherChannelInterfaceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Device Subinterface.",
+		MarkdownDescription: "This data source can read the Device EtherChannel Interface.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -79,11 +78,6 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 				MarkdownDescription: "Type of the resource.",
 				Computed:            true,
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the subinterface in format `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).",
-				Optional:            true,
-				Computed:            true,
-			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: "Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.",
 				Computed:            true,
@@ -100,8 +94,17 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 				MarkdownDescription: "Optional user-created description.",
 				Computed:            true,
 			},
+			"mode": schema.StringAttribute{
+				MarkdownDescription: "Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.",
+				Computed:            true,
+			},
 			"security_zone_id": schema.StringAttribute{
 				MarkdownDescription: "UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.",
+				Computed:            true,
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name of the interface; it must already be present on the device.",
+				Optional:            true,
 				Computed:            true,
 			},
 			"mtu": schema.Int64Attribute{
@@ -116,17 +119,32 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 				MarkdownDescription: "Indicates whether to propagate SGT.",
 				Computed:            true,
 			},
-			"interface_name": schema.StringAttribute{
-				MarkdownDescription: "Name of the parent interface (fmc_device_physical_interface.example.name).",
-				Optional:            true,
+			"ether_channel_id": schema.StringAttribute{
+				MarkdownDescription: "Value of Ether Channel ID, allowed range 1 to 48.",
 				Computed:            true,
 			},
-			"sub_interface_id": schema.Int64Attribute{
-				MarkdownDescription: "The numerical id of this subinterface, unique on the parent interface.",
+			"selected_interfaces": schema.SetNestedAttribute{
+				MarkdownDescription: "Set of objects representing physical interfaces (data.fmc_device_physical_interface or fmc_device_physical_interface).",
 				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "UUID of the object (such as fmc_device_physical_interface.example.id, ...).",
+							Computed:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: "Type of the selected interface",
+							Computed:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: "Name of the selected interface",
+							Computed:            true,
+						},
+					},
+				},
 			},
-			"vlan_id": schema.Int64Attribute{
-				MarkdownDescription: "VLAN identifier, unique per the parent interface.",
+			"nve_only": schema.BoolAttribute{
+				MarkdownDescription: "Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.",
 				Computed:            true,
 			},
 			"ipv4_static_address": schema.StringAttribute{
@@ -282,7 +300,7 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 				Computed:            true,
 			},
 			"ipv6_dhcp_client_pd_prefix_name": schema.StringAttribute{
-				MarkdownDescription: "Prefix Name for Prefix Delegation (PD)",
+				MarkdownDescription: "Prefix Name for Prefix Delegation",
 				Computed:            true,
 			},
 			"ipv6_dhcp_client_pd_hint_prefixes": schema.StringAttribute{
@@ -300,6 +318,54 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 			"ip_based_monitoring_next_hop": schema.StringAttribute{
 				MarkdownDescription: "IP address to monitor.",
 				Computed:            true,
+			},
+			"auto_negotiation": schema.BoolAttribute{
+				MarkdownDescription: "Enables auto negotiation of duplex and speed.",
+				Computed:            true,
+			},
+			"duplex": schema.StringAttribute{
+				MarkdownDescription: "Duplex configuraion, can be one of INLINE, PASSIVE, TAP, ERSPAN.",
+				Computed:            true,
+			},
+			"speed": schema.StringAttribute{
+				MarkdownDescription: "Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP",
+				Computed:            true,
+			},
+			"lldp_receive": schema.BoolAttribute{
+				MarkdownDescription: "LLDP receive configuraion.",
+				Computed:            true,
+			},
+			"lldp_transmit": schema.BoolAttribute{
+				MarkdownDescription: "LLDP transmit configuraion.",
+				Computed:            true,
+			},
+			"flow_control_send": schema.StringAttribute{
+				MarkdownDescription: "Flow Control Send configuraion, can be one of ON, OFF.",
+				Computed:            true,
+			},
+			"fec_mode": schema.StringAttribute{
+				MarkdownDescription: "Path Monitoring - Monitoring Type, can be one of AUTO, CL108RS, CL74FC, CL91RS, DISABLE.",
+				Computed:            true,
+			},
+			"management_access": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether to enable Management Access.",
+				Computed:            true,
+			},
+			"management_access_network_objects": schema.SetNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "ID of the network object (host, network or range).",
+							Computed:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: "Type of the object",
+							Computed:            true,
+						},
+					},
+				},
 			},
 			"active_mac_address": schema.StringAttribute{
 				MarkdownDescription: "MAC address for active interface in format 0123.4567.89ab.",
@@ -352,7 +418,7 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 		},
 	}
 }
-func (d *DeviceSubinterfaceDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *DeviceEtherChannelInterfaceDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -361,7 +427,7 @@ func (d *DeviceSubinterfaceDataSource) ConfigValidators(ctx context.Context) []d
 	}
 }
 
-func (d *DeviceSubinterfaceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *DeviceEtherChannelInterfaceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -371,8 +437,10 @@ func (d *DeviceSubinterfaceDataSource) Configure(_ context.Context, req datasour
 
 // End of section. //template:end model
 
-func (d *DeviceSubinterfaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config DeviceSubinterface
+// Section below is generated&owned by "gen/generator.go". //template:begin read
+
+func (d *DeviceEtherChannelInterfaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config DeviceEtherChannelInterface
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
@@ -389,13 +457,10 @@ func (d *DeviceSubinterfaceDataSource) Read(ctx context.Context, req datasource.
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 	if config.Id.IsNull() && !config.Name.IsNull() {
-		// Split name (GigabitEthernet1/0.1) into name (GigabitEthernet1/0) and subinterface_id (1)
-		parts := strings.Split(config.Name.ValueString(), ".")
-		name, subinterface_id := parts[0], parts[1]
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
 			res, err := d.client.Get(config.getPath()+queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
@@ -403,7 +468,7 @@ func (d *DeviceSubinterfaceDataSource) Read(ctx context.Context, req datasource.
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if name == v.Get("name").String() && subinterface_id == v.Get("subIntfId").String() {
+					if config.Name.ValueString() == v.Get("name").String() {
 						config.Id = types.StringValue(v.Get("id").String())
 						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
 						return false
@@ -436,3 +501,5 @@ func (d *DeviceSubinterfaceDataSource) Read(ctx context.Context, req datasource.
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
+
+// End of section. //template:end read

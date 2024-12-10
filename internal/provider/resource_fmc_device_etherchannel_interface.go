@@ -30,7 +30,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -38,6 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -46,26 +46,26 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource                = &DeviceSubinterfaceResource{}
-	_ resource.ResourceWithImportState = &DeviceSubinterfaceResource{}
+	_ resource.Resource                = &DeviceEtherChannelInterfaceResource{}
+	_ resource.ResourceWithImportState = &DeviceEtherChannelInterfaceResource{}
 )
 
-func NewDeviceSubinterfaceResource() resource.Resource {
-	return &DeviceSubinterfaceResource{}
+func NewDeviceEtherChannelInterfaceResource() resource.Resource {
+	return &DeviceEtherChannelInterfaceResource{}
 }
 
-type DeviceSubinterfaceResource struct {
+type DeviceEtherChannelInterfaceResource struct {
 	client *fmc.Client
 }
 
-func (r *DeviceSubinterfaceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_subinterface"
+func (r *DeviceEtherChannelInterfaceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_etherchannel_interface"
 }
 
-func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DeviceEtherChannelInterfaceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device Subinterface.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device EtherChannel Interface.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -96,13 +96,6 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the subinterface in format `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).").String,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Customizable logical name of the interface, unique on the device. Should not contain whitespace or slash characters. Must be non-empty in order to set security_zone_id, mtu, inline sets, etc.").String,
 				Optional:            true,
@@ -121,9 +114,23 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
 				Optional:            true,
 			},
+			"mode": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Mode of the interface. Use INLINE if, and only if, the interface is part of fmc_inline_set with tap_mode=false or tap_mode unset. Use TAP if, and only if, the interface is part of fmc_inline_set with tap_mode = true. Use ERSPAN only when both erspan_source_ip and erspan_flow_id are set.").AddStringEnumDescription("INLINE", "PASSIVE", "TAP", "ERSPAN", "NONE", "SWITCHPORT").String,
+				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("INLINE", "PASSIVE", "TAP", "ERSPAN", "NONE", "SWITCHPORT"),
+				},
+			},
 			"security_zone_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of the assigned security zone (fmc_security_zone.example.id). Can only be used when logical_name is set.").String,
 				Optional:            true,
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the interface; it must already be present on the device.").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"mtu": schema.Int64Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Maximum transmission unit. Can only be used when logical_name is set.").AddIntegerRangeDescription(64, 9000).String,
@@ -140,32 +147,38 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				},
 			},
 			"enable_sgt_propagate": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to propagate SGT.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to propagate SGT.").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
-			"interface_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the parent interface (fmc_device_physical_interface.example.name).").String,
+			"ether_channel_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Value of Ether Channel ID, allowed range 1 to 48.").String,
 				Required:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+			},
+			"selected_interfaces": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing physical interfaces (data.fmc_device_physical_interface or fmc_device_physical_interface).").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_device_physical_interface.example.id, ...).").String,
+							Optional:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the selected interface").String,
+							Optional:            true,
+						},
+						"name": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Name of the selected interface").String,
+							Optional:            true,
+						},
+					},
 				},
 			},
-			"sub_interface_id": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The numerical id of this subinterface, unique on the parent interface.").AddIntegerRangeDescription(0, 4294967295).String,
-				Required:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(0, 4294967295),
-				},
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
-				},
-			},
-			"vlan_id": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("VLAN identifier, unique per the parent interface.").AddIntegerRangeDescription(1, 4094).String,
-				Required:            true,
-				Validators: []validator.Int64{
-					int64validator.Between(1, 4094),
-				},
+			"nve_only": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Used for VTEP's source interface to restrict it to NVE only. For routed mode (NONE mode) the `nve_only` restricts interface to VxLAN traffic and common management traffic. For transparent firewall modes, the `nve_only` is automatically enabled.").String,
+				Optional:            true,
 			},
 			"ipv4_static_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Static IPv4 address. Conflicts with mode INLINE, PASSIVE, TAP, ERSPAN.").String,
@@ -344,7 +357,7 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				Optional:            true,
 			},
 			"ipv6_dhcp_client_pd_prefix_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Prefix Name for Prefix Delegation (PD)").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Prefix Name for Prefix Delegation").String,
 				Optional:            true,
 			},
 			"ipv6_dhcp_client_pd_hint_prefixes": schema.StringAttribute{
@@ -365,6 +378,66 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 			"ip_based_monitoring_next_hop": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("IP address to monitor.").String,
 				Optional:            true,
+			},
+			"auto_negotiation": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Enables auto negotiation of duplex and speed.").String,
+				Optional:            true,
+			},
+			"duplex": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Duplex configuraion, can be one of INLINE, PASSIVE, TAP, ERSPAN.").AddStringEnumDescription("AUTO", "FULL", "HALF").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "FULL", "HALF"),
+				},
+			},
+			"speed": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Speed configuraion, can be one of AUTO, TEN, HUNDRED, THOUSAND, TEN_THOUSAND, TWENTY_FIVE_THOUSAND, FORTY_THOUSAND, HUNDRED_THOUSAND, TWO_HUNDRED_THOUSAND, DETECT_SFP").AddStringEnumDescription("AUTO", "TEN", "HUNDRED", "THOUSAND", "TEN_THOUSAND", "TWENTY_FIVE_THOUSAND", "FORTY_THOUSAND", "HUNDRED_THOUSAND", "TWO_HUNDRED_THOUSAND", "DETECT_SFP").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "TEN", "HUNDRED", "THOUSAND", "TEN_THOUSAND", "TWENTY_FIVE_THOUSAND", "FORTY_THOUSAND", "HUNDRED_THOUSAND", "TWO_HUNDRED_THOUSAND", "DETECT_SFP"),
+				},
+			},
+			"lldp_receive": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("LLDP receive configuraion.").String,
+				Optional:            true,
+			},
+			"lldp_transmit": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("LLDP transmit configuraion.").String,
+				Optional:            true,
+			},
+			"flow_control_send": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Flow Control Send configuraion, can be one of ON, OFF.").AddStringEnumDescription("ON", "OFF").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ON", "OFF"),
+				},
+			},
+			"fec_mode": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Path Monitoring - Monitoring Type, can be one of AUTO, CL108RS, CL74FC, CL91RS, DISABLE.").AddStringEnumDescription("AUTO", "CL108RS", "CL74FC", "CL91RS", "DISABLE").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("AUTO", "CL108RS", "CL74FC", "CL91RS", "DISABLE"),
+				},
+			},
+			"management_access": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Indicates whether to enable Management Access.").String,
+				Optional:            true,
+			},
+			"management_access_network_objects": schema.SetNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("ID of the network object (host, network or range).").String,
+							Optional:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the object").String,
+							Optional:            true,
+						},
+					},
+				},
 			},
 			"active_mac_address": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("MAC address for active interface in format 0123.4567.89ab.").String,
@@ -427,7 +500,7 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 	}
 }
 
-func (r *DeviceSubinterfaceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *DeviceEtherChannelInterfaceResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -437,8 +510,10 @@ func (r *DeviceSubinterfaceResource) Configure(_ context.Context, req resource.C
 
 // End of section. //template:end model
 
-func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan DeviceSubinterface
+// Section below is generated&owned by "gen/generator.go". //template:begin create
+
+func (r *DeviceEtherChannelInterfaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan DeviceEtherChannelInterface
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -455,7 +530,7 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
 	// Create object
-	body := plan.toBody(ctx, DeviceSubinterface{})
+	body := plan.toBody(ctx, DeviceEtherChannelInterface{})
 	res, err := r.client.Post(plan.getPath(), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
@@ -463,9 +538,6 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
 	plan.fromBodyUnknowns(ctx, res)
-
-	// Fix 'name`
-	plan.Name = types.StringValue(fmt.Sprintf("%s.%d", plan.Name.ValueString(), plan.SubInterfaceId.ValueInt64()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -475,8 +547,12 @@ func (r *DeviceSubinterfaceResource) Create(ctx context.Context, req resource.Cr
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-func (r *DeviceSubinterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state DeviceSubinterface
+// End of section. //template:end create
+
+// Section below is generated&owned by "gen/generator.go". //template:begin read
+
+func (r *DeviceEtherChannelInterfaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state DeviceEtherChannelInterface
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -515,9 +591,6 @@ func (r *DeviceSubinterfaceResource) Read(ctx context.Context, req resource.Read
 		state.fromBodyPartial(ctx, res)
 	}
 
-	// Fix 'name`
-	state.Name = types.StringValue(fmt.Sprintf("%s.%d", state.Name.ValueString(), state.SubInterfaceId.ValueInt64()))
-
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &state)
@@ -526,8 +599,10 @@ func (r *DeviceSubinterfaceResource) Read(ctx context.Context, req resource.Read
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-func (r *DeviceSubinterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state DeviceSubinterface
+// End of section. //template:end read
+
+func (r *DeviceEtherChannelInterfaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state DeviceEtherChannelInterface
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -550,14 +625,15 @@ func (r *DeviceSubinterfaceResource) Update(ctx context.Context, req resource.Up
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	body := plan.toBody(ctx, state)
+	// Name is computed field, but it's needed in the request anyways
+	if !plan.Name.IsNull() {
+		body, _ = sjson.Set(body, "name", plan.Name.ValueString())
+	}
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
-
-	// Fix 'name`
-	plan.Name = types.StringValue(fmt.Sprintf("%s.%d", strings.Split(plan.Name.ValueString(), ".")[0], plan.SubInterfaceId.ValueInt64()))
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
@@ -567,8 +643,8 @@ func (r *DeviceSubinterfaceResource) Update(ctx context.Context, req resource.Up
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *DeviceSubinterfaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state DeviceSubinterface
+func (r *DeviceEtherChannelInterfaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state DeviceEtherChannelInterface
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -598,7 +674,7 @@ func (r *DeviceSubinterfaceResource) Delete(ctx context.Context, req resource.De
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 
-func (r *DeviceSubinterfaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *DeviceEtherChannelInterfaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
@@ -615,3 +691,15 @@ func (r *DeviceSubinterfaceResource) ImportState(ctx context.Context, req resour
 }
 
 // End of section. //template:end import
+
+// Section below is generated&owned by "gen/generator.go". //template:begin createSubresources
+
+// End of section. //template:end createSubresources
+
+// Section below is generated&owned by "gen/generator.go". //template:begin deleteSubresources
+
+// End of section. //template:end deleteSubresources
+
+// Section below is generated&owned by "gen/generator.go". //template:begin updateSubresources
+
+// End of section. //template:end updateSubresources
