@@ -19,7 +19,7 @@ attributes:
   - model_name: name
     type: String
     computed: true
-    description: Type of the resource.
+    description: Name of the subinterface in fromat `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).
 # General
   - model_name: ifname
     tf_name: logical_name

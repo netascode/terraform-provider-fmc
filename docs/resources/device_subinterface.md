@@ -113,7 +113,7 @@ resource "fmc_device_subinterface" "example" {
 ### Read-Only
 
 - `id` (String) The id of the object
-- `name` (String) Type of the resource.
+- `name` (String) Name of the subinterface in fromat `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).
 - `type` (String) Type of the resource.
 
 <a id="nestedatt--arp_table_entries"></a>

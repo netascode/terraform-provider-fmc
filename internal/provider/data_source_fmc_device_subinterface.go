@@ -80,7 +80,7 @@ func (d *DeviceSubinterfaceDataSource) Schema(ctx context.Context, req datasourc
 				Computed:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Type of the resource.",
+				MarkdownDescription: "Name of the subinterface in fromat `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).",
 				Optional:            true,
 				Computed:            true,
 			},

@@ -97,7 +97,7 @@ func (r *DeviceSubinterfaceResource) Schema(ctx context.Context, req resource.Sc
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the subinterface in fromat `interface_name.subinterface_id` (eg. GigabitEthernet0/1.7).").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
