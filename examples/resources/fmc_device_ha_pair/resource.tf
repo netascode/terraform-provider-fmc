@@ -23,5 +23,4 @@ resource "fmc_device_ha_pair" "example" {
   stateful_failover_interface_id   = "76d24097-hj7r-7786-a4d0-a8c07ac08470"
   stateful_failover_interface_type = "PhysicalInterface"
   action                           = "SWITCH"
-  force_break                      = false
 }

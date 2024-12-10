@@ -185,10 +185,6 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringvalidator.OneOf("SWITCH"),
 				},
 			},
-			"force_break": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("FTD HA Force Break option (PUT Option).").String,
-				Optional:            true,
-			},
 		},
 	}
 }
@@ -327,8 +323,6 @@ func (r *DeviceHAPairResource) Read(ctx context.Context, req resource.ReadReques
 
 // End of section. //template:end read
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
-
 func (r *DeviceHAPairResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state DeviceHAPair
 
@@ -352,7 +346,7 @@ func (r *DeviceHAPairResource) Update(ctx context.Context, req resource.UpdateRe
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
+	body := plan.toBodyPutUpdate(ctx, state)
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
@@ -364,8 +358,6 @@ func (r *DeviceHAPairResource) Update(ctx context.Context, req resource.UpdateRe
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state DeviceHAPair

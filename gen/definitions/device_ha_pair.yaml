@@ -38,6 +38,7 @@ attributes:
   - model_name: useSameLinkForFailovers
     type: Bool
     mandatory: true
+    write_only: true
     data_path: [ftdHABootstrap]
     example: false
     description: Boolean field to enable same link for failovers
@@ -49,6 +50,7 @@ attributes:
   - model_name: encKeyGenerationScheme
     type: String
     data_path: [ftdHABootstrap]
+    write_only: true
     description: Select the encyption key generation scheme.
     example: "CUSTOM"
     enum_values: [ AUTO, CUSTOM ]
@@ -92,6 +94,7 @@ attributes:
     mandatory: true
     tf_name: lan_failover_interface_id
     data_path: [ftdHABootstrap,lanFailover,interfaceObject]
+    write_only: true
     description: ID of physical interface.
     example: 757kdgh5-41c4-4558-a4d0-a8c07ac08470
   - model_name: type
@@ -99,6 +102,7 @@ attributes:
     mandatory: true
     tf_name: lan_failover_interface_type
     data_path: [ftdHABootstrap,lanFailover,interfaceObject]
+    write_only: true
     description: Type of physical interface.
     example: PhysicalInterface
   - model_name: standbyIP
@@ -150,10 +154,5 @@ attributes:
     enum_values: [ SWITCH ]
     exclude_test: true
     example: SWITCH
-  - model_name: forceBreak
-    type: Bool
-    description: FTD HA Force Break option (PUT Option).
-    exclude_test: true
-    example: false 
 test_prerequisites: |-
   variable "device_id" { default = null } // tests will set $TF_VAR_device_id

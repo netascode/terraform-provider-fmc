@@ -38,7 +38,6 @@ resource "fmc_device_ha_pair" "example" {
   stateful_failover_interface_id   = "76d24097-hj7r-7786-a4d0-a8c07ac08470"
   stateful_failover_interface_type = "PhysicalInterface"
   action                           = "SWITCH"
-  force_break                      = false
 }
 ```
 
@@ -64,7 +63,6 @@ resource "fmc_device_ha_pair" "example" {
 - `domain` (String) The name of the FMC domain
 - `enc_key_generation_scheme` (String) Select the encyption key generation scheme.
   - Choices: `AUTO`, `CUSTOM`
-- `force_break` (Boolean) FTD HA Force Break option (PUT Option).
 - `is_encryption_enabled` (Boolean) Boolean field to enable encryption
 - `lan_failover_interface_name` (String) Name of physical interface
 - `lan_failover_ipv6_addr` (Boolean) - Default value: `false`

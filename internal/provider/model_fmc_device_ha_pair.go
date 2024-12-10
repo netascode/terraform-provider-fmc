@@ -57,7 +57,6 @@ type DeviceHAPair struct {
 	StatefulFailoverInterfaceId   types.String `tfsdk:"stateful_failover_interface_id"`
 	StatefulFailoverInterfaceType types.String `tfsdk:"stateful_failover_interface_type"`
 	Action                        types.String `tfsdk:"action"`
-	ForceBreak                    types.Bool   `tfsdk:"force_break"`
 }
 
 // End of section. //template:end types
@@ -150,9 +149,6 @@ func (data DeviceHAPair) toBody(ctx context.Context, state DeviceHAPair) string 
 	if !data.Action.IsNull() {
 		body, _ = sjson.Set(body, "action", data.Action.ValueString())
 	}
-	if !data.ForceBreak.IsNull() {
-		body, _ = sjson.Set(body, "forceBreak", data.ForceBreak.ValueBool())
-	}
 	return body
 }
 
@@ -181,20 +177,10 @@ func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.IsEncryptionEnabled = types.BoolNull()
 	}
-	if value := res.Get("ftdHABootstrap.useSameLinkForFailovers"); value.Exists() {
-		data.UseSameLinkForFailovers = types.BoolValue(value.Bool())
-	} else {
-		data.UseSameLinkForFailovers = types.BoolNull()
-	}
 	if value := res.Get("ftdHABootstrap.sharedKey"); value.Exists() {
 		data.SharedKey = types.StringValue(value.String())
 	} else {
 		data.SharedKey = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.encKeyGenerationScheme"); value.Exists() {
-		data.EncKeyGenerationScheme = types.StringValue(value.String())
-	} else {
-		data.EncKeyGenerationScheme = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.standbyIP"); value.Exists() {
 		data.LanFailoverStandbyIp = types.StringValue(value.String())
@@ -225,16 +211,6 @@ func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 		data.LanFailoverInterfaceName = types.StringValue(value.String())
 	} else {
 		data.LanFailoverInterfaceName = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.id"); value.Exists() {
-		data.LanFailoverInterfaceId = types.StringValue(value.String())
-	} else {
-		data.LanFailoverInterfaceId = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.type"); value.Exists() {
-		data.LanFailoverInterfaceType = types.StringValue(value.String())
-	} else {
-		data.LanFailoverInterfaceType = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.statefulFailover.standbyIP"); value.Exists() {
 		data.StatefulFailoverStandbyIp = types.StringValue(value.String())
@@ -281,11 +257,6 @@ func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Action = types.StringNull()
 	}
-	if value := res.Get("forceBreak"); value.Exists() {
-		data.ForceBreak = types.BoolValue(value.Bool())
-	} else {
-		data.ForceBreak = types.BoolNull()
-	}
 }
 
 // End of section. //template:end fromBody
@@ -317,20 +288,10 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 	} else {
 		data.IsEncryptionEnabled = types.BoolNull()
 	}
-	if value := res.Get("ftdHABootstrap.useSameLinkForFailovers"); value.Exists() && !data.UseSameLinkForFailovers.IsNull() {
-		data.UseSameLinkForFailovers = types.BoolValue(value.Bool())
-	} else {
-		data.UseSameLinkForFailovers = types.BoolNull()
-	}
 	if value := res.Get("ftdHABootstrap.sharedKey"); value.Exists() && !data.SharedKey.IsNull() {
 		data.SharedKey = types.StringValue(value.String())
 	} else {
 		data.SharedKey = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.encKeyGenerationScheme"); value.Exists() && !data.EncKeyGenerationScheme.IsNull() {
-		data.EncKeyGenerationScheme = types.StringValue(value.String())
-	} else {
-		data.EncKeyGenerationScheme = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.standbyIP"); value.Exists() && !data.LanFailoverStandbyIp.IsNull() {
 		data.LanFailoverStandbyIp = types.StringValue(value.String())
@@ -361,16 +322,6 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 		data.LanFailoverInterfaceName = types.StringValue(value.String())
 	} else {
 		data.LanFailoverInterfaceName = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.id"); value.Exists() && !data.LanFailoverInterfaceId.IsNull() {
-		data.LanFailoverInterfaceId = types.StringValue(value.String())
-	} else {
-		data.LanFailoverInterfaceId = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.type"); value.Exists() && !data.LanFailoverInterfaceType.IsNull() {
-		data.LanFailoverInterfaceType = types.StringValue(value.String())
-	} else {
-		data.LanFailoverInterfaceType = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.statefulFailover.standbyIP"); value.Exists() && !data.StatefulFailoverStandbyIp.IsNull() {
 		data.StatefulFailoverStandbyIp = types.StringValue(value.String())
@@ -417,11 +368,6 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 	} else {
 		data.Action = types.StringNull()
 	}
-	if value := res.Get("forceBreak"); value.Exists() && !data.ForceBreak.IsNull() {
-		data.ForceBreak = types.BoolValue(value.Bool())
-	} else {
-		data.ForceBreak = types.BoolNull()
-	}
 }
 
 // End of section. //template:end fromBodyPartial
@@ -452,5 +398,18 @@ func (data DeviceHAPair) toBodyPutDelete(ctx context.Context, state DeviceHAPair
 
 	body, _ = sjson.Set(body, "action", "HABREAK")
 	body, _ = sjson.Set(body, "forceBreak", true)
+	return body
+}
+func (data DeviceHAPair) toBodyPutUpdate(ctx context.Context, state DeviceHAPair) string {
+	body := ""
+	if data.Id.ValueString() != "" {
+		body, _ = sjson.Set(body, "id", data.Id.ValueString())
+	}
+	if data.Name.ValueString() != "" {
+		body, _ = sjson.Set(body, "name", data.Name.ValueString())
+	}
+	if data.Action.ValueString() == "SWITCH" {
+		body, _ = sjson.Set(body, "action", "SWITCH")
+	}
 	return body
 }

@@ -33,7 +33,6 @@ data "fmc_device_ha_pair" "example" {
 
 - `action` (String) FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy
 - `enc_key_generation_scheme` (String) Select the encyption key generation scheme.
-- `force_break` (Boolean) FTD HA Force Break option (PUT Option).
 - `is_encryption_enabled` (Boolean) Boolean field to enable encryption
 - `lan_failover_active_ip` (String)
 - `lan_failover_interface_id` (String) ID of physical interface.

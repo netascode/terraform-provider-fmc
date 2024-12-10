@@ -169,10 +169,6 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy",
 				Computed:            true,
 			},
-			"force_break": schema.BoolAttribute{
-				MarkdownDescription: "FTD HA Force Break option (PUT Option).",
-				Computed:            true,
-			},
 		},
 	}
 }
