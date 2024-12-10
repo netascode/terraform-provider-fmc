@@ -39,26 +39,26 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &DeviceBGPGenerelSettingsDataSource{}
-	_ datasource.DataSourceWithConfigure = &DeviceBGPGenerelSettingsDataSource{}
+	_ datasource.DataSource              = &DeviceHAPairDataSource{}
+	_ datasource.DataSourceWithConfigure = &DeviceHAPairDataSource{}
 )
 
-func NewDeviceBGPGenerelSettingsDataSource() datasource.DataSource {
-	return &DeviceBGPGenerelSettingsDataSource{}
+func NewDeviceHAPairDataSource() datasource.DataSource {
+	return &DeviceHAPairDataSource{}
 }
 
-type DeviceBGPGenerelSettingsDataSource struct {
+type DeviceHAPairDataSource struct {
 	client *fmc.Client
 }
 
-func (d *DeviceBGPGenerelSettingsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_bgp_generel_settings"
+func (d *DeviceHAPairDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_ha_pair"
 }
 
-func (d *DeviceBGPGenerelSettingsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the Device BGP Generel Settings.",
+		MarkdownDescription: "This data source can read the Device HA Pair.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -70,115 +70,111 @@ func (d *DeviceBGPGenerelSettingsDataSource) Schema(ctx context.Context, req dat
 				MarkdownDescription: "The name of the FMC domain",
 				Optional:            true,
 			},
-			"device_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the parent device (fmc_device.example.id).",
-				Required:            true,
-			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The name of the access control policy.",
 				Optional:            true,
 				Computed:            true,
 			},
-			"type": schema.StringAttribute{
+			"primary_device_id": schema.StringAttribute{
+				MarkdownDescription: "ID of primary FTD in the HA Pair.",
+				Computed:            true,
+			},
+			"secondary_device_id": schema.StringAttribute{
+				MarkdownDescription: "ID of secondary FTD in the HA Pair.",
+				Computed:            true,
+			},
+			"is_encryption_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Boolean field to enable encryption",
+				Computed:            true,
+			},
+			"use_same_link_for_failovers": schema.BoolAttribute{
+				MarkdownDescription: "Boolean field to enable same link for failovers",
+				Computed:            true,
+			},
+			"shared_key": schema.StringAttribute{
+				MarkdownDescription: "Pass the unique shared key if needed.",
+				Computed:            true,
+			},
+			"enc_key_generation_scheme": schema.StringAttribute{
+				MarkdownDescription: "Select the encyption key generation scheme.",
+				Computed:            true,
+			},
+			"lan_failover_standby_ip": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"as_number": schema.StringAttribute{
+			"lan_failover_active_ip": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"router_id": schema.StringAttribute{
-				MarkdownDescription: "String value for the routerID.Possible values can be 'AUTOMATIC' or valid ipv4 address",
-				Computed:            true,
-			},
-			"scanning_interval": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating Scanning interval of BGP routers for next hop validation.",
-				Computed:            true,
-			},
-			"as_no_in_path_attribute": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating the range to discard routes that have as-path segments that exceed a specified value.",
-				Computed:            true,
-			},
-			"log_neighbor_changes": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to enable logging when the status of BGP neighbor changes.",
-				Computed:            true,
-			},
-			"tcp_path_mtu_discovery": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to enable logging when the status of BGP neighbor changes.",
-				Computed:            true,
-			},
-			"reset_session_upon_failover": schema.BoolAttribute{
+			"lan_failover_name": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"enforce_first_peer_as": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating whether to discard updates received from an external BGP (eBGP) peers that do not list their autonomous system (AS) number.",
-				Computed:            true,
-			},
-			"use_dot_notation": schema.BoolAttribute{
-				MarkdownDescription: "Boolean stating default display and regular expression match format of BGP 4-byte autonomous system numbers from asplain (decimal values) to dot notation.",
-				Computed:            true,
-			},
-			"aggregate_timer": schema.Int64Attribute{
-				MarkdownDescription: "Integer stating Interval at which BGP routes will be aggregated or to disable timer-based router aggregation.",
-				Computed:            true,
-			},
-			"default_local_preference": schema.Int64Attribute{
+			"lan_failover_subnet_mask": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"compare_med_from_different_neighbors": schema.BoolAttribute{
-				MarkdownDescription: "Allow comparing MED from different neighbors",
-				Computed:            true,
-			},
-			"compare_router_id_in_path": schema.BoolAttribute{
-				MarkdownDescription: "Compare Router ID for identical EBGP paths",
-				Computed:            true,
-			},
-			"pick_best_med": schema.BoolAttribute{
-				MarkdownDescription: "Pick the best-MED path among paths advertised by neighbor AS",
-				Computed:            true,
-			},
-			"missing_med_as_best": schema.BoolAttribute{
-				MarkdownDescription: "Treat missing MED as the best preferred path",
-				Computed:            true,
-			},
-			"keepalive_interval": schema.Int64Attribute{
+			"lan_failover_ipv6_addr": schema.BoolAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"hold_time": schema.Int64Attribute{
+			"lan_failover_interface_name": schema.StringAttribute{
+				MarkdownDescription: "Name of physical interface",
+				Computed:            true,
+			},
+			"lan_failover_interface_id": schema.StringAttribute{
+				MarkdownDescription: "ID of physical interface.",
+				Computed:            true,
+			},
+			"lan_failover_interface_type": schema.StringAttribute{
+				MarkdownDescription: "Type of physical interface.",
+				Computed:            true,
+			},
+			"stateful_failover_standby_ip": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"min_hold_time": schema.Int64Attribute{
+			"stateful_failover_active_ip": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"next_hop_address_tracking": schema.BoolAttribute{
+			"stateful_failover_name": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"next_hop_delay_interval": schema.Int64Attribute{
+			"stateful_failover_subnet_mask": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"graceful_restart": schema.BoolAttribute{
+			"stateful_failover_ipv6_addr": schema.BoolAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"graceful_restart_restart_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+			"stateful_failover_interface_name": schema.StringAttribute{
+				MarkdownDescription: "Name of physical interface",
 				Computed:            true,
 			},
-			"graceful_restart_stale_path_time": schema.Int64Attribute{
-				MarkdownDescription: "",
+			"stateful_failover_interface_id": schema.StringAttribute{
+				MarkdownDescription: "ID of physical interface.",
+				Computed:            true,
+			},
+			"stateful_failover_interface_type": schema.StringAttribute{
+				MarkdownDescription: "Type of physical interface.",
+				Computed:            true,
+			},
+			"action": schema.StringAttribute{
+				MarkdownDescription: "FTD HA PUT operation action. Specifically used for breaking FTD HA or manual switch.",
+				Computed:            true,
+			},
+			"force_break": schema.BoolAttribute{
+				MarkdownDescription: "FTD HA Force Break option (PUT Option).",
 				Computed:            true,
 			},
 		},
 	}
 }
-func (d *DeviceBGPGenerelSettingsDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+func (d *DeviceHAPairDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
@@ -187,7 +183,7 @@ func (d *DeviceBGPGenerelSettingsDataSource) ConfigValidators(ctx context.Contex
 	}
 }
 
-func (d *DeviceBGPGenerelSettingsDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *DeviceHAPairDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -199,8 +195,8 @@ func (d *DeviceBGPGenerelSettingsDataSource) Configure(_ context.Context, req da
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
-func (d *DeviceBGPGenerelSettingsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config DeviceBGPGenerelSettings
+func (d *DeviceHAPairDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config DeviceHAPair
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)
@@ -220,7 +216,7 @@ func (d *DeviceBGPGenerelSettingsDataSource) Read(ctx context.Context, req datas
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := d.client.Get(config.getPath()+queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))

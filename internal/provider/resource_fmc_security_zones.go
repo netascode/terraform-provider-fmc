@@ -95,7 +95,7 @@ func (r *SecurityZonesResource) Schema(ctx context.Context, req resource.SchemaR
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
-						"interface_mode": schema.StringAttribute{
+						"interface_type": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.").AddStringEnumDescription("PASSIVE", "INLINE", "SWITCHED", "ROUTED", "ASA").String,
 							Required:            true,
 							Validators: []validator.String{
