@@ -381,13 +381,29 @@ func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 	// End of HA Break code
-	// tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Break", state.Id.ValueString()))
-	// res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
-	// if err != nil {
-	// 	resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to Break HA, got error: %s, %s", err, res.String()))
-	// 	return
-	// }
 
+	// Adding code to poll object
+	taskID := res.Get("metadata.task.id").String()
+	tflog.Debug(ctx, fmt.Sprintf("%s: Async task initiated successfully", taskID))
+
+	const atom time.Duration = 5 * time.Second
+	// We need device's UUID, but it only shows after the task succeeds. Poll the task.
+	for i := time.Duration(0); i < 5*time.Minute; i += atom {
+		task, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/job/taskstatuses/"+url.QueryEscape(taskID), reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to read object (GET), got error: %s, %s", err, task.String()))
+			return
+		}
+		stat := strings.ToUpper(task.Get("status").String())
+		if stat == "FAILED" {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("API task for the new device failed: %s, %s", task.Get("message"), task.Get("description")))
+			return
+		}
+		if stat != "PENDING" && stat != "RUNNING" && stat != "IN_PROGRESS" {
+			break
+		}
+		time.Sleep(atom)
+	}
 	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
 
 	resp.State.RemoveResource(ctx)
