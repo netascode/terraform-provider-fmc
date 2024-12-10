@@ -9,7 +9,7 @@ resource "fmc_device_ha_pair" "example" {
   lan_failover_standby_ip          = "1.1.1.2"
   lan_failover_active_ip           = "1.1.1.1"
   lan_failover_name                = "LAN-INTERFACE"
-  lan_failover_subnet_mask         = "255.255.255.0"
+  lan_failover_netmask             = "255.255.255.0"
   lan_failover_ipv6_addr           = false
   lan_failover_interface_name      = "GigabitEthernet0/0"
   lan_failover_interface_id        = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"

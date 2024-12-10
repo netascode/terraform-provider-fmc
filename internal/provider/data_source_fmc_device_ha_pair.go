@@ -71,7 +71,7 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the access control policy.",
+				MarkdownDescription: "The name of the High Availability Pair.",
 				Optional:            true,
 				Computed:            true,
 			},
@@ -111,7 +111,7 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"lan_failover_subnet_mask": schema.StringAttribute{
+			"lan_failover_netmask": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},

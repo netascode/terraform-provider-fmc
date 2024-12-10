@@ -43,7 +43,7 @@ type DeviceHAPair struct {
 	LanFailoverStandbyIp          types.String `tfsdk:"lan_failover_standby_ip"`
 	LanFailoverActiveIp           types.String `tfsdk:"lan_failover_active_ip"`
 	LanFailoverName               types.String `tfsdk:"lan_failover_name"`
-	LanFailoverSubnetMask         types.String `tfsdk:"lan_failover_subnet_mask"`
+	LanFailoverNetmask            types.String `tfsdk:"lan_failover_netmask"`
 	LanFailoverIpv6Addr           types.Bool   `tfsdk:"lan_failover_ipv6_addr"`
 	LanFailoverInterfaceName      types.String `tfsdk:"lan_failover_interface_name"`
 	LanFailoverInterfaceId        types.String `tfsdk:"lan_failover_interface_id"`
@@ -108,8 +108,8 @@ func (data DeviceHAPair) toBody(ctx context.Context, state DeviceHAPair) string 
 	if !data.LanFailoverName.IsNull() {
 		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.logicalName", data.LanFailoverName.ValueString())
 	}
-	if !data.LanFailoverSubnetMask.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.subnetMask", data.LanFailoverSubnetMask.ValueString())
+	if !data.LanFailoverNetmask.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.subnetMask", data.LanFailoverNetmask.ValueString())
 	}
 	if !data.LanFailoverIpv6Addr.IsNull() {
 		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.useIPv6Address", data.LanFailoverIpv6Addr.ValueBool())
@@ -212,14 +212,14 @@ func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 		data.LanFailoverName = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() {
-		data.LanFailoverSubnetMask = types.StringValue(value.String())
+		data.LanFailoverNetmask = types.StringValue(value.String())
 	} else {
-		data.LanFailoverSubnetMask = types.StringNull()
+		data.LanFailoverNetmask = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.useIPv6Address"); value.Exists() {
 		data.LanFailoverIpv6Addr = types.BoolValue(value.Bool())
 	} else {
-		data.LanFailoverIpv6Addr = types.BoolNull()
+		data.LanFailoverIpv6Addr = types.BoolValue(false)
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.name"); value.Exists() {
 		data.LanFailoverInterfaceName = types.StringValue(value.String())
@@ -347,14 +347,14 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 	} else {
 		data.LanFailoverName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() && !data.LanFailoverSubnetMask.IsNull() {
-		data.LanFailoverSubnetMask = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() && !data.LanFailoverNetmask.IsNull() {
+		data.LanFailoverNetmask = types.StringValue(value.String())
 	} else {
-		data.LanFailoverSubnetMask = types.StringNull()
+		data.LanFailoverNetmask = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.useIPv6Address"); value.Exists() && !data.LanFailoverIpv6Addr.IsNull() {
 		data.LanFailoverIpv6Addr = types.BoolValue(value.Bool())
-	} else {
+	} else if data.LanFailoverIpv6Addr.ValueBool() != false {
 		data.LanFailoverIpv6Addr = types.BoolNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.name"); value.Exists() && !data.LanFailoverInterfaceName.IsNull() {

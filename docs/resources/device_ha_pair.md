@@ -24,7 +24,7 @@ resource "fmc_device_ha_pair" "example" {
   lan_failover_standby_ip          = "1.1.1.2"
   lan_failover_active_ip           = "1.1.1.1"
   lan_failover_name                = "LAN-INTERFACE"
-  lan_failover_subnet_mask         = "255.255.255.0"
+  lan_failover_netmask             = "255.255.255.0"
   lan_failover_ipv6_addr           = false
   lan_failover_interface_name      = "GigabitEthernet0/0"
   lan_failover_interface_id        = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"
@@ -49,9 +49,10 @@ resource "fmc_device_ha_pair" "example" {
 
 - `lan_failover_active_ip` (String)
 - `lan_failover_interface_id` (String) ID of physical interface.
+- `lan_failover_interface_type` (String) Type of physical interface.
 - `lan_failover_name` (String)
 - `lan_failover_standby_ip` (String)
-- `name` (String) The name of the access control policy.
+- `name` (String) The name of the High Availability Pair.
 - `primary_device_id` (String) ID of primary FTD in the HA Pair.
 - `secondary_device_id` (String) ID of secondary FTD in the HA Pair.
 - `use_same_link_for_failovers` (Boolean) Boolean field to enable same link for failovers
@@ -66,9 +67,8 @@ resource "fmc_device_ha_pair" "example" {
 - `force_break` (Boolean) FTD HA Force Break option (PUT Option).
 - `is_encryption_enabled` (Boolean) Boolean field to enable encryption
 - `lan_failover_interface_name` (String) Name of physical interface
-- `lan_failover_interface_type` (String) Type of physical interface.
-- `lan_failover_ipv6_addr` (Boolean)
-- `lan_failover_subnet_mask` (String)
+- `lan_failover_ipv6_addr` (Boolean) - Default value: `false`
+- `lan_failover_netmask` (String)
 - `shared_key` (String) Pass the unique shared key if needed.
 - `stateful_failover_active_ip` (String)
 - `stateful_failover_interface_id` (String) ID of physical interface.

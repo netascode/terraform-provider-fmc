@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -81,7 +82,7 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the access control policy.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The name of the High Availability Pair.").String,
 				Required:            true,
 			},
 			"primary_device_id": schema.StringAttribute{
@@ -123,13 +124,15 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Required:            true,
 			},
-			"lan_failover_subnet_mask": schema.StringAttribute{
+			"lan_failover_netmask": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 			},
 			"lan_failover_ipv6_addr": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
 			"lan_failover_interface_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Name of physical interface").String,
@@ -141,7 +144,7 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"lan_failover_interface_type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Type of physical interface.").String,
-				Optional:            true,
+				Required:            true,
 			},
 			"stateful_failover_standby_ip": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
@@ -241,7 +244,7 @@ func (r *DeviceHAPairResource) Create(ctx context.Context, req resource.CreateRe
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("API task for the new device failed: %s, %s", task.Get("message"), task.Get("description")))
 			return
 		}
-		if stat != "PENDING" && stat != "RUNNING" {
+		if stat != "PENDING" && stat != "RUNNING" && stat != "IN_PROGRESS" {
 			break
 		}
 		time.Sleep(atom)
@@ -364,8 +367,6 @@ func (r *DeviceHAPairResource) Update(ctx context.Context, req resource.UpdateRe
 
 // End of section. //template:end update
 
-// Section below is generated&owned by "gen/generator.go". //template:begin delete
-
 func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state DeviceHAPair
 
@@ -392,8 +393,6 @@ func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	resp.State.RemoveResource(ctx)
 }
-
-// End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
 

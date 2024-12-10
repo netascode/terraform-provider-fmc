@@ -19,6 +19,7 @@ package provider
 
 // Section below is generated&owned by "gen/generator.go". //template:begin imports
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -29,6 +30,9 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
 func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
+	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_device_2_id") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_device_2_id")
+	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "name", "FTD_HA"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "is_encryption_enabled", "false"))
@@ -38,7 +42,7 @@ func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_standby_ip", "1.1.1.2"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_active_ip", "1.1.1.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_name", "LAN-INTERFACE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_subnet_mask", "255.255.255.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_netmask", "255.255.255.0"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_ipv6_addr", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_interface_name", "GigabitEthernet0/0"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_interface_id", "757kdgh5-41c4-4558-a4d0-a8c07ac08470"))
@@ -83,7 +87,7 @@ func testAccDataSourceFmcDeviceHAPairConfig() string {
 	config := `resource "fmc_device_ha_pair" "test" {` + "\n"
 	config += `	name = "FTD_HA"` + "\n"
 	config += `	primary_device_id = var.device_id` + "\n"
-	config += `	secondary_device_id = var.device_id` + "\n"
+	config += `	secondary_device_id = var.device_2_id` + "\n"
 	config += `	is_encryption_enabled = false` + "\n"
 	config += `	use_same_link_for_failovers = false` + "\n"
 	config += `	shared_key = "cisco123"` + "\n"
@@ -91,7 +95,7 @@ func testAccDataSourceFmcDeviceHAPairConfig() string {
 	config += `	lan_failover_standby_ip = "1.1.1.2"` + "\n"
 	config += `	lan_failover_active_ip = "1.1.1.1"` + "\n"
 	config += `	lan_failover_name = "LAN-INTERFACE"` + "\n"
-	config += `	lan_failover_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	lan_failover_netmask = "255.255.255.0"` + "\n"
 	config += `	lan_failover_ipv6_addr = false` + "\n"
 	config += `	lan_failover_interface_name = "GigabitEthernet0/0"` + "\n"
 	config += `	lan_failover_interface_id = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"` + "\n"
@@ -118,7 +122,7 @@ func testAccNamedDataSourceFmcDeviceHAPairConfig() string {
 	config := `resource "fmc_device_ha_pair" "test" {` + "\n"
 	config += `	name = "FTD_HA"` + "\n"
 	config += `	primary_device_id = var.device_id` + "\n"
-	config += `	secondary_device_id = var.device_id` + "\n"
+	config += `	secondary_device_id = var.device_2_id` + "\n"
 	config += `	is_encryption_enabled = false` + "\n"
 	config += `	use_same_link_for_failovers = false` + "\n"
 	config += `	shared_key = "cisco123"` + "\n"
@@ -126,7 +130,7 @@ func testAccNamedDataSourceFmcDeviceHAPairConfig() string {
 	config += `	lan_failover_standby_ip = "1.1.1.2"` + "\n"
 	config += `	lan_failover_active_ip = "1.1.1.1"` + "\n"
 	config += `	lan_failover_name = "LAN-INTERFACE"` + "\n"
-	config += `	lan_failover_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	lan_failover_netmask = "255.255.255.0"` + "\n"
 	config += `	lan_failover_ipv6_addr = false` + "\n"
 	config += `	lan_failover_interface_name = "GigabitEthernet0/0"` + "\n"
 	config += `	lan_failover_interface_id = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"` + "\n"

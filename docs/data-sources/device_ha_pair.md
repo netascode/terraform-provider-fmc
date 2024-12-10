@@ -26,7 +26,7 @@ data "fmc_device_ha_pair" "example" {
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
 - `lan_failover_interface_name` (String) Name of physical interface
-- `name` (String) The name of the access control policy.
+- `name` (String) The name of the High Availability Pair.
 - `stateful_failover_interface_name` (String) Name of physical interface
 
 ### Read-Only
@@ -40,8 +40,8 @@ data "fmc_device_ha_pair" "example" {
 - `lan_failover_interface_type` (String) Type of physical interface.
 - `lan_failover_ipv6_addr` (Boolean)
 - `lan_failover_name` (String)
+- `lan_failover_netmask` (String)
 - `lan_failover_standby_ip` (String)
-- `lan_failover_subnet_mask` (String)
 - `primary_device_id` (String) ID of primary FTD in the HA Pair.
 - `secondary_device_id` (String) ID of secondary FTD in the HA Pair.
 - `shared_key` (String) Pass the unique shared key if needed.

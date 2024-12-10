@@ -3,11 +3,12 @@ name: Device HA Pair
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devicehapairs/ftddevicehapairs
 data_source_name_query: true
 doc_category: Device
+test_tags: [TF_VAR_device_id, TF_VAR_device_2_id]
 attributes:
   - model_name: name
     type: String
     mandatory: true
-    description: The name of the access control policy.
+    description: The name of the High Availability Pair.
     example: FTD_HA
   - model_name: type
     type: String
@@ -28,7 +29,7 @@ attributes:
     data_path: [secondary]
     description: ID of secondary FTD in the HA Pair.
     example: 96d24097-41c4-4332-a4d0-a8c07ac08482
-    test_value: var.device_id
+    test_value: var.device_2_id
   - model_name: isEncryptionEnabled
     type: Bool
     data_path: [ftdHABootstrap]
@@ -71,12 +72,13 @@ attributes:
     example: LAN-INTERFACE
   - model_name: subnetMask
     type: String
-    tf_name: lan_failover_subnet_mask
+    tf_name: lan_failover_netmask
     data_path: [ftdHABootstrap,lanFailover]
     example: "255.255.255.0"
   - model_name: useIPv6Address
     type: Bool
     tf_name: lan_failover_ipv6_addr
+    default_value: false
     data_path: [ftdHABootstrap,lanFailover]
     example: false
   - model_name: name
@@ -94,6 +96,7 @@ attributes:
     example: 757kdgh5-41c4-4558-a4d0-a8c07ac08470
   - model_name: type
     type: String
+    mandatory: true
     tf_name: lan_failover_interface_type
     data_path: [ftdHABootstrap,lanFailover,interfaceObject]
     description: Type of physical interface.
