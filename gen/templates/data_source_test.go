@@ -145,7 +145,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 				Config: {{if .TestPrerequisites}}testAccDataSourceFmc{{camelCase .Name}}PrerequisitesConfig+{{end}}testAccDataSourceFmc{{camelCase .Name}}Config(),
 				Check: resource.ComposeTestCheckFunc(checks...),
 			},
-			{{- if and .DataSourceQueryParameter (not .IsBulk)}}
+			{{- if and .QueryParameter (not .IsBulk)}}
 			{
 				Config: {{if .TestPrerequisites}}testAccDataSourceFmc{{camelCase .Name}}PrerequisitesConfig+{{end}}testAccNamedDataSourceFmc{{camelCase .Name}}Config(),
 				Check: resource.ComposeTestCheckFunc(checks...),
@@ -287,7 +287,7 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 	return config
 }
 
-{{if and .DataSourceQueryParameter (not .IsBulk) -}}
+{{if and .QueryParameter (not .IsBulk) -}}
 func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
@@ -375,7 +375,7 @@ func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 
 	config += `
 		data "fmc_{{snakeCase .Name}}" "test" {
-			{{.DataSourceQueryParameter}} = fmc_{{snakeCase $name}}.test.{{.DataSourceQueryParameter}}
+			{{.QueryParameter}} = fmc_{{snakeCase $name}}.test.{{.QueryParameter}}
 			{{- range  .Attributes}}
 			{{- if .Reference}}
 			{{.TfName}} = {{if .TestValue}}{{.TestValue}}{{else}}{{if eq .Type "String"}}"{{.Example}}"{{else if isStringListSet .}}["{{.Example}}"]{{else if isInt64ListSet .}}[{{.Example}}]{{else}}{{.Example}}{{end}}{{end}}

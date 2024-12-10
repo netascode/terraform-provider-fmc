@@ -28,14 +28,13 @@ data "fmc_device_bgp_general_settings" "example" {
 
 ### Optional
 
+- `as_number` (String) Autonomous System (AS) number in asplain or asdot format
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
-- `name` (String) Object name; Always set to 'AsaBGPGeneralTable'
 
 ### Read-Only
 
 - `aggregate_timer` (Number) Interval at which BGP routes will be aggregated or to disable timer-based router aggregation (in seconds).
-- `as_number` (String) Autonomous System (AS) number in asplain or asdot format
 - `as_number_in_path_attribute` (Number) Range to discard routes that have as-path segments that exceed a specified value.
 - `compare_med_from_different_neighbors` (Boolean) Allow comparing MED from different neighbors
 - `compare_router_id_in_path` (Boolean) Compare Router ID for identical EBGP paths
@@ -49,6 +48,7 @@ data "fmc_device_bgp_general_settings" "example" {
 - `log_neighbor_changes` (Boolean) Enable logging of BGP neighbor status changes.
 - `min_hold_time` (Number) Minimum hold time (0 or 3-65535 seconds)
 - `missing_med_as_best` (Boolean) Treat missing MED as the best preferred path
+- `name` (String) Object name; Always set to 'AsaBGPGeneralTable'
 - `next_hop_address_tracking` (Boolean) Enable next hop address tracking
 - `next_hop_delay_interval` (Number) Next hop delay interval in seconds
 - `pick_best_med` (Boolean) Pick the best-MED path among paths advertised by neighbor AS

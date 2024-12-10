@@ -56,7 +56,7 @@ func (d *{{camelCase .Name}}DataSource) Metadata(_ context.Context, req datasour
 	resp.TypeName = req.ProviderTypeName + "_{{snakeCase .Name}}"
 }
 
-{{- $queryParameter := .DataSourceQueryParameter}}
+{{- $queryParameter := .QueryParameter}}
 
 func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
@@ -66,7 +66,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				{{- if not .DataSourceQueryParameter}}
+				{{- if not .QueryParameter}}
 				Required:            true,
 				{{- else}}
 				{{- if not .IsBulk}}
@@ -160,12 +160,12 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 	}
 }
 
-{{- if and .DataSourceQueryParameter (not .IsBulk)}}
+{{- if and .QueryParameter (not .IsBulk)}}
 func (d *{{camelCase .Name}}DataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
     return []datasource.ConfigValidator{
         datasourcevalidator.ExactlyOneOf(
             path.MatchRoot("id"),
-            path.MatchRoot("{{.DataSourceQueryParameter}}"),
+            path.MatchRoot("{{.QueryParameter}}"),
         ),
     }
 }
@@ -201,13 +201,13 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
-	{{- if and .DataSourceQueryParameter (not .IsBulk)}}
-	{{- $modelName := getModelName .Attributes .DataSourceQueryParameter}}
-	if config.Id.IsNull() && !config.{{toGoName .DataSourceQueryParameter}}.IsNull() {
+	{{- if and .QueryParameter (not .IsBulk)}}
+	{{- $modelName := getModelName .Attributes .QueryParameter}}
+	if config.Id.IsNull() && !config.{{toGoName .QueryParameter}}.IsNull() {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := d.client.Get(config.getPath() + queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
@@ -215,9 +215,9 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if config.{{toGoName .DataSourceQueryParameter}}.ValueString() == v.Get("{{$modelName}}").String() {
+					if config.{{toGoName .QueryParameter}}.ValueString() == v.Get("{{$modelName}}").String() {
 						config.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{.DataSourceQueryParameter}} '%v', id: %v", config.Id.String(), config.{{toGoName .DataSourceQueryParameter}}.ValueString(), config.Id.String()))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{.QueryParameter}} '%v', id: %v", config.Id.String(), config.{{toGoName .QueryParameter}}.ValueString(), config.Id.String()))
 						return false
 					}
 					return true
@@ -230,7 +230,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 		}
 
 		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with {{.DataSourceQueryParameter}}: %s", config.{{toGoName .DataSourceQueryParameter}}.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with {{.QueryParameter}}: %s", config.{{toGoName .QueryParameter}}.ValueString()))
 			return
 		}
 	}

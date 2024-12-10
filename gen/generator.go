@@ -104,7 +104,7 @@ type YamlConfig struct {
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoDelete                 bool                  `yaml:"no_delete"`
 	DataSourceNameQuery      bool                  `yaml:"data_source_name_query"`
-	DataSourceQueryParameter string                `yaml:"data_source_query_parameter"`
+	QueryParameter           string                `yaml:"query_parameter"`
 	MinimumVersion           string                `yaml:"minimum_version"`
 	MinimumVersionBulkDelete string                `yaml:"minimum_version_bulk_delete"`
 	DsDescription            string                `yaml:"ds_description"`
@@ -470,10 +470,10 @@ func NewYamlConfig(bytes []byte) (YamlConfig, error) {
 		config.TfName = strings.Replace(config.Name, " ", "_", -1)
 	}
 
-	if config.DataSourceNameQuery && config.DataSourceQueryParameter != "" {
-		return YamlConfig{}, fmt.Errorf("%q: both `data_source_name_query` and `data_source_query_parameter` cannot be set", config.Name)
+	if config.DataSourceNameQuery && config.QueryParameter != "" {
+		return YamlConfig{}, fmt.Errorf("%q: both `data_source_name_query` and `query_parameter` cannot be set", config.Name)
 	} else if config.DataSourceNameQuery {
-		config.DataSourceQueryParameter = "name"
+		config.QueryParameter = "name"
 		config.DataSourceNameQuery = false
 	}
 

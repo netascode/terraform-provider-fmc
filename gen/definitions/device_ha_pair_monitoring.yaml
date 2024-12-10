@@ -1,7 +1,7 @@
 ---
 name: Device HA Pair Monitoring
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devicehapairs/ftddevicehapairs/%v/monitoredinterfaces
-data_source_query_parameter: logical_name
+query_parameter: logical_name
 put_create: true
 doc_category: Device
 test_tags: [TF_VAR_device_ha_id]

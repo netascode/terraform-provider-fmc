@@ -456,17 +456,17 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 
 	{{- if and .PutCreate (not .IsBulk)}}
 	{{- $queryParameter := "name" }}
-	{{- if not (eq .DataSourceQueryParameter "") }}
-	{{- $queryParameter = .DataSourceQueryParameter }}
+	{{- if not (eq .QueryParameter "") }}
+	{{- $queryParameter = .QueryParameter }}
 	{{- end}}
-	{{- $modelName := getModelName .Attributes .DataSourceQueryParameter}}
+	{{- $modelName := getModelName .Attributes .QueryParameter}}
 	
 	tflog.Debug(ctx, fmt.Sprintf("%s: considering object {{$queryParameter}} %s", plan.Id, plan.{{toGoName $queryParameter}}))
 	if plan.Id.ValueString() == "" && plan.{{toGoName $queryParameter}}.ValueString() != "" {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := r.client.Get(plan.getPath()+queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
