@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -93,6 +94,12 @@ func (r *SecurityZoneResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityZone'.").AddDefaultValueDescription("SecurityZone").String,
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString("SecurityZone"),
+			},
 		},
 	}
 }
@@ -134,6 +141,7 @@ func (r *SecurityZoneResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 	plan.Id = types.StringValue(res.Get("id").String())
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 

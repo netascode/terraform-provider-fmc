@@ -1,6 +1,7 @@
 ---
 name: str() # Name of the resource
 no_data_source: bool(required=False) # Set to true if no data-source should be created
+no_resource: bool(required=False) # Set to true if no resource should be created
 no_import: bool(required=False) # Set to true if the resource does not support `terraform import` command
 rest_endpoint: str(required=False) # REST endpoint path
 put_create: bool(required=False) # Set to true if the PUT request is used for create
@@ -14,7 +15,7 @@ res_description: str(required=False) # Define a resource description
 doc_category: str(required=False) # Define a documentation category
 skip_minimum_test: bool(required=False) # Do not perform a "minimum" (only mandatory attributes) test
 attributes: list(include('attribute'), required=False) # List of attributes
-test_tags: list(str(), required=False) # List of test tags, tests are only executed if an environment variable with one of these tags is configured
+test_tags: list(str(), required=False) # List of test tags, tests are only executed if environment variables with all of these tags are configured
 test_prerequisites: str(required=False) # HCL code that is included in the acceptance tests to define prerequisites
 is_bulk: bool(required=False) # Treat this as a bulk resource
 import_name_query: bool(required=False) # Set to true if import should be done using object name
@@ -48,6 +49,7 @@ attribute:
   string_patterns: list(str(), required=False) # List of regular expressions that the string must match, only relevant if type is "String"
   string_min_length: int(required=False) # Minimum length of a string, only relevant if type is "String"
   string_max_length: int(required=False) # Maximum length of a string, only relevant if type is "String"
+  computed: bool(required=False) # Defines field as read-only (computed) with value derived from the API
   default_value: any(str(), int(), bool(), required=False) # Default value for the attribute
   value: any(str(), int(), bool(), required=False) # Hardcoded value for the attribute
   test_value: str(required=False) # Value used for acceptance test

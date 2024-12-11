@@ -28,6 +28,17 @@ resource "fmc_access_control_policy" "example" {
           value = "10.2.2.0/24"
         }
       ]
+      vlan_tag_literals = [
+        {
+          start_tag = "11"
+          end_tag   = "22"
+        }
+      ]
+      vlan_tag_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
       source_network_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
@@ -50,9 +61,27 @@ resource "fmc_access_control_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
+      source_port_literals = [
+        {
+          type      = "PortLiteral"
+          port      = "80"
+          protocol  = "6"
+          icmp_type = "0"
+          icmp_code = "0"
+        }
+      ]
       source_port_objects = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      destination_port_literals = [
+        {
+          type      = "PortLiteral"
+          port      = "80"
+          protocol  = "6"
+          icmp_type = "0"
+          icmp_code = "0"
         }
       ]
       destination_port_objects = [
@@ -60,13 +89,7 @@ resource "fmc_access_control_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
-      source_security_group_tag_objects = [
-        {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "SecurityGroupTag"
-        }
-      ]
-      destination_security_group_tag_objects = [
+      source_sgt_objects = [
         {
           id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
           type = "SecurityGroupTag"
@@ -80,6 +103,11 @@ resource "fmc_access_control_policy" "example" {
       destination_zones = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      url_literals = [
+        {
+          url = "https://www.example.com/app"
         }
       ]
       url_objects = [
@@ -102,6 +130,7 @@ resource "fmc_access_control_policy" "example" {
       snmp_config_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       file_policy_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      variable_set_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
   ]
 }
