@@ -30,8 +30,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
 func TestAccFmcDeployment(t *testing.T) {
-	if os.Getenv("TF_VAR_timestamp") == "" && os.Getenv("TF_VAR_device_id_list") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_timestamp or TF_VAR_device_id_list")
+	if os.Getenv("TF_VAR_timestamp") == "" || os.Getenv("TF_VAR_device_id_list") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_timestamp and TF_VAR_device_id_list")
 	}
 	var checks []resource.TestCheckFunc
 
