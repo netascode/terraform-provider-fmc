@@ -24,14 +24,15 @@ import (
 	"net/url"
 	"slices"
 	"strings"
-	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -89,12 +90,19 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 				MarkdownDescription: helpers.NewAttributeDescription("The name of file policy.").String,
 				Required:            true,
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the object").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("File policy description.").String,
 				Optional:            true,
 			},
 			"first_time_file_analysis": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Analyze first-seen files while AMP cloud disposition is pending").String,
 				Optional:            true,
 			},
 			"custom_detection_list": schema.BoolAttribute{
@@ -121,12 +129,15 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 				Optional:            true,
 			},
 			"block_uninspectable_archives": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Block Uninspectable Archives").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Block uninspectable Archives").String,
 				Optional:            true,
 			},
-			"max_archive_depth": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Max archive depth").String,
+			"max_archive_depth": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Max archive depth").AddIntegerRangeDescription(1, 3).String,
 				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 3),
+				},
 			},
 			"file_rules": schema.ListNestedAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ordered list of file rules.").String,
@@ -134,18 +145,25 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Unique identifier representing the FileRule.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Unique identifier representing the File Rule.").String,
 							Computed:            true,
 						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("The name of file rule type.").String,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"application_protocol": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).").AddStringEnumDescription("ANY", "HTTP", "SMTP", "IMAP", "POP3", "FTP", "SMB").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Defines a protocol for file inspection.").AddStringEnumDescription("ANY", "HTTP", "SMTP", "IMAP", "POP3", "FTP", "SMB").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("ANY", "HTTP", "SMTP", "IMAP", "POP3", "FTP", "SMB"),
 							},
 						},
 						"action": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Action to be performed on a file (DETECT, BLOCK_WITH_RESET, DETECT_MALWARE, BLOCK_MALWARE_WITH_RESET).").AddStringEnumDescription("DETECT", "BLOCK_WITH_RESET", "DETECT_MALWARE", "BLOCK_MALWARE_WITH_RESET").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Action to be performed on a file.").AddStringEnumDescription("DETECT", "BLOCK_WITH_RESET", "DETECT_MALWARE", "BLOCK_MALWARE_WITH_RESET").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("DETECT", "BLOCK_WITH_RESET", "DETECT_MALWARE", "BLOCK_MALWARE_WITH_RESET"),
@@ -157,15 +175,15 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 							Optional:            true,
 						},
 						"direction_of_transfer": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Direction of file transfer (ANY, UPLOAD, DOWNLOAD).").AddStringEnumDescription("ANY", "UPLOAD", "DOWNLOAD").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Direction of file transfer.").AddStringEnumDescription("ANY", "UPLOAD", "DOWNLOAD").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("ANY", "UPLOAD", "DOWNLOAD"),
 							},
 						},
-						"file_type_categories": schema.ListNestedAttribute{
+						"file_type_categories": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Defines a list of file categories for inspection.").String,
-							Required:            true,
+							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
@@ -176,10 +194,16 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 										MarkdownDescription: helpers.NewAttributeDescription("The name of file category.").String,
 										Required:            true,
 									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("The type of file category.").AddDefaultValueDescription("FileCategory").String,
+										Optional:            true,
+										Computed:            true,
+										Default:             stringdefault.StaticString("FileCategory"),
+									},
 								},
 							},
 						},
-						"file_types": schema.ListNestedAttribute{
+						"file_types": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Defines a list of file types for inspection.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -189,8 +213,14 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 										Required:            true,
 									},
 									"name": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										MarkdownDescription: helpers.NewAttributeDescription("The name of file type.").String,
 										Required:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("The name of file type.").AddDefaultValueDescription("FileType").String,
+										Optional:            true,
+										Computed:            true,
+										Default:             stringdefault.StaticString("FileType"),
 									},
 								},
 							},
@@ -291,7 +321,7 @@ func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	resRules, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/filerules", reqMods...)
+	resRules, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/filerules?expanded=true", reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, resGet.String()))
 		return
@@ -327,8 +357,6 @@ func (r *FilePolicyResource) Read(ctx context.Context, req resource.ReadRequest,
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-// Section below is generated&owned by "gen/generator.go". //template:begin update
-
 func (r *FilePolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state FilePolicy
 
@@ -352,26 +380,30 @@ func (r *FilePolicyResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBody(ctx, state)
+	planBody := plan.toBody(ctx, state)
+	body := planBody
+	body, _ = sjson.Delete(body, "dummy_file_rules")
+
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
-	res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
-	}
+
 	plan.fromBodyUnknowns(ctx, res)
+
+	orig := state
+	state = plan
+	state.FileRules = orig.FileRules
+
+	state, diags = r.updateSubresources(ctx, req.Plan, plan, planBody, req.State, state)
+	resp.Diagnostics.Append(diags...)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end update
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
@@ -448,87 +480,41 @@ func (r *FilePolicyResource) updateSubresources(ctx context.Context, tfsdkPlan t
 }
 
 func (r *FilePolicyResource) truncateRulesAt(ctx context.Context, state *FilePolicy, kept int, reqMods ...func(*fmc.Req)) error {
-	var b strings.Builder
-	var bulks []string
-	var counts []int
-	count := 0
-
+	// File rules do not support bulk operations, hence we delete one by one
 	for i := kept; i < len(state.FileRules); i++ {
-		b.WriteString(state.FileRules[i].Id.ValueString() + ",")
-		count++
-		if b.Len() >= maxUrlParamLength {
-			bulks = append(bulks, b.String())
-			counts = append(counts, count)
-			b.Reset()
-			count = 0
-		}
-	}
+		id := state.FileRules[i].Id.ValueString()
 
-	if b.Len() > 0 {
-		bulks = append(bulks, b.String())
-		counts = append(counts, count)
-	}
-
-	defer func() {
-		time.Sleep(2 * time.Second)
-	}()
-
-	for i, bulk := range bulks {
-		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/filerules?bulk=true&filter=ids:"+url.QueryEscape(bulk), reqMods...)
+		res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString())+"/filerules/"+url.QueryEscape(id), reqMods...)
 		if err != nil {
+			// Remove already deleted objects from the state
+			state.FileRules = slices.Delete(state.FileRules, kept, i-1)
 			return fmt.Errorf("failed to delete object (DELETE), got error: %s, %s", err, res.String())
 		}
-		tflog.Debug(ctx, fmt.Sprintf("%s: Truncate finished successfully", state.Id.ValueString()))
+	}
 
-		state.FileRules = slices.Delete(state.FileRules, kept, kept+counts[i])
+	// Remove all objects from the state
+	if len(state.FileRules)-1 > kept {
+		state.FileRules = slices.Delete(state.FileRules, kept, len(state.FileRules)-1)
 	}
 
 	return nil
 }
 
 func (r *FilePolicyResource) createRulesAt(ctx context.Context, plan FilePolicy, body []gjson.Result, startIndex int, state *FilePolicy, reqMods ...func(*fmc.Req)) error {
+	// File rules do not supoprt bulk operations, hence we create one by one
 	for i := startIndex; i < len(body); i++ {
-		bulk := `{"dummy_file_rules":[]}`
-		j := i
-		bulkCount := 0
-		bodyLen := 0
-
-		for ; i < len(body); i++ {
-			rule := body[i].String()
-
-			// Check if the body is too big for a single POST
-			bodyLen += len(rule)
-			if bodyLen >= maxPayloadSize {
-				i--
-				break
-			}
-
-			bulk, _ = sjson.SetRaw(bulk, "dummy_file_rules.-1", rule)
-			bulkCount++
-			if bulkCount >= bulkSizeCreate {
-				break
-			}
-		}
-
-		tflog.Debug(ctx, fmt.Sprintf("Bulk: %s", bulk))
-
-		param := "?bulk=true"
-		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/filerules"+param, gjson.Parse(bulk).Get("dummy_file_rules").String(), reqMods...)
+		rule := body[i].String()
+		res, err := r.client.Post(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+"/filerules", rule, reqMods...)
 		if err != nil {
 			return fmt.Errorf("failed to configure object (POST), got error: %s, %s", err, res.String())
 		}
+		item := plan.FileRules[i]
+		item.Id = types.StringValue(res.Get("id").String())
 
-		for _, v := range res.Get("items").Array() {
-			item := plan.FileRules[j]
-			item.Id = types.StringValue(v.Get("id").String())
-
-			if len(state.FileRules) <= j {
-				state.FileRules = append(state.FileRules, item)
-			} else {
-				state.FileRules[j] = item
-			}
-
-			j++
+		if len(state.FileRules) <= i {
+			state.FileRules = append(state.FileRules, item)
+		} else {
+			state.FileRules[i] = item
 		}
 	}
 

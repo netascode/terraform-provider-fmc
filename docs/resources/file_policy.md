@@ -23,12 +23,11 @@ resource "fmc_file_policy" "example" {
   inspect_archives             = false
   block_encrypted_archives     = false
   block_uninspectable_archives = false
-  max_archive_depth            = "2"
+  max_archive_depth            = 2
   file_rules = [
     {
       application_protocol  = "ANY"
       action                = "DETECT"
-      store_files           = ["ANY"]
       direction_of_transfer = "ANY"
       file_type_categories = [
         {
@@ -57,43 +56,46 @@ resource "fmc_file_policy" "example" {
 ### Optional
 
 - `block_encrypted_archives` (Boolean) Block encrypted archives
-- `block_uninspectable_archives` (Boolean) Block Uninspectable Archives
+- `block_uninspectable_archives` (Boolean) Block uninspectable Archives
 - `clean_list` (Boolean) Enable clean list
 - `custom_detection_list` (Boolean) Enable custom detection list
 - `description` (String) File policy description.
 - `domain` (String) The name of the FMC domain
 - `file_rules` (Attributes List) The ordered list of file rules. (see [below for nested schema](#nestedatt--file_rules))
-- `first_time_file_analysis` (Boolean)
+- `first_time_file_analysis` (Boolean) Analyze first-seen files while AMP cloud disposition is pending
 - `inspect_archives` (Boolean) Inspect Archives
-- `max_archive_depth` (String) Max archive depth
+- `max_archive_depth` (Number) Max archive depth
+  - Range: `1`-`3`
 - `threat_score` (String) If AMP Cloud disposition is Unknown, override disposition based upon threat score.
   - Choices: `DISABLED`, `MEDIUM`, `High`, `VERY_HIGH`
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `type` (String) Type of the object
 
 <a id="nestedatt--file_rules"></a>
 ### Nested Schema for `file_rules`
 
 Required:
 
-- `action` (String) Action to be performed on a file (DETECT, BLOCK_WITH_RESET, DETECT_MALWARE, BLOCK_MALWARE_WITH_RESET).
+- `action` (String) Action to be performed on a file.
   - Choices: `DETECT`, `BLOCK_WITH_RESET`, `DETECT_MALWARE`, `BLOCK_MALWARE_WITH_RESET`
-- `application_protocol` (String) Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).
+- `application_protocol` (String) Defines a protocol for file inspection.
   - Choices: `ANY`, `HTTP`, `SMTP`, `IMAP`, `POP3`, `FTP`, `SMB`
-- `direction_of_transfer` (String) Direction of file transfer (ANY, UPLOAD, DOWNLOAD).
+- `direction_of_transfer` (String) Direction of file transfer.
   - Choices: `ANY`, `UPLOAD`, `DOWNLOAD`
-- `file_type_categories` (Attributes List) Defines a list of file categories for inspection. (see [below for nested schema](#nestedatt--file_rules--file_type_categories))
 
 Optional:
 
-- `file_types` (Attributes List) Defines a list of file types for inspection. (see [below for nested schema](#nestedatt--file_rules--file_types))
+- `file_type_categories` (Attributes Set) Defines a list of file categories for inspection. (see [below for nested schema](#nestedatt--file_rules--file_type_categories))
+- `file_types` (Attributes Set) Defines a list of file types for inspection. (see [below for nested schema](#nestedatt--file_rules--file_types))
 - `store_files` (Set of String) List of file dispositions that should be stored (MALWARE, CUSTOM, CLEAN, UNKNOWN).
 
 Read-Only:
 
-- `id` (String) Unique identifier representing the FileRule.
+- `id` (String) Unique identifier representing the File Rule.
+- `type` (String) The name of file rule type.
 
 <a id="nestedatt--file_rules--file_type_categories"></a>
 ### Nested Schema for `file_rules.file_type_categories`
@@ -103,6 +105,11 @@ Required:
 - `id` (String) The id of file category.
 - `name` (String) The name of file category.
 
+Optional:
+
+- `type` (String) The type of file category.
+  - Default value: `FileCategory`
+
 
 <a id="nestedatt--file_rules--file_types"></a>
 ### Nested Schema for `file_rules.file_types`
@@ -110,7 +117,12 @@ Required:
 Required:
 
 - `id` (String) The id of file type.
-- `name` (String)
+- `name` (String) The name of file type.
+
+Optional:
+
+- `type` (String) The name of file type.
+  - Default value: `FileType`
 
 ## Import
 

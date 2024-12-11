@@ -30,28 +30,30 @@ data "fmc_file_policy" "example" {
 ### Read-Only
 
 - `block_encrypted_archives` (Boolean) Block encrypted archives
-- `block_uninspectable_archives` (Boolean) Block Uninspectable Archives
+- `block_uninspectable_archives` (Boolean) Block uninspectable Archives
 - `clean_list` (Boolean) Enable clean list
 - `custom_detection_list` (Boolean) Enable custom detection list
 - `description` (String) File policy description.
 - `file_rules` (Attributes List) The ordered list of file rules. (see [below for nested schema](#nestedatt--file_rules))
-- `first_time_file_analysis` (Boolean)
+- `first_time_file_analysis` (Boolean) Analyze first-seen files while AMP cloud disposition is pending
 - `inspect_archives` (Boolean) Inspect Archives
-- `max_archive_depth` (String) Max archive depth
+- `max_archive_depth` (Number) Max archive depth
 - `threat_score` (String) If AMP Cloud disposition is Unknown, override disposition based upon threat score.
+- `type` (String) Type of the object
 
 <a id="nestedatt--file_rules"></a>
 ### Nested Schema for `file_rules`
 
 Read-Only:
 
-- `action` (String) Action to be performed on a file (DETECT, BLOCK_WITH_RESET, DETECT_MALWARE, BLOCK_MALWARE_WITH_RESET).
-- `application_protocol` (String) Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).
-- `direction_of_transfer` (String) Direction of file transfer (ANY, UPLOAD, DOWNLOAD).
-- `file_type_categories` (Attributes List) Defines a list of file categories for inspection. (see [below for nested schema](#nestedatt--file_rules--file_type_categories))
-- `file_types` (Attributes List) Defines a list of file types for inspection. (see [below for nested schema](#nestedatt--file_rules--file_types))
-- `id` (String) Unique identifier representing the FileRule.
+- `action` (String) Action to be performed on a file.
+- `application_protocol` (String) Defines a protocol for file inspection.
+- `direction_of_transfer` (String) Direction of file transfer.
+- `file_type_categories` (Attributes Set) Defines a list of file categories for inspection. (see [below for nested schema](#nestedatt--file_rules--file_type_categories))
+- `file_types` (Attributes Set) Defines a list of file types for inspection. (see [below for nested schema](#nestedatt--file_rules--file_types))
+- `id` (String) Unique identifier representing the File Rule.
 - `store_files` (Set of String) List of file dispositions that should be stored (MALWARE, CUSTOM, CLEAN, UNKNOWN).
+- `type` (String) The name of file rule type.
 
 <a id="nestedatt--file_rules--file_type_categories"></a>
 ### Nested Schema for `file_rules.file_type_categories`
@@ -60,6 +62,7 @@ Read-Only:
 
 - `id` (String) The id of file category.
 - `name` (String) The name of file category.
+- `type` (String) The type of file category.
 
 
 <a id="nestedatt--file_rules--file_types"></a>
@@ -68,4 +71,5 @@ Read-Only:
 Read-Only:
 
 - `id` (String) The id of file type.
-- `name` (String)
+- `name` (String) The name of file type.
+- `type` (String) The name of file type.

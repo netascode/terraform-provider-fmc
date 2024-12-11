@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -75,12 +76,16 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 				Optional:            true,
 				Computed:            true,
 			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Type of the object",
+				Computed:            true,
+			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "File policy description.",
 				Computed:            true,
 			},
 			"first_time_file_analysis": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Analyze first-seen files while AMP cloud disposition is pending",
 				Computed:            true,
 			},
 			"custom_detection_list": schema.BoolAttribute{
@@ -104,10 +109,10 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 				Computed:            true,
 			},
 			"block_uninspectable_archives": schema.BoolAttribute{
-				MarkdownDescription: "Block Uninspectable Archives",
+				MarkdownDescription: "Block uninspectable Archives",
 				Computed:            true,
 			},
-			"max_archive_depth": schema.StringAttribute{
+			"max_archive_depth": schema.Int64Attribute{
 				MarkdownDescription: "Max archive depth",
 				Computed:            true,
 			},
@@ -117,15 +122,19 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "Unique identifier representing the FileRule.",
+							MarkdownDescription: "Unique identifier representing the File Rule.",
+							Computed:            true,
+						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: "The name of file rule type.",
 							Computed:            true,
 						},
 						"application_protocol": schema.StringAttribute{
-							MarkdownDescription: "Defines a protocol for file inspection (ANY, HTTP, SMTP, IMAP, POP3, FTP, SMB).",
+							MarkdownDescription: "Defines a protocol for file inspection.",
 							Computed:            true,
 						},
 						"action": schema.StringAttribute{
-							MarkdownDescription: "Action to be performed on a file (DETECT, BLOCK_WITH_RESET, DETECT_MALWARE, BLOCK_MALWARE_WITH_RESET).",
+							MarkdownDescription: "Action to be performed on a file.",
 							Computed:            true,
 						},
 						"store_files": schema.SetAttribute{
@@ -134,10 +143,10 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 							Computed:            true,
 						},
 						"direction_of_transfer": schema.StringAttribute{
-							MarkdownDescription: "Direction of file transfer (ANY, UPLOAD, DOWNLOAD).",
+							MarkdownDescription: "Direction of file transfer.",
 							Computed:            true,
 						},
-						"file_type_categories": schema.ListNestedAttribute{
+						"file_type_categories": schema.SetNestedAttribute{
 							MarkdownDescription: "Defines a list of file categories for inspection.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -150,10 +159,14 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 										MarkdownDescription: "The name of file category.",
 										Computed:            true,
 									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "The type of file category.",
+										Computed:            true,
+									},
 								},
 							},
 						},
-						"file_types": schema.ListNestedAttribute{
+						"file_types": schema.SetNestedAttribute{
 							MarkdownDescription: "Defines a list of file types for inspection.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
@@ -163,7 +176,11 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 										Computed:            true,
 									},
 									"name": schema.StringAttribute{
-										MarkdownDescription: "",
+										MarkdownDescription: "The name of file type.",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "The name of file type.",
 										Computed:            true,
 									},
 								},
@@ -193,8 +210,6 @@ func (d *FilePolicyDataSource) Configure(_ context.Context, req datasource.Confi
 }
 
 // End of section. //template:end model
-
-// Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (d *FilePolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config FilePolicy
@@ -251,6 +266,20 @@ func (d *FilePolicyDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
+	resFileRules, err := d.client.Get(config.getPath()+"/"+url.QueryEscape(config.Id.ValueString())+"/filerules?expanded=true", reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	replaceFileRules := resFileRules.Get("items").String()
+	if replaceFileRules == "" {
+		replaceFileRules = "[]"
+	}
+
+	replace, _ := sjson.SetRaw(res.String(), "dummy_file_rules", replaceFileRules)
+	res = gjson.Parse(replace)
+
 	config.fromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
@@ -258,5 +287,3 @@ func (d *FilePolicyDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	diags = resp.State.Set(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 }
-
-// End of section. //template:end read

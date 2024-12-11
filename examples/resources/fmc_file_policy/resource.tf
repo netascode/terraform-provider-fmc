@@ -8,12 +8,11 @@ resource "fmc_file_policy" "example" {
   inspect_archives             = false
   block_encrypted_archives     = false
   block_uninspectable_archives = false
-  max_archive_depth            = "2"
+  max_archive_depth            = 2
   file_rules = [
     {
       application_protocol  = "ANY"
       action                = "DETECT"
-      store_files           = ["ANY"]
       direction_of_transfer = "ANY"
       file_type_categories = [
         {

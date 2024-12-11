@@ -31,6 +31,7 @@ import (
 func TestAccDataSourceFmcFilePolicy(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_file_policy.test", "name", "file_policy_1"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_file_policy.test", "type"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_file_policy.test", "description", "My file policy"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_file_policy.test", "first_time_file_analysis", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_file_policy.test", "custom_detection_list", "true"))
@@ -81,11 +82,10 @@ func testAccDataSourceFmcFilePolicyConfig() string {
 	config += `	inspect_archives = false` + "\n"
 	config += `	block_encrypted_archives = false` + "\n"
 	config += `	block_uninspectable_archives = false` + "\n"
-	config += `	max_archive_depth = "2"` + "\n"
+	config += `	max_archive_depth = 2` + "\n"
 	config += `	file_rules = [{` + "\n"
 	config += `		application_protocol = "ANY"` + "\n"
 	config += `		action = "DETECT"` + "\n"
-	config += `		store_files = ["ANY"]` + "\n"
 	config += `		direction_of_transfer = "ANY"` + "\n"
 	config += `		file_type_categories = [{` + "\n"
 	config += `			id = "5"` + "\n"
@@ -117,11 +117,10 @@ func testAccNamedDataSourceFmcFilePolicyConfig() string {
 	config += `	inspect_archives = false` + "\n"
 	config += `	block_encrypted_archives = false` + "\n"
 	config += `	block_uninspectable_archives = false` + "\n"
-	config += `	max_archive_depth = "2"` + "\n"
+	config += `	max_archive_depth = 2` + "\n"
 	config += `	file_rules = [{` + "\n"
 	config += `		application_protocol = "ANY"` + "\n"
 	config += `		action = "DETECT"` + "\n"
-	config += `		store_files = ["ANY"]` + "\n"
 	config += `		direction_of_transfer = "ANY"` + "\n"
 	config += `		file_type_categories = [{` + "\n"
 	config += `			id = "5"` + "\n"

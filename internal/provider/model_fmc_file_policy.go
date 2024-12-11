@@ -38,6 +38,7 @@ type FilePolicy struct {
 	Id                         types.String          `tfsdk:"id"`
 	Domain                     types.String          `tfsdk:"domain"`
 	Name                       types.String          `tfsdk:"name"`
+	Type                       types.String          `tfsdk:"type"`
 	Description                types.String          `tfsdk:"description"`
 	FirstTimeFileAnalysis      types.Bool            `tfsdk:"first_time_file_analysis"`
 	CustomDetectionList        types.Bool            `tfsdk:"custom_detection_list"`
@@ -46,12 +47,13 @@ type FilePolicy struct {
 	InspectArchives            types.Bool            `tfsdk:"inspect_archives"`
 	BlockEncryptedArchives     types.Bool            `tfsdk:"block_encrypted_archives"`
 	BlockUninspectableArchives types.Bool            `tfsdk:"block_uninspectable_archives"`
-	MaxArchiveDepth            types.String          `tfsdk:"max_archive_depth"`
+	MaxArchiveDepth            types.Int64           `tfsdk:"max_archive_depth"`
 	FileRules                  []FilePolicyFileRules `tfsdk:"file_rules"`
 }
 
 type FilePolicyFileRules struct {
 	Id                  types.String                            `tfsdk:"id"`
+	Type                types.String                            `tfsdk:"type"`
 	ApplicationProtocol types.String                            `tfsdk:"application_protocol"`
 	Action              types.String                            `tfsdk:"action"`
 	StoreFiles          types.Set                               `tfsdk:"store_files"`
@@ -63,10 +65,12 @@ type FilePolicyFileRules struct {
 type FilePolicyFileRulesFileTypeCategories struct {
 	Id   types.String `tfsdk:"id"`
 	Name types.String `tfsdk:"name"`
+	Type types.String `tfsdk:"type"`
 }
 type FilePolicyFileRulesFileTypes struct {
 	Id   types.String `tfsdk:"id"`
 	Name types.String `tfsdk:"name"`
+	Type types.String `tfsdk:"type"`
 }
 
 // End of section. //template:end types
@@ -114,7 +118,7 @@ func (data FilePolicy) toBody(ctx context.Context, state FilePolicy) string {
 		body, _ = sjson.Set(body, "archiveDepthAction", data.BlockUninspectableArchives.ValueBool())
 	}
 	if !data.MaxArchiveDepth.IsNull() {
-		body, _ = sjson.Set(body, "archiveDepth", data.MaxArchiveDepth.ValueString())
+		body, _ = sjson.Set(body, "archiveDepth", data.MaxArchiveDepth.ValueInt64())
 	}
 	if len(data.FileRules) > 0 {
 		body, _ = sjson.Set(body, "dummy_file_rules", []interface{}{})
@@ -123,7 +127,6 @@ func (data FilePolicy) toBody(ctx context.Context, state FilePolicy) string {
 			if !item.Id.IsNull() && !item.Id.IsUnknown() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
-			itemBody, _ = sjson.Set(itemBody, "type", "FileRule")
 			if !item.ApplicationProtocol.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "protocol", item.ApplicationProtocol.ValueString())
 			}
@@ -148,7 +151,9 @@ func (data FilePolicy) toBody(ctx context.Context, state FilePolicy) string {
 					if !childItem.Name.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "name", childItem.Name.ValueString())
 					}
-					itemChildBody, _ = sjson.Set(itemChildBody, "type", "FileCategory")
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
 					itemBody, _ = sjson.SetRaw(itemBody, "fileCategories.-1", itemChildBody)
 				}
 			}
@@ -162,7 +167,9 @@ func (data FilePolicy) toBody(ctx context.Context, state FilePolicy) string {
 					if !childItem.Name.IsNull() {
 						itemChildBody, _ = sjson.Set(itemChildBody, "name", childItem.Name.ValueString())
 					}
-					itemChildBody, _ = sjson.Set(itemChildBody, "type", "FileType")
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
 					itemBody, _ = sjson.SetRaw(itemBody, "fileTypes.-1", itemChildBody)
 				}
 			}
@@ -181,6 +188,11 @@ func (data *FilePolicy) fromBody(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("type"); value.Exists() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() {
 		data.Description = types.StringValue(value.String())
@@ -223,9 +235,9 @@ func (data *FilePolicy) fromBody(ctx context.Context, res gjson.Result) {
 		data.BlockUninspectableArchives = types.BoolNull()
 	}
 	if value := res.Get("archiveDepth"); value.Exists() {
-		data.MaxArchiveDepth = types.StringValue(value.String())
+		data.MaxArchiveDepth = types.Int64Value(value.Int())
 	} else {
-		data.MaxArchiveDepth = types.StringNull()
+		data.MaxArchiveDepth = types.Int64Null()
 	}
 	if value := res.Get("dummy_file_rules"); value.Exists() {
 		data.FileRules = make([]FilePolicyFileRules, 0)
@@ -236,6 +248,11 @@ func (data *FilePolicy) fromBody(ctx context.Context, res gjson.Result) {
 				data.Id = types.StringValue(value.String())
 			} else {
 				data.Id = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
 			}
 			if value := res.Get("protocol"); value.Exists() {
 				data.ApplicationProtocol = types.StringValue(value.String())
@@ -272,6 +289,11 @@ func (data *FilePolicy) fromBody(ctx context.Context, res gjson.Result) {
 					} else {
 						data.Name = types.StringNull()
 					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringValue("FileCategory")
+					}
 					(*parent).FileTypeCategories = append((*parent).FileTypeCategories, data)
 					return true
 				})
@@ -290,6 +312,11 @@ func (data *FilePolicy) fromBody(ctx context.Context, res gjson.Result) {
 						data.Name = types.StringValue(value.String())
 					} else {
 						data.Name = types.StringNull()
+					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringValue("FileType")
 					}
 					(*parent).FileTypes = append((*parent).FileTypes, data)
 					return true
@@ -314,6 +341,11 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.Name = types.StringValue(value.String())
 	} else {
 		data.Name = types.StringNull()
+	}
+	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {
 		data.Description = types.StringValue(value.String())
@@ -356,9 +388,9 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.BlockUninspectableArchives = types.BoolNull()
 	}
 	if value := res.Get("archiveDepth"); value.Exists() && !data.MaxArchiveDepth.IsNull() {
-		data.MaxArchiveDepth = types.StringValue(value.String())
+		data.MaxArchiveDepth = types.Int64Value(value.Int())
 	} else {
-		data.MaxArchiveDepth = types.StringNull()
+		data.MaxArchiveDepth = types.Int64Null()
 	}
 	{
 		l := len(res.Get("dummy_file_rules").Array())
@@ -379,6 +411,11 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 			data.Id = types.StringValue(value.String())
 		} else {
 			data.Id = types.StringNull()
+		}
+		if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
 		}
 		if value := res.Get("protocol"); value.Exists() && !data.ApplicationProtocol.IsNull() {
 			data.ApplicationProtocol = types.StringValue(value.String())
@@ -401,8 +438,8 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 			data.DirectionOfTransfer = types.StringNull()
 		}
 		for i := 0; i < len(data.FileTypeCategories); i++ {
-			keys := [...]string{"id", "name"}
-			keyValues := [...]string{data.FileTypeCategories[i].Id.ValueString(), data.FileTypeCategories[i].Name.ValueString()}
+			keys := [...]string{"id", "name", "type"}
+			keyValues := [...]string{data.FileTypeCategories[i].Id.ValueString(), data.FileTypeCategories[i].Name.ValueString(), data.FileTypeCategories[i].Type.ValueString()}
 
 			parent := &data
 			data := (*parent).FileTypeCategories[i]
@@ -446,11 +483,16 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 			} else {
 				data.Name = types.StringNull()
 			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else if data.Type.ValueString() != "FileCategory" {
+				data.Type = types.StringNull()
+			}
 			(*parent).FileTypeCategories[i] = data
 		}
 		for i := 0; i < len(data.FileTypes); i++ {
-			keys := [...]string{"id", "name"}
-			keyValues := [...]string{data.FileTypes[i].Id.ValueString(), data.FileTypes[i].Name.ValueString()}
+			keys := [...]string{"id", "name", "type"}
+			keyValues := [...]string{data.FileTypes[i].Id.ValueString(), data.FileTypes[i].Name.ValueString(), data.FileTypes[i].Type.ValueString()}
 
 			parent := &data
 			data := (*parent).FileTypes[i]
@@ -494,6 +536,11 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 			} else {
 				data.Name = types.StringNull()
 			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else if data.Type.ValueString() != "FileType" {
+				data.Type = types.StringNull()
+			}
 			(*parent).FileTypes[i] = data
 		}
 		(*parent).FileRules[i] = data
@@ -507,6 +554,13 @@ func (data *FilePolicy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *FilePolicy) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 	for i := range data.FileRules {
 		r := res.Get(fmt.Sprintf("dummy_file_rules.%d", i))
 		if v := data.FileRules[i]; v.Id.IsUnknown() {
@@ -514,6 +568,14 @@ func (data *FilePolicy) fromBodyUnknowns(ctx context.Context, res gjson.Result) 
 				v.Id = types.StringValue(value.String())
 			} else {
 				v.Id = types.StringNull()
+			}
+			data.FileRules[i] = v
+		}
+		if v := data.FileRules[i]; v.Type.IsUnknown() {
+			if value := r.Get("type"); value.Exists() {
+				v.Type = types.StringValue(value.String())
+			} else {
+				v.Type = types.StringNull()
 			}
 			data.FileRules[i] = v
 		}
