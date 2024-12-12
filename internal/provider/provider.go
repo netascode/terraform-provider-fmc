@@ -64,6 +64,10 @@ const (
 	// Define maximum elements in single bulk request for delete & create
 	bulkSizeDelete int = 200
 	bulkSizeCreate int = 1000
+	// maximum payload size in bytes
+	maxPayloadSize int = 2048000
+	// maximum URL Param length. This is a rough estimate and does not account for the entire URL length.
+	maxUrlParamLength int = 7000
 )
 
 // Metadata returns the provider type name.
@@ -290,17 +294,21 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 	return []func() resource.Resource{
 		NewAccessControlPolicyResource,
 		NewDeviceResource,
+		NewDeviceEtherChannelInterfaceResource,
 		NewDeviceIPv4StaticRouteResource,
 		NewDeviceIPv6StaticRouteResource,
 		NewDevicePhysicalInterfaceResource,
 		NewDeviceSubinterfaceResource,
 		NewDeviceVNIInterfaceResource,
 		NewDeviceVRFResource,
+		NewDeviceVRFIPv4StaticRouteResource,
+		NewDeviceVRFIPv6StaticRouteResource,
 		NewDeviceVTEPPolicyResource,
 		NewDynamicObjectsResource,
 		NewExtendedACLResource,
 		NewFQDNObjectResource,
 		NewFQDNObjectsResource,
+		NewFTDNATPolicyResource,
 		NewHostResource,
 		NewHostsResource,
 		NewICMPv4ObjectResource,
@@ -338,17 +346,21 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 	return []func() datasource.DataSource{
 		NewAccessControlPolicyDataSource,
 		NewDeviceDataSource,
+		NewDeviceEtherChannelInterfaceDataSource,
 		NewDeviceIPv4StaticRouteDataSource,
 		NewDeviceIPv6StaticRouteDataSource,
 		NewDevicePhysicalInterfaceDataSource,
 		NewDeviceSubinterfaceDataSource,
 		NewDeviceVNIInterfaceDataSource,
 		NewDeviceVRFDataSource,
+		NewDeviceVRFIPv4StaticRouteDataSource,
+		NewDeviceVRFIPv6StaticRouteDataSource,
 		NewDeviceVTEPPolicyDataSource,
 		NewDynamicObjectsDataSource,
 		NewExtendedACLDataSource,
 		NewFQDNObjectDataSource,
 		NewFQDNObjectsDataSource,
+		NewFTDNATPolicyDataSource,
 		NewHostDataSource,
 		NewHostsDataSource,
 		NewICMPv4ObjectDataSource,
@@ -370,8 +382,10 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewSGTDataSource,
 		NewSGTsDataSource,
 		NewSNMPAlertDataSource,
+		NewSNMPAlertsDataSource,
 		NewStandardACLDataSource,
 		NewSyslogAlertDataSource,
+		NewSyslogAlertsDataSource,
 		NewURLDataSource,
 		NewURLGroupDataSource,
 		NewURLGroupsDataSource,
