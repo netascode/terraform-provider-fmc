@@ -195,6 +195,9 @@ func (data *DeviceHAPairMonitoring) fromBodyUnknowns(ctx context.Context, res gj
 func (data DeviceHAPairMonitoring) toBodyPutDelete(ctx context.Context, state DeviceHAPairMonitoring) string {
 	body := ""
 	body, _ = sjson.Set(body, "monitorForFailures", false)
+	if data.Ipv4ActiveAddress.ValueString() != "" {
+		body, _ = sjson.Set(body, "ipv4Configuration.activeIPv4Address", data.Ipv4ActiveAddress.ValueString())
+	}
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}

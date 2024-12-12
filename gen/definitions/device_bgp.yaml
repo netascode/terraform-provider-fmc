@@ -307,7 +307,7 @@ attributes:
         example: "false"
         exclude_example: true
       - model_name: id
-        tf_name: neighbor_generate_default_route_map
+        tf_name: neighbor_generate_default_route_map_id
         data_path: [neighborFiltering, neighborDefaultOriginate, routeMap]
         type: String
         description: Generate default routes - Route Map
@@ -321,7 +321,7 @@ attributes:
         exclude_example: true
         description: Use Exist Map or Non-Exist Map
       - model_name: id
-        tf_name: neighbor_routes_advertise_map
+        tf_name: neighbor_routes_advertise_map_id
         data_path: [neighborRoutes, neighborAdvertiseMaps, routeMap]
         type: String
         id: true
@@ -329,7 +329,7 @@ attributes:
         exclude_test: true
         exclude_example: true
       - model_name: id
-        tf_name: neighbor_routes_advertise_exist_nonexist_map
+        tf_name: neighbor_routes_advertise_exist_nonexist_map_id
         data_path: [neighborRoutes, neighborAdvertiseMaps, existRouteMap]
         type: String
         id: true

@@ -25,6 +25,5 @@ attributes:
         type: String
         description: Type of the object; this value is always 'SNMPAlert'.
         default_value: SNMPAlert
-        requires_replace: true
         exclude_example: true
         exclude_test: true

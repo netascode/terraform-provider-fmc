@@ -45,7 +45,6 @@ attributes:
     type: String
     description: Type of the device; this value is always 'Device'.
     exclude_example: true
-    requires_replace: true
     default_value: Device
     example: Device
   - tf_name: access_policy_id
