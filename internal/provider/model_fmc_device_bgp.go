@@ -690,7 +690,7 @@ func (data *DeviceBGP) fromBody(ctx context.Context, res gjson.Result) {
 			if value := res.Get("neighborRoutes.advertisementInterval"); value.Exists() {
 				data.NeighborRoutesAdvertisementInterval = types.Int64Value(value.Int())
 			} else {
-				data.NeighborRoutesAdvertisementInterval = types.Int64Value(1)
+				data.NeighborRoutesAdvertisementInterval = types.Int64Value(0)
 			}
 			if value := res.Get("neighborRoutes.removePrivateAs"); value.Exists() {
 				data.NeighborRoutesRemovePrivateAs = types.BoolValue(value.Bool())
@@ -720,17 +720,17 @@ func (data *DeviceBGP) fromBody(ctx context.Context, res gjson.Result) {
 			if value := res.Get("neighborTimers.keepAliveInterval"); value.Exists() {
 				data.NeighborKeepaliveInterval = types.Int64Value(value.Int())
 			} else {
-				data.NeighborKeepaliveInterval = types.Int64Value(60)
+				data.NeighborKeepaliveInterval = types.Int64Null()
 			}
 			if value := res.Get("neighborTimers.holdTime"); value.Exists() {
 				data.NeighborHoldTime = types.Int64Value(value.Int())
 			} else {
-				data.NeighborHoldTime = types.Int64Value(180)
+				data.NeighborHoldTime = types.Int64Null()
 			}
 			if value := res.Get("neighborTimers.minimumHoldTime"); value.Exists() {
 				data.NeighborMinHoldTime = types.Int64Value(value.Int())
 			} else {
-				data.NeighborMinHoldTime = types.Int64Value(3)
+				data.NeighborMinHoldTime = types.Int64Null()
 			}
 			if value := res.Get("neighborAdvanced.neighborSecret"); value.Exists() {
 				data.NeighborAuthenticationPassword = types.StringValue(value.String())
@@ -1332,7 +1332,7 @@ func (data *DeviceBGP) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		}
 		if value := res.Get("neighborRoutes.advertisementInterval"); value.Exists() && !data.NeighborRoutesAdvertisementInterval.IsNull() {
 			data.NeighborRoutesAdvertisementInterval = types.Int64Value(value.Int())
-		} else if data.NeighborRoutesAdvertisementInterval.ValueInt64() != 1 {
+		} else if data.NeighborRoutesAdvertisementInterval.ValueInt64() != 0 {
 			data.NeighborRoutesAdvertisementInterval = types.Int64Null()
 		}
 		if value := res.Get("neighborRoutes.removePrivateAs"); value.Exists() && !data.NeighborRoutesRemovePrivateAs.IsNull() {
@@ -1362,17 +1362,17 @@ func (data *DeviceBGP) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		}
 		if value := res.Get("neighborTimers.keepAliveInterval"); value.Exists() && !data.NeighborKeepaliveInterval.IsNull() {
 			data.NeighborKeepaliveInterval = types.Int64Value(value.Int())
-		} else if data.NeighborKeepaliveInterval.ValueInt64() != 60 {
+		} else {
 			data.NeighborKeepaliveInterval = types.Int64Null()
 		}
 		if value := res.Get("neighborTimers.holdTime"); value.Exists() && !data.NeighborHoldTime.IsNull() {
 			data.NeighborHoldTime = types.Int64Value(value.Int())
-		} else if data.NeighborHoldTime.ValueInt64() != 180 {
+		} else {
 			data.NeighborHoldTime = types.Int64Null()
 		}
 		if value := res.Get("neighborTimers.minimumHoldTime"); value.Exists() && !data.NeighborMinHoldTime.IsNull() {
 			data.NeighborMinHoldTime = types.Int64Value(value.Int())
-		} else if data.NeighborMinHoldTime.ValueInt64() != 3 {
+		} else {
 			data.NeighborMinHoldTime = types.Int64Null()
 		}
 		if value := res.Get("neighborAdvanced.neighborSecret"); value.Exists() && !data.NeighborAuthenticationPassword.IsNull() {

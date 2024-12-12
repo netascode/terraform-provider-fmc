@@ -141,16 +141,13 @@ Optional:
 - `neighbor_generate_default_route_map_id` (String) Generate default routes - Route Map
 - `neighbor_hold_time` (Number) Time interval to hold the neighbor in seconds
   - Range: `3`-`65535`
-  - Default value: `180`
 - `neighbor_keepalive_interval` (Number) Time interval to send keepalive messages in seconds
   - Range: `0`-`65535`
-  - Default value: `60`
 - `neighbor_max_hop_count` (Number) Maximum number of hops to reach the neighbor
   - Range: `1`-`255`
   - Default value: `1`
 - `neighbor_min_hold_time` (Number) Minimum hold time in seconds
   - Range: `3`-`65535`
-  - Default value: `3`
 - `neighbor_nexthop_self` (Boolean) Use itself as next hop for this neighbor
   - Default value: `false`
 - `neighbor_remote_as` (String) AS number of the BGP neighbor
@@ -159,7 +156,7 @@ Optional:
 - `neighbor_routes_advertise_map_use_exist` (Boolean) Use Exist Map or Non-Exist Map
 - `neighbor_routes_advertisement_interval` (Number) Time interval to advertise routes in seconds
   - Range: `0`-`600`
-  - Default value: `1`
+  - Default value: `0`
 - `neighbor_routes_remove_private_as` (Boolean) Remove private AS numbers from outgoing routing updates
   - Default value: `false`
 - `neighbor_send_community_attribute` (Boolean) Send Community attribute to this neighbor
