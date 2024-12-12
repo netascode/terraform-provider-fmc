@@ -24,11 +24,11 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -45,6 +45,7 @@ var (
 	_ resource.Resource                = &SGTResource{}
 	_ resource.ResourceWithImportState = &SGTResource{}
 )
+var minFMCVersionCreateSGT = version.Must(version.NewVersion("7.4"))
 
 func NewSGTResource() resource.Resource {
 	return &SGTResource{}
@@ -83,13 +84,8 @@ func (r *SGTResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 				Required:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityGroupTag'.").AddDefaultValueDescription("SecurityGroupTag").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityGroupTag'.").String,
 				Optional:            true,
-				Computed:            true,
-				Default:             stringdefault.StaticString("SecurityGroupTag"),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Description").String,
@@ -116,6 +112,14 @@ func (r *SGTResource) Configure(_ context.Context, req resource.ConfigureRequest
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
 func (r *SGTResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Get FMC version
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
+
+	// Check if FMC client is connected to supports this object
+	if fmcVersion.LessThan(minFMCVersionCreateSGT) {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support SGT creation, minumum required version is 7.4", r.client.FMCVersion))
+		return
+	}
 	var plan SGT
 
 	// Read plan

@@ -84,7 +84,7 @@ func (data *SGT) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("SecurityGroupTag")
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() {
 		data.Description = types.StringValue(value.String())
@@ -114,7 +114,7 @@ func (data *SGT) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "SecurityGroupTag" {
+	} else {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("description"); value.Exists() && !data.Description.IsNull() {

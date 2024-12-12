@@ -31,11 +31,13 @@ import (
 func TestAccDataSourceFmcSGT(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "name", "SGT1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "type", ""))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "description", "My SGT object"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgt.test", "tag", "11"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcSGTConfig(),
@@ -59,6 +61,7 @@ func TestAccDataSourceFmcSGT(t *testing.T) {
 func testAccDataSourceFmcSGTConfig() string {
 	config := `resource "fmc_sgt" "test" {` + "\n"
 	config += `	name = "SGT1"` + "\n"
+	config += `	type = ""` + "\n"
 	config += `	description = "My SGT object"` + "\n"
 	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"
@@ -74,6 +77,7 @@ func testAccDataSourceFmcSGTConfig() string {
 func testAccNamedDataSourceFmcSGTConfig() string {
 	config := `resource "fmc_sgt" "test" {` + "\n"
 	config += `	name = "SGT1"` + "\n"
+	config += `	type = ""` + "\n"
 	config += `	description = "My SGT object"` + "\n"
 	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"

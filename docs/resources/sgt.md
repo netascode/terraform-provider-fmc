@@ -15,6 +15,7 @@ This resource can manage a SGT.
 ```terraform
 resource "fmc_sgt" "example" {
   name        = "SGT1"
+  type        = ""
   description = "My SGT object"
   tag         = "11"
 }
@@ -33,7 +34,6 @@ resource "fmc_sgt" "example" {
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
 - `type` (String) Type of the object; this value is always 'SecurityGroupTag'.
-  - Default value: `SecurityGroupTag`
 
 ### Read-Only
 
