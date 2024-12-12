@@ -74,9 +74,6 @@ func (data SGTs) toBody(ctx context.Context, state SGTs) string {
 			if !item.Name.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "name", item.Name.ValueString())
 			}
-			if !item.Type.IsNull() {
-				itemBody, _ = sjson.Set(itemBody, "type", item.Type.ValueString())
-			}
 			if !item.Description.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
 			}
@@ -227,6 +224,14 @@ func (data *SGTs) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 				v.Id = types.StringValue(value.String())
 			} else {
 				v.Id = types.StringNull()
+			}
+			data.Items[i] = v
+		}
+		if v := data.Items[i]; v.Type.IsUnknown() {
+			if value := r.Get("type"); value.Exists() {
+				v.Type = types.StringValue(value.String())
+			} else {
+				v.Type = types.StringNull()
 			}
 			data.Items[i] = v
 		}

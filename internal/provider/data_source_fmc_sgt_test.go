@@ -61,7 +61,6 @@ func TestAccDataSourceFmcSGT(t *testing.T) {
 func testAccDataSourceFmcSGTConfig() string {
 	config := `resource "fmc_sgt" "test" {` + "\n"
 	config += `	name = "SGT1"` + "\n"
-	config += `	type = ""` + "\n"
 	config += `	description = "My SGT object"` + "\n"
 	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"
@@ -77,7 +76,6 @@ func testAccDataSourceFmcSGTConfig() string {
 func testAccNamedDataSourceFmcSGTConfig() string {
 	config := `resource "fmc_sgt" "test" {` + "\n"
 	config += `	name = "SGT1"` + "\n"
-	config += `	type = ""` + "\n"
 	config += `	description = "My SGT object"` + "\n"
 	config += `	tag = "11"` + "\n"
 	config += `}` + "\n"

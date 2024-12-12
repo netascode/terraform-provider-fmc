@@ -17,7 +17,6 @@ resource "fmc_sgts" "example" {
   items = {
     sgt_1 = {
       name        = "SGT1"
-      type        = ""
       description = "My SGT object"
       tag         = "11"
     }
@@ -51,11 +50,11 @@ Required:
 Optional:
 
 - `description` (String) Description
-- `type` (String) Type of the object; this value is always 'SecurityGroupTag'.
 
 Read-Only:
 
 - `id` (String) UUID of the managed SGT.
+- `type` (String) Type of the object; this value is always 'SecurityGroupTag'.
 
 ## Import
 

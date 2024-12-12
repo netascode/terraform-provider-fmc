@@ -32,7 +32,7 @@ func TestAccDataSourceFmcSGTs(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_sgts.test", "items.sgt_1.id"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgts.test", "items.sgt_1.name", "SGT1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgts.test", "items.sgt_1.type", ""))
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_sgts.test", "items.sgt_1.type"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgts.test", "items.sgt_1.description", "My SGT object"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_sgts.test", "items.sgt_1.tag", "11"))
 	resource.Test(t, resource.TestCase{
@@ -59,7 +59,6 @@ func testAccDataSourceFmcSGTsConfig() string {
 	config := `resource "fmc_sgts" "test" {` + "\n"
 	config += `	items = { "sgt_1" = {` + "\n"
 	config += `		name = "SGT1"` + "\n"
-	config += `		type = ""` + "\n"
 	config += `		description = "My SGT object"` + "\n"
 	config += `		tag = "11"` + "\n"
 	config += `	}}` + "\n"
