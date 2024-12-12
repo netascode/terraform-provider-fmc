@@ -256,7 +256,7 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 							MarkdownDescription: "Remove private AS numbers from outgoing routing updates",
 							Computed:            true,
 						},
-						"neighbor_generate_default_route_map": schema.StringAttribute{
+						"neighbor_generate_default_route_map_id": schema.StringAttribute{
 							MarkdownDescription: "Generate default routes - Route Map",
 							Computed:            true,
 						},
@@ -264,11 +264,11 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 							MarkdownDescription: "Use Exist Map or Non-Exist Map",
 							Computed:            true,
 						},
-						"neighbor_routes_advertise_map": schema.StringAttribute{
+						"neighbor_routes_advertise_map_id": schema.StringAttribute{
 							MarkdownDescription: "Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.",
 							Computed:            true,
 						},
-						"neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
+						"neighbor_routes_advertise_exist_nonexist_map_id": schema.StringAttribute{
 							MarkdownDescription: "Specified route maps are advertised when the prefix exists only in the Advertise Map.",
 							Computed:            true,
 						},

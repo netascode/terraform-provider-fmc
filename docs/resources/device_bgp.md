@@ -138,7 +138,7 @@ Optional:
 - `neighbor_filter_threshold_value` (Number) Threshold value for the maximum number of prefixes allowed from the neighbor
   - Range: `1`-`100`
 - `neighbor_filter_warning_only` (Boolean) Give only warning message when prefix limit exceeded or terminate peering when prefix limit is exceeded.
-- `neighbor_generate_default_route_map` (String) Generate default routes - Route Map
+- `neighbor_generate_default_route_map_id` (String) Generate default routes - Route Map
 - `neighbor_hold_time` (Number) Time interval to hold the neighbor in seconds
   - Range: `3`-`65535`
   - Default value: `180`
@@ -154,8 +154,8 @@ Optional:
 - `neighbor_nexthop_self` (Boolean) Use itself as next hop for this neighbor
   - Default value: `false`
 - `neighbor_remote_as` (String) AS number of the BGP neighbor
-- `neighbor_routes_advertise_exist_nonexist_map` (String) Specified route maps are advertised when the prefix exists only in the Advertise Map.
-- `neighbor_routes_advertise_map` (String) Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
+- `neighbor_routes_advertise_exist_nonexist_map_id` (String) Specified route maps are advertised when the prefix exists only in the Advertise Map.
+- `neighbor_routes_advertise_map_id` (String) Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
 - `neighbor_routes_advertise_map_use_exist` (Boolean) Use Exist Map or Non-Exist Map
 - `neighbor_routes_advertisement_interval` (Number) Time interval to advertise routes in seconds
   - Range: `0`-`600`

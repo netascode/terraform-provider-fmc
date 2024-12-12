@@ -345,7 +345,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
-						"neighbor_generate_default_route_map": schema.StringAttribute{
+						"neighbor_generate_default_route_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Generate default routes - Route Map").String,
 							Optional:            true,
 						},
@@ -353,11 +353,11 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							MarkdownDescription: helpers.NewAttributeDescription("Use Exist Map or Non-Exist Map").String,
 							Optional:            true,
 						},
-						"neighbor_routes_advertise_map": schema.StringAttribute{
+						"neighbor_routes_advertise_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.").String,
 							Optional:            true,
 						},
-						"neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
+						"neighbor_routes_advertise_exist_nonexist_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Specified route maps are advertised when the prefix exists only in the Advertise Map.").String,
 							Optional:            true,
 						},
