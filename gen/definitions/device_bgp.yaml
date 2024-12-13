@@ -295,7 +295,7 @@ attributes:
         description: Time interval to advertise routes in seconds
         min_int: 0
         max_int: 600
-        default_value: 1
+        default_value: 0
         example: 1
         exclude_example: true
       - model_name: removePrivateAs
@@ -307,7 +307,7 @@ attributes:
         example: "false"
         exclude_example: true
       - model_name: id
-        tf_name: neighbor_generate_default_route_map
+        tf_name: neighbor_generate_default_route_map_id
         data_path: [neighborFiltering, neighborDefaultOriginate, routeMap]
         type: String
         description: Generate default routes - Route Map
@@ -321,7 +321,7 @@ attributes:
         exclude_example: true
         description: Use Exist Map or Non-Exist Map
       - model_name: id
-        tf_name: neighbor_routes_advertise_map
+        tf_name: neighbor_routes_advertise_map_id
         data_path: [neighborRoutes, neighborAdvertiseMaps, routeMap]
         type: String
         id: true
@@ -329,7 +329,7 @@ attributes:
         exclude_test: true
         exclude_example: true
       - model_name: id
-        tf_name: neighbor_routes_advertise_exist_nonexist_map
+        tf_name: neighbor_routes_advertise_exist_nonexist_map_id
         data_path: [neighborRoutes, neighborAdvertiseMaps, existRouteMap]
         type: String
         id: true
@@ -344,7 +344,6 @@ attributes:
         description: Time interval to send keepalive messages in seconds
         min_int: 0
         max_int: 65535
-        default_value: 60
         example: 60
         exclude_example: true
       - model_name: holdTime
@@ -354,7 +353,6 @@ attributes:
         description: Time interval to hold the neighbor in seconds
         min_int: 3
         max_int: 65535
-        default_value: 180
         example: 180
         exclude_example: true
       - model_name: minimumHoldTime
@@ -364,7 +362,6 @@ attributes:
         description: Minimum hold time in seconds
         min_int: 3
         max_int: 65535
-        default_value: 3
         example: 3
         exclude_example: true
 # BGP - IPv4 - Neighbor - Advanced

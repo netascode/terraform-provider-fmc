@@ -1,0 +1,160 @@
+---
+name: Device HA Pair
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devicehapairs/ftddevicehapairs
+data_source_name_query: true
+doc_category: Device
+attributes:
+  - model_name: name
+    type: String
+    mandatory: true
+    description: The name of the access control policy.
+    example: FTD_HA
+  - model_name: type
+    type: String
+    description: Type of the resource (DeviceHAPair).
+    value: DeviceHAPair
+  - model_name: id
+    type: String
+    mandatory: true
+    tf_name: primary_device_id
+    data_path: [primary]
+    description: ID of primary FTD in the HA Pair.
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    test_value: var.device_id
+  - model_name: id
+    type: String
+    mandatory: true
+    tf_name: secondary_device_id
+    data_path: [secondary]
+    description: ID of secondary FTD in the HA Pair.
+    example: 96d24097-41c4-4332-a4d0-a8c07ac08482
+    test_value: var.device_id
+  - model_name: isEncryptionEnabled
+    type: Bool
+    data_path: [ftdHABootstrap]
+    description: Boolean field to enable encryption
+    example: false
+  - model_name: useSameLinkForFailovers
+    type: Bool
+    mandatory: true
+    write_only: true
+    data_path: [ftdHABootstrap]
+    example: false
+    description: Boolean field to enable same link for failovers
+  - model_name: sharedKey
+    type: String
+    data_path: [ftdHABootstrap]
+    description: Pass the unique shared key if needed.
+    example: cisco123
+  - model_name: encKeyGenerationScheme
+    type: String
+    data_path: [ftdHABootstrap]
+    description: Select the encyption key generation scheme.
+    example: "CUSTOM"
+    enum_values: [ AUTO, CUSTOM ]
+  - model_name: standbyIP
+    type: String
+    mandatory: true
+    tf_name: lan_failover_standby_ip
+    data_path: [ftdHABootstrap,lanFailover]
+    example: "1.1.1.2"
+  - model_name: activeIP
+    tf_name: lan_failover_active_ip
+    mandatory: true
+    type: String
+    data_path: [ftdHABootstrap,lanFailover]
+    example: "1.1.1.1"
+  - model_name: logicalName
+    type: String
+    mandatory: true
+    tf_name: lan_failover_name
+    data_path: [ftdHABootstrap,lanFailover]
+    example: LAN-INTERFACE
+  - model_name: subnetMask
+    type: String
+    tf_name: lan_failover_subnet_mask
+    data_path: [ftdHABootstrap,lanFailover]
+    example: "255.255.255.0"
+  - model_name: useIPv6Address
+    type: Bool
+    tf_name: lan_failover_ipv6_addr
+    data_path: [ftdHABootstrap,lanFailover]
+    write_only: true
+    example: false
+  - model_name: name
+    type: String
+    tf_name: lan_failover_interface_name
+    data_path: [ftdHABootstrap,lanFailover,interfaceObject]
+    description: Name of physical interface
+    example: GigabitEthernet0/0
+  - model_name: id
+    type: String
+    mandatory: true
+    tf_name: lan_failover_interface_id
+    data_path: [ftdHABootstrap,lanFailover,interfaceObject]
+    write_only: true
+    description: ID of physical interface.
+    example: 757kdgh5-41c4-4558-a4d0-a8c07ac08470
+  - model_name: type
+    type: String
+    tf_name: lan_failover_interface_type
+    write_only: true
+    data_path: [ftdHABootstrap,lanFailover,interfaceObject]
+    description: Type of physical interface.
+    example: PhysicalInterface
+  - model_name: standbyIP
+    type: String
+    tf_name: stateful_failover_standby_ip
+    data_path: [ftdHABootstrap,statefulFailover]
+    example: "10.10.10.2"
+  - model_name: activeIP
+    tf_name: stateful_failover_active_ip
+    type: String
+    data_path: [ftdHABootstrap,statefulFailover]
+    example: "10.10.10.1"
+  - model_name: logicalName
+    type: String
+    tf_name: stateful_failover_name
+    data_path: [ftdHABootstrap,statefulFailover]
+    example: Stateful-INTERFACE
+  - model_name: subnetMask
+    type: String
+    tf_name: stateful_failover_subnet_mask
+    data_path: [ftdHABootstrap,statefulFailover]
+    example: "255.255.255.0"
+  - model_name: useIPv6Address
+    type: Bool
+    tf_name: stateful_failover_ipv6_addr
+    data_path: [ftdHABootstrap,statefulFailover]
+    example: false
+  - model_name: name
+    type: String
+    tf_name: stateful_failover_interface_name
+    data_path: [ftdHABootstrap,statefulFailover,interfaceObject]
+    description: Name of physical interface
+    example: GigabitEthernet0/0
+  - model_name: id
+    type: String
+    tf_name: stateful_failover_interface_id
+    data_path: [ftdHABootstrap,statefulFailover,interfaceObject]
+    description: ID of physical interface.
+    example: 76d24097-hj7r-7786-a4d0-a8c07ac08470
+  - model_name: type
+    type: String
+    tf_name: stateful_failover_interface_type
+    data_path: [ftdHABootstrap,statefulFailover,interfaceObject]
+    description: Type of physical interface.
+    example: PhysicalInterface
+  - model_name: action
+    type: String
+    description: FTD HA PUT operation action. Specifically used for breaking FTD HA or manual switch.
+    enum_values: [ SWITCH, HABREAK ]
+    exclude_test: true
+    example: SWITCH
+  - model_name: forceBreak
+    type: Bool
+    description: FTD HA Force Break option (PUT Option).
+    exclude_test: true
+    example: false 
+test_prerequisites: |-
+  variable "device_id" { default = null } // tests will set $TF_VAR_device_id

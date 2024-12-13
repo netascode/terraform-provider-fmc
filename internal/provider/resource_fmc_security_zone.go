@@ -90,9 +90,6 @@ func (r *SecurityZoneResource) Schema(ctx context.Context, req resource.SchemaRe
 				Validators: []validator.String{
 					stringvalidator.OneOf("PASSIVE", "INLINE", "SWITCHED", "ROUTED", "ASA"),
 				},
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 			"type": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityZone'.").AddDefaultValueDescription("SecurityZone").String,

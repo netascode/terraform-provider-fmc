@@ -102,15 +102,15 @@ Read-Only:
 - `neighbor_filter_route_map_lists` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_neighbors--neighbor_filter_route_map_lists))
 - `neighbor_filter_threshold_value` (Number) Threshold value for the maximum number of prefixes allowed from the neighbor
 - `neighbor_filter_warning_only` (Boolean) Give only warning message when prefix limit exceeded or terminate peering when prefix limit is exceeded.
-- `neighbor_generate_default_route_map` (String) Generate default routes - Route Map
+- `neighbor_generate_default_route_map_id` (String) Generate default routes - Route Map
 - `neighbor_hold_time` (Number) Time interval to hold the neighbor in seconds
 - `neighbor_keepalive_interval` (Number) Time interval to send keepalive messages in seconds
 - `neighbor_max_hop_count` (Number) Maximum number of hops to reach the neighbor
 - `neighbor_min_hold_time` (Number) Minimum hold time in seconds
 - `neighbor_nexthop_self` (Boolean) Use itself as next hop for this neighbor
 - `neighbor_remote_as` (String) AS number of the BGP neighbor
-- `neighbor_routes_advertise_exist_nonexist_map` (String) Specified route maps are advertised when the prefix exists only in the Advertise Map.
-- `neighbor_routes_advertise_map` (String) Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
+- `neighbor_routes_advertise_exist_nonexist_map_id` (String) Specified route maps are advertised when the prefix exists only in the Advertise Map.
+- `neighbor_routes_advertise_map_id` (String) Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.
 - `neighbor_routes_advertise_map_use_exist` (Boolean) Use Exist Map or Non-Exist Map
 - `neighbor_routes_advertisement_interval` (Number) Time interval to advertise routes in seconds
 - `neighbor_routes_remove_private_as` (Boolean) Remove private AS numbers from outgoing routing updates

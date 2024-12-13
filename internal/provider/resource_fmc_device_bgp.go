@@ -331,13 +331,13 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							},
 						},
 						"neighbor_routes_advertisement_interval": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Time interval to advertise routes in seconds").AddIntegerRangeDescription(0, 600).AddDefaultValueDescription("1").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Time interval to advertise routes in seconds").AddIntegerRangeDescription(0, 600).AddDefaultValueDescription("0").String,
 							Optional:            true,
 							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(0, 600),
 							},
-							Default: int64default.StaticInt64(1),
+							Default: int64default.StaticInt64(0),
 						},
 						"neighbor_routes_remove_private_as": schema.BoolAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Remove private AS numbers from outgoing routing updates").AddDefaultValueDescription("false").String,
@@ -345,7 +345,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							Computed:            true,
 							Default:             booldefault.StaticBool(false),
 						},
-						"neighbor_generate_default_route_map": schema.StringAttribute{
+						"neighbor_generate_default_route_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Generate default routes - Route Map").String,
 							Optional:            true,
 						},
@@ -353,40 +353,34 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 							MarkdownDescription: helpers.NewAttributeDescription("Use Exist Map or Non-Exist Map").String,
 							Optional:            true,
 						},
-						"neighbor_routes_advertise_map": schema.StringAttribute{
+						"neighbor_routes_advertise_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Specified route maps are advertised when the prefix exists in the Advertise Map and Exist Map.").String,
 							Optional:            true,
 						},
-						"neighbor_routes_advertise_exist_nonexist_map": schema.StringAttribute{
+						"neighbor_routes_advertise_exist_nonexist_map_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Specified route maps are advertised when the prefix exists only in the Advertise Map.").String,
 							Optional:            true,
 						},
 						"neighbor_keepalive_interval": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Time interval to send keepalive messages in seconds").AddIntegerRangeDescription(0, 65535).AddDefaultValueDescription("60").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Time interval to send keepalive messages in seconds").AddIntegerRangeDescription(0, 65535).String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(0, 65535),
 							},
-							Default: int64default.StaticInt64(60),
 						},
 						"neighbor_hold_time": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Time interval to hold the neighbor in seconds").AddIntegerRangeDescription(3, 65535).AddDefaultValueDescription("180").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Time interval to hold the neighbor in seconds").AddIntegerRangeDescription(3, 65535).String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(3, 65535),
 							},
-							Default: int64default.StaticInt64(180),
 						},
 						"neighbor_min_hold_time": schema.Int64Attribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Minimum hold time in seconds").AddIntegerRangeDescription(3, 65535).AddDefaultValueDescription("3").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Minimum hold time in seconds").AddIntegerRangeDescription(3, 65535).String,
 							Optional:            true,
-							Computed:            true,
 							Validators: []validator.Int64{
 								int64validator.Between(3, 65535),
 							},
-							Default: int64default.StaticInt64(3),
 						},
 						"neighbor_authentication_password": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Setting password enables authentication.").String,
