@@ -88,16 +88,32 @@ func (d *DeviceHAPairMonitoringDataSource) Schema(ctx context.Context, req datas
 				Computed:            true,
 			},
 			"ipv4_active_address": schema.StringAttribute{
-				MarkdownDescription: "Active IP address from the interface.",
+				MarkdownDescription: "Active IPv4 address from the interface.",
 				Computed:            true,
 			},
 			"ipv4_standby_address": schema.StringAttribute{
-				MarkdownDescription: "Standby IP address. It has to be in the same subnet as primaty IP configured on this interface.",
+				MarkdownDescription: "Standby IPv4 address. It has to be in the same subnet as primaty IP configured on this interface.",
 				Computed:            true,
 			},
 			"ipv4_netmask": schema.StringAttribute{
-				MarkdownDescription: "Network Mask assigned on the interface.",
+				MarkdownDescription: "IPv4 Network Mask assigned on the interface.",
 				Computed:            true,
+			},
+			"ipv6_addresses": schema.ListNestedAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"active_address": schema.StringAttribute{
+							MarkdownDescription: "Active IPv6 address with prefix. Address has to be configured on the interface.",
+							Computed:            true,
+						},
+						"standby_address": schema.StringAttribute{
+							MarkdownDescription: "Standby IPv6 address. Address has to be from the same subnet as active IPv6 address.",
+							Computed:            true,
+						},
+					},
+				},
 			},
 		},
 	}

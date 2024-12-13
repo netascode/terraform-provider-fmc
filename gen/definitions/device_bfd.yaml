@@ -8,7 +8,7 @@ attributes:
   - tf_name: device_id
     type: String
     reference: true
-    description: TBD
+    description: UUID of the parent device (fmc_device.example.id).
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
     test_value: var.device_id
   - model_name: type
@@ -17,8 +17,9 @@ attributes:
     description: Type of the object; this value is always 'BFDPolicy'
 # General
   - model_name: hopType
-    description: Hop Type SINGLE_HOP or MULTI_HOP
+    description: BFD Hop type.
     mandatory: true
+    enum_values: [ SINGLE_HOP, MULTI_HOP ]
     type: String
     example: SINGLE_HOP
   - model_name: id
@@ -36,13 +37,13 @@ attributes:
     example: "outside"
   - model_name: id
     data_path: [destinationAddress]
-    tf_name: destination_object_id
+    tf_name: destination_host_object_id
     description: The ID of the destination host object if MULTI_HOP selected.
     type: String
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
   - model_name: id
     data_path: [sourceAddress]
-    tf_name: source_object_id
+    tf_name: source_host_object_id
     description: The ID of the source host object if MULTI_HOP selected.
     type: String
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470

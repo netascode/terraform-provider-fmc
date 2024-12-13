@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -81,7 +82,7 @@ func (r *DeviceBFDResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"device_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("TBD").String,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the parent device (fmc_device.example.id).").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -95,8 +96,11 @@ func (r *DeviceBFDResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"hop_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Hop Type SINGLE_HOP or MULTI_HOP").String,
+				MarkdownDescription: helpers.NewAttributeDescription("BFD Hop type.").AddStringEnumDescription("SINGLE_HOP", "MULTI_HOP").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("SINGLE_HOP", "MULTI_HOP"),
+				},
 			},
 			"bfd_template_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of the BFD Template").String,
@@ -106,11 +110,11 @@ func (r *DeviceBFDResource) Schema(ctx context.Context, req resource.SchemaReque
 				MarkdownDescription: helpers.NewAttributeDescription("Logical Name of the interface of BFD assignment if SINGLE_HOP selected.").String,
 				Optional:            true,
 			},
-			"destination_object_id": schema.StringAttribute{
+			"destination_host_object_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ID of the destination host object if MULTI_HOP selected.").String,
 				Optional:            true,
 			},
-			"source_object_id": schema.StringAttribute{
+			"source_host_object_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("The ID of the source host object if MULTI_HOP selected.").String,
 				Optional:            true,
 			},

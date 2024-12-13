@@ -40,6 +40,8 @@ func TestAccFmcDeviceHAPairMonitoring(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_ha_pair_monitoring.test", "ipv4_active_address"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "ipv4_standby_address", "10.1.1.2"))
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_ha_pair_monitoring.test", "ipv4_netmask"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "ipv6_addresses.0.active_address", "2006::1/30"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_ha_pair_monitoring.test", "ipv6_addresses.0.standby_address", "2006::2"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -74,6 +76,8 @@ variable "device_ha_id" { default = null } // tests will set $TF_VAR_device_ha_i
 func testAccFmcDeviceHAPairMonitoringConfig_minimum() string {
 	config := `resource "fmc_device_ha_pair_monitoring" "test" {` + "\n"
 	config += `	device_id = var.device_ha_id` + "\n"
+	config += `	logical_name = "outside"` + "\n"
+	config += `	monitor_interface = true` + "\n"
 	config += `}` + "\n"
 	return config
 }
@@ -88,6 +92,10 @@ func testAccFmcDeviceHAPairMonitoringConfig_all() string {
 	config += `	logical_name = "outside"` + "\n"
 	config += `	monitor_interface = true` + "\n"
 	config += `	ipv4_standby_address = "10.1.1.2"` + "\n"
+	config += `	ipv6_addresses = [{` + "\n"
+	config += `		active_address = "2006::1/30"` + "\n"
+	config += `		standby_address = "2006::2"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 	return config
 }

@@ -61,9 +61,6 @@ func (data SecurityZone) toBody(ctx context.Context, state SecurityZone) string 
 	if !data.InterfaceType.IsNull() {
 		body, _ = sjson.Set(body, "interfaceMode", data.InterfaceType.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
-	}
 	return body
 }
 
@@ -85,7 +82,7 @@ func (data *SecurityZone) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("SecurityZone")
+		data.Type = types.StringNull()
 	}
 }
 
@@ -110,7 +107,7 @@ func (data *SecurityZone) fromBodyPartial(ctx context.Context, res gjson.Result)
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "SecurityZone" {
+	} else {
 		data.Type = types.StringNull()
 	}
 }
@@ -122,6 +119,13 @@ func (data *SecurityZone) fromBodyPartial(ctx context.Context, res gjson.Result)
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *SecurityZone) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns

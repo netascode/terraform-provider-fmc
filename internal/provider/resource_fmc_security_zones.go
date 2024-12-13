@@ -32,7 +32,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -103,10 +102,11 @@ func (r *SecurityZonesResource) Schema(ctx context.Context, req resource.SchemaR
 							},
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityZone'.").AddDefaultValueDescription("SecurityZone").String,
-							Optional:            true,
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'SecurityZone'.").String,
 							Computed:            true,
-							Default:             stringdefault.StaticString("SecurityZone"),
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 					},
 				},

@@ -45,14 +45,10 @@ Required:
 - `interface_type` (String) The mode of the associated interfaces, with the exception of mode ROUTED that corresponds to mode NONE of associated interfaces.
   - Choices: `PASSIVE`, `INLINE`, `SWITCHED`, `ROUTED`, `ASA`
 
-Optional:
-
-- `type` (String) Type of the object; this value is always 'SecurityZone'.
-  - Default value: `SecurityZone`
-
 Read-Only:
 
 - `id` (String) UUID of the managed Security Zone.
+- `type` (String) Type of the object; this value is always 'SecurityZone'.
 
 ## Import
 

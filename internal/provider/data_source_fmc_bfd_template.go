@@ -80,23 +80,23 @@ func (d *BFDTemplateDataSource) Schema(ctx context.Context, req datasource.Schem
 				Computed:            true,
 			},
 			"hop_type": schema.StringAttribute{
-				MarkdownDescription: "The hop type - SINGLE_HOP | MULTI_HOP",
+				MarkdownDescription: "The hop type.",
 				Computed:            true,
 			},
 			"echo": schema.StringAttribute{
-				MarkdownDescription: "(ENABLED | DISABLED)",
+				MarkdownDescription: "Enables/disables BFD echo.",
 				Computed:            true,
 			},
 			"interval_time": schema.StringAttribute{
-				MarkdownDescription: "Interval unit of measurement of time (MILLISECONDS | MICROSECONDS | NONE)",
+				MarkdownDescription: "Interval unit of measurement of time.",
 				Computed:            true,
 			},
 			"min_transmit": schema.Int64Attribute{
-				MarkdownDescription: "BFD Minimum Transmit unit value",
+				MarkdownDescription: "BFD Minimum Transmit unit value.",
 				Computed:            true,
 			},
 			"tx_rx_multiplier": schema.Int64Attribute{
-				MarkdownDescription: "BFD Multipler value in range: 3 - 50",
+				MarkdownDescription: "BFD Multipler value.",
 				Computed:            true,
 			},
 			"min_receive": schema.Int64Attribute{
@@ -107,12 +107,12 @@ func (d *BFDTemplateDataSource) Schema(ctx context.Context, req datasource.Schem
 				MarkdownDescription: "Password for BFD Authentication (1-24 characters)",
 				Computed:            true,
 			},
-			"authentication_key_id": schema.StringAttribute{
-				MarkdownDescription: "Authentication Key ID 0-255",
+			"authentication_key_id": schema.Int64Attribute{
+				MarkdownDescription: "Authentication Key ID",
 				Computed:            true,
 			},
 			"authentication_type": schema.StringAttribute{
-				MarkdownDescription: "Authentication types: (MD5, METICULOUSMD5, METICULOUSSHA1, SHA1, NONE)",
+				MarkdownDescription: "Authentication types",
 				Computed:            true,
 			},
 		},

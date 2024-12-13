@@ -42,7 +42,7 @@ type BFDTemplate struct {
 	TxRxMultiplier         types.Int64  `tfsdk:"tx_rx_multiplier"`
 	MinReceive             types.Int64  `tfsdk:"min_receive"`
 	AuthenticationPassword types.String `tfsdk:"authentication_password"`
-	AuthenticationKeyId    types.String `tfsdk:"authentication_key_id"`
+	AuthenticationKeyId    types.Int64  `tfsdk:"authentication_key_id"`
 	AuthenticationType     types.String `tfsdk:"authentication_type"`
 }
 
@@ -88,7 +88,7 @@ func (data BFDTemplate) toBody(ctx context.Context, state BFDTemplate) string {
 		body, _ = sjson.Set(body, "authentication.authKey", data.AuthenticationPassword.ValueString())
 	}
 	if !data.AuthenticationKeyId.IsNull() {
-		body, _ = sjson.Set(body, "authentication.authKeyId", data.AuthenticationKeyId.ValueString())
+		body, _ = sjson.Set(body, "authentication.authKeyId", data.AuthenticationKeyId.ValueInt64())
 	}
 	if !data.AuthenticationType.IsNull() {
 		body, _ = sjson.Set(body, "authentication.authType", data.AuthenticationType.ValueString())
@@ -147,9 +147,9 @@ func (data *BFDTemplate) fromBody(ctx context.Context, res gjson.Result) {
 		data.AuthenticationPassword = types.StringNull()
 	}
 	if value := res.Get("authentication.authKeyId"); value.Exists() {
-		data.AuthenticationKeyId = types.StringValue(value.String())
+		data.AuthenticationKeyId = types.Int64Value(value.Int())
 	} else {
-		data.AuthenticationKeyId = types.StringNull()
+		data.AuthenticationKeyId = types.Int64Null()
 	}
 	if value := res.Get("authentication.authType"); value.Exists() {
 		data.AuthenticationType = types.StringValue(value.String())
@@ -213,9 +213,9 @@ func (data *BFDTemplate) fromBodyPartial(ctx context.Context, res gjson.Result) 
 		data.AuthenticationPassword = types.StringNull()
 	}
 	if value := res.Get("authentication.authKeyId"); value.Exists() && !data.AuthenticationKeyId.IsNull() {
-		data.AuthenticationKeyId = types.StringValue(value.String())
+		data.AuthenticationKeyId = types.Int64Value(value.Int())
 	} else {
-		data.AuthenticationKeyId = types.StringNull()
+		data.AuthenticationKeyId = types.Int64Null()
 	}
 	if value := res.Get("authentication.authType"); value.Exists() && !data.AuthenticationType.IsNull() {
 		data.AuthenticationType = types.StringValue(value.String())

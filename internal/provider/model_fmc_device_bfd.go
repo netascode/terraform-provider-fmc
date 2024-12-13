@@ -33,17 +33,17 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type DeviceBFD struct {
-	Id                   types.String `tfsdk:"id"`
-	Domain               types.String `tfsdk:"domain"`
-	DeviceId             types.String `tfsdk:"device_id"`
-	Type                 types.String `tfsdk:"type"`
-	HopType              types.String `tfsdk:"hop_type"`
-	BfdTemplateId        types.String `tfsdk:"bfd_template_id"`
-	InterfaceLogicalName types.String `tfsdk:"interface_logical_name"`
-	DestinationObjectId  types.String `tfsdk:"destination_object_id"`
-	SourceObjectId       types.String `tfsdk:"source_object_id"`
-	InterfaceId          types.String `tfsdk:"interface_id"`
-	SlowTimer            types.Int64  `tfsdk:"slow_timer"`
+	Id                      types.String `tfsdk:"id"`
+	Domain                  types.String `tfsdk:"domain"`
+	DeviceId                types.String `tfsdk:"device_id"`
+	Type                    types.String `tfsdk:"type"`
+	HopType                 types.String `tfsdk:"hop_type"`
+	BfdTemplateId           types.String `tfsdk:"bfd_template_id"`
+	InterfaceLogicalName    types.String `tfsdk:"interface_logical_name"`
+	DestinationHostObjectId types.String `tfsdk:"destination_host_object_id"`
+	SourceHostObjectId      types.String `tfsdk:"source_host_object_id"`
+	InterfaceId             types.String `tfsdk:"interface_id"`
+	SlowTimer               types.Int64  `tfsdk:"slow_timer"`
 }
 
 // End of section. //template:end types
@@ -72,11 +72,11 @@ func (data DeviceBFD) toBody(ctx context.Context, state DeviceBFD) string {
 	if !data.InterfaceLogicalName.IsNull() {
 		body, _ = sjson.Set(body, "interface.ifname", data.InterfaceLogicalName.ValueString())
 	}
-	if !data.DestinationObjectId.IsNull() {
-		body, _ = sjson.Set(body, "destinationAddress.id", data.DestinationObjectId.ValueString())
+	if !data.DestinationHostObjectId.IsNull() {
+		body, _ = sjson.Set(body, "destinationAddress.id", data.DestinationHostObjectId.ValueString())
 	}
-	if !data.SourceObjectId.IsNull() {
-		body, _ = sjson.Set(body, "sourceAddress.id", data.SourceObjectId.ValueString())
+	if !data.SourceHostObjectId.IsNull() {
+		body, _ = sjson.Set(body, "sourceAddress.id", data.SourceHostObjectId.ValueString())
 	}
 	if !data.InterfaceId.IsNull() {
 		body, _ = sjson.Set(body, "interface.id", data.InterfaceId.ValueString())
@@ -113,14 +113,14 @@ func (data *DeviceBFD) fromBody(ctx context.Context, res gjson.Result) {
 		data.InterfaceLogicalName = types.StringNull()
 	}
 	if value := res.Get("destinationAddress.id"); value.Exists() {
-		data.DestinationObjectId = types.StringValue(value.String())
+		data.DestinationHostObjectId = types.StringValue(value.String())
 	} else {
-		data.DestinationObjectId = types.StringNull()
+		data.DestinationHostObjectId = types.StringNull()
 	}
 	if value := res.Get("sourceAddress.id"); value.Exists() {
-		data.SourceObjectId = types.StringValue(value.String())
+		data.SourceHostObjectId = types.StringValue(value.String())
 	} else {
-		data.SourceObjectId = types.StringNull()
+		data.SourceHostObjectId = types.StringNull()
 	}
 	if value := res.Get("interface.id"); value.Exists() {
 		data.InterfaceId = types.StringValue(value.String())
@@ -163,15 +163,15 @@ func (data *DeviceBFD) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.InterfaceLogicalName = types.StringNull()
 	}
-	if value := res.Get("destinationAddress.id"); value.Exists() && !data.DestinationObjectId.IsNull() {
-		data.DestinationObjectId = types.StringValue(value.String())
+	if value := res.Get("destinationAddress.id"); value.Exists() && !data.DestinationHostObjectId.IsNull() {
+		data.DestinationHostObjectId = types.StringValue(value.String())
 	} else {
-		data.DestinationObjectId = types.StringNull()
+		data.DestinationHostObjectId = types.StringNull()
 	}
-	if value := res.Get("sourceAddress.id"); value.Exists() && !data.SourceObjectId.IsNull() {
-		data.SourceObjectId = types.StringValue(value.String())
+	if value := res.Get("sourceAddress.id"); value.Exists() && !data.SourceHostObjectId.IsNull() {
+		data.SourceHostObjectId = types.StringValue(value.String())
 	} else {
-		data.SourceObjectId = types.StringNull()
+		data.SourceHostObjectId = types.StringNull()
 	}
 	if value := res.Get("interface.id"); value.Exists() && !data.InterfaceId.IsNull() {
 		data.InterfaceId = types.StringValue(value.String())

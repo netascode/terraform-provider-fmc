@@ -40,7 +40,7 @@ func TestAccFmcBFDTemplate(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_bfd_template.test", "tx_rx_multiplier", "3"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_bfd_template.test", "min_receive", "300"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_bfd_template.test", "authentication_password", "Cisco123!"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_bfd_template.test", "authentication_key_id", "Cisco123!"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_bfd_template.test", "authentication_key_id", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_bfd_template.test", "authentication_type", "MD5"))
 
 	var steps []resource.TestStep
@@ -95,7 +95,7 @@ func testAccFmcBFDTemplateConfig_all() string {
 	config += `	tx_rx_multiplier = 3` + "\n"
 	config += `	min_receive = 300` + "\n"
 	config += `	authentication_password = "Cisco123!"` + "\n"
-	config += `	authentication_key_id = "Cisco123!"` + "\n"
+	config += `	authentication_key_id = 1` + "\n"
 	config += `	authentication_type = "MD5"` + "\n"
 	config += `}` + "\n"
 	return config

@@ -71,7 +71,7 @@ func (d *DeviceBFDDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Optional:            true,
 			},
 			"device_id": schema.StringAttribute{
-				MarkdownDescription: "TBD",
+				MarkdownDescription: "UUID of the parent device (fmc_device.example.id).",
 				Required:            true,
 			},
 			"type": schema.StringAttribute{
@@ -79,7 +79,7 @@ func (d *DeviceBFDDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"hop_type": schema.StringAttribute{
-				MarkdownDescription: "Hop Type SINGLE_HOP or MULTI_HOP",
+				MarkdownDescription: "BFD Hop type.",
 				Computed:            true,
 			},
 			"bfd_template_id": schema.StringAttribute{
@@ -91,11 +91,11 @@ func (d *DeviceBFDDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Optional:            true,
 				Computed:            true,
 			},
-			"destination_object_id": schema.StringAttribute{
+			"destination_host_object_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the destination host object if MULTI_HOP selected.",
 				Computed:            true,
 			},
-			"source_object_id": schema.StringAttribute{
+			"source_host_object_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the source host object if MULTI_HOP selected.",
 				Computed:            true,
 			},

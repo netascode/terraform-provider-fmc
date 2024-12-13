@@ -22,7 +22,7 @@ resource "fmc_bfd_template" "example" {
   tx_rx_multiplier        = 3
   min_receive             = 300
   authentication_password = "Cisco123!"
-  authentication_key_id   = "Cisco123!"
+  authentication_key_id   = 1
   authentication_type     = "MD5"
 }
 ```
@@ -32,23 +32,27 @@ resource "fmc_bfd_template" "example" {
 
 ### Required
 
-- `echo` (String) (ENABLED | DISABLED)
-- `hop_type` (String) The hop type - SINGLE_HOP | MULTI_HOP
+- `echo` (String) Enables/disables BFD echo.
+  - Choices: `ENABLED`, `DISABLED`
+- `hop_type` (String) The hop type.
+  - Choices: `SINGLE_HOP`, `MULTI_HOP`
 - `name` (String) The name of the bfd template object.
 
 ### Optional
 
-- `authentication_key_id` (String) Authentication Key ID 0-255
+- `authentication_key_id` (Number) Authentication Key ID
+  - Range: `0`-`255`
 - `authentication_password` (String) Password for BFD Authentication (1-24 characters)
-- `authentication_type` (String) Authentication types: (MD5, METICULOUSMD5, METICULOUSSHA1, SHA1, NONE)
+- `authentication_type` (String) Authentication types
   - Choices: `MD5`, `METICULOUSMD5`, `METICULOUSSHA1`, `SHA1`, `NONE`
 - `domain` (String) The name of the FMC domain
-- `interval_time` (String) Interval unit of measurement of time (MILLISECONDS | MICROSECONDS | NONE)
+- `interval_time` (String) Interval unit of measurement of time.
+  - Choices: `MILLISECONDS`, `MICROSECONDS`, `NONE`
 - `min_receive` (Number) BFD Minimum Receive unit value in ranges: 50-999 miliseconds, 50000-999000 microseconds
   - Range: `50`-`999000`
-- `min_transmit` (Number) BFD Minimum Transmit unit value
+- `min_transmit` (Number) BFD Minimum Transmit unit value.
   - Range: `50`-`999000`
-- `tx_rx_multiplier` (Number) BFD Multipler value in range: 3 - 50
+- `tx_rx_multiplier` (Number) BFD Multipler value.
   - Range: `3`-`50`
 
 ### Read-Only

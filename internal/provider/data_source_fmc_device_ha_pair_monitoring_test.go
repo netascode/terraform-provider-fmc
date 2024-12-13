@@ -40,6 +40,8 @@ func TestAccDataSourceFmcDeviceHAPairMonitoring(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_ha_pair_monitoring.test", "ipv4_active_address"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair_monitoring.test", "ipv4_standby_address", "10.1.1.2"))
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_ha_pair_monitoring.test", "ipv4_netmask"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair_monitoring.test", "ipv6_addresses.0.active_address", "2006::1/30"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair_monitoring.test", "ipv6_addresses.0.standby_address", "2006::2"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -74,6 +76,10 @@ func testAccDataSourceFmcDeviceHAPairMonitoringConfig() string {
 	config += `	logical_name = "outside"` + "\n"
 	config += `	monitor_interface = true` + "\n"
 	config += `	ipv4_standby_address = "10.1.1.2"` + "\n"
+	config += `	ipv6_addresses = [{` + "\n"
+	config += `		active_address = "2006::1/30"` + "\n"
+	config += `		standby_address = "2006::2"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -91,6 +97,10 @@ func testAccNamedDataSourceFmcDeviceHAPairMonitoringConfig() string {
 	config += `	logical_name = "outside"` + "\n"
 	config += `	monitor_interface = true` + "\n"
 	config += `	ipv4_standby_address = "10.1.1.2"` + "\n"
+	config += `	ipv6_addresses = [{` + "\n"
+	config += `		active_address = "2006::1/30"` + "\n"
+	config += `		standby_address = "2006::2"` + "\n"
+	config += `	}]` + "\n"
 	config += `}` + "\n"
 
 	config += `

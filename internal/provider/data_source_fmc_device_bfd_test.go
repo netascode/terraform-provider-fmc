@@ -38,8 +38,8 @@ func TestAccDataSourceFmcDeviceBFD(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "hop_type", "SINGLE_HOP"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "bfd_template_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "interface_logical_name", "outside"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "destination_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "source_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "destination_host_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "source_host_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "slow_timer", ""))
 	resource.Test(t, resource.TestCase{
@@ -76,8 +76,8 @@ func testAccDataSourceFmcDeviceBFDConfig() string {
 	config += `	hop_type = "SINGLE_HOP"` + "\n"
 	config += `	bfd_template_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	interface_logical_name = "outside"` + "\n"
-	config += `	destination_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	source_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `	destination_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `	source_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	slow_timer = ` + "\n"
 	config += `}` + "\n"
@@ -97,8 +97,8 @@ func testAccNamedDataSourceFmcDeviceBFDConfig() string {
 	config += `	hop_type = "SINGLE_HOP"` + "\n"
 	config += `	bfd_template_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	interface_logical_name = "outside"` + "\n"
-	config += `	destination_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	source_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `	destination_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `	source_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	slow_timer = ` + "\n"
 	config += `}` + "\n"

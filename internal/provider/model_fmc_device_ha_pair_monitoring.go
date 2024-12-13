@@ -22,8 +22,10 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
@@ -33,15 +35,21 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type DeviceHAPairMonitoring struct {
-	Id                 types.String `tfsdk:"id"`
-	Domain             types.String `tfsdk:"domain"`
-	DeviceId           types.String `tfsdk:"device_id"`
-	Type               types.String `tfsdk:"type"`
-	LogicalName        types.String `tfsdk:"logical_name"`
-	MonitorInterface   types.Bool   `tfsdk:"monitor_interface"`
-	Ipv4ActiveAddress  types.String `tfsdk:"ipv4_active_address"`
-	Ipv4StandbyAddress types.String `tfsdk:"ipv4_standby_address"`
-	Ipv4Netmask        types.String `tfsdk:"ipv4_netmask"`
+	Id                 types.String                          `tfsdk:"id"`
+	Domain             types.String                          `tfsdk:"domain"`
+	DeviceId           types.String                          `tfsdk:"device_id"`
+	Type               types.String                          `tfsdk:"type"`
+	LogicalName        types.String                          `tfsdk:"logical_name"`
+	MonitorInterface   types.Bool                            `tfsdk:"monitor_interface"`
+	Ipv4ActiveAddress  types.String                          `tfsdk:"ipv4_active_address"`
+	Ipv4StandbyAddress types.String                          `tfsdk:"ipv4_standby_address"`
+	Ipv4Netmask        types.String                          `tfsdk:"ipv4_netmask"`
+	Ipv6Addresses      []DeviceHAPairMonitoringIpv6Addresses `tfsdk:"ipv6_addresses"`
+}
+
+type DeviceHAPairMonitoringIpv6Addresses struct {
+	ActiveAddress  types.String `tfsdk:"active_address"`
+	StandbyAddress types.String `tfsdk:"standby_address"`
 }
 
 // End of section. //template:end types
@@ -69,6 +77,19 @@ func (data DeviceHAPairMonitoring) toBody(ctx context.Context, state DeviceHAPai
 	}
 	if !data.Ipv4StandbyAddress.IsNull() {
 		body, _ = sjson.Set(body, "ipv4Configuration.standbyIPv4Address", data.Ipv4StandbyAddress.ValueString())
+	}
+	if len(data.Ipv6Addresses) > 0 {
+		body, _ = sjson.Set(body, "ipv6Configuration.ipv6ActiveStandbyPair", []interface{}{})
+		for _, item := range data.Ipv6Addresses {
+			itemBody := ""
+			if !item.ActiveAddress.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "activeIPv6", item.ActiveAddress.ValueString())
+			}
+			if !item.StandbyAddress.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "standbyIPv6", item.StandbyAddress.ValueString())
+			}
+			body, _ = sjson.SetRaw(body, "ipv6Configuration.ipv6ActiveStandbyPair.-1", itemBody)
+		}
 	}
 	return body
 }
@@ -107,6 +128,25 @@ func (data *DeviceHAPairMonitoring) fromBody(ctx context.Context, res gjson.Resu
 		data.Ipv4Netmask = types.StringValue(value.String())
 	} else {
 		data.Ipv4Netmask = types.StringNull()
+	}
+	if value := res.Get("ipv6Configuration.ipv6ActiveStandbyPair"); value.Exists() {
+		data.Ipv6Addresses = make([]DeviceHAPairMonitoringIpv6Addresses, 0)
+		value.ForEach(func(k, res gjson.Result) bool {
+			parent := &data
+			data := DeviceHAPairMonitoringIpv6Addresses{}
+			if value := res.Get("activeIPv6"); value.Exists() {
+				data.ActiveAddress = types.StringValue(value.String())
+			} else {
+				data.ActiveAddress = types.StringNull()
+			}
+			if value := res.Get("standbyIPv6"); value.Exists() {
+				data.StandbyAddress = types.StringValue(value.String())
+			} else {
+				data.StandbyAddress = types.StringNull()
+			}
+			(*parent).Ipv6Addresses = append((*parent).Ipv6Addresses, data)
+			return true
+		})
 	}
 }
 
@@ -148,6 +188,54 @@ func (data *DeviceHAPairMonitoring) fromBodyPartial(ctx context.Context, res gjs
 		data.Ipv4Netmask = types.StringValue(value.String())
 	} else {
 		data.Ipv4Netmask = types.StringNull()
+	}
+	for i := 0; i < len(data.Ipv6Addresses); i++ {
+		keys := [...]string{"activeIPv6", "standbyIPv6"}
+		keyValues := [...]string{data.Ipv6Addresses[i].ActiveAddress.ValueString(), data.Ipv6Addresses[i].StandbyAddress.ValueString()}
+
+		parent := &data
+		data := (*parent).Ipv6Addresses[i]
+		parentRes := &res
+		var res gjson.Result
+
+		parentRes.Get("ipv6Configuration.ipv6ActiveStandbyPair").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() != keyValues[ik] {
+						found = false
+						break
+					}
+					found = true
+				}
+				if found {
+					res = v
+					return false
+				}
+				return true
+			},
+		)
+		if !res.Exists() {
+			tflog.Debug(ctx, fmt.Sprintf("removing Ipv6Addresses[%d] = %+v",
+				i,
+				(*parent).Ipv6Addresses[i],
+			))
+			(*parent).Ipv6Addresses = slices.Delete((*parent).Ipv6Addresses, i, i+1)
+			i--
+
+			continue
+		}
+		if value := res.Get("activeIPv6"); value.Exists() && !data.ActiveAddress.IsNull() {
+			data.ActiveAddress = types.StringValue(value.String())
+		} else {
+			data.ActiveAddress = types.StringNull()
+		}
+		if value := res.Get("standbyIPv6"); value.Exists() && !data.StandbyAddress.IsNull() {
+			data.StandbyAddress = types.StringValue(value.String())
+		} else {
+			data.StandbyAddress = types.StringNull()
+		}
+		(*parent).Ipv6Addresses[i] = data
 	}
 }
 
@@ -198,6 +286,18 @@ func (data DeviceHAPairMonitoring) toBodyPutDelete(ctx context.Context, state De
 	if data.Ipv4ActiveAddress.ValueString() != "" {
 		body, _ = sjson.Set(body, "ipv4Configuration.activeIPv4Address", data.Ipv4ActiveAddress.ValueString())
 	}
+	// There is no way of removing standby IPv6 via API now
+	//if len(data.Ipv6Addresses) > 0 {
+	//	body, _ = sjson.Set(body, "ipv6Configuration.ipv6ActiveStandbyPair", []interface{}{})
+	//	for _, item := range data.Ipv6Addresses {
+	//		itemBody := ""
+	//		if !item.ActiveAddress.IsNull() {
+	//			itemBody, _ = sjson.Set(itemBody, "activeIPv6", item.ActiveAddress.ValueString())
+	//			itemBody, _ = sjson.Set(itemBody, "standbyIPv6", "")
+	//		}
+	//		body, _ = sjson.SetRaw(body, "ipv6Configuration.ipv6ActiveStandbyPair.-1", itemBody)
+	//	}
+	//}
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}

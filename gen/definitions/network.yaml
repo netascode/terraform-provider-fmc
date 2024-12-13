@@ -11,8 +11,8 @@ attributes:
     example: NET1
   - model_name: type
     type: String
-    description: Type of the object; this value is always 'Network'.
-    default_value: Network
+    description: "Type of the object; this value is always 'Network'."
+    computed: true
     exclude_example: true
     exclude_test: true
   - model_name: description

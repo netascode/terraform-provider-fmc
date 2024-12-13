@@ -14,13 +14,13 @@ This resource can manage a Device BFD.
 
 ```terraform
 resource "fmc_device_bfd" "example" {
-  device_id              = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  hop_type               = "SINGLE_HOP"
-  bfd_template_id        = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  interface_logical_name = "outside"
-  destination_object_id  = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  source_object_id       = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-  interface_id           = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  device_id                  = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  hop_type                   = "SINGLE_HOP"
+  bfd_template_id            = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  interface_logical_name     = "outside"
+  destination_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  source_host_object_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+  interface_id               = "76d24097-41c4-4558-a4d0-a8c07ac08470"
 }
 ```
 
@@ -30,19 +30,20 @@ resource "fmc_device_bfd" "example" {
 ### Required
 
 - `bfd_template_id` (String) ID of the BFD Template
-- `device_id` (String) TBD
-- `hop_type` (String) Hop Type SINGLE_HOP or MULTI_HOP
+- `device_id` (String) UUID of the parent device (fmc_device.example.id).
+- `hop_type` (String) BFD Hop type.
+  - Choices: `SINGLE_HOP`, `MULTI_HOP`
 
 ### Optional
 
-- `destination_object_id` (String) The ID of the destination host object if MULTI_HOP selected.
+- `destination_host_object_id` (String) The ID of the destination host object if MULTI_HOP selected.
 - `domain` (String) The name of the FMC domain
 - `interface_id` (String) ID of the interface of BFD assignment if SINGLE_HOP selected.
 - `interface_logical_name` (String) Logical Name of the interface of BFD assignment if SINGLE_HOP selected.
 - `slow_timer` (Number) BFD Slow Timer value in range: 1000-30000, default: 1000
   - Range: `1000`-`30000`
   - Default value: `1000`
-- `source_object_id` (String) The ID of the source host object if MULTI_HOP selected.
+- `source_host_object_id` (String) The ID of the source host object if MULTI_HOP selected.
 
 ### Read-Only
 

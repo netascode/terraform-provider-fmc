@@ -94,28 +94,44 @@ func (r *DeviceHAPairMonitoringResource) Schema(ctx context.Context, req resourc
 			},
 			"logical_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Logical Name of the monitored interface.").String,
-				Optional:            true,
+				Required:            true,
 			},
 			"monitor_interface": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Monitor this interface for failures.").String,
-				Optional:            true,
+				Required:            true,
 			},
 			"ipv4_active_address": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Active IP address from the interface.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Active IPv4 address from the interface.").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"ipv4_standby_address": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Standby IP address. It has to be in the same subnet as primaty IP configured on this interface.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Standby IPv4 address. It has to be in the same subnet as primaty IP configured on this interface.").String,
 				Optional:            true,
 			},
 			"ipv4_netmask": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Network Mask assigned on the interface.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("IPv4 Network Mask assigned on the interface.").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"ipv6_addresses": schema.ListNestedAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"active_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Active IPv6 address with prefix. Address has to be configured on the interface.").String,
+							Optional:            true,
+						},
+						"standby_address": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Standby IPv6 address. Address has to be from the same subnet as active IPv6 address.").String,
+							Optional:            true,
+						},
+					},
 				},
 			},
 		},

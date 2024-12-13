@@ -29,13 +29,13 @@ data "fmc_bfd_template" "example" {
 
 ### Read-Only
 
-- `authentication_key_id` (String) Authentication Key ID 0-255
+- `authentication_key_id` (Number) Authentication Key ID
 - `authentication_password` (String) Password for BFD Authentication (1-24 characters)
-- `authentication_type` (String) Authentication types: (MD5, METICULOUSMD5, METICULOUSSHA1, SHA1, NONE)
-- `echo` (String) (ENABLED | DISABLED)
-- `hop_type` (String) The hop type - SINGLE_HOP | MULTI_HOP
-- `interval_time` (String) Interval unit of measurement of time (MILLISECONDS | MICROSECONDS | NONE)
+- `authentication_type` (String) Authentication types
+- `echo` (String) Enables/disables BFD echo.
+- `hop_type` (String) The hop type.
+- `interval_time` (String) Interval unit of measurement of time.
 - `min_receive` (Number) BFD Minimum Receive unit value in ranges: 50-999 miliseconds, 50000-999000 microseconds
-- `min_transmit` (Number) BFD Minimum Transmit unit value
-- `tx_rx_multiplier` (Number) BFD Multipler value in range: 3 - 50
+- `min_transmit` (Number) BFD Minimum Transmit unit value.
+- `tx_rx_multiplier` (Number) BFD Multipler value.
 - `type` (String) Type of the object; this value is always 'BFDTemplate'.

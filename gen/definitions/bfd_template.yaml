@@ -16,27 +16,30 @@ attributes:
   - model_name: hopType
     type: String
     mandatory: true
-    description: "The hop type - SINGLE_HOP | MULTI_HOP"
+    description: The hop type.
+    enum_values: [ SINGLE_HOP, MULTI_HOP ]
     example: "SINGLE_HOP"
   - model_name: echo
     type: String
     mandatory: true
-    description: (ENABLED | DISABLED)
+    description: "Enables/disables BFD echo."
+    enum_values: [ ENABLED, DISABLED ]
     example: "ENABLED"
   - model_name: txRxInterval
     tf_name: interval_time
     type: String
-    description: "Interval unit of measurement of time (MILLISECONDS | MICROSECONDS | NONE)"
+    description: Interval unit of measurement of time.
+    enum_values: [ MILLISECONDS, MICROSECONDS, NONE ]
     example: "MILLISECONDS"
   - model_name: minTransmit
     type: Int64
-    description: BFD Minimum Transmit unit value
+    description: BFD Minimum Transmit unit value.
     min_int: 50
     max_int: 999000
     example: 300    
   - model_name: txRxMultiplier
     type: Int64
-    description: "BFD Multipler value in range: 3 - 50"
+    description: BFD Multipler value.
     min_int: 3
     max_int: 50
     example: 3
@@ -55,14 +58,16 @@ attributes:
   - model_name: authKeyId
     tf_name: authentication_key_id
     data_path: [authentication]
-    type: String
-    description: "Authentication Key ID 0-255"
-    example: "Cisco123!"       
+    type: Int64
+    description: Authentication Key ID
+    min_int: 0
+    max_int: 255    
+    example: "1"       
   - model_name: authType
     tf_name: authentication_type
     data_path: [authentication]
     type: String
-    description: "Authentication types: (MD5, METICULOUSMD5, METICULOUSSHA1, SHA1, NONE)"
+    description: "Authentication types"
     example: "MD5"    
     enum_values: [MD5, METICULOUSMD5, METICULOUSSHA1, SHA1, NONE]
   #- model_name: pwdEncryption

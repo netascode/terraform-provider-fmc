@@ -18,6 +18,12 @@ resource "fmc_device_ha_pair_monitoring" "example" {
   logical_name         = "outside"
   monitor_interface    = true
   ipv4_standby_address = "10.1.1.2"
+  ipv6_addresses = [
+    {
+      active_address  = "2006::1/30"
+      standby_address = "2006::2"
+    }
+  ]
 }
 ```
 
@@ -27,20 +33,29 @@ resource "fmc_device_ha_pair_monitoring" "example" {
 ### Required
 
 - `device_id` (String) UUID of the parent HA device (fmc_device.example.id).
+- `logical_name` (String) Logical Name of the monitored interface.
+- `monitor_interface` (Boolean) Monitor this interface for failures.
 
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `ipv4_standby_address` (String) Standby IP address. It has to be in the same subnet as primaty IP configured on this interface.
-- `logical_name` (String) Logical Name of the monitored interface.
-- `monitor_interface` (Boolean) Monitor this interface for failures.
+- `ipv4_standby_address` (String) Standby IPv4 address. It has to be in the same subnet as primaty IP configured on this interface.
+- `ipv6_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv6_addresses))
 
 ### Read-Only
 
 - `id` (String) The id of the object
-- `ipv4_active_address` (String) Active IP address from the interface.
-- `ipv4_netmask` (String) Network Mask assigned on the interface.
+- `ipv4_active_address` (String) Active IPv4 address from the interface.
+- `ipv4_netmask` (String) IPv4 Network Mask assigned on the interface.
 - `type` (String) Type of the resource.
+
+<a id="nestedatt--ipv6_addresses"></a>
+### Nested Schema for `ipv6_addresses`
+
+Optional:
+
+- `active_address` (String) Active IPv6 address with prefix. Address has to be configured on the interface.
+- `standby_address` (String) Standby IPv6 address. Address has to be from the same subnet as active IPv6 address.
 
 ## Import
 

@@ -92,26 +92,35 @@ func (r *BFDTemplateResource) Schema(ctx context.Context, req resource.SchemaReq
 				},
 			},
 			"hop_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The hop type - SINGLE_HOP | MULTI_HOP").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The hop type.").AddStringEnumDescription("SINGLE_HOP", "MULTI_HOP").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("SINGLE_HOP", "MULTI_HOP"),
+				},
 			},
 			"echo": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("(ENABLED | DISABLED)").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Enables/disables BFD echo.").AddStringEnumDescription("ENABLED", "DISABLED").String,
 				Required:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("ENABLED", "DISABLED"),
+				},
 			},
 			"interval_time": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Interval unit of measurement of time (MILLISECONDS | MICROSECONDS | NONE)").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Interval unit of measurement of time.").AddStringEnumDescription("MILLISECONDS", "MICROSECONDS", "NONE").String,
 				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("MILLISECONDS", "MICROSECONDS", "NONE"),
+				},
 			},
 			"min_transmit": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("BFD Minimum Transmit unit value").AddIntegerRangeDescription(50, 999000).String,
+				MarkdownDescription: helpers.NewAttributeDescription("BFD Minimum Transmit unit value.").AddIntegerRangeDescription(50, 999000).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(50, 999000),
 				},
 			},
 			"tx_rx_multiplier": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("BFD Multipler value in range: 3 - 50").AddIntegerRangeDescription(3, 50).String,
+				MarkdownDescription: helpers.NewAttributeDescription("BFD Multipler value.").AddIntegerRangeDescription(3, 50).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(3, 50),
@@ -128,12 +137,15 @@ func (r *BFDTemplateResource) Schema(ctx context.Context, req resource.SchemaReq
 				MarkdownDescription: helpers.NewAttributeDescription("Password for BFD Authentication (1-24 characters)").String,
 				Optional:            true,
 			},
-			"authentication_key_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Authentication Key ID 0-255").String,
+			"authentication_key_id": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication Key ID").AddIntegerRangeDescription(0, 255).String,
 				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(0, 255),
+				},
 			},
 			"authentication_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Authentication types: (MD5, METICULOUSMD5, METICULOUSSHA1, SHA1, NONE)").AddStringEnumDescription("MD5", "METICULOUSMD5", "METICULOUSSHA1", "SHA1", "NONE").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Authentication types").AddStringEnumDescription("MD5", "METICULOUSMD5", "METICULOUSSHA1", "SHA1", "NONE").String,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("MD5", "METICULOUSMD5", "METICULOUSSHA1", "SHA1", "NONE"),
