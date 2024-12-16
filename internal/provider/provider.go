@@ -64,6 +64,10 @@ const (
 	// Define maximum elements in single bulk request for delete & create
 	bulkSizeDelete int = 200
 	bulkSizeCreate int = 1000
+	// maximum payload size in bytes
+	maxPayloadSize int = 2048000
+	// maximum URL Param length. This is a rough estimate and does not account for the entire URL length.
+	maxUrlParamLength int = 7000
 )
 
 // Metadata returns the provider type name.
@@ -290,7 +294,8 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 	return []func() resource.Resource{
 		NewAccessControlPolicyResource,
 		NewDeviceResource,
-		NewDeviceHAPairResource,
+		NewDeviceEtherChannelInterfaceResource,
+    NewDeviceHAPairResource,
 		NewDeviceIPv4StaticRouteResource,
 		NewDeviceIPv6StaticRouteResource,
 		NewDevicePhysicalInterfaceResource,
@@ -304,6 +309,7 @@ func (p *FmcProvider) Resources(ctx context.Context) []func() resource.Resource 
 		NewExtendedACLResource,
 		NewFQDNObjectResource,
 		NewFQDNObjectsResource,
+		NewFTDNATPolicyResource,
 		NewHostResource,
 		NewHostsResource,
 		NewICMPv4ObjectResource,
@@ -340,7 +346,8 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 	return []func() datasource.DataSource{
 		NewAccessControlPolicyDataSource,
 		NewDeviceDataSource,
-		NewDeviceHAPairDataSource,
+		NewDeviceEtherChannelInterfaceDataSource,
+    NewDeviceHAPairDataSource,
 		NewDeviceIPv4StaticRouteDataSource,
 		NewDeviceIPv6StaticRouteDataSource,
 		NewDevicePhysicalInterfaceDataSource,
@@ -354,6 +361,7 @@ func (p *FmcProvider) DataSources(ctx context.Context) []func() datasource.DataS
 		NewExtendedACLDataSource,
 		NewFQDNObjectDataSource,
 		NewFQDNObjectsDataSource,
+		NewFTDNATPolicyDataSource,
 		NewHostDataSource,
 		NewHostsDataSource,
 		NewICMPv4ObjectDataSource,
