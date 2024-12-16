@@ -30,8 +30,8 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
 
 func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" && os.Getenv("TF_VAR_device_2_id") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id or TF_VAR_device_2_id")
+	if os.Getenv("TF_VAR_device_id") == "" || os.Getenv("TF_VAR_device_2_id") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id and TF_VAR_device_2_id")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "name", "FTD_HA"))
