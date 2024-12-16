@@ -74,10 +74,6 @@ func (d *SGTsDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 							MarkdownDescription: "UUID of the managed SGT.",
 							Computed:            true,
 						},
-						"name": schema.StringAttribute{
-							MarkdownDescription: "The name of the SGT object.",
-							Computed:            true,
-						},
 						"type": schema.StringAttribute{
 							MarkdownDescription: "Type of the object; this value is always 'SecurityGroupTag'.",
 							Computed:            true,

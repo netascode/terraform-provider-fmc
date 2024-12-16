@@ -16,7 +16,6 @@ This resource can manage a SGTs.
 resource "fmc_sgts" "example" {
   items = {
     sgt_1 = {
-      name        = "SGT1"
       description = "My SGT object"
       tag         = "11"
     }
@@ -44,7 +43,6 @@ resource "fmc_sgts" "example" {
 
 Required:
 
-- `name` (String) The name of the SGT object.
 - `tag` (String) Security Group Tag.
 
 Optional:
@@ -61,5 +59,5 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-terraform import fmc_sgts.example "<domain>,[<sgts_id>]"
+terraform import fmc_sgts.example "<domain>,[<sgts_name>]"
 ```

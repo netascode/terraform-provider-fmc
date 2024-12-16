@@ -32,7 +32,6 @@ import (
 func TestAccFmcSGTs(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_1.id"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.name", "SGT1"))
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_1.type"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.description", "My SGT object"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.tag", "11"))
@@ -66,7 +65,6 @@ func TestAccFmcSGTs(t *testing.T) {
 func testAccFmcSGTsConfig_minimum() string {
 	config := `resource "fmc_sgts" "test" {` + "\n"
 	config += `	items = { "sgt_1" = {` + "\n"
-	config += `		name = "SGT1"` + "\n"
 	config += `		tag = "11"` + "\n"
 	config += `	}}` + "\n"
 	config += `}` + "\n"
@@ -80,7 +78,6 @@ func testAccFmcSGTsConfig_minimum() string {
 func testAccFmcSGTsConfig_all() string {
 	config := `resource "fmc_sgts" "test" {` + "\n"
 	config += `	items = { "sgt_1" = {` + "\n"
-	config += `		name = "SGT1"` + "\n"
 	config += `		description = "My SGT object"` + "\n"
 	config += `		tag = "11"` + "\n"
 	config += `	}}` + "\n"
@@ -89,3 +86,78 @@ func testAccFmcSGTsConfig_all() string {
 }
 
 // End of section. //template:end testAccConfigAll
+
+func TestAccFmcSGTs_Sequential(t *testing.T) {
+
+	step_01 := `resource "fmc_sgts" "test" {` + "\n" +
+		`	items = {` + "\n" +
+		`		"sgt_1" = {` + "\n" +
+		`			description = "my first tag"` + "\n" +
+		`			tag = "100"` + "\n" +
+		`		},` + "\n" +
+		`		"sgt_2" = {` + "\n" +
+		`			tag = "200",` + "\n" +
+		`		},` + "\n" +
+		`		"sgt_3" = {` + "\n" +
+		`			description = "my third tag"` + "\n" +
+		`			tag = "300",` + "\n" +
+		`		},` + "\n" +
+		`	} ` + "\n" +
+		`}` + "\n"
+
+	var checks_step01 []resource.TestCheckFunc
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_1.id"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_1.type"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.description", "my first tag"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.tag", "100"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_2.id"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_2.type"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_2.tag", "200"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_3.id"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_3.type"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_3.description", "my third tag"))
+	checks_step01 = append(checks_step01, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_3.tag", "300"))
+
+	step_02 := `resource "fmc_sgts" "test" {` + "\n" +
+		`	items = {` + "\n" +
+		`		"sgt_1" = {` + "\n" +
+		`			description = "my first tag"` + "\n" +
+		`			tag = "100"` + "\n" +
+		`		},` + "\n" +
+		`		"sgt_2" = {` + "\n" +
+		`			tag = "205",` + "\n" +
+		`		},` + "\n" +
+		`		"sgt_4" = {` + "\n" +
+		`			tag = "400",` + "\n" +
+		`		},` + "\n" +
+		`	} ` + "\n" +
+		`}` + "\n"
+
+	var checks_step02 []resource.TestCheckFunc
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_1.id"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_1.type"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.description", "my first tag"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_1.tag", "100"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_2.id"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_2.type"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_2.tag", "205"))
+	checks_step02 = append(checks_step02, resource.TestCheckNoResourceAttr("fmc_sgts.test", "items.sgt_3"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_4.id"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttrSet("fmc_sgts.test", "items.sgt_4.type"))
+	checks_step02 = append(checks_step02, resource.TestCheckResourceAttr("fmc_sgts.test", "items.sgt_4.tag", "400"))
+
+	steps := []resource.TestStep{{
+		Config: step_01,
+		Check:  resource.ComposeTestCheckFunc(checks_step01...),
+	}, {
+		Config: step_02,
+		Check:  resource.ComposeTestCheckFunc(checks_step02...),
+	}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
+		Steps:                    steps,
+	})
+}

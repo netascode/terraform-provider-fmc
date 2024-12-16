@@ -1,1 +1,1 @@
-terraform import fmc_sgts.example "<domain>,[<sgts_id>]"
+terraform import fmc_sgts.example "<domain>,[<sgts_name>]"

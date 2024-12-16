@@ -40,6 +40,5 @@ Read-Only:
 
 - `description` (String) Description
 - `id` (String) UUID of the managed SGT.
-- `name` (String) The name of the SGT object.
 - `tag` (String) Security Group Tag.
 - `type` (String) Type of the object; this value is always 'SecurityGroupTag'.
