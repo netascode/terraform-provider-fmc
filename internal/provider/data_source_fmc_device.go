@@ -71,8 +71,12 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-specified name, must be unique. Example: 'Device 01 - 192.168.0.152'",
+				MarkdownDescription: "User-specified name, must be unique.",
 				Optional:            true,
+				Computed:            true,
+			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Type of the device; this value is always 'Device'.",
 				Computed:            true,
 			},
 			"host_name": schema.StringAttribute{
@@ -84,7 +88,7 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:            true,
 			},
 			"license_capabilities": schema.SetAttribute{
-				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. For registering FTD, the allowed values are: BASE (mandatory), THREAT, URLFilter, MALWARE, APEX, PLUS, VPNOnly. For Firepower ASA or NGIPSv devices, allowed values are: BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL.",
+				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
@@ -92,8 +96,24 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "Registration Key identical to the one previously configured on the device (`configure manager`).",
 				Computed:            true,
 			},
-			"type": schema.StringAttribute{
-				MarkdownDescription: "Type of the device; this value is always 'Device'.",
+			"device_group_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the device group.",
+				Computed:            true,
+			},
+			"prohibit_packet_transfer": schema.BoolAttribute{
+				MarkdownDescription: "Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.",
+				Computed:            true,
+			},
+			"performance_tier": schema.StringAttribute{
+				MarkdownDescription: "Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.",
+				Computed:            true,
+			},
+			"snort_engine": schema.StringAttribute{
+				MarkdownDescription: "Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.",
+				Computed:            true,
+			},
+			"object_group_search": schema.BoolAttribute{
+				MarkdownDescription: "Enables Object Group Search",
 				Computed:            true,
 			},
 			"access_policy_id": schema.StringAttribute{
@@ -104,12 +124,42 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "The UUID of the assigned NAT policy.",
 				Computed:            true,
 			},
-			"prohibit_packet_transfer": schema.BoolAttribute{
-				MarkdownDescription: "Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.",
+			"health_policy_id": schema.StringAttribute{
+				MarkdownDescription: "The UUID of the assigned Health policy.",
 				Computed:            true,
 			},
-			"performance_tier": schema.StringAttribute{
-				MarkdownDescription: "Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.",
+			"version": schema.StringAttribute{
+				MarkdownDescription: "Version of the registered device - Informational only.",
+				Computed:            true,
+			},
+			"health_status": schema.StringAttribute{
+				MarkdownDescription: "Health Status of the device - Informational only.",
+				Computed:            true,
+			},
+			"health_message": schema.StringAttribute{
+				MarkdownDescription: "Health Message of the device - Informational only.",
+				Computed:            true,
+			},
+			"is_connected": schema.BoolAttribute{
+				MarkdownDescription: "Shows if the device is connected - Informational only.",
+				Computed:            true,
+			},
+			"deployment_status": schema.StringAttribute{
+				MarkdownDescription: "Shows deployment status - Informational only.",
+				Computed:            true,
+			},
+			"ftd_mode": schema.StringAttribute{
+				MarkdownDescription: "FTD Mode - Informational only.",
+				Computed:            true,
+			},
+			"deployed_access_policy_name": schema.StringAttribute{
+				MarkdownDescription: "Deployed Access Control Policy Name - Informational only.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"deployed_health_policy_name": schema.StringAttribute{
+				MarkdownDescription: "Deployed Health Policy Name - Informational only.",
+				Optional:            true,
 				Computed:            true,
 			},
 		},
@@ -155,7 +205,7 @@ func (d *DeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := d.client.Get(config.getPath()+queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
