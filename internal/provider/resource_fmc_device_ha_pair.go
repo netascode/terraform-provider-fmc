@@ -25,11 +25,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -82,107 +84,243 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the High Availability Pair.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The name of the High Availability (HA) Pair.").String,
 				Required:            true,
+			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the resource; This is always `DeviceHAPair`.").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"primary_device_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of primary FTD in the HA Pair.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"secondary_device_id": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("ID of secondary FTD in the HA Pair.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
-			"is_encryption_enabled": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean field to enable encryption").String,
-				Optional:            true,
-			},
-			"use_same_link_for_failovers": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Boolean field to enable same link for failovers").String,
+			"ha_link_interface_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of High Availability Link interface.").String,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
-			"shared_key": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Pass the unique shared key if needed.").String,
+			"ha_link_interface_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of High Availability Link interface.").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"ha_link_interface_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of High Availability Link interface.").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"ha_link_logical_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"ha_link_use_ipv6": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
 			},
-			"enc_key_generation_scheme": schema.StringAttribute{
+			"ha_link_primary_ip": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"ha_link_secondary_ip": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"ha_link_subnet_mask": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_use_same_as_ha": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Use the same link for state and HA.").String,
+				Required:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_interface_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("ID of physical interface.").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_interface_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Name of state link interface.").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_interface_type": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Type of state link interface.").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_logical_name": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_use_ipv6": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_primary_ip": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_secondary_ip": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"state_link_subnet_mask": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"encryption_enabled": schema.BoolAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Use encryption for communication.").String,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"encryption_key_generation_scheme": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Select the encyption key generation scheme.").AddStringEnumDescription("AUTO", "CUSTOM").String,
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("AUTO", "CUSTOM"),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
-			"lan_failover_standby_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Required:            true,
-			},
-			"lan_failover_active_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Required:            true,
-			},
-			"lan_failover_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Required:            true,
-			},
-			"lan_failover_netmask": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+			"encryption_key": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Pass shared key for encryption if CUSTOM key geneeration scheme is selected.").String,
 				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
-			"lan_failover_ipv6_addr": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
+			"failed_interfaces_percent": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 100).String,
 				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
+				Validators: []validator.Int64{
+					int64validator.Between(1, 100),
+				},
 			},
-			"lan_failover_interface_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of physical interface").String,
+			"failed_interfaces_limit": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 211).String,
 				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 211),
+				},
 			},
-			"lan_failover_interface_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of physical interface.").String,
-				Required:            true,
-			},
-			"lan_failover_interface_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of physical interface.").String,
-				Required:            true,
-			},
-			"stateful_failover_standby_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+			"peer_poll_time": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time (1-15 SEC or 200-999 MSEC)").AddIntegerRangeDescription(1, 999).String,
 				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 999),
+				},
 			},
-			"stateful_failover_active_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"stateful_failover_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"stateful_failover_subnet_mask": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"stateful_failover_ipv6_addr": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
-			},
-			"stateful_failover_interface_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of physical interface").String,
-				Optional:            true,
-			},
-			"stateful_failover_interface_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("ID of physical interface.").String,
-				Optional:            true,
-			},
-			"stateful_failover_interface_type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of physical interface.").String,
-				Optional:            true,
-			},
-			"action": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy").AddStringEnumDescription("SWITCH").String,
+			"peer_poll_time_unit": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time Unit").AddStringEnumDescription("SEC", "MSEC").String,
 				Optional:            true,
 				Validators: []validator.String{
-					stringvalidator.OneOf("SWITCH"),
+					stringvalidator.OneOf("SEC", "MSEC"),
+				},
+			},
+			"peer_hold_time": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Hold Time (3-45 SEC or 800-999 MSEC)").AddIntegerRangeDescription(3, 999).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(3, 999),
+				},
+			},
+			"peer_hold_time_unit": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Hold Time Unit").AddStringEnumDescription("SEC", "MSEC").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("SEC", "MSEC"),
+				},
+			},
+			"interface_poll_time": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time (1-15 SEC or 500-999 MSEC)").AddIntegerRangeDescription(1, 999).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(1, 999),
+				},
+			},
+			"interface_poll_time_unit": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time Unit").AddStringEnumDescription("SEC", "MSEC").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("SEC", "MSEC"),
+				},
+			},
+			"interface_hold_time": schema.Int64Attribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Interface Hold Time in seconds").AddIntegerRangeDescription(25, 75).String,
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.Between(25, 75),
+				},
+			},
+			"action": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy").AddStringEnumDescription("SWITCH", "HABREAK").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("SWITCH", "HABREAK"),
 				},
 			},
 		},
@@ -223,6 +361,7 @@ func (r *DeviceHAPairResource) Create(ctx context.Context, req resource.CreateRe
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
 		return
 	}
+
 	// Adding code to poll object
 	taskID := res.Get("metadata.task.id").String()
 	tflog.Debug(ctx, fmt.Sprintf("%s: Async task initiated successfully", taskID))
@@ -237,7 +376,7 @@ func (r *DeviceHAPairResource) Create(ctx context.Context, req resource.CreateRe
 		}
 		stat := strings.ToUpper(task.Get("status").String())
 		if stat == "FAILED" {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("API task for the new device failed: %s, %s", task.Get("message"), task.Get("description")))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("API task for the new HA Pair failed: %s, %s", task.Get("message"), task.Get("description")))
 			return
 		}
 		if stat != "PENDING" && stat != "RUNNING" && stat != "IN_PROGRESS" {
@@ -255,12 +394,22 @@ func (r *DeviceHAPairResource) Create(ctx context.Context, req resource.CreateRe
 	id := check.Get(name).String()
 	plan.Id = types.StringValue(id)
 	if plan.Id.ValueString() == "" {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("No device named %q: %s", plan.Name.ValueString(), check))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("No HA Pair named %q: %s", plan.Name.ValueString(), check))
+		return
+	}
+
+	// Send second request to configure missing pieces
+	body = plan.toBodyUpdateTimers(ctx, DeviceHAPair{})
+	res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (PUT) after create, got error: %s, %s", err, res.String()))
+		// Save state, as at this point HA Pair is created, though not fully configured
+		diags = resp.State.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
 		return
 	}
 
 	// Ending code to poll object
-	// plan.Id = types.StringValue(res.Get("id").String())
 	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
@@ -346,8 +495,17 @@ func (r *DeviceHAPairResource) Update(ctx context.Context, req resource.UpdateRe
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	body := plan.toBodyPutUpdate(ctx, state)
+	// Update object 'core'
+	body := plan.toBody(ctx, state)
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
+		return
+	}
+
+	// Update object 'timers'
+	body = plan.toBodyUpdateTimers(ctx, state)
+	res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -377,7 +535,7 @@ func (r *DeviceHAPairResource) Delete(ctx context.Context, req resource.DeleteRe
 	body := state.toBodyPutDelete(ctx, DeviceHAPair{})
 	res, err := r.client.Put(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), body, reqMods...)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to remove object configuration phase 1 (PUT), got error: %s, %s", err, res.String()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to remove object configuration (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
 	// End of HA Break code

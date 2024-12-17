@@ -71,8 +71,12 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the High Availability Pair.",
+				MarkdownDescription: "The name of the High Availability (HA) Pair.",
 				Optional:            true,
+				Computed:            true,
+			},
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Type of the resource; This is always `DeviceHAPair`.",
 				Computed:            true,
 			},
 			"primary_device_id": schema.StringAttribute{
@@ -83,86 +87,122 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "ID of secondary FTD in the HA Pair.",
 				Computed:            true,
 			},
-			"is_encryption_enabled": schema.BoolAttribute{
-				MarkdownDescription: "Boolean field to enable encryption",
+			"ha_link_interface_id": schema.StringAttribute{
+				MarkdownDescription: "ID of High Availability Link interface.",
 				Computed:            true,
 			},
-			"use_same_link_for_failovers": schema.BoolAttribute{
-				MarkdownDescription: "Boolean field to enable same link for failovers",
+			"ha_link_interface_name": schema.StringAttribute{
+				MarkdownDescription: "Name of High Availability Link interface.",
+				Optional:            true,
 				Computed:            true,
 			},
-			"shared_key": schema.StringAttribute{
-				MarkdownDescription: "Pass the unique shared key if needed.",
+			"ha_link_interface_type": schema.StringAttribute{
+				MarkdownDescription: "Type of High Availability Link interface.",
 				Computed:            true,
 			},
-			"enc_key_generation_scheme": schema.StringAttribute{
+			"ha_link_logical_name": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ha_link_use_ipv6": schema.BoolAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ha_link_primary_ip": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ha_link_secondary_ip": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"ha_link_subnet_mask": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"state_link_use_same_as_ha": schema.BoolAttribute{
+				MarkdownDescription: "Use the same link for state and HA.",
+				Computed:            true,
+			},
+			"state_link_interface_id": schema.StringAttribute{
+				MarkdownDescription: "ID of physical interface.",
+				Computed:            true,
+			},
+			"state_link_interface_name": schema.StringAttribute{
+				MarkdownDescription: "Name of state link interface.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"state_link_interface_type": schema.StringAttribute{
+				MarkdownDescription: "Type of state link interface.",
+				Computed:            true,
+			},
+			"state_link_logical_name": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"state_link_use_ipv6": schema.BoolAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"state_link_primary_ip": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"state_link_secondary_ip": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"state_link_subnet_mask": schema.StringAttribute{
+				MarkdownDescription: "",
+				Computed:            true,
+			},
+			"encryption_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Use encryption for communication.",
+				Computed:            true,
+			},
+			"encryption_key_generation_scheme": schema.StringAttribute{
 				MarkdownDescription: "Select the encyption key generation scheme.",
 				Computed:            true,
 			},
-			"lan_failover_standby_ip": schema.StringAttribute{
+			"encryption_key": schema.StringAttribute{
+				MarkdownDescription: "Pass shared key for encryption if CUSTOM key geneeration scheme is selected.",
+				Computed:            true,
+			},
+			"failed_interfaces_percent": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"lan_failover_active_ip": schema.StringAttribute{
+			"failed_interfaces_limit": schema.Int64Attribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"lan_failover_name": schema.StringAttribute{
-				MarkdownDescription: "",
+			"peer_poll_time": schema.Int64Attribute{
+				MarkdownDescription: "Peer Pool Time (1-15 SEC or 200-999 MSEC)",
 				Computed:            true,
 			},
-			"lan_failover_netmask": schema.StringAttribute{
-				MarkdownDescription: "",
+			"peer_poll_time_unit": schema.StringAttribute{
+				MarkdownDescription: "Peer Pool Time Unit",
 				Computed:            true,
 			},
-			"lan_failover_ipv6_addr": schema.BoolAttribute{
-				MarkdownDescription: "",
+			"peer_hold_time": schema.Int64Attribute{
+				MarkdownDescription: "Peer Hold Time (3-45 SEC or 800-999 MSEC)",
 				Computed:            true,
 			},
-			"lan_failover_interface_name": schema.StringAttribute{
-				MarkdownDescription: "Name of physical interface",
-				Optional:            true,
+			"peer_hold_time_unit": schema.StringAttribute{
+				MarkdownDescription: "Peer Hold Time Unit",
 				Computed:            true,
 			},
-			"lan_failover_interface_id": schema.StringAttribute{
-				MarkdownDescription: "ID of physical interface.",
+			"interface_poll_time": schema.Int64Attribute{
+				MarkdownDescription: "Peer Pool Time (1-15 SEC or 500-999 MSEC)",
 				Computed:            true,
 			},
-			"lan_failover_interface_type": schema.StringAttribute{
-				MarkdownDescription: "Type of physical interface.",
+			"interface_poll_time_unit": schema.StringAttribute{
+				MarkdownDescription: "Peer Pool Time Unit",
 				Computed:            true,
 			},
-			"stateful_failover_standby_ip": schema.StringAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
-			"stateful_failover_active_ip": schema.StringAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
-			"stateful_failover_name": schema.StringAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
-			"stateful_failover_subnet_mask": schema.StringAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
-			"stateful_failover_ipv6_addr": schema.BoolAttribute{
-				MarkdownDescription: "",
-				Computed:            true,
-			},
-			"stateful_failover_interface_name": schema.StringAttribute{
-				MarkdownDescription: "Name of physical interface",
-				Optional:            true,
-				Computed:            true,
-			},
-			"stateful_failover_interface_id": schema.StringAttribute{
-				MarkdownDescription: "ID of physical interface.",
-				Computed:            true,
-			},
-			"stateful_failover_interface_type": schema.StringAttribute{
-				MarkdownDescription: "Type of physical interface.",
+			"interface_hold_time": schema.Int64Attribute{
+				MarkdownDescription: "Interface Hold Time in seconds",
 				Computed:            true,
 			},
 			"action": schema.StringAttribute{

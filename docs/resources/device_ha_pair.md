@@ -17,27 +17,33 @@ resource "fmc_device_ha_pair" "example" {
   name                             = "FTD_HA"
   primary_device_id                = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   secondary_device_id              = "96d24097-41c4-4332-a4d0-a8c07ac08482"
-  is_encryption_enabled            = false
-  use_same_link_for_failovers      = false
-  shared_key                       = "cisco123"
-  enc_key_generation_scheme        = "CUSTOM"
-  lan_failover_standby_ip          = "1.1.1.2"
-  lan_failover_active_ip           = "1.1.1.1"
-  lan_failover_name                = "LAN-INTERFACE"
-  lan_failover_netmask             = "255.255.255.0"
-  lan_failover_ipv6_addr           = false
-  lan_failover_interface_name      = "GigabitEthernet0/0"
-  lan_failover_interface_id        = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"
-  lan_failover_interface_type      = "PhysicalInterface"
-  stateful_failover_standby_ip     = "10.10.10.2"
-  stateful_failover_active_ip      = "10.10.10.1"
-  stateful_failover_name           = "Stateful-INTERFACE"
-  stateful_failover_subnet_mask    = "255.255.255.0"
-  stateful_failover_ipv6_addr      = false
-  stateful_failover_interface_name = "GigabitEthernet0/0"
-  stateful_failover_interface_id   = "76d24097-hj7r-7786-a4d0-a8c07ac08470"
-  stateful_failover_interface_type = "PhysicalInterface"
-  action                           = "SWITCH"
+  ha_link_interface_id             = "96d24097-41c4-4332-a4d0-a8c07ac08482"
+  ha_link_interface_name           = "GigabitEthernet0/0"
+  ha_link_interface_type           = ""
+  ha_link_logical_name             = "LAN-INTERFACE"
+  ha_link_use_ipv6                 = false
+  ha_link_primary_ip               = "1.1.1.1"
+  ha_link_secondary_ip             = "1.1.1.2"
+  ha_link_subnet_mask              = "255.255.255.0"
+  state_link_use_same_as_ha        = false
+  state_link_interface_id          = "76d24097-hj7r-7786-a4d0-a8c07ac08470"
+  state_link_interface_name        = "GigabitEthernet0/0"
+  state_link_interface_type        = "PhysicalInterface"
+  state_link_logical_name          = "Stateful-INTERFACE"
+  state_link_use_ipv6              = false
+  state_link_primary_ip            = "10.10.10.1"
+  state_link_secondary_ip          = "10.10.10.2"
+  state_link_subnet_mask           = "255.255.255.0"
+  encryption_enabled               = true
+  encryption_key_generation_scheme = "AUTO"
+  failed_interfaces_limit          = 1
+  peer_poll_time                   = 1
+  peer_poll_time_unit              = "SEC"
+  peer_hold_time                   = 15
+  peer_hold_time_unit              = "SEC"
+  interface_poll_time              = 5
+  interface_poll_time_unit         = "SEC"
+  interface_hold_time              = 25
 }
 ```
 
@@ -46,40 +52,57 @@ resource "fmc_device_ha_pair" "example" {
 
 ### Required
 
-- `lan_failover_active_ip` (String)
-- `lan_failover_interface_id` (String) ID of physical interface.
-- `lan_failover_interface_type` (String) Type of physical interface.
-- `lan_failover_name` (String)
-- `lan_failover_standby_ip` (String)
-- `name` (String) The name of the High Availability Pair.
+- `ha_link_interface_id` (String) ID of High Availability Link interface.
+- `ha_link_interface_name` (String) Name of High Availability Link interface.
+- `ha_link_interface_type` (String) Type of High Availability Link interface.
+- `ha_link_logical_name` (String)
+- `ha_link_primary_ip` (String)
+- `ha_link_secondary_ip` (String)
+- `name` (String) The name of the High Availability (HA) Pair.
 - `primary_device_id` (String) ID of primary FTD in the HA Pair.
 - `secondary_device_id` (String) ID of secondary FTD in the HA Pair.
-- `use_same_link_for_failovers` (Boolean) Boolean field to enable same link for failovers
+- `state_link_use_same_as_ha` (Boolean) Use the same link for state and HA.
 
 ### Optional
 
 - `action` (String) FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy
-  - Choices: `SWITCH`
+  - Choices: `SWITCH`, `HABREAK`
 - `domain` (String) The name of the FMC domain
-- `enc_key_generation_scheme` (String) Select the encyption key generation scheme.
+- `encryption_enabled` (Boolean) Use encryption for communication.
+- `encryption_key` (String) Pass shared key for encryption if CUSTOM key geneeration scheme is selected.
+- `encryption_key_generation_scheme` (String) Select the encyption key generation scheme.
   - Choices: `AUTO`, `CUSTOM`
-- `is_encryption_enabled` (Boolean) Boolean field to enable encryption
-- `lan_failover_interface_name` (String) Name of physical interface
-- `lan_failover_ipv6_addr` (Boolean) - Default value: `false`
-- `lan_failover_netmask` (String)
-- `shared_key` (String) Pass the unique shared key if needed.
-- `stateful_failover_active_ip` (String)
-- `stateful_failover_interface_id` (String) ID of physical interface.
-- `stateful_failover_interface_name` (String) Name of physical interface
-- `stateful_failover_interface_type` (String) Type of physical interface.
-- `stateful_failover_ipv6_addr` (Boolean)
-- `stateful_failover_name` (String)
-- `stateful_failover_standby_ip` (String)
-- `stateful_failover_subnet_mask` (String)
+- `failed_interfaces_limit` (Number) - Range: `1`-`211`
+- `failed_interfaces_percent` (Number) - Range: `1`-`100`
+- `ha_link_subnet_mask` (String)
+- `ha_link_use_ipv6` (Boolean) - Default value: `false`
+- `interface_hold_time` (Number) Interface Hold Time in seconds
+  - Range: `25`-`75`
+- `interface_poll_time` (Number) Peer Pool Time (1-15 SEC or 500-999 MSEC)
+  - Range: `1`-`999`
+- `interface_poll_time_unit` (String) Peer Pool Time Unit
+  - Choices: `SEC`, `MSEC`
+- `peer_hold_time` (Number) Peer Hold Time (3-45 SEC or 800-999 MSEC)
+  - Range: `3`-`999`
+- `peer_hold_time_unit` (String) Peer Hold Time Unit
+  - Choices: `SEC`, `MSEC`
+- `peer_poll_time` (Number) Peer Pool Time (1-15 SEC or 200-999 MSEC)
+  - Range: `1`-`999`
+- `peer_poll_time_unit` (String) Peer Pool Time Unit
+  - Choices: `SEC`, `MSEC`
+- `state_link_interface_id` (String) ID of physical interface.
+- `state_link_interface_name` (String) Name of state link interface.
+- `state_link_interface_type` (String) Type of state link interface.
+- `state_link_logical_name` (String)
+- `state_link_primary_ip` (String)
+- `state_link_secondary_ip` (String)
+- `state_link_subnet_mask` (String)
+- `state_link_use_ipv6` (Boolean)
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `type` (String) Type of the resource; This is always `DeviceHAPair`.
 
 ## Import
 

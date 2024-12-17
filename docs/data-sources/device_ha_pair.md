@@ -24,31 +24,41 @@ data "fmc_device_ha_pair" "example" {
 ### Optional
 
 - `domain` (String) The name of the FMC domain
+- `ha_link_interface_name` (String) Name of High Availability Link interface.
 - `id` (String) The id of the object
-- `lan_failover_interface_name` (String) Name of physical interface
-- `name` (String) The name of the High Availability Pair.
-- `stateful_failover_interface_name` (String) Name of physical interface
+- `name` (String) The name of the High Availability (HA) Pair.
+- `state_link_interface_name` (String) Name of state link interface.
 
 ### Read-Only
 
 - `action` (String) FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy
-- `enc_key_generation_scheme` (String) Select the encyption key generation scheme.
-- `is_encryption_enabled` (Boolean) Boolean field to enable encryption
-- `lan_failover_active_ip` (String)
-- `lan_failover_interface_id` (String) ID of physical interface.
-- `lan_failover_interface_type` (String) Type of physical interface.
-- `lan_failover_ipv6_addr` (Boolean)
-- `lan_failover_name` (String)
-- `lan_failover_netmask` (String)
-- `lan_failover_standby_ip` (String)
+- `encryption_enabled` (Boolean) Use encryption for communication.
+- `encryption_key` (String) Pass shared key for encryption if CUSTOM key geneeration scheme is selected.
+- `encryption_key_generation_scheme` (String) Select the encyption key generation scheme.
+- `failed_interfaces_limit` (Number)
+- `failed_interfaces_percent` (Number)
+- `ha_link_interface_id` (String) ID of High Availability Link interface.
+- `ha_link_interface_type` (String) Type of High Availability Link interface.
+- `ha_link_logical_name` (String)
+- `ha_link_primary_ip` (String)
+- `ha_link_secondary_ip` (String)
+- `ha_link_subnet_mask` (String)
+- `ha_link_use_ipv6` (Boolean)
+- `interface_hold_time` (Number) Interface Hold Time in seconds
+- `interface_poll_time` (Number) Peer Pool Time (1-15 SEC or 500-999 MSEC)
+- `interface_poll_time_unit` (String) Peer Pool Time Unit
+- `peer_hold_time` (Number) Peer Hold Time (3-45 SEC or 800-999 MSEC)
+- `peer_hold_time_unit` (String) Peer Hold Time Unit
+- `peer_poll_time` (Number) Peer Pool Time (1-15 SEC or 200-999 MSEC)
+- `peer_poll_time_unit` (String) Peer Pool Time Unit
 - `primary_device_id` (String) ID of primary FTD in the HA Pair.
 - `secondary_device_id` (String) ID of secondary FTD in the HA Pair.
-- `shared_key` (String) Pass the unique shared key if needed.
-- `stateful_failover_active_ip` (String)
-- `stateful_failover_interface_id` (String) ID of physical interface.
-- `stateful_failover_interface_type` (String) Type of physical interface.
-- `stateful_failover_ipv6_addr` (Boolean)
-- `stateful_failover_name` (String)
-- `stateful_failover_standby_ip` (String)
-- `stateful_failover_subnet_mask` (String)
-- `use_same_link_for_failovers` (Boolean) Boolean field to enable same link for failovers
+- `state_link_interface_id` (String) ID of physical interface.
+- `state_link_interface_type` (String) Type of state link interface.
+- `state_link_logical_name` (String)
+- `state_link_primary_ip` (String)
+- `state_link_secondary_ip` (String)
+- `state_link_subnet_mask` (String)
+- `state_link_use_ipv6` (Boolean)
+- `state_link_use_same_as_ha` (Boolean) Use the same link for state and HA.
+- `type` (String) Type of the resource; This is always `DeviceHAPair`.

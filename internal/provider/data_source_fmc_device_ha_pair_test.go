@@ -35,22 +35,28 @@ func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "name", "FTD_HA"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "is_encryption_enabled", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "shared_key", "cisco123"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_standby_ip", "1.1.1.2"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_active_ip", "1.1.1.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_name", "LAN-INTERFACE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_netmask", "255.255.255.0"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_ipv6_addr", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "lan_failover_interface_name", "GigabitEthernet0/0"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_standby_ip", "10.10.10.2"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_active_ip", "10.10.10.1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_name", "Stateful-INTERFACE"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_subnet_mask", "255.255.255.0"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_ipv6_addr", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_interface_name", "GigabitEthernet0/0"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_interface_id", "76d24097-hj7r-7786-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "stateful_failover_interface_type", "PhysicalInterface"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_ha_pair.test", "type"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_interface_name", "GigabitEthernet0/0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_logical_name", "LAN-INTERFACE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_use_ipv6", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_primary_ip", "1.1.1.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_secondary_ip", "1.1.1.2"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_subnet_mask", "255.255.255.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_interface_name", "GigabitEthernet0/0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_logical_name", "Stateful-INTERFACE"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_use_ipv6", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_primary_ip", "10.10.10.1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_secondary_ip", "10.10.10.2"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_subnet_mask", "255.255.255.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "encryption_enabled", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "failed_interfaces_limit", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "peer_poll_time", "1"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "peer_poll_time_unit", "SEC"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "peer_hold_time", "15"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "peer_hold_time_unit", "SEC"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "interface_poll_time", "5"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "interface_poll_time_unit", "SEC"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "interface_hold_time", "25"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -73,6 +79,7 @@ func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
 
 const testAccDataSourceFmcDeviceHAPairPrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+variable "device_2_id" { default = null } // tests will set $TF_VAR_device_2_id
 `
 
 // End of section. //template:end testPrerequisites
@@ -84,26 +91,33 @@ func testAccDataSourceFmcDeviceHAPairConfig() string {
 	config += `	name = "FTD_HA"` + "\n"
 	config += `	primary_device_id = var.device_id` + "\n"
 	config += `	secondary_device_id = var.device_2_id` + "\n"
-	config += `	is_encryption_enabled = false` + "\n"
-	config += `	use_same_link_for_failovers = false` + "\n"
-	config += `	shared_key = "cisco123"` + "\n"
-	config += `	enc_key_generation_scheme = "CUSTOM"` + "\n"
-	config += `	lan_failover_standby_ip = "1.1.1.2"` + "\n"
-	config += `	lan_failover_active_ip = "1.1.1.1"` + "\n"
-	config += `	lan_failover_name = "LAN-INTERFACE"` + "\n"
-	config += `	lan_failover_netmask = "255.255.255.0"` + "\n"
-	config += `	lan_failover_ipv6_addr = false` + "\n"
-	config += `	lan_failover_interface_name = "GigabitEthernet0/0"` + "\n"
-	config += `	lan_failover_interface_id = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	lan_failover_interface_type = "PhysicalInterface"` + "\n"
-	config += `	stateful_failover_standby_ip = "10.10.10.2"` + "\n"
-	config += `	stateful_failover_active_ip = "10.10.10.1"` + "\n"
-	config += `	stateful_failover_name = "Stateful-INTERFACE"` + "\n"
-	config += `	stateful_failover_subnet_mask = "255.255.255.0"` + "\n"
-	config += `	stateful_failover_ipv6_addr = false` + "\n"
-	config += `	stateful_failover_interface_name = "GigabitEthernet0/0"` + "\n"
-	config += `	stateful_failover_interface_id = "76d24097-hj7r-7786-a4d0-a8c07ac08470"` + "\n"
-	config += `	stateful_failover_interface_type = "PhysicalInterface"` + "\n"
+	config += `	ha_link_interface_id = "96d24097-41c4-4332-a4d0-a8c07ac08482"` + "\n"
+	config += `	ha_link_interface_name = "GigabitEthernet0/0"` + "\n"
+	config += `	ha_link_interface_type = ""` + "\n"
+	config += `	ha_link_logical_name = "LAN-INTERFACE"` + "\n"
+	config += `	ha_link_use_ipv6 = false` + "\n"
+	config += `	ha_link_primary_ip = "1.1.1.1"` + "\n"
+	config += `	ha_link_secondary_ip = "1.1.1.2"` + "\n"
+	config += `	ha_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	state_link_use_same_as_ha = false` + "\n"
+	config += `	state_link_interface_id = "76d24097-hj7r-7786-a4d0-a8c07ac08470"` + "\n"
+	config += `	state_link_interface_name = "GigabitEthernet0/0"` + "\n"
+	config += `	state_link_interface_type = "PhysicalInterface"` + "\n"
+	config += `	state_link_logical_name = "Stateful-INTERFACE"` + "\n"
+	config += `	state_link_use_ipv6 = false` + "\n"
+	config += `	state_link_primary_ip = "10.10.10.1"` + "\n"
+	config += `	state_link_secondary_ip = "10.10.10.2"` + "\n"
+	config += `	state_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	encryption_enabled = true` + "\n"
+	config += `	encryption_key_generation_scheme = "AUTO"` + "\n"
+	config += `	failed_interfaces_limit = 1` + "\n"
+	config += `	peer_poll_time = 1` + "\n"
+	config += `	peer_poll_time_unit = "SEC"` + "\n"
+	config += `	peer_hold_time = 15` + "\n"
+	config += `	peer_hold_time_unit = "SEC"` + "\n"
+	config += `	interface_poll_time = 5` + "\n"
+	config += `	interface_poll_time_unit = "SEC"` + "\n"
+	config += `	interface_hold_time = 25` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -119,26 +133,33 @@ func testAccNamedDataSourceFmcDeviceHAPairConfig() string {
 	config += `	name = "FTD_HA"` + "\n"
 	config += `	primary_device_id = var.device_id` + "\n"
 	config += `	secondary_device_id = var.device_2_id` + "\n"
-	config += `	is_encryption_enabled = false` + "\n"
-	config += `	use_same_link_for_failovers = false` + "\n"
-	config += `	shared_key = "cisco123"` + "\n"
-	config += `	enc_key_generation_scheme = "CUSTOM"` + "\n"
-	config += `	lan_failover_standby_ip = "1.1.1.2"` + "\n"
-	config += `	lan_failover_active_ip = "1.1.1.1"` + "\n"
-	config += `	lan_failover_name = "LAN-INTERFACE"` + "\n"
-	config += `	lan_failover_netmask = "255.255.255.0"` + "\n"
-	config += `	lan_failover_ipv6_addr = false` + "\n"
-	config += `	lan_failover_interface_name = "GigabitEthernet0/0"` + "\n"
-	config += `	lan_failover_interface_id = "757kdgh5-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	lan_failover_interface_type = "PhysicalInterface"` + "\n"
-	config += `	stateful_failover_standby_ip = "10.10.10.2"` + "\n"
-	config += `	stateful_failover_active_ip = "10.10.10.1"` + "\n"
-	config += `	stateful_failover_name = "Stateful-INTERFACE"` + "\n"
-	config += `	stateful_failover_subnet_mask = "255.255.255.0"` + "\n"
-	config += `	stateful_failover_ipv6_addr = false` + "\n"
-	config += `	stateful_failover_interface_name = "GigabitEthernet0/0"` + "\n"
-	config += `	stateful_failover_interface_id = "76d24097-hj7r-7786-a4d0-a8c07ac08470"` + "\n"
-	config += `	stateful_failover_interface_type = "PhysicalInterface"` + "\n"
+	config += `	ha_link_interface_id = "96d24097-41c4-4332-a4d0-a8c07ac08482"` + "\n"
+	config += `	ha_link_interface_name = "GigabitEthernet0/0"` + "\n"
+	config += `	ha_link_interface_type = ""` + "\n"
+	config += `	ha_link_logical_name = "LAN-INTERFACE"` + "\n"
+	config += `	ha_link_use_ipv6 = false` + "\n"
+	config += `	ha_link_primary_ip = "1.1.1.1"` + "\n"
+	config += `	ha_link_secondary_ip = "1.1.1.2"` + "\n"
+	config += `	ha_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	state_link_use_same_as_ha = false` + "\n"
+	config += `	state_link_interface_id = "76d24097-hj7r-7786-a4d0-a8c07ac08470"` + "\n"
+	config += `	state_link_interface_name = "GigabitEthernet0/0"` + "\n"
+	config += `	state_link_interface_type = "PhysicalInterface"` + "\n"
+	config += `	state_link_logical_name = "Stateful-INTERFACE"` + "\n"
+	config += `	state_link_use_ipv6 = false` + "\n"
+	config += `	state_link_primary_ip = "10.10.10.1"` + "\n"
+	config += `	state_link_secondary_ip = "10.10.10.2"` + "\n"
+	config += `	state_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	encryption_enabled = true` + "\n"
+	config += `	encryption_key_generation_scheme = "AUTO"` + "\n"
+	config += `	failed_interfaces_limit = 1` + "\n"
+	config += `	peer_poll_time = 1` + "\n"
+	config += `	peer_poll_time_unit = "SEC"` + "\n"
+	config += `	peer_hold_time = 15` + "\n"
+	config += `	peer_hold_time_unit = "SEC"` + "\n"
+	config += `	interface_poll_time = 5` + "\n"
+	config += `	interface_poll_time_unit = "SEC"` + "\n"
+	config += `	interface_hold_time = 25` + "\n"
 	config += `}` + "\n"
 
 	config += `

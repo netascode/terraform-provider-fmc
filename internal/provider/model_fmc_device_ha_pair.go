@@ -34,28 +34,38 @@ type DeviceHAPair struct {
 	Id                            types.String `tfsdk:"id"`
 	Domain                        types.String `tfsdk:"domain"`
 	Name                          types.String `tfsdk:"name"`
+	Type                          types.String `tfsdk:"type"`
 	PrimaryDeviceId               types.String `tfsdk:"primary_device_id"`
 	SecondaryDeviceId             types.String `tfsdk:"secondary_device_id"`
-	IsEncryptionEnabled           types.Bool   `tfsdk:"is_encryption_enabled"`
-	UseSameLinkForFailovers       types.Bool   `tfsdk:"use_same_link_for_failovers"`
-	SharedKey                     types.String `tfsdk:"shared_key"`
-	EncKeyGenerationScheme        types.String `tfsdk:"enc_key_generation_scheme"`
-	LanFailoverStandbyIp          types.String `tfsdk:"lan_failover_standby_ip"`
-	LanFailoverActiveIp           types.String `tfsdk:"lan_failover_active_ip"`
-	LanFailoverName               types.String `tfsdk:"lan_failover_name"`
-	LanFailoverNetmask            types.String `tfsdk:"lan_failover_netmask"`
-	LanFailoverIpv6Addr           types.Bool   `tfsdk:"lan_failover_ipv6_addr"`
-	LanFailoverInterfaceName      types.String `tfsdk:"lan_failover_interface_name"`
-	LanFailoverInterfaceId        types.String `tfsdk:"lan_failover_interface_id"`
-	LanFailoverInterfaceType      types.String `tfsdk:"lan_failover_interface_type"`
-	StatefulFailoverStandbyIp     types.String `tfsdk:"stateful_failover_standby_ip"`
-	StatefulFailoverActiveIp      types.String `tfsdk:"stateful_failover_active_ip"`
-	StatefulFailoverName          types.String `tfsdk:"stateful_failover_name"`
-	StatefulFailoverSubnetMask    types.String `tfsdk:"stateful_failover_subnet_mask"`
-	StatefulFailoverIpv6Addr      types.Bool   `tfsdk:"stateful_failover_ipv6_addr"`
-	StatefulFailoverInterfaceName types.String `tfsdk:"stateful_failover_interface_name"`
-	StatefulFailoverInterfaceId   types.String `tfsdk:"stateful_failover_interface_id"`
-	StatefulFailoverInterfaceType types.String `tfsdk:"stateful_failover_interface_type"`
+	HaLinkInterfaceId             types.String `tfsdk:"ha_link_interface_id"`
+	HaLinkInterfaceName           types.String `tfsdk:"ha_link_interface_name"`
+	HaLinkInterfaceType           types.String `tfsdk:"ha_link_interface_type"`
+	HaLinkLogicalName             types.String `tfsdk:"ha_link_logical_name"`
+	HaLinkUseIpv6                 types.Bool   `tfsdk:"ha_link_use_ipv6"`
+	HaLinkPrimaryIp               types.String `tfsdk:"ha_link_primary_ip"`
+	HaLinkSecondaryIp             types.String `tfsdk:"ha_link_secondary_ip"`
+	HaLinkSubnetMask              types.String `tfsdk:"ha_link_subnet_mask"`
+	StateLinkUseSameAsHa          types.Bool   `tfsdk:"state_link_use_same_as_ha"`
+	StateLinkInterfaceId          types.String `tfsdk:"state_link_interface_id"`
+	StateLinkInterfaceName        types.String `tfsdk:"state_link_interface_name"`
+	StateLinkInterfaceType        types.String `tfsdk:"state_link_interface_type"`
+	StateLinkLogicalName          types.String `tfsdk:"state_link_logical_name"`
+	StateLinkUseIpv6              types.Bool   `tfsdk:"state_link_use_ipv6"`
+	StateLinkPrimaryIp            types.String `tfsdk:"state_link_primary_ip"`
+	StateLinkSecondaryIp          types.String `tfsdk:"state_link_secondary_ip"`
+	StateLinkSubnetMask           types.String `tfsdk:"state_link_subnet_mask"`
+	EncryptionEnabled             types.Bool   `tfsdk:"encryption_enabled"`
+	EncryptionKeyGenerationScheme types.String `tfsdk:"encryption_key_generation_scheme"`
+	EncryptionKey                 types.String `tfsdk:"encryption_key"`
+	FailedInterfacesPercent       types.Int64  `tfsdk:"failed_interfaces_percent"`
+	FailedInterfacesLimit         types.Int64  `tfsdk:"failed_interfaces_limit"`
+	PeerPollTime                  types.Int64  `tfsdk:"peer_poll_time"`
+	PeerPollTimeUnit              types.String `tfsdk:"peer_poll_time_unit"`
+	PeerHoldTime                  types.Int64  `tfsdk:"peer_hold_time"`
+	PeerHoldTimeUnit              types.String `tfsdk:"peer_hold_time_unit"`
+	InterfacePollTime             types.Int64  `tfsdk:"interface_poll_time"`
+	InterfacePollTimeUnit         types.String `tfsdk:"interface_poll_time_unit"`
+	InterfaceHoldTime             types.Int64  `tfsdk:"interface_hold_time"`
 	Action                        types.String `tfsdk:"action"`
 }
 
@@ -79,72 +89,98 @@ func (data DeviceHAPair) toBody(ctx context.Context, state DeviceHAPair) string 
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	body, _ = sjson.Set(body, "type", "DeviceHAPair")
 	if !data.PrimaryDeviceId.IsNull() {
 		body, _ = sjson.Set(body, "primary.id", data.PrimaryDeviceId.ValueString())
 	}
 	if !data.SecondaryDeviceId.IsNull() {
 		body, _ = sjson.Set(body, "secondary.id", data.SecondaryDeviceId.ValueString())
 	}
-	if !data.IsEncryptionEnabled.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.isEncryptionEnabled", data.IsEncryptionEnabled.ValueBool())
+	if !data.HaLinkInterfaceId.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.interfaceObject.id", data.HaLinkInterfaceId.ValueString())
 	}
-	if !data.UseSameLinkForFailovers.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.useSameLinkForFailovers", data.UseSameLinkForFailovers.ValueBool())
+	if !data.HaLinkInterfaceName.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.interfaceObject.name", data.HaLinkInterfaceName.ValueString())
 	}
-	if !data.SharedKey.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.sharedKey", data.SharedKey.ValueString())
+	if !data.HaLinkInterfaceType.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.interfaceObject.type", data.HaLinkInterfaceType.ValueString())
 	}
-	if !data.EncKeyGenerationScheme.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.encKeyGenerationScheme", data.EncKeyGenerationScheme.ValueString())
+	if !data.HaLinkLogicalName.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.logicalName", data.HaLinkLogicalName.ValueString())
 	}
-	if !data.LanFailoverStandbyIp.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.standbyIP", data.LanFailoverStandbyIp.ValueString())
+	if !data.HaLinkUseIpv6.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.useIPv6Address", data.HaLinkUseIpv6.ValueBool())
 	}
-	if !data.LanFailoverActiveIp.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.activeIP", data.LanFailoverActiveIp.ValueString())
+	if !data.HaLinkPrimaryIp.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.activeIP", data.HaLinkPrimaryIp.ValueString())
 	}
-	if !data.LanFailoverName.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.logicalName", data.LanFailoverName.ValueString())
+	if !data.HaLinkSecondaryIp.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.standbyIP", data.HaLinkSecondaryIp.ValueString())
 	}
-	if !data.LanFailoverNetmask.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.subnetMask", data.LanFailoverNetmask.ValueString())
+	if !data.HaLinkSubnetMask.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.subnetMask", data.HaLinkSubnetMask.ValueString())
 	}
-	if !data.LanFailoverIpv6Addr.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.useIPv6Address", data.LanFailoverIpv6Addr.ValueBool())
+	if !data.StateLinkUseSameAsHa.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.useSameLinkForFailovers", data.StateLinkUseSameAsHa.ValueBool())
 	}
-	if !data.LanFailoverInterfaceName.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.interfaceObject.name", data.LanFailoverInterfaceName.ValueString())
+	if !data.StateLinkInterfaceId.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.interfaceObject.id", data.StateLinkInterfaceId.ValueString())
 	}
-	if !data.LanFailoverInterfaceId.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.interfaceObject.id", data.LanFailoverInterfaceId.ValueString())
+	if !data.StateLinkInterfaceName.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.interfaceObject.name", data.StateLinkInterfaceName.ValueString())
 	}
-	if !data.LanFailoverInterfaceType.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.lanFailover.interfaceObject.type", data.LanFailoverInterfaceType.ValueString())
+	if !data.StateLinkInterfaceType.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.interfaceObject.type", data.StateLinkInterfaceType.ValueString())
 	}
-	if !data.StatefulFailoverStandbyIp.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.standbyIP", data.StatefulFailoverStandbyIp.ValueString())
+	if !data.StateLinkLogicalName.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.logicalName", data.StateLinkLogicalName.ValueString())
 	}
-	if !data.StatefulFailoverActiveIp.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.activeIP", data.StatefulFailoverActiveIp.ValueString())
+	if !data.StateLinkUseIpv6.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.useIPv6Address", data.StateLinkUseIpv6.ValueBool())
 	}
-	if !data.StatefulFailoverName.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.logicalName", data.StatefulFailoverName.ValueString())
+	if !data.StateLinkPrimaryIp.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.activeIP", data.StateLinkPrimaryIp.ValueString())
 	}
-	if !data.StatefulFailoverSubnetMask.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.subnetMask", data.StatefulFailoverSubnetMask.ValueString())
+	if !data.StateLinkSecondaryIp.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.standbyIP", data.StateLinkSecondaryIp.ValueString())
 	}
-	if !data.StatefulFailoverIpv6Addr.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.useIPv6Address", data.StatefulFailoverIpv6Addr.ValueBool())
+	if !data.StateLinkSubnetMask.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.subnetMask", data.StateLinkSubnetMask.ValueString())
 	}
-	if !data.StatefulFailoverInterfaceName.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.interfaceObject.name", data.StatefulFailoverInterfaceName.ValueString())
+	if !data.EncryptionEnabled.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.isEncryptionEnabled", data.EncryptionEnabled.ValueBool())
 	}
-	if !data.StatefulFailoverInterfaceId.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.interfaceObject.id", data.StatefulFailoverInterfaceId.ValueString())
+	if !data.EncryptionKeyGenerationScheme.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.encKeyGenerationScheme", data.EncryptionKeyGenerationScheme.ValueString())
 	}
-	if !data.StatefulFailoverInterfaceType.IsNull() {
-		body, _ = sjson.Set(body, "ftdHABootstrap.statefulFailover.interfaceObject.type", data.StatefulFailoverInterfaceType.ValueString())
+	if !data.EncryptionKey.IsNull() {
+		body, _ = sjson.Set(body, "ftdHABootstrap.sharedKey", data.EncryptionKey.ValueString())
+	}
+	if !data.FailedInterfacesPercent.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.percentFailedInterfaceExceed", data.FailedInterfacesPercent.ValueInt64())
+	}
+	if !data.FailedInterfacesLimit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.noOfFailedInterfaceLimit", data.FailedInterfacesLimit.ValueInt64())
+	}
+	if !data.PeerPollTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerPollTime", data.PeerPollTime.ValueInt64())
+	}
+	if !data.PeerPollTimeUnit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerPollTimeUnit", data.PeerPollTimeUnit.ValueString())
+	}
+	if !data.PeerHoldTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerHoldTime", data.PeerHoldTime.ValueInt64())
+	}
+	if !data.PeerHoldTimeUnit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerHoldTimeUnit", data.PeerHoldTimeUnit.ValueString())
+	}
+	if !data.InterfacePollTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.interfacePollTime", data.InterfacePollTime.ValueInt64())
+	}
+	if !data.InterfacePollTimeUnit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.interfacePollTimeUnit", data.InterfacePollTimeUnit.ValueString())
+	}
+	if !data.InterfaceHoldTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.interfaceHoldTime", data.InterfaceHoldTime.ValueInt64())
 	}
 	if !data.Action.IsNull() {
 		body, _ = sjson.Set(body, "action", data.Action.ValueString())
@@ -162,6 +198,11 @@ func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Name = types.StringNull()
 	}
+	if value := res.Get("type"); value.Exists() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
+	}
 	if value := res.Get("primary.id"); value.Exists() {
 		data.PrimaryDeviceId = types.StringValue(value.String())
 	} else {
@@ -172,85 +213,115 @@ func (data *DeviceHAPair) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.SecondaryDeviceId = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.isEncryptionEnabled"); value.Exists() {
-		data.IsEncryptionEnabled = types.BoolValue(value.Bool())
+	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.name"); value.Exists() {
+		data.HaLinkInterfaceName = types.StringValue(value.String())
 	} else {
-		data.IsEncryptionEnabled = types.BoolNull()
-	}
-	if value := res.Get("ftdHABootstrap.sharedKey"); value.Exists() {
-		data.SharedKey = types.StringValue(value.String())
-	} else {
-		data.SharedKey = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.standbyIP"); value.Exists() {
-		data.LanFailoverStandbyIp = types.StringValue(value.String())
-	} else {
-		data.LanFailoverStandbyIp = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.activeIP"); value.Exists() {
-		data.LanFailoverActiveIp = types.StringValue(value.String())
-	} else {
-		data.LanFailoverActiveIp = types.StringNull()
+		data.HaLinkInterfaceName = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.logicalName"); value.Exists() {
-		data.LanFailoverName = types.StringValue(value.String())
+		data.HaLinkLogicalName = types.StringValue(value.String())
 	} else {
-		data.LanFailoverName = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() {
-		data.LanFailoverNetmask = types.StringValue(value.String())
-	} else {
-		data.LanFailoverNetmask = types.StringNull()
+		data.HaLinkLogicalName = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.lanFailover.useIPv6Address"); value.Exists() {
-		data.LanFailoverIpv6Addr = types.BoolValue(value.Bool())
+		data.HaLinkUseIpv6 = types.BoolValue(value.Bool())
 	} else {
-		data.LanFailoverIpv6Addr = types.BoolValue(false)
+		data.HaLinkUseIpv6 = types.BoolValue(false)
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.name"); value.Exists() {
-		data.LanFailoverInterfaceName = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.activeIP"); value.Exists() {
+		data.HaLinkPrimaryIp = types.StringValue(value.String())
 	} else {
-		data.LanFailoverInterfaceName = types.StringNull()
+		data.HaLinkPrimaryIp = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.standbyIP"); value.Exists() {
-		data.StatefulFailoverStandbyIp = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.standbyIP"); value.Exists() {
+		data.HaLinkSecondaryIp = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverStandbyIp = types.StringNull()
+		data.HaLinkSecondaryIp = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.activeIP"); value.Exists() {
-		data.StatefulFailoverActiveIp = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() {
+		data.HaLinkSubnetMask = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverActiveIp = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.logicalName"); value.Exists() {
-		data.StatefulFailoverName = types.StringValue(value.String())
-	} else {
-		data.StatefulFailoverName = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.subnetMask"); value.Exists() {
-		data.StatefulFailoverSubnetMask = types.StringValue(value.String())
-	} else {
-		data.StatefulFailoverSubnetMask = types.StringNull()
-	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.useIPv6Address"); value.Exists() {
-		data.StatefulFailoverIpv6Addr = types.BoolValue(value.Bool())
-	} else {
-		data.StatefulFailoverIpv6Addr = types.BoolNull()
+		data.HaLinkSubnetMask = types.StringNull()
 	}
 	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.name"); value.Exists() {
-		data.StatefulFailoverInterfaceName = types.StringValue(value.String())
+		data.StateLinkInterfaceName = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverInterfaceName = types.StringNull()
+		data.StateLinkInterfaceName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.id"); value.Exists() {
-		data.StatefulFailoverInterfaceId = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.logicalName"); value.Exists() {
+		data.StateLinkLogicalName = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverInterfaceId = types.StringNull()
+		data.StateLinkLogicalName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.type"); value.Exists() {
-		data.StatefulFailoverInterfaceType = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.useIPv6Address"); value.Exists() {
+		data.StateLinkUseIpv6 = types.BoolValue(value.Bool())
 	} else {
-		data.StatefulFailoverInterfaceType = types.StringNull()
+		data.StateLinkUseIpv6 = types.BoolNull()
+	}
+	if value := res.Get("ftdHABootstrap.statefulFailover.activeIP"); value.Exists() {
+		data.StateLinkPrimaryIp = types.StringValue(value.String())
+	} else {
+		data.StateLinkPrimaryIp = types.StringNull()
+	}
+	if value := res.Get("ftdHABootstrap.statefulFailover.standbyIP"); value.Exists() {
+		data.StateLinkSecondaryIp = types.StringValue(value.String())
+	} else {
+		data.StateLinkSecondaryIp = types.StringNull()
+	}
+	if value := res.Get("ftdHABootstrap.statefulFailover.subnetMask"); value.Exists() {
+		data.StateLinkSubnetMask = types.StringValue(value.String())
+	} else {
+		data.StateLinkSubnetMask = types.StringNull()
+	}
+	if value := res.Get("ftdHABootstrap.isEncryptionEnabled"); value.Exists() {
+		data.EncryptionEnabled = types.BoolValue(value.Bool())
+	} else {
+		data.EncryptionEnabled = types.BoolNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.percentFailedInterfaceExceed"); value.Exists() {
+		data.FailedInterfacesPercent = types.Int64Value(value.Int())
+	} else {
+		data.FailedInterfacesPercent = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.noOfFailedInterfaceLimit"); value.Exists() {
+		data.FailedInterfacesLimit = types.Int64Value(value.Int())
+	} else {
+		data.FailedInterfacesLimit = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerPollTime"); value.Exists() {
+		data.PeerPollTime = types.Int64Value(value.Int())
+	} else {
+		data.PeerPollTime = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerPollTimeUnit"); value.Exists() {
+		data.PeerPollTimeUnit = types.StringValue(value.String())
+	} else {
+		data.PeerPollTimeUnit = types.StringNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerHoldTime"); value.Exists() {
+		data.PeerHoldTime = types.Int64Value(value.Int())
+	} else {
+		data.PeerHoldTime = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerHoldTimeUnit"); value.Exists() {
+		data.PeerHoldTimeUnit = types.StringValue(value.String())
+	} else {
+		data.PeerHoldTimeUnit = types.StringNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.interfacePollTime"); value.Exists() {
+		data.InterfacePollTime = types.Int64Value(value.Int())
+	} else {
+		data.InterfacePollTime = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.interfacePollTimeUnit"); value.Exists() {
+		data.InterfacePollTimeUnit = types.StringValue(value.String())
+	} else {
+		data.InterfacePollTimeUnit = types.StringNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.interfaceHoldTime"); value.Exists() {
+		data.InterfaceHoldTime = types.Int64Value(value.Int())
+	} else {
+		data.InterfaceHoldTime = types.Int64Null()
 	}
 	if value := res.Get("action"); value.Exists() {
 		data.Action = types.StringValue(value.String())
@@ -273,6 +344,11 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 	} else {
 		data.Name = types.StringNull()
 	}
+	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
+	}
 	if value := res.Get("primary.id"); value.Exists() && !data.PrimaryDeviceId.IsNull() {
 		data.PrimaryDeviceId = types.StringValue(value.String())
 	} else {
@@ -283,85 +359,115 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 	} else {
 		data.SecondaryDeviceId = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.isEncryptionEnabled"); value.Exists() && !data.IsEncryptionEnabled.IsNull() {
-		data.IsEncryptionEnabled = types.BoolValue(value.Bool())
+	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.name"); value.Exists() && !data.HaLinkInterfaceName.IsNull() {
+		data.HaLinkInterfaceName = types.StringValue(value.String())
 	} else {
-		data.IsEncryptionEnabled = types.BoolNull()
+		data.HaLinkInterfaceName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.sharedKey"); value.Exists() && !data.SharedKey.IsNull() {
-		data.SharedKey = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.logicalName"); value.Exists() && !data.HaLinkLogicalName.IsNull() {
+		data.HaLinkLogicalName = types.StringValue(value.String())
 	} else {
-		data.SharedKey = types.StringNull()
+		data.HaLinkLogicalName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.standbyIP"); value.Exists() && !data.LanFailoverStandbyIp.IsNull() {
-		data.LanFailoverStandbyIp = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.useIPv6Address"); value.Exists() && !data.HaLinkUseIpv6.IsNull() {
+		data.HaLinkUseIpv6 = types.BoolValue(value.Bool())
+	} else if data.HaLinkUseIpv6.ValueBool() != false {
+		data.HaLinkUseIpv6 = types.BoolNull()
+	}
+	if value := res.Get("ftdHABootstrap.lanFailover.activeIP"); value.Exists() && !data.HaLinkPrimaryIp.IsNull() {
+		data.HaLinkPrimaryIp = types.StringValue(value.String())
 	} else {
-		data.LanFailoverStandbyIp = types.StringNull()
+		data.HaLinkPrimaryIp = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.activeIP"); value.Exists() && !data.LanFailoverActiveIp.IsNull() {
-		data.LanFailoverActiveIp = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.standbyIP"); value.Exists() && !data.HaLinkSecondaryIp.IsNull() {
+		data.HaLinkSecondaryIp = types.StringValue(value.String())
 	} else {
-		data.LanFailoverActiveIp = types.StringNull()
+		data.HaLinkSecondaryIp = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.logicalName"); value.Exists() && !data.LanFailoverName.IsNull() {
-		data.LanFailoverName = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() && !data.HaLinkSubnetMask.IsNull() {
+		data.HaLinkSubnetMask = types.StringValue(value.String())
 	} else {
-		data.LanFailoverName = types.StringNull()
+		data.HaLinkSubnetMask = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.subnetMask"); value.Exists() && !data.LanFailoverNetmask.IsNull() {
-		data.LanFailoverNetmask = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.name"); value.Exists() && !data.StateLinkInterfaceName.IsNull() {
+		data.StateLinkInterfaceName = types.StringValue(value.String())
 	} else {
-		data.LanFailoverNetmask = types.StringNull()
+		data.StateLinkInterfaceName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.lanFailover.useIPv6Address"); value.Exists() && !data.LanFailoverIpv6Addr.IsNull() {
-		data.LanFailoverIpv6Addr = types.BoolValue(value.Bool())
-	} else if data.LanFailoverIpv6Addr.ValueBool() != false {
-		data.LanFailoverIpv6Addr = types.BoolNull()
-	}
-	if value := res.Get("ftdHABootstrap.lanFailover.interfaceObject.name"); value.Exists() && !data.LanFailoverInterfaceName.IsNull() {
-		data.LanFailoverInterfaceName = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.logicalName"); value.Exists() && !data.StateLinkLogicalName.IsNull() {
+		data.StateLinkLogicalName = types.StringValue(value.String())
 	} else {
-		data.LanFailoverInterfaceName = types.StringNull()
+		data.StateLinkLogicalName = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.standbyIP"); value.Exists() && !data.StatefulFailoverStandbyIp.IsNull() {
-		data.StatefulFailoverStandbyIp = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.useIPv6Address"); value.Exists() && !data.StateLinkUseIpv6.IsNull() {
+		data.StateLinkUseIpv6 = types.BoolValue(value.Bool())
 	} else {
-		data.StatefulFailoverStandbyIp = types.StringNull()
+		data.StateLinkUseIpv6 = types.BoolNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.activeIP"); value.Exists() && !data.StatefulFailoverActiveIp.IsNull() {
-		data.StatefulFailoverActiveIp = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.activeIP"); value.Exists() && !data.StateLinkPrimaryIp.IsNull() {
+		data.StateLinkPrimaryIp = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverActiveIp = types.StringNull()
+		data.StateLinkPrimaryIp = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.logicalName"); value.Exists() && !data.StatefulFailoverName.IsNull() {
-		data.StatefulFailoverName = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.standbyIP"); value.Exists() && !data.StateLinkSecondaryIp.IsNull() {
+		data.StateLinkSecondaryIp = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverName = types.StringNull()
+		data.StateLinkSecondaryIp = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.subnetMask"); value.Exists() && !data.StatefulFailoverSubnetMask.IsNull() {
-		data.StatefulFailoverSubnetMask = types.StringValue(value.String())
+	if value := res.Get("ftdHABootstrap.statefulFailover.subnetMask"); value.Exists() && !data.StateLinkSubnetMask.IsNull() {
+		data.StateLinkSubnetMask = types.StringValue(value.String())
 	} else {
-		data.StatefulFailoverSubnetMask = types.StringNull()
+		data.StateLinkSubnetMask = types.StringNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.useIPv6Address"); value.Exists() && !data.StatefulFailoverIpv6Addr.IsNull() {
-		data.StatefulFailoverIpv6Addr = types.BoolValue(value.Bool())
+	if value := res.Get("ftdHABootstrap.isEncryptionEnabled"); value.Exists() && !data.EncryptionEnabled.IsNull() {
+		data.EncryptionEnabled = types.BoolValue(value.Bool())
 	} else {
-		data.StatefulFailoverIpv6Addr = types.BoolNull()
+		data.EncryptionEnabled = types.BoolNull()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.name"); value.Exists() && !data.StatefulFailoverInterfaceName.IsNull() {
-		data.StatefulFailoverInterfaceName = types.StringValue(value.String())
+	if value := res.Get("ftdHAFailoverTriggerCriteria.percentFailedInterfaceExceed"); value.Exists() && !data.FailedInterfacesPercent.IsNull() {
+		data.FailedInterfacesPercent = types.Int64Value(value.Int())
 	} else {
-		data.StatefulFailoverInterfaceName = types.StringNull()
+		data.FailedInterfacesPercent = types.Int64Null()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.id"); value.Exists() && !data.StatefulFailoverInterfaceId.IsNull() {
-		data.StatefulFailoverInterfaceId = types.StringValue(value.String())
+	if value := res.Get("ftdHAFailoverTriggerCriteria.noOfFailedInterfaceLimit"); value.Exists() && !data.FailedInterfacesLimit.IsNull() {
+		data.FailedInterfacesLimit = types.Int64Value(value.Int())
 	} else {
-		data.StatefulFailoverInterfaceId = types.StringNull()
+		data.FailedInterfacesLimit = types.Int64Null()
 	}
-	if value := res.Get("ftdHABootstrap.statefulFailover.interfaceObject.type"); value.Exists() && !data.StatefulFailoverInterfaceType.IsNull() {
-		data.StatefulFailoverInterfaceType = types.StringValue(value.String())
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerPollTime"); value.Exists() && !data.PeerPollTime.IsNull() {
+		data.PeerPollTime = types.Int64Value(value.Int())
 	} else {
-		data.StatefulFailoverInterfaceType = types.StringNull()
+		data.PeerPollTime = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerPollTimeUnit"); value.Exists() && !data.PeerPollTimeUnit.IsNull() {
+		data.PeerPollTimeUnit = types.StringValue(value.String())
+	} else {
+		data.PeerPollTimeUnit = types.StringNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerHoldTime"); value.Exists() && !data.PeerHoldTime.IsNull() {
+		data.PeerHoldTime = types.Int64Value(value.Int())
+	} else {
+		data.PeerHoldTime = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.peerHoldTimeUnit"); value.Exists() && !data.PeerHoldTimeUnit.IsNull() {
+		data.PeerHoldTimeUnit = types.StringValue(value.String())
+	} else {
+		data.PeerHoldTimeUnit = types.StringNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.interfacePollTime"); value.Exists() && !data.InterfacePollTime.IsNull() {
+		data.InterfacePollTime = types.Int64Value(value.Int())
+	} else {
+		data.InterfacePollTime = types.Int64Null()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.interfacePollTimeUnit"); value.Exists() && !data.InterfacePollTimeUnit.IsNull() {
+		data.InterfacePollTimeUnit = types.StringValue(value.String())
+	} else {
+		data.InterfacePollTimeUnit = types.StringNull()
+	}
+	if value := res.Get("ftdHAFailoverTriggerCriteria.interfaceHoldTime"); value.Exists() && !data.InterfaceHoldTime.IsNull() {
+		data.InterfaceHoldTime = types.Int64Value(value.Int())
+	} else {
+		data.InterfaceHoldTime = types.Int64Null()
 	}
 	if value := res.Get("action"); value.Exists() && !data.Action.IsNull() {
 		data.Action = types.StringValue(value.String())
@@ -377,6 +483,13 @@ func (data *DeviceHAPair) fromBodyPartial(ctx context.Context, res gjson.Result)
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *DeviceHAPair) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns
@@ -395,21 +508,44 @@ func (data DeviceHAPair) toBodyPutDelete(ctx context.Context, state DeviceHAPair
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-
 	body, _ = sjson.Set(body, "action", "HABREAK")
 	body, _ = sjson.Set(body, "forceBreak", true)
 	return body
 }
-func (data DeviceHAPair) toBodyPutUpdate(ctx context.Context, state DeviceHAPair) string {
+
+// toBodyUpdateTimers generates minimal required body to update timers.
+// Those settings, even if set, are not updated by FMC when recieved as part of toBody function.
+func (data DeviceHAPair) toBodyUpdateTimers(ctx context.Context, state DeviceHAPair) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	if data.Name.ValueString() != "" {
-		body, _ = sjson.Set(body, "name", data.Name.ValueString())
+	if !data.FailedInterfacesPercent.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.percentFailedInterfaceExceed", data.FailedInterfacesPercent.ValueInt64())
 	}
-	if data.Action.ValueString() == "SWITCH" {
-		body, _ = sjson.Set(body, "action", "SWITCH")
+	if !data.FailedInterfacesLimit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.noOfFailedInterfaceLimit", data.FailedInterfacesLimit.ValueInt64())
+	}
+	if !data.PeerPollTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerPollTime", data.PeerPollTime.ValueInt64())
+	}
+	if !data.PeerPollTimeUnit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerPollTimeUnit", data.PeerPollTimeUnit.ValueString())
+	}
+	if !data.PeerHoldTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerHoldTime", data.PeerHoldTime.ValueInt64())
+	}
+	if !data.PeerHoldTimeUnit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.peerHoldTimeUnit", data.PeerHoldTimeUnit.ValueString())
+	}
+	if !data.InterfacePollTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.interfacePollTime", data.InterfacePollTime.ValueInt64())
+	}
+	if !data.InterfacePollTimeUnit.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.interfacePollTimeUnit", data.InterfacePollTimeUnit.ValueString())
+	}
+	if !data.InterfaceHoldTime.IsNull() {
+		body, _ = sjson.Set(body, "ftdHAFailoverTriggerCriteria.interfaceHoldTime", data.InterfaceHoldTime.ValueInt64())
 	}
 	return body
 }
