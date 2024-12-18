@@ -8,6 +8,7 @@ res_description: >-
   i.e. >50000%, depending on the change size).
 is_bulk: true
 doc_category: Objects
+minimum_version_bulk_delete: "7.4"
 attributes:
   - model_name: items
     type: Map

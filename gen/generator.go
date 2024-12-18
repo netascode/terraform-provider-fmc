@@ -104,6 +104,8 @@ type YamlConfig struct {
 	NoUpdate                 bool                  `yaml:"no_update"`
 	NoDelete                 bool                  `yaml:"no_delete"`
 	MinimumVersion           string                `yaml:"minimum_version"`
+	MinimumVersionCreate     string                `yaml:"minimum_version_create"`
+	MinimumVersionBulkCreate string                `yaml:"minimum_version_bulk_create"`
 	MinimumVersionBulkDelete string                `yaml:"minimum_version_bulk_delete"`
 	DsDescription            string                `yaml:"ds_description"`
 	ResDescription           string                `yaml:"res_description"`
