@@ -26,6 +26,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -110,14 +111,14 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				MarkdownDescription: helpers.NewAttributeDescription("(used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.").String,
 				Optional:            true,
 			},
-			"license_capabilities": schema.ListNestedAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory").AddStringEnumDescription("ESSENTIALS", "IPS", "URL", "MALWARE_DEFENSE", "CARRIER", "SECURE_CLIENT_PREMIER", "SECURE_CLIENT_PREMIER_ADVANTAGE", "SECURE_CLIENT_VPNOnly", "BASE", "THREAT", "PROTECT", "CONTROL", "URLFilter", "MALWARE", "VPN", "SSL").String,
+			"license_capabilities": schema.SetAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Array of strings representing the license capabilities on the managed device. ESSENTIALS is mandatory").AddStringEnumDescription("ESSENTIALS", "IPS", "URL", "MALWARE_DEFENSE", "CARRIER", "SECURE_CLIENT_PREMIER", "SECURE_CLIENT_PREMIER_ADVANTAGE", "SECURE_CLIENT_VPNOnly", "BASE", "THREAT", "PROTECT", "CONTROL", "URLFilter", "MALWARE", "VPN", "SSL").String,
+				ElementType:         types.StringType,
 				Required:            true,
-				Validators: []validator.String{
-					stringvalidator.OneOf("ESSENTIALS", "IPS", "URL", "MALWARE_DEFENSE", "CARRIER", "SECURE_CLIENT_PREMIER", "SECURE_CLIENT_PREMIER_ADVANTAGE", "SECURE_CLIENT_VPNOnly", "BASE", "THREAT", "PROTECT", "CONTROL", "URLFilter", "MALWARE", "VPN", "SSL"),
-				},
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{},
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(
+						stringvalidator.OneOf("ESSENTIALS", "IPS", "URL", "MALWARE_DEFENSE", "CARRIER", "SECURE_CLIENT_PREMIER", "SECURE_CLIENT_PREMIER_ADVANTAGE", "SECURE_CLIENT_VPNOnly", "BASE", "THREAT", "PROTECT", "CONTROL", "URLFilter", "MALWARE", "VPN", "SSL"),
+					),
 				},
 			},
 			"registration_key": schema.StringAttribute{

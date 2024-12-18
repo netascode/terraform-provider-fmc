@@ -32,7 +32,8 @@ resource "fmc_device" "example" {
 
 - `access_policy_id` (String) The UUID of the assigned access control policy. For example `fmc_access_control_policy.example.id`.
 - `host_name` (String) Hostname or IP address of the device. Either the host_name or nat_id must be present.
-- `license_capabilities` (Set of String) Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory
+- `license_capabilities` (Set of String) Array of strings representing the license capabilities on the managed device. ESSENTIALS is mandatory
+  - Choices: `ESSENTIALS`, `IPS`, `URL`, `MALWARE_DEFENSE`, `CARRIER`, `SECURE_CLIENT_PREMIER`, `SECURE_CLIENT_PREMIER_ADVANTAGE`, `SECURE_CLIENT_VPNOnly`, `BASE`, `THREAT`, `PROTECT`, `CONTROL`, `URLFilter`, `MALWARE`, `VPN`, `SSL`
 - `name` (String) User-specified name, must be unique.
 - `registration_key` (String) Registration Key identical to the one previously configured on the device (`configure manager`).
 

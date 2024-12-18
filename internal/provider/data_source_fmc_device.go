@@ -87,12 +87,10 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "(used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.",
 				Computed:            true,
 			},
-			"license_capabilities": schema.ListNestedAttribute{
-				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory",
+			"license_capabilities": schema.SetAttribute{
+				MarkdownDescription: "Array of strings representing the license capabilities on the managed device. ESSENTIALS is mandatory",
+				ElementType:         types.StringType,
 				Computed:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{},
-				},
 			},
 			"registration_key": schema.StringAttribute{
 				MarkdownDescription: "Registration Key identical to the one previously configured on the device (`configure manager`).",

@@ -40,7 +40,7 @@ data "fmc_device" "example" {
 - `health_status` (String) Health Status of the device - Informational only.
 - `host_name` (String) Hostname or IP address of the device. Either the host_name or nat_id must be present.
 - `is_connected` (Boolean) Shows if the device is connected - Informational only.
-- `license_capabilities` (Set of String) Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory
+- `license_capabilities` (Set of String) Array of strings representing the license capabilities on the managed device. ESSENTIALS is mandatory
 - `nat_id` (String) (used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.
 - `nat_policy_id` (String) The UUID of the assigned NAT policy.
 - `object_group_search` (Boolean) Enables Object Group Search
