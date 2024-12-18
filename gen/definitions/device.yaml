@@ -34,7 +34,7 @@ attributes:
     #element_type: String
     mandatory: true
     enum_values: [ ESSENTIALS, IPS, URL, MALWARE_DEFENSE, CARRIER, SECURE_CLIENT_PREMIER, SECURE_CLIENT_PREMIER_ADVANTAGE, SECURE_CLIENT_VPNOnly, BASE, THREAT, PROTECT, CONTROL, URLFilter, MALWARE, VPN, SSL ] # cannot be autoenerated
-    description: "Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory"
+    description: "Array of strings representing the license capabilities on the managed device. ESSENTIALS is mandatory"
     example: ESSENTIALS
   - model_name: regKey
     tf_name: registration_key
