@@ -569,7 +569,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 
 	// Check if FMC client is connected to supports this object
 	if fmcVersion.LessThan(minFMCVersion{{camelCase .Name}}) {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support {{.Name}}, minumum required version is {{.MinimumVersion}}", r.client.FMCVersion))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support {{.Name}}, minimum required version is {{.MinimumVersion}}", r.client.FMCVersion))
 		return
 	}
 	{{- end}}
