@@ -36,7 +36,6 @@ type Deployment struct {
 	Domain         types.String `tfsdk:"domain"`
 	Version        types.String `tfsdk:"version"`
 	ForceDeploy    types.Bool   `tfsdk:"force_deploy"`
-	IgnoreWarning  types.Bool   `tfsdk:"ignore_warning"`
 	DeviceList     types.List   `tfsdk:"device_list"`
 	DeploymentNote types.String `tfsdk:"deployment_note"`
 }
@@ -63,11 +62,9 @@ func (data Deployment) toBody(ctx context.Context, state Deployment) string {
 		body, _ = sjson.Set(body, "version", data.Version.ValueString())
 	}
 	if !data.ForceDeploy.IsNull() {
-		body, _ = sjson.Set(body, "ForceDeploy", data.ForceDeploy.ValueBool())
+		body, _ = sjson.Set(body, "forceDeploy", data.ForceDeploy.ValueBool())
 	}
-	if !data.IgnoreWarning.IsNull() {
-		body, _ = sjson.Set(body, "ignoreWarning", data.IgnoreWarning.ValueBool())
-	}
+	body, _ = sjson.Set(body, "ignoreWarning", true)
 	if !data.DeviceList.IsNull() {
 		var values []string
 		data.DeviceList.ElementsAs(ctx, &values, false)
@@ -76,6 +73,7 @@ func (data Deployment) toBody(ctx context.Context, state Deployment) string {
 	if !data.DeploymentNote.IsNull() {
 		body, _ = sjson.Set(body, "deploymentNote", data.DeploymentNote.ValueString())
 	}
+	body, _ = sjson.Set(body, "save", true)
 	return body
 }
 
@@ -89,15 +87,10 @@ func (data *Deployment) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Version = types.StringNull()
 	}
-	if value := res.Get("ForceDeploy"); value.Exists() {
+	if value := res.Get("forceDeploy"); value.Exists() {
 		data.ForceDeploy = types.BoolValue(value.Bool())
 	} else {
 		data.ForceDeploy = types.BoolNull()
-	}
-	if value := res.Get("ignoreWarning"); value.Exists() {
-		data.IgnoreWarning = types.BoolValue(value.Bool())
-	} else {
-		data.IgnoreWarning = types.BoolNull()
 	}
 	if value := res.Get("deviceList"); value.Exists() {
 		data.DeviceList = helpers.GetStringList(value.Array())
@@ -125,15 +118,10 @@ func (data *Deployment) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Version = types.StringNull()
 	}
-	if value := res.Get("ForceDeploy"); value.Exists() && !data.ForceDeploy.IsNull() {
+	if value := res.Get("forceDeploy"); value.Exists() && !data.ForceDeploy.IsNull() {
 		data.ForceDeploy = types.BoolValue(value.Bool())
 	} else {
 		data.ForceDeploy = types.BoolNull()
-	}
-	if value := res.Get("ignoreWarning"); value.Exists() && !data.IgnoreWarning.IsNull() {
-		data.IgnoreWarning = types.BoolValue(value.Bool())
-	} else {
-		data.IgnoreWarning = types.BoolNull()
 	}
 	if value := res.Get("deviceList"); value.Exists() && !data.DeviceList.IsNull() {
 		data.DeviceList = helpers.GetStringList(value.Array())

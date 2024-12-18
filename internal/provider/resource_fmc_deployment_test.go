@@ -38,11 +38,11 @@ func TestAccFmcDeployment(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config: testAccFmcDeploymentPrerequisitesConfig + testAccFmcDeploymentConfig_minimum(),
+			Config: testAccFmcDeploymentConfig_minimum(),
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config: testAccFmcDeploymentPrerequisitesConfig + testAccFmcDeploymentConfig_all(),
+		Config: testAccFmcDeploymentConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
 	})
 
@@ -56,22 +56,12 @@ func TestAccFmcDeployment(t *testing.T) {
 // End of section. //template:end testAcc
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
-
-const testAccFmcDeploymentPrerequisitesConfig = `
-variable "timestamp" { default = null } // tests will set $TF_VAR_timestamp
-variable "device_id_list" {             // tests will set $TF_VAR_device_id_list
-  type = list(string)
-  default = null 
-}
-`
-
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 
 func testAccFmcDeploymentConfig_minimum() string {
 	config := `resource "fmc_deployment" "test" {` + "\n"
-	config += `	ignore_warning = true` + "\n"
 	config += `	device_list = var.device_id_list` + "\n"
 	config += `}` + "\n"
 	return config
@@ -84,7 +74,6 @@ func testAccFmcDeploymentConfig_minimum() string {
 func testAccFmcDeploymentConfig_all() string {
 	config := `resource "fmc_deployment" "test" {` + "\n"
 	config += `	version = var.timestamp` + "\n"
-	config += `	ignore_warning = true` + "\n"
 	config += `	device_list = var.device_id_list` + "\n"
 	config += `}` + "\n"
 	return config
