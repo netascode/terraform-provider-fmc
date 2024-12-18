@@ -31,6 +31,7 @@ resource "fmc_device" "example" {
 ### Required
 
 - `access_policy_id` (String) The UUID of the assigned access control policy. For example `fmc_access_control_policy.example.id`.
+- `host_name` (String) Hostname or IP address of the device. Either the host_name or nat_id must be present.
 - `license_capabilities` (Set of String) Array of strings representing the license capabilities on the managed device. ESSENTIAL is mandatory
 - `name` (String) User-specified name, must be unique.
 - `registration_key` (String) Registration Key identical to the one previously configured on the device (`configure manager`).
@@ -40,7 +41,6 @@ resource "fmc_device" "example" {
 - `device_group_id` (String) ID of the device group.
 - `domain` (String) The name of the FMC domain
 - `health_policy_id` (String) The UUID of the assigned Health policy.
-- `host_name` (String) Hostname or IP address of the device. Either the host_name or nat_id must be present.
 - `nat_id` (String) (used for device registration behind NAT) If the device to be registered and the Firepower Management Center are separated by network address translation (NAT), set a unique string identifier.
 - `nat_policy_id` (String) The UUID of the assigned NAT policy.
 - `object_group_search` (Boolean) Enables Object Group Search

@@ -21,10 +21,10 @@ package provider
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
@@ -34,30 +34,33 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type Device struct {
-	Id                       types.String `tfsdk:"id"`
-	Domain                   types.String `tfsdk:"domain"`
-	Name                     types.String `tfsdk:"name"`
-	Type                     types.String `tfsdk:"type"`
-	HostName                 types.String `tfsdk:"host_name"`
-	NatId                    types.String `tfsdk:"nat_id"`
-	LicenseCapabilities      types.Set    `tfsdk:"license_capabilities"`
-	RegistrationKey          types.String `tfsdk:"registration_key"`
-	DeviceGroupId            types.String `tfsdk:"device_group_id"`
-	ProhibitPacketTransfer   types.Bool   `tfsdk:"prohibit_packet_transfer"`
-	PerformanceTier          types.String `tfsdk:"performance_tier"`
-	SnortEngine              types.String `tfsdk:"snort_engine"`
-	ObjectGroupSearch        types.Bool   `tfsdk:"object_group_search"`
-	AccessPolicyId           types.String `tfsdk:"access_policy_id"`
-	NatPolicyId              types.String `tfsdk:"nat_policy_id"`
-	HealthPolicyId           types.String `tfsdk:"health_policy_id"`
-	Version                  types.String `tfsdk:"version"`
-	HealthStatus             types.String `tfsdk:"health_status"`
-	HealthMessage            types.String `tfsdk:"health_message"`
-	IsConnected              types.Bool   `tfsdk:"is_connected"`
-	DeploymentStatus         types.String `tfsdk:"deployment_status"`
-	FtdMode                  types.String `tfsdk:"ftd_mode"`
-	DeployedAccessPolicyName types.String `tfsdk:"deployed_access_policy_name"`
-	DeployedHealthPolicyName types.String `tfsdk:"deployed_health_policy_name"`
+	Id                       types.String                `tfsdk:"id"`
+	Domain                   types.String                `tfsdk:"domain"`
+	Name                     types.String                `tfsdk:"name"`
+	Type                     types.String                `tfsdk:"type"`
+	HostName                 types.String                `tfsdk:"host_name"`
+	NatId                    types.String                `tfsdk:"nat_id"`
+	LicenseCapabilities      []DeviceLicenseCapabilities `tfsdk:"license_capabilities"`
+	RegistrationKey          types.String                `tfsdk:"registration_key"`
+	DeviceGroupId            types.String                `tfsdk:"device_group_id"`
+	ProhibitPacketTransfer   types.Bool                  `tfsdk:"prohibit_packet_transfer"`
+	PerformanceTier          types.String                `tfsdk:"performance_tier"`
+	SnortEngine              types.String                `tfsdk:"snort_engine"`
+	ObjectGroupSearch        types.Bool                  `tfsdk:"object_group_search"`
+	AccessPolicyId           types.String                `tfsdk:"access_policy_id"`
+	NatPolicyId              types.String                `tfsdk:"nat_policy_id"`
+	HealthPolicyId           types.String                `tfsdk:"health_policy_id"`
+	Version                  types.String                `tfsdk:"version"`
+	HealthStatus             types.String                `tfsdk:"health_status"`
+	HealthMessage            types.String                `tfsdk:"health_message"`
+	IsConnected              types.Bool                  `tfsdk:"is_connected"`
+	DeploymentStatus         types.String                `tfsdk:"deployment_status"`
+	FtdMode                  types.String                `tfsdk:"ftd_mode"`
+	DeployedAccessPolicyName types.String                `tfsdk:"deployed_access_policy_name"`
+	DeployedHealthPolicyName types.String                `tfsdk:"deployed_health_policy_name"`
+}
+
+type DeviceLicenseCapabilities struct {
 }
 
 // End of section. //template:end types
@@ -89,10 +92,12 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.NatId.IsNull() {
 		body, _ = sjson.Set(body, "natID", data.NatId.ValueString())
 	}
-	if !data.LicenseCapabilities.IsNull() {
-		var values []string
-		data.LicenseCapabilities.ElementsAs(ctx, &values, false)
-		body, _ = sjson.Set(body, "license_caps", values)
+	if len(data.LicenseCapabilities) > 0 {
+		body, _ = sjson.Set(body, "license_caps", []interface{}{})
+		for _, item := range data.LicenseCapabilities {
+			itemBody := ""
+			body, _ = sjson.SetRaw(body, "license_caps.-1", itemBody)
+		}
 	}
 	if !data.RegistrationKey.IsNull() {
 		body, _ = sjson.Set(body, "regKey", data.RegistrationKey.ValueString())
@@ -145,9 +150,13 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 		data.HostName = types.StringNull()
 	}
 	if value := res.Get("license_caps"); value.Exists() {
-		data.LicenseCapabilities = helpers.GetStringSet(value.Array())
-	} else {
-		data.LicenseCapabilities = types.SetNull(types.StringType)
+		data.LicenseCapabilities = make([]DeviceLicenseCapabilities, 0)
+		value.ForEach(func(k, res gjson.Result) bool {
+			parent := &data
+			data := DeviceLicenseCapabilities{}
+			(*parent).LicenseCapabilities = append((*parent).LicenseCapabilities, data)
+			return true
+		})
 	}
 	if value := res.Get("deviceGroup.id"); value.Exists() {
 		data.DeviceGroupId = types.StringValue(value.String())
@@ -225,10 +234,43 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.HostName = types.StringNull()
 	}
-	if value := res.Get("license_caps"); value.Exists() && !data.LicenseCapabilities.IsNull() {
-		data.LicenseCapabilities = helpers.GetStringSet(value.Array())
-	} else {
-		data.LicenseCapabilities = types.SetNull(types.StringType)
+	for i := 0; i < len(data.LicenseCapabilities); i++ {
+		keys := [...]string{}
+		keyValues := [...]string{}
+
+		parent := &data
+		data := (*parent).LicenseCapabilities[i]
+		parentRes := &res
+		var res gjson.Result
+
+		parentRes.Get("license_caps").ForEach(
+			func(_, v gjson.Result) bool {
+				found := false
+				for ik := range keys {
+					if v.Get(keys[ik]).String() != keyValues[ik] {
+						found = false
+						break
+					}
+					found = true
+				}
+				if found {
+					res = v
+					return false
+				}
+				return true
+			},
+		)
+		if !res.Exists() {
+			tflog.Debug(ctx, fmt.Sprintf("removing LicenseCapabilities[%d] = %+v",
+				i,
+				(*parent).LicenseCapabilities[i],
+			))
+			(*parent).LicenseCapabilities = slices.Delete((*parent).LicenseCapabilities, i, i+1)
+			i--
+
+			continue
+		}
+		(*parent).LicenseCapabilities[i] = data
 	}
 	if value := res.Get("deviceGroup.id"); value.Exists() && !data.DeviceGroupId.IsNull() {
 		data.DeviceGroupId = types.StringValue(value.String())
