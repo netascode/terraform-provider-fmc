@@ -1,7 +1,6 @@
 ---
 name: Device HA Pair Monitoring
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devicehapairs/ftddevicehapairs/%v/monitoredinterfaces
-query_parameter: logical_name
 put_create: true
 doc_category: Device
 test_tags: [TF_VAR_device_ha_id]
@@ -23,6 +22,7 @@ attributes:
     mandatory: true
     type: String
     example: "outside"
+    data_source_query: true
   - model_name: monitorForFailures
     tf_name: monitor_interface
     description: Monitor this interface for failures.

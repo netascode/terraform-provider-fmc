@@ -141,8 +141,8 @@ func testAccNamedDataSourceFmcDeviceBGPGeneralSettingsConfig() string {
 
 	config += `
 		data "fmc_device_bgp_general_settings" "test" {
-			as_number = fmc_device_bgp_general_settings.test.as_number
 			device_id = var.device_id
+			as_number = fmc_device_bgp_general_settings.test.as_number
 		}
 	`
 	return config

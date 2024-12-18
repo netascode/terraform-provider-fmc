@@ -1,7 +1,6 @@
 ---
 name: Device BFD
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/bfdpolicies
-query_parameter: interface_logical_name
 doc_category: Device
 test_tags: [TF_VAR_device_id]
 attributes:
@@ -35,6 +34,7 @@ attributes:
     description: Logical Name of the interface of BFD assignment if SINGLE_HOP selected.
     type: String
     example: "outside"
+    data_source_query: true
   - model_name: id
     data_path: [destinationAddress]
     tf_name: destination_host_object_id

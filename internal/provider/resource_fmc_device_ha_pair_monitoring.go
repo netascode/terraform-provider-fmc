@@ -193,7 +193,7 @@ func (r *DeviceHAPairMonitoringResource) Create(ctx context.Context, req resourc
 		}
 
 		if plan.Id.ValueString() == "" {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.LogicalName.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with logical_name: %s", plan.LogicalName.ValueString()))
 			return
 		}
 	}

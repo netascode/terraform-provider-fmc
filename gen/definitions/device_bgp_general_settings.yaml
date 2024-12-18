@@ -1,7 +1,6 @@
 ---
 name: Device BGP General Settings
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords/%v/routing/bgpgeneralsettings
-query_parameter: as_number
 doc_category: Devices
 test_tags: [TF_VAR_device_id]
 attributes:
@@ -21,6 +20,7 @@ attributes:
     description: Autonomous System (AS) number in asplain or asdot format
     mandatory: true
     example: "65535"
+    data_source_query: true
   - model_name: routerId
     type: String
     example: AUTOMATIC

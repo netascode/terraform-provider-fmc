@@ -195,8 +195,8 @@ func testAccNamedDataSourceFmcDeviceBGPConfig() string {
 
 	config += `
 		data "fmc_device_bgp" "test" {
-			name = fmc_device_bgp.test.name
 			device_id = var.device_id
+			as_number = fmc_device_bgp.test.as_number
 		}
 	`
 	return config

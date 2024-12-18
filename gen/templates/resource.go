@@ -455,14 +455,17 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	}
 
 	{{- if and .PutCreate (not .IsBulk)}}
-	{{- $queryParameter := "name" }}
-	{{- if not (eq .QueryParameter "") }}
-	{{- $queryParameter = .QueryParameter }}
+
+	{{- $attrTfName := "name" }}
+	{{- $attrModelName := "name" }}
+	{{- if .HasDataSourceQuery}}
+	{{- $attr := getDataSourceQueryAttribute . }}
+	{{- $attrTfName = $attr.TfName }}
+	{{- $attrModelName = $attr.ModelName }}
 	{{- end}}
-	{{- $modelName := getModelName .Attributes .QueryParameter}}
 	
-	tflog.Debug(ctx, fmt.Sprintf("%s: considering object {{$queryParameter}} %s", plan.Id, plan.{{toGoName $queryParameter}}))
-	if plan.Id.ValueString() == "" && plan.{{toGoName $queryParameter}}.ValueString() != "" {
+	tflog.Debug(ctx, fmt.Sprintf("%s: considering object {{$attrTfName}} %s", plan.Id, plan.{{toGoName $attrTfName}}))
+	if plan.Id.ValueString() == "" && plan.{{toGoName $attrTfName}}.ValueString() != "" {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
@@ -474,9 +477,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if plan.{{toGoName $queryParameter}}.ValueString() == v.Get("{{$modelName}}").String() {
+					if plan.{{toGoName $attrTfName}}.ValueString() == v.Get("{{$attrModelName}}").String() {
 						plan.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{$queryParameter}} '%s', id: %s", plan.Id, plan.{{toGoName $queryParameter}}.ValueString(), plan.Id))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{$attrTfName}} '%s', id: %s", plan.Id, plan.{{toGoName $attrTfName}}.ValueString(), plan.Id))
 						return false
 					}
 					return true
@@ -489,7 +492,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		}
 
 		if plan.Id.ValueString() == "" {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.{{toGoName $queryParameter}}.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with {{$attrTfName}}: %s", plan.{{toGoName $attrTfName}}.ValueString()))
 			return
 		}
 	}

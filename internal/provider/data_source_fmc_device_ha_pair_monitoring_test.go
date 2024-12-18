@@ -105,8 +105,8 @@ func testAccNamedDataSourceFmcDeviceHAPairMonitoringConfig() string {
 
 	config += `
 		data "fmc_device_ha_pair_monitoring" "test" {
-			logical_name = fmc_device_ha_pair_monitoring.test.logical_name
 			device_id = var.device_ha_id
+			logical_name = fmc_device_ha_pair_monitoring.test.logical_name
 		}
 	`
 	return config

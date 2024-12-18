@@ -76,7 +76,6 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the object; this is always 'bgp'",
-				Optional:            true,
 				Computed:            true,
 			},
 			"type": schema.StringAttribute{
@@ -85,6 +84,7 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			},
 			"as_number": schema.StringAttribute{
 				MarkdownDescription: "Autonomus System (AS) Number",
+				Optional:            true,
 				Computed:            true,
 			},
 			"ipv4_address_family_type": schema.StringAttribute{
@@ -478,7 +478,7 @@ func (d *DeviceBGPDataSource) ConfigValidators(ctx context.Context) []datasource
 	return []datasource.ConfigValidator{
 		datasourcevalidator.ExactlyOneOf(
 			path.MatchRoot("id"),
-			path.MatchRoot("name"),
+			path.MatchRoot("as_number"),
 		),
 	}
 }
@@ -512,7 +512,7 @@ func (d *DeviceBGPDataSource) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.Name.IsNull() {
+	if config.Id.IsNull() && !config.AsNumber.IsNull() {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
@@ -524,9 +524,9 @@ func (d *DeviceBGPDataSource) Read(ctx context.Context, req datasource.ReadReque
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if config.Name.ValueString() == v.Get("name").String() {
+					if config.AsNumber.ValueString() == v.Get("asNumber").String() {
 						config.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with as_number '%v', id: %v", config.Id.String(), config.AsNumber.ValueString(), config.Id.String()))
 						return false
 					}
 					return true
@@ -539,7 +539,7 @@ func (d *DeviceBGPDataSource) Read(ctx context.Context, req datasource.ReadReque
 		}
 
 		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", config.Name.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with as_number: %s", config.AsNumber.ValueString()))
 			return
 		}
 	}

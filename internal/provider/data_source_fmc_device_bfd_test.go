@@ -105,8 +105,8 @@ func testAccNamedDataSourceFmcDeviceBFDConfig() string {
 
 	config += `
 		data "fmc_device_bfd" "test" {
-			interface_logical_name = fmc_device_bfd.test.interface_logical_name
 			device_id = var.device_id
+			interface_logical_name = fmc_device_bfd.test.interface_logical_name
 		}
 	`
 	return config

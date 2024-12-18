@@ -28,13 +28,12 @@ data "fmc_device_bgp" "example" {
 
 ### Optional
 
+- `as_number` (String) Autonomus System (AS) Number
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
-- `name` (String) Name of the object; this is always 'bgp'
 
 ### Read-Only
 
-- `as_number` (String) Autonomus System (AS) Number
 - `ipv4_address_family_type` (String)
 - `ipv4_aggregate_addresses` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_aggregate_addresses))
 - `ipv4_auto_aummary` (Boolean) Summarize subnet routes into network level routes
@@ -53,6 +52,7 @@ data "fmc_device_bgp" "example" {
 - `ipv4_redistributions` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_redistributions))
 - `ipv4_route_injections` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_route_injections))
 - `ipv4_synchronization` (Boolean) Synchronize between BGP and IGP systems
+- `name` (String) Name of the object; this is always 'bgp'
 - `type` (String) Name of the object; this is always 'bgp'
 
 <a id="nestedatt--ipv4_aggregate_addresses"></a>
