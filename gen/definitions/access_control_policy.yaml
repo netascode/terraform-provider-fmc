@@ -317,7 +317,7 @@ attributes:
         attributes:
           - model_name: type
             type: String
-            enum_values: [ PortLiteral, ICMPv4PortLiteral ]
+            enum_values: [PortLiteral, ICMPv4PortLiteral]
             mandatory: true
             example: PortLiteral
           - model_name: port
@@ -361,7 +361,7 @@ attributes:
         attributes:
           - model_name: type
             type: String
-            enum_values: [ PortLiteral, ICMPv4PortLiteral ]
+            enum_values: [PortLiteral, ICMPv4PortLiteral]
             mandatory: true
             example: PortLiteral
           - model_name: port
@@ -637,4 +637,3 @@ test_prerequisites: |-
     start_tag = "10"
     end_tag   = "11"
   }
-
