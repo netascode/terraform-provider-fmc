@@ -34,6 +34,7 @@ func TestAccFmcDeployment(t *testing.T) {
 		t.Skip("skipping test, set environment variable TF_VAR_timestamp and TF_VAR_device_id_list")
 	}
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_deployment.test", "version", ""))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -73,7 +74,7 @@ func testAccFmcDeploymentConfig_minimum() string {
 
 func testAccFmcDeploymentConfig_all() string {
 	config := `resource "fmc_deployment" "test" {` + "\n"
-	config += `	version = var.timestamp` + "\n"
+	config += `	version = ""` + "\n"
 	config += `	device_list = var.device_id_list` + "\n"
 	config += `}` + "\n"
 	return config

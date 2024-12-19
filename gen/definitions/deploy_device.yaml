@@ -13,8 +13,7 @@ attributes:
   - model_name: version
     type: String
     description: Version to which the deployment should be done. By default set to current unix timestamp.
-    example: "1457566762351"
-    test_value: var.timestamp
+    exclude_example: true
   - model_name: forceDeploy
     type: Bool
     description: Force deployment (even if there are no configuration changes).
@@ -25,7 +24,7 @@ attributes:
     value: "true"
   - model_name: deviceList
     type: List
-    description: List of device ids to be deployed.
+    description: List of device ids to be deployed. If forceDeploy is not set to true, only devices that are deployable will be deployed.
     mandatory: true
     element_type: String
     example: 2fe9063e-8bd5-11ef-9475-e4aeac78cf37
@@ -35,12 +34,12 @@ attributes:
     description: User note related to deployment.
     example: "Deployment note"
     exclude_test: true
-  # - model_name: save
-  #   description: "This attribute is only used internally"
-  #   type: Bool
-  #   value: "true"
+  - model_name: deploy
+    description: "This attribute is only used internally"
+    type: Bool
+    exclude_test: true
+    exclude_example: true
 # test_prerequisites: |-
-#   variable "timestamp" { default = null } // tests will set $TF_VAR_timestamp
 #   variable "device_id_list" {             // tests will set $TF_VAR_device_id_list
 #     type = list(string)
 #     default = null

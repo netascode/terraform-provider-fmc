@@ -38,6 +38,7 @@ type Deployment struct {
 	ForceDeploy    types.Bool   `tfsdk:"force_deploy"`
 	DeviceList     types.List   `tfsdk:"device_list"`
 	DeploymentNote types.String `tfsdk:"deployment_note"`
+	Deploy         types.Bool   `tfsdk:"deploy"`
 }
 
 // End of section. //template:end types
@@ -73,7 +74,9 @@ func (data Deployment) toBody(ctx context.Context, state Deployment) string {
 	if !data.DeploymentNote.IsNull() {
 		body, _ = sjson.Set(body, "deploymentNote", data.DeploymentNote.ValueString())
 	}
-	body, _ = sjson.Set(body, "save", true)
+	if !data.Deploy.IsNull() {
+		body, _ = sjson.Set(body, "deploy", data.Deploy.ValueBool())
+	}
 	return body
 }
 
@@ -101,6 +104,11 @@ func (data *Deployment) fromBody(ctx context.Context, res gjson.Result) {
 		data.DeploymentNote = types.StringValue(value.String())
 	} else {
 		data.DeploymentNote = types.StringNull()
+	}
+	if value := res.Get("deploy"); value.Exists() {
+		data.Deploy = types.BoolValue(value.Bool())
+	} else {
+		data.Deploy = types.BoolNull()
 	}
 }
 
@@ -132,6 +140,11 @@ func (data *Deployment) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.DeploymentNote = types.StringValue(value.String())
 	} else {
 		data.DeploymentNote = types.StringNull()
+	}
+	if value := res.Get("deploy"); value.Exists() && !data.Deploy.IsNull() {
+		data.Deploy = types.BoolValue(value.Bool())
+	} else {
+		data.Deploy = types.BoolNull()
 	}
 }
 

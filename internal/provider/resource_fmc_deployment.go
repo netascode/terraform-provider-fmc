@@ -19,7 +19,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -27,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -34,6 +34,7 @@ import (
 	"github.com/netascode/go-fmc"
 	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 // End of section. //template:end imports
@@ -85,13 +86,19 @@ func (r *DeploymentResource) Schema(ctx context.Context, req resource.SchemaRequ
 				Optional:            true,
 			},
 			"device_list": schema.ListAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("List of device ids to be deployed.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("List of device ids to be deployed. If forceDeploy is not set to true, only devices that are deployable will be deployed.").String,
 				ElementType:         types.StringType,
 				Required:            true,
 			},
 			"deployment_note": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("User note related to deployment.").String,
 				Optional:            true,
+			},
+			"deploy": schema.BoolAttribute{
+				MarkdownDescription: "This attribute is only used internally.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
 			},
 		},
 	}
@@ -152,16 +159,19 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
-	body := plan.toBody(ctx, Deployment{})
-	res, err := r.client.Post(plan.getPath(), body, reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-		return
-	}
+	var deviceIdsSlice []string
+	plan.DeviceList.ElementsAs(ctx, &deviceIdsSlice, false)
 
-	plan.Id = types.StringValue(res.Get("id").String())
-	plan.fromBodyUnknowns(ctx, res)
+	if len(deviceIdsSlice) != 0 {
+		// Create object
+		body := plan.toBody(ctx, Deployment{})
+		body, _ = sjson.Delete(body, "deploy")
+		res, err := r.client.Post(plan.getPath(), body, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 
@@ -172,100 +182,8 @@ func (r *DeploymentResource) Create(ctx context.Context, req resource.CreateRequ
 	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
-// Function to extract device UUIDs from plan
-func extractDeviceList(deviceList types.List) ([]string, error) {
-	var extractedList []string
-
-	// Iterate through each element in the ListValue
-	for _, elem := range deviceList.Elements() {
-		// Convert the element to a StringValue and extract its value
-		if stringValue, ok := elem.(types.String); ok {
-			extractedList = append(extractedList, stringValue.ValueString())
-		} else {
-			return nil, fmt.Errorf("element is not a StringValue")
-		}
-	}
-
-	return extractedList, nil
-}
-
-// Function to convert gjson.Result to a map
-func resJson2Map(res gjson.Result) (map[string]interface{}, error) {
-	// Convert gjson.Result to string
-	jsonString := res.String()
-
-	// Declare a map to hold the unmarshaled data
-	var resMap map[string]interface{}
-
-	// Unmarshal the JSON string into the map
-	err := json.Unmarshal([]byte(jsonString), &resMap)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing JSON data: %w", err)
-	}
-
-	// Return the map and nil error
-	return resMap, nil
-}
-
-// Function to check if item belongs to list
-func contains(list []string, item string) bool {
-	for _, v := range list {
-		if v == item {
-			return true
-		}
-	}
-	return false
-}
-
-// Function to heck if all elements of list2 are in list1 (ignoring order)
-func containsAllElements(list1, list2 []string) bool {
-	lookup := make(map[string]bool)
-	for _, item := range list1 {
-		lookup[item] = true
-	}
-	for _, item := range list2 {
-		if !lookup[item] {
-			return false
-		}
-	}
-	return true
-}
-
-func extractDeviceUUIDs(res string) ([]string, error) {
-	// Parse the JSON into a map
-	var resMap map[string]interface{}
-	err := json.Unmarshal([]byte(res), &resMap)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse JSON: %v", err)
-	}
-
-	// Extract deviceList
-	deviceList, ok := resMap["deviceList"].([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("deviceList is not an array or is missing")
-	}
-
-	// Extract deviceUUIDs
-	var deviceUUIDs []string
-	for _, item := range deviceList {
-		device, ok := item.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("deviceList item is not an object")
-		}
-
-		uuid, ok := device["deviceUUID"].(string)
-		if !ok {
-			return nil, fmt.Errorf("deviceUUID is not a string or is missing")
-		}
-
-		deviceUUIDs = append(deviceUUIDs, uuid)
-	}
-
-	return deviceUUIDs, nil
-}
-
 func (r *DeploymentResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	resp.State.SetAttribute(ctx, path.Root("save"), false)
+	resp.State.SetAttribute(ctx, path.Root("deploy"), false)
 }
 
 func (r *DeploymentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -315,16 +233,19 @@ func (r *DeploymentResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
 
-	// Create object
-	body := plan.toBody(ctx, Deployment{})
-	res, err := r.client.Post(plan.getPath(), body, reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-		return
-	}
+	var deviceIdsSlice []string
+	plan.DeviceList.ElementsAs(ctx, &deviceIdsSlice, false)
 
-	plan.Id = types.StringValue(res.Get("id").String())
-	plan.fromBodyUnknowns(ctx, res)
+	if len(deviceIdsSlice) != 0 {
+		// Create object
+		body := plan.toBody(ctx, Deployment{})
+		body, _ = sjson.Delete(body, "deploy")
+		res, err := r.client.Post(plan.getPath(), body, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+			return
+		}
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
 

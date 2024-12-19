@@ -14,7 +14,6 @@ This resource can manage a Deployment.
 
 ```terraform
 resource "fmc_deployment" "example" {
-  version         = "1457566762351"
   device_list     = ["2fe9063e-8bd5-11ef-9475-e4aeac78cf37"]
   deployment_note = "Deployment note"
 }
@@ -25,14 +24,14 @@ resource "fmc_deployment" "example" {
 
 ### Required
 
-- `device_list` (List of String) List of device ids to be deployed.
+- `device_list` (List of String) List of device ids to be deployed. If forceDeploy is not set to true, only devices that are deployable will be deployed.
 
 ### Optional
 
+- `deploy` (Boolean) This attribute is only used internally.
 - `deployment_note` (String) User note related to deployment.
 - `domain` (String) The name of the FMC domain
 - `force_deploy` (Boolean) Force deployment (even if there are no configuration changes).
-- `save` (Boolean) This attribute is only used internally.
 - `version` (String) Version to which the deployment should be done. By default set to current unix timestamp.
 
 ### Read-Only
