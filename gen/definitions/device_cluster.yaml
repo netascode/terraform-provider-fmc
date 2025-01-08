@@ -2,7 +2,7 @@
 name: Device Cluster
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/deviceclusters/ftddevicecluster
 doc_category: Device
-test_tags: [TF_VAR_device_id, TF_VAR_device_interface_id]
+test_tags: [TF_VAR_device_id, TF_VAR_device_interface_name]
 attributes:
   - model_name: name
     type: String
@@ -49,7 +49,7 @@ attributes:
     mandatory: true
     description: Cluster control link interface ID.
     example: 76d24097-41c4-4558-a4d0-a8c07ac08470
-    test_value: var.device_interface_id
+    test_value: data.fmc_device_physical_interface.test.id
   - model_name: name
     tf_name: control_node_interface_name
     data_path: [commonBootstrap, cclInterface]
@@ -57,7 +57,7 @@ attributes:
     mandatory: true
     description: Cluster control link interface Name.
     example: "GigabitEthernet0/0"
-    #test_value: var.device_interface_id
+    test_value: data.fmc_device_physical_interface.test.name
   - model_name: type
     tf_name: control_node_interface_type
     data_path: [commonBootstrap, cclInterface]
@@ -65,7 +65,7 @@ attributes:
     mandatory: true
     description: Cluster control link interface Type.
     example: "PhysicalInterface"
-    #test_value: var.device_interface_id
+    test_value: data.fmc_device_physical_interface.test.type
   - model_name: cclIp
     tf_name: control_node_ccl_ipv4_address
     data_path: [controlDevice, clusterNodeBootstrap]
@@ -111,5 +111,8 @@ attributes:
       description: Priority of cluster data node.
 
 test_prerequisites: |-
+  data "fmc_device_physical_interface" "test" {
+    device_id   = var.device_id
+    id          = var.device_interface_name
+  }
   variable "device_id" { default = null } // tests will set $TF_VAR_device_id
-  variable "device_interface_id" { default = null } // tests will set $TF_VAR_device_interface_id
