@@ -24,25 +24,22 @@ resource "fmc_prefilter_policy" "example" {
   default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   rules = [
     {
-      name               = "rule1"
-      action             = "FASTPATH"
-      rule_type          = "PREFILTER"
-      log_begin          = true
-      log_end            = true
-      send_events_to_fmc = true
-      send_syslog        = true
-      syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
-      syslog_severity    = "DEBUG"
-      snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-      vlan_tag_literals = [
+      name           = "rule1"
+      rule_type      = "PREFILTER"
+      enabled        = true
+      action         = "FASTPATH"
+      tunnel_zone_id = "0050568A-7F57-0ed3-0000-004294975576"
+      time_range_id  = "0050568A-7F57-0ed3-0000-004294975576"
+      source_interfaces = [
         {
-          start_tag = "11"
-          end_tag   = "22"
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "SecurityZone"
         }
       ]
-      vlan_tag_objects = [
+      destination_interfaces = [
         {
-          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "SecurityZone"
         }
       ]
       source_network_literals = [
@@ -67,6 +64,17 @@ resource "fmc_prefilter_policy" "example" {
           type = "Network"
         }
       ]
+      vlan_tag_literals = [
+        {
+          start_tag = "11"
+          end_tag   = "22"
+        }
+      ]
+      vlan_tag_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
       source_port_literals = [
         {
           protocol = "6"
@@ -89,27 +97,14 @@ resource "fmc_prefilter_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
-      source_interfaces = [
-        {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "SecurityZone"
-        }
-      ]
-      destination_interfaces = [
-        {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "SecurityZone"
-        }
-      ]
-      tunnel_zone = [
-        {
-          id = "0050568A-7F57-0ed3-0000-004294975576"
-        }
-      ]
-      encapsulation_ports_gre        = false
-      encapsulation_ports_in_in_ip   = false
-      encapsulation_ports_ipv6_in_ip = false
-      encapsulation_ports_teredo     = false
+      encapsulation_ports = ["GRE"]
+      log_begin           = true
+      log_end             = true
+      send_events_to_fmc  = true
+      send_syslog         = true
+      syslog_config_id    = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+      syslog_severity     = "DEBUG"
+      snmp_config_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
   ]
 }
@@ -120,28 +115,26 @@ resource "fmc_prefilter_policy" "example" {
 
 ### Required
 
+- `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
+  - Choices: `BLOCK_TUNNELS`, `ANALYZE_TUNNELS`
 - `name` (String) The name of the prefilter policy.
 
 ### Optional
 
-- `default_action` (String) Specifies the default action to take when none of the rules meet the conditions.
-  - Choices: `BLOCK_TUNNELS`, `ANALYZE_TUNNELS`
 - `default_action_log_begin` (Boolean) Indicating whether the device will log events at the beginning of the connection.
-  - Default value: `false`
 - `default_action_log_end` (Boolean) Indicating whether the device will log events at the end of the connection.
-  - Default value: `false`
 - `default_action_send_events_to_fmc` (Boolean) Indicating whether the device will send events to the Firepower Management Center event viewer.
-  - Default value: `false`
 - `default_action_snmp_config_id` (String) UUID of the SNMP alert. Can be set only when either default_action_log_begin or default_action_log_end is true.
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when either default_action_log_begin or default_action_log_end is true.
-- `description` (String) Description.
+- `description` (String) Policy description.
 - `domain` (String) The name of the FMC domain
 - `rules` (Attributes List) The ordered list of rules. (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only
 
-- `default_action_id` (String) Default action ID.
+- `default_action_id` (String) Default action ID
 - `id` (String) The id of the object
+- `type` (String) Object type; This is always `PrefilterPolicy`
 
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
@@ -157,7 +150,6 @@ Required:
 Optional:
 
 - `bidirectional` (Boolean) Indicates whether the rule is bidirectional. Can be true only for TUNNEL rules. Default is false.
-  - Default value: `false`
 - `destination_interfaces` (Attributes Set) Set of objects that represent destination interfaces. (see [below for nested schema](#nestedatt--rules--destination_interfaces))
 - `destination_network_literals` (Attributes Set) Set of objects that represent destinations of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--destination_network_literals))
 - `destination_network_objects` (Attributes Set) Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...). (see [below for nested schema](#nestedatt--rules--destination_network_objects))
@@ -165,22 +157,12 @@ Optional:
 - `destination_port_objects` (Attributes Set) Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules. (see [below for nested schema](#nestedatt--rules--destination_port_objects))
 - `enabled` (Boolean) Indicates whether the prefilter rule is in effect (true) or not (false). Default is true.
   - Default value: `true`
-- `encapsulation_ports_gre` (Boolean) Indicating whether to set the GRE encapsulation protocol in the TUNNEL rule.
-  - Default value: `false`
-- `encapsulation_ports_in_in_ip` (Boolean) Indicating whether to set the IP-in-IP encapsulation protocol in the TUNNEL rule.
-  - Default value: `false`
-- `encapsulation_ports_ipv6_in_ip` (Boolean) Indicating whether to set the IPv6-in-IP encapsulation protocol in the TUNNEL rule.
-  - Default value: `false`
-- `encapsulation_ports_teredo` (Boolean) Indicating whether to set the TEREDO encapsulation protocol in the TUNNEL rule.
-  - Default value: `false`
+- `encapsulation_ports` (Set of String) List of encapsulation ports to be used.
+  - Choices: `GRE`, `IP_IN_IP`, `IPV6_IN_IP`, `TEREDO`
 - `log_begin` (Boolean) Indicates whether the device will log events at the beginning of the connection. Default is false.
-  - Default value: `false`
 - `log_end` (Boolean) Indicates whether the device will log events at the end of the connection. Default is false.
-  - Default value: `false`
 - `send_events_to_fmc` (Boolean) Indicates whether the device will send events to the Firepower Management Center event viewer. Default is false.
-  - Default value: `false`
 - `send_syslog` (Boolean) Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging. Default is false.
-  - Default value: `false`
 - `snmp_config_id` (String) UUID of the SNMP alert associated with the prefilter rule. Can be set only when either log_begin or log_end is true.
 - `source_interfaces` (Attributes Set) Set of objects that represent source interfaces. (see [below for nested schema](#nestedatt--rules--source_interfaces))
 - `source_network_literals` (Attributes Set) Set of objects that represent sources of traffic (literally specified). (see [below for nested schema](#nestedatt--rules--source_network_literals))
@@ -190,13 +172,14 @@ Optional:
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
-- `tunnel_zone` (Attributes List) Can be only set for TUNNEL rules with ANALYZE action. Only one tunnel zone is accepted. (see [below for nested schema](#nestedatt--rules--tunnel_zone))
+- `time_range_id` (String) UUID of Time Range.
+- `tunnel_zone_id` (String) UUID of Tunnel Zone. Can be only set for TUNNEL rules with ANALYZE action.
 - `vlan_tag_literals` (Attributes Set) Set of objects that represent vlan tags (literally specified). (see [below for nested schema](#nestedatt--rules--vlan_tag_literals))
 - `vlan_tag_objects` (Attributes Set) Set of objects representing vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...). (see [below for nested schema](#nestedatt--rules--vlan_tag_objects))
 
 Read-Only:
 
-- `id` (String) Unique identifier (UUID) of the prefilter rule.
+- `id` (String) The id of the prefilter rule.
 
 <a id="nestedatt--rules--destination_interfaces"></a>
 ### Nested Schema for `rules.destination_interfaces`
@@ -218,7 +201,7 @@ Optional:
 <a id="nestedatt--rules--destination_network_objects"></a>
 ### Nested Schema for `rules.destination_network_objects`
 
-Optional:
+Required:
 
 - `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
 - `type` (String) Type of the object (such as fmc_network.example.type, etc.).
@@ -264,7 +247,7 @@ Optional:
 <a id="nestedatt--rules--source_network_objects"></a>
 ### Nested Schema for `rules.source_network_objects`
 
-Optional:
+Required:
 
 - `id` (String) UUID of the object (such as fmc_network.example.id, etc.).
 - `type` (String) Type of the object (such as fmc_network.example.type, etc.).
@@ -290,18 +273,10 @@ Optional:
 - `id` (String) UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
 
 
-<a id="nestedatt--rules--tunnel_zone"></a>
-### Nested Schema for `rules.tunnel_zone`
-
-Optional:
-
-- `id` (String) UUID of the object.
-
-
 <a id="nestedatt--rules--vlan_tag_literals"></a>
 ### Nested Schema for `rules.vlan_tag_literals`
 
-Optional:
+Required:
 
 - `end_tag` (String)
 - `start_tag` (String)

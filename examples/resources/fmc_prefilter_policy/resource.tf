@@ -9,25 +9,22 @@ resource "fmc_prefilter_policy" "example" {
   default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   rules = [
     {
-      name               = "rule1"
-      action             = "FASTPATH"
-      rule_type          = "PREFILTER"
-      log_begin          = true
-      log_end            = true
-      send_events_to_fmc = true
-      send_syslog        = true
-      syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
-      syslog_severity    = "DEBUG"
-      snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-      vlan_tag_literals = [
+      name           = "rule1"
+      rule_type      = "PREFILTER"
+      enabled        = true
+      action         = "FASTPATH"
+      tunnel_zone_id = "0050568A-7F57-0ed3-0000-004294975576"
+      time_range_id  = "0050568A-7F57-0ed3-0000-004294975576"
+      source_interfaces = [
         {
-          start_tag = "11"
-          end_tag   = "22"
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "SecurityZone"
         }
       ]
-      vlan_tag_objects = [
+      destination_interfaces = [
         {
-          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+          type = "SecurityZone"
         }
       ]
       source_network_literals = [
@@ -52,6 +49,17 @@ resource "fmc_prefilter_policy" "example" {
           type = "Network"
         }
       ]
+      vlan_tag_literals = [
+        {
+          start_tag = "11"
+          end_tag   = "22"
+        }
+      ]
+      vlan_tag_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
       source_port_literals = [
         {
           protocol = "6"
@@ -74,27 +82,14 @@ resource "fmc_prefilter_policy" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
-      source_interfaces = [
-        {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "SecurityZone"
-        }
-      ]
-      destination_interfaces = [
-        {
-          id   = "76d24097-41c4-4558-a4d0-a8c07ac08470"
-          type = "SecurityZone"
-        }
-      ]
-      tunnel_zone = [
-        {
-          id = "0050568A-7F57-0ed3-0000-004294975576"
-        }
-      ]
-      encapsulation_ports_gre        = false
-      encapsulation_ports_in_in_ip   = false
-      encapsulation_ports_ipv6_in_ip = false
-      encapsulation_ports_teredo     = false
+      encapsulation_ports = ["GRE"]
+      log_begin           = true
+      log_end             = true
+      send_events_to_fmc  = true
+      send_syslog         = true
+      syslog_config_id    = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+      syslog_severity     = "DEBUG"
+      snmp_config_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
   ]
 }
