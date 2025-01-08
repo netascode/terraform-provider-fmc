@@ -88,7 +88,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The name of the prefilter policy.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Name of the prefilter policy.").String,
 				Required:            true,
 			},
 			"description": schema.StringAttribute{
@@ -117,15 +117,15 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 				},
 			},
 			"default_action_log_begin": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicating whether the device will log events at the beginning of the connection.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Log events at the beginning of the connection.").String,
 				Optional:            true,
 			},
 			"default_action_log_end": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicating whether the device will log events at the end of the connection.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Log events at the end of the connection.").String,
 				Optional:            true,
 			},
 			"default_action_send_events_to_fmc": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Indicating whether the device will send events to the Firepower Management Center event viewer.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Send events to the Firepower Management Center event viewer.").String,
 				Optional:            true,
 			},
 			"default_action_syslog_config_id": schema.StringAttribute{
@@ -142,7 +142,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("The id of the prefilter rule.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Id of the prefilter rule.").String,
 							Computed:            true,
 						},
 						"name": schema.StringAttribute{
@@ -150,7 +150,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							Required:            true,
 						},
 						"rule_type": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the rule is PREFILTER rule or TUNNEL rule. At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.").AddStringEnumDescription("PREFILTER", "TUNNEL").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the rule. At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.").AddStringEnumDescription("PREFILTER", "TUNNEL").String,
 							Required:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("PREFILTER", "TUNNEL"),
@@ -178,7 +178,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							Optional:            true,
 						},
 						"time_range_id": schema.StringAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("UUID of Time Range.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of Time Range object applied to the rule.").String,
 							Optional:            true,
 						},
 						"source_interfaces": schema.SetNestedAttribute{
@@ -226,16 +226,16 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"source_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent sources of traffic (Networks, Hosts, Ranges or Network Groups).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object").String,
 										Required:            true,
 									},
 									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_network.example.type, etc.).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object").String,
 										Required:            true,
 									},
 								},
@@ -254,16 +254,16 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"destination_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (Networks, Hosts, Ranges or Network Groups).").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_network.example.id, etc.).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
 										Required:            true,
 									},
 									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("Type of the object (such as fmc_network.example.type, etc.).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("Type of the object").String,
 										Required:            true,
 									},
 								},
@@ -286,7 +286,7 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"vlan_tag_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...).").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing vlan tags or vlan tag groups").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -314,12 +314,12 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"source_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing source ports associated with the rule (Port or Port Groups). Can be only set for PREFILTER rules.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
 										Optional:            true,
 									},
 								},
@@ -342,12 +342,12 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"destination_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects representing destination ports associated with the rule (Port or Port Groups). Can be only set for PREFILTER rules.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).").String,
+										MarkdownDescription: helpers.NewAttributeDescription("UUID of the object.").String,
 										Optional:            true,
 									},
 								},
@@ -364,19 +364,19 @@ func (r *PrefilterPolicyResource) Schema(ctx context.Context, req resource.Schem
 							},
 						},
 						"log_begin": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the beginning of the connection. Default is false.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Log events at the beginning of the connection. Default is false.").String,
 							Optional:            true,
 						},
 						"log_end": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will log events at the end of the connection. Default is false.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Log events at the end of the connection. Default is false.").String,
 							Optional:            true,
 						},
 						"send_events_to_fmc": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the device will send events to the Firepower Management Center event viewer. Default is false.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Send events to the Firepower Management Center event viewer. Default is false.").String,
 							Optional:            true,
 						},
 						"send_syslog": schema.BoolAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging. Default is false.").String,
+							MarkdownDescription: helpers.NewAttributeDescription("Send alerts associated with the prefilter rule to default syslog configuration in Prefilter Logging. Default is false.").String,
 							Optional:            true,
 						},
 						"syslog_config_id": schema.StringAttribute{

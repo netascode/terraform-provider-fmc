@@ -1,15 +1,15 @@
 ---
 name: Prefilter Policy
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/policy/prefilterpolicies
-data_source_name_query: true
 doc_category: Policy
 attributes:
 # General
   - model_name: name
     type: String
     mandatory: true
-    description: The name of the prefilter policy.
+    description: Name of the prefilter policy.
     example: POLICY1
+    data_source_query: true
   - model_name: description
     type: String
     description: Policy description.
@@ -37,19 +37,19 @@ attributes:
     data_path: [defaultAction]
     tf_name: default_action_log_begin
     type: Bool
-    description: Indicating whether the device will log events at the beginning of the connection.
+    description: Log events at the beginning of the connection.
     example: "true"
   - model_name: logEnd
     data_path: [defaultAction]
     tf_name: default_action_log_end
     type: Bool
-    description: Indicating whether the device will log events at the end of the connection.
+    description: Log events at the end of the connection.
     example: "false"
   - model_name: sendEventsToFMC
     data_path: [defaultAction]
     tf_name: default_action_send_events_to_fmc
     type: Bool
-    description: Indicating whether the device will send events to the Firepower Management Center event viewer.
+    description: Send events to the Firepower Management Center event viewer.
     example: "true"
   - model_name: id
     data_path: [defaultAction, syslogConfig]
@@ -78,7 +78,7 @@ attributes:
 # General
       - model_name: id
         type: String
-        description: The id of the prefilter rule.
+        description: Id of the prefilter rule.
         exclude_example: true
         exclude_test: true
         resource_id: true
@@ -94,7 +94,7 @@ attributes:
       - model_name: ruleType
         type: String
         description: >-
-          Indicates whether the rule is PREFILTER rule or TUNNEL rule.
+          Type of the rule.
           At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.
         mandatory: true
         enum_values: [PREFILTER, TUNNEL]
@@ -130,7 +130,7 @@ attributes:
         data_path: [timeRangeObjects.0]
         tf_name: time_range_id
         type: String
-        description: UUID of Time Range.
+        description: UUID of Time Range object applied to the rule.
         example: 0050568A-7F57-0ed3-0000-004294975576
         exclude_test: true
       #- model_name: type
@@ -189,19 +189,19 @@ attributes:
       - model_name: objects
         data_path: [sourceNetworks]
         tf_name: source_network_objects
-        description: Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).
+        description: Set of objects that represent sources of traffic (Networks, Hosts, Ranges or Network Groups).
         type: Set
         attributes:
           - model_name: id
             type: String
-            description: UUID of the object (such as fmc_network.example.id, etc.).
+            description: UUID of the object
             example: 76d24097-41c4-4558-a4d0-a8c07ac08470
             mandatory: true
             test_value: fmc_network.test.id
             id: true
           - model_name: type
             type: String
-            description: Type of the object (such as fmc_network.example.type, etc.).
+            description: Type of the object
             example: Network
             mandatory: true
             test_value: fmc_network.test.type
@@ -221,12 +221,12 @@ attributes:
       - model_name: objects
         data_path: [destinationNetworks]
         tf_name: destination_network_objects
-        description: Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).
+        description: Set of objects that represent destinations of traffic (Networks, Hosts, Ranges or Network Groups).
         type: Set
         attributes:
           - model_name: id
             type: String
-            description: UUID of the object (such as fmc_network.example.id, etc.).
+            description: UUID of the object.
             example: 76d24097-41c4-4558-a4d0-a8c07ac08470
             test_value: fmc_host.test.id
             id: true
@@ -234,7 +234,7 @@ attributes:
           - model_name: type
             type: String
             mandatory: true
-            description: Type of the object (such as fmc_network.example.type, etc.).
+            description: Type of the object
             example: Network
             test_value: fmc_host.test.type
 # VLAN Tags
@@ -255,7 +255,7 @@ attributes:
       - model_name: objects
         data_path: [vlanTags]
         tf_name: vlan_tag_objects
-        description: Set of objects representing vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...).
+        description: Set of objects representing vlan tags or vlan tag groups
         type: Set
         attributes:
           - model_name: id
@@ -286,13 +286,13 @@ attributes:
         data_path: [sourcePorts]
         tf_name: source_port_objects
         description: >-
-          Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group).
+          Set of objects representing source ports associated with the rule (Port or Port Groups).
           Can be only set for PREFILTER rules.
         type: Set
         attributes:
           - model_name: id
             type: String
-            description: UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+            description: UUID of the object.
             example: 76d24097-41c4-4558-a4d0-a8c07ac08470
             test_value: fmc_port.test.id
           - model_name: type
@@ -320,13 +320,13 @@ attributes:
         data_path: [destinationPorts]
         tf_name: destination_port_objects
         description: >-
-          Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group).
+          Set of objects representing destination ports associated with the rule (Port or Port Groups).
           Can be only set for PREFILTER rules.
         type: Set
         attributes:
           - model_name: id
             type: String
-            description: UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).
+            description: UUID of the object.
             example: 76d24097-41c4-4558-a4d0-a8c07ac08470
             test_value: fmc_port.test.id
           - model_name: type
@@ -343,21 +343,21 @@ attributes:
 # Logging
       - model_name: logBegin
         type: Bool
-        description: Indicates whether the device will log events at the beginning of the connection. Default is false.
+        description: Log events at the beginning of the connection. Default is false.
         example: "true"
       - model_name: logEnd
         type: Bool
-        description: Indicates whether the device will log events at the end of the connection. Default is false.
+        description: Log events at the end of the connection. Default is false.
         example: "true"
       - model_name: sendEventsToFMC
         tf_name: send_events_to_fmc
         type: Bool
-        description: Indicates whether the device will send events to the Firepower Management Center event viewer. Default is false.
+        description: Send events to the Firepower Management Center event viewer. Default is false.
         example: "true"
       - model_name: enableSyslog
         tf_name: send_syslog
         type: Bool
-        description: Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging. Default is false.
+        description: Send alerts associated with the prefilter rule to default syslog configuration in Prefilter Logging. Default is false.
         example: "true"
         exclude_test: true
       - model_name: id

@@ -72,7 +72,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the prefilter policy.",
+				MarkdownDescription: "Name of the prefilter policy.",
 				Optional:            true,
 				Computed:            true,
 			},
@@ -93,15 +93,15 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:            true,
 			},
 			"default_action_log_begin": schema.BoolAttribute{
-				MarkdownDescription: "Indicating whether the device will log events at the beginning of the connection.",
+				MarkdownDescription: "Log events at the beginning of the connection.",
 				Computed:            true,
 			},
 			"default_action_log_end": schema.BoolAttribute{
-				MarkdownDescription: "Indicating whether the device will log events at the end of the connection.",
+				MarkdownDescription: "Log events at the end of the connection.",
 				Computed:            true,
 			},
 			"default_action_send_events_to_fmc": schema.BoolAttribute{
-				MarkdownDescription: "Indicating whether the device will send events to the Firepower Management Center event viewer.",
+				MarkdownDescription: "Send events to the Firepower Management Center event viewer.",
 				Computed:            true,
 			},
 			"default_action_syslog_config_id": schema.StringAttribute{
@@ -118,7 +118,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "The id of the prefilter rule.",
+							MarkdownDescription: "Id of the prefilter rule.",
 							Computed:            true,
 						},
 						"name": schema.StringAttribute{
@@ -126,7 +126,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"rule_type": schema.StringAttribute{
-							MarkdownDescription: "Indicates whether the rule is PREFILTER rule or TUNNEL rule. At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.",
+							MarkdownDescription: "Type of the rule. At least one Encapsulation Port Object (encapsulation_ports) is mandatory to be specified for TUNNEL Rules.",
 							Computed:            true,
 						},
 						"enabled": schema.BoolAttribute{
@@ -146,7 +146,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"time_range_id": schema.StringAttribute{
-							MarkdownDescription: "UUID of Time Range.",
+							MarkdownDescription: "UUID of Time Range object applied to the rule.",
 							Computed:            true,
 						},
 						"source_interfaces": schema.SetNestedAttribute{
@@ -194,16 +194,16 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"source_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects that represent sources of traffic (fmc_network, fmc_host, ...).",
+							MarkdownDescription: "Set of objects that represent sources of traffic (Networks, Hosts, Ranges or Network Groups).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
+										MarkdownDescription: "UUID of the object",
 										Computed:            true,
 									},
 									"type": schema.StringAttribute{
-										MarkdownDescription: "Type of the object (such as fmc_network.example.type, etc.).",
+										MarkdownDescription: "Type of the object",
 										Computed:            true,
 									},
 								},
@@ -222,16 +222,16 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"destination_network_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects that represent destinations of traffic (fmc_network, fmc_host, ...).",
+							MarkdownDescription: "Set of objects that represent destinations of traffic (Networks, Hosts, Ranges or Network Groups).",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
+										MarkdownDescription: "UUID of the object.",
 										Computed:            true,
 									},
 									"type": schema.StringAttribute{
-										MarkdownDescription: "Type of the object (such as fmc_network.example.type, etc.).",
+										MarkdownDescription: "Type of the object",
 										Computed:            true,
 									},
 								},
@@ -254,7 +254,7 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"vlan_tag_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing vlan tags (fmc_vlan_tag, fmc_vlan_tag_group, ...).",
+							MarkdownDescription: "Set of objects representing vlan tags or vlan tag groups",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -282,12 +282,12 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"source_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing source ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.",
+							MarkdownDescription: "Set of objects representing source ports associated with the rule (Port or Port Groups). Can be only set for PREFILTER rules.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).",
+										MarkdownDescription: "UUID of the object.",
 										Computed:            true,
 									},
 								},
@@ -310,12 +310,12 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							},
 						},
 						"destination_port_objects": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of objects representing destination ports associated with the rule (fmc_port or fmc_port_group). Can be only set for PREFILTER rules.",
+							MarkdownDescription: "Set of objects representing destination ports associated with the rule (Port or Port Groups). Can be only set for PREFILTER rules.",
 							Computed:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
-										MarkdownDescription: "UUID of the object (such as fmc_port.example.id, fmc_port_group.example.id, ...).",
+										MarkdownDescription: "UUID of the object.",
 										Computed:            true,
 									},
 								},
@@ -327,19 +327,19 @@ func (d *PrefilterPolicyDataSource) Schema(ctx context.Context, req datasource.S
 							Computed:            true,
 						},
 						"log_begin": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will log events at the beginning of the connection. Default is false.",
+							MarkdownDescription: "Log events at the beginning of the connection. Default is false.",
 							Computed:            true,
 						},
 						"log_end": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will log events at the end of the connection. Default is false.",
+							MarkdownDescription: "Log events at the end of the connection. Default is false.",
 							Computed:            true,
 						},
 						"send_events_to_fmc": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the device will send events to the Firepower Management Center event viewer. Default is false.",
+							MarkdownDescription: "Send events to the Firepower Management Center event viewer. Default is false.",
 							Computed:            true,
 						},
 						"send_syslog": schema.BoolAttribute{
-							MarkdownDescription: "Indicates whether the alerts associated with the prefilter rule are sent to default syslog configuration in Prefilter Logging. Default is false.",
+							MarkdownDescription: "Send alerts associated with the prefilter rule to default syslog configuration in Prefilter Logging. Default is false.",
 							Computed:            true,
 						},
 						"syslog_config_id": schema.StringAttribute{
