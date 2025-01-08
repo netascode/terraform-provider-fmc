@@ -1,7 +1,6 @@
 ---
 name: Device Cluster
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/deviceclusters/ftddevicecluster
-query_parameter: name
 doc_category: Device
 test_tags: [TF_VAR_device_id, TF_VAR_device_interface_id]
 attributes:
@@ -10,6 +9,7 @@ attributes:
     mandatory: true
     description: The name of the FTD Cluster.
     example: MyDeviceClusterName1
+    data_source_query: true
   - model_name: type
     type: String
     description: Type of the resource; This is always `DeviceCluster`.

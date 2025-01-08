@@ -54,6 +54,10 @@ func TestAccDataSourceFmcDeviceCluster(t *testing.T) {
 				Config: testAccDataSourceFmcDeviceClusterPrerequisitesConfig + testAccDataSourceFmcDeviceClusterConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
+			{
+				Config: testAccDataSourceFmcDeviceClusterPrerequisitesConfig + testAccNamedDataSourceFmcDeviceClusterConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
 		},
 	})
 }
@@ -93,6 +97,33 @@ func testAccDataSourceFmcDeviceClusterConfig() string {
 	config += `
 		data "fmc_device_cluster" "test" {
 			id = fmc_device_cluster.test.id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcDeviceClusterConfig() string {
+	config := `resource "fmc_device_cluster" "test" {` + "\n"
+	config += `	name = "MyDeviceClusterName1"` + "\n"
+	config += `	cluster_key = "cisco123"` + "\n"
+	config += `	control_node_device_id = var.device_id` + "\n"
+	config += `	control_node_vni_network = "10.10.3.0/27"` + "\n"
+	config += `	control_node_ccl_network = "10.10.4.0/27"` + "\n"
+	config += `	control_node_interface_id = var.device_interface_id` + "\n"
+	config += `	control_node_interface_name = "GigabitEthernet0/0"` + "\n"
+	config += `	control_node_interface_type = "PhysicalInterface"` + "\n"
+	config += `	control_node_ccl_ipv4_address = "10.10.4.1"` + "\n"
+	config += `	control_node_priority = 1` + "\n"
+	config += `	data_devices = [{` + "\n"
+	config += `		data_node_device_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
+	config += `		data_node_ccl_ipv4_address = "10.10.4.2"` + "\n"
+	config += `		data_node_priority = 2` + "\n"
+	config += `	}]` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_device_cluster" "test" {
+			name = fmc_device_cluster.test.name
 		}
 	`
 	return config
