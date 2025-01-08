@@ -81,7 +81,7 @@ resource "fmc_device_bgp" "example" {
 - `id` (String) The id of the object
 - `ipv4_address_family_type` (String)
 - `name` (String) Name of the object; this is always 'bgp'
-- `type` (String) Name of the object; this is always 'bgp'
+- `type` (String) Type of the object; this is always 'bgp'
 
 <a id="nestedatt--ipv4_aggregate_addresses"></a>
 ### Nested Schema for `ipv4_aggregate_addresses`

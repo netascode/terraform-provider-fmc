@@ -474,7 +474,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 
 	{{- $attrTfName := "name" }}
 	{{- $attrModelName := "name" }}
-	{{- if .HasDataSourceQuery}}
+	{{- if hasDataSourceQuery .Attributes}}
 	{{- $attr := getDataSourceQueryAttribute . }}
 	{{- $attrTfName = $attr.TfName }}
 	{{- $attrModelName = $attr.ModelName }}

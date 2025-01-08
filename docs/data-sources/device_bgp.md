@@ -53,7 +53,7 @@ data "fmc_device_bgp" "example" {
 - `ipv4_route_injections` (Attributes List) (see [below for nested schema](#nestedatt--ipv4_route_injections))
 - `ipv4_synchronization` (Boolean) Synchronize between BGP and IGP systems
 - `name` (String) Name of the object; this is always 'bgp'
-- `type` (String) Name of the object; this is always 'bgp'
+- `type` (String) Type of the object; this is always 'bgp'
 
 <a id="nestedatt--ipv4_aggregate_addresses"></a>
 ### Nested Schema for `ipv4_aggregate_addresses`

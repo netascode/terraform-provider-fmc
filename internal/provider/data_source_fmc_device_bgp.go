@@ -79,7 +79,7 @@ func (d *DeviceBGPDataSource) Schema(ctx context.Context, req datasource.SchemaR
 				Computed:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: "Name of the object; this is always 'bgp'",
+				MarkdownDescription: "Type of the object; this is always 'bgp'",
 				Computed:            true,
 			},
 			"as_number": schema.StringAttribute{

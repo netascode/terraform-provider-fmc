@@ -98,7 +98,7 @@ func (r *DeviceBGPResource) Schema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Name of the object; this is always 'bgp'").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this is always 'bgp'").String,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

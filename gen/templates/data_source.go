@@ -64,7 +64,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				{{- if and (not .HasDataSourceQuery) (not .IsBulk) }}
+				{{- if and (not (hasDataSourceQuery .Attributes)) (not .IsBulk) }}
 				Required:            true,
 				{{- else}}
 				{{- if not .IsBulk}}
@@ -158,7 +158,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 	}
 }
 {{- $dataSourceAttribute := getDataSourceQueryAttribute .}}
-{{- if and .HasDataSourceQuery (not .IsBulk)}}
+{{- if and (hasDataSourceQuery .Attributes) (not .IsBulk)}}
 func (d *{{camelCase .Name}}DataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
     return []datasource.ConfigValidator{
         datasourcevalidator.ExactlyOneOf(
@@ -209,7 +209,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
-	{{- if and .HasDataSourceQuery (not .IsBulk)}}
+	{{- if and (hasDataSourceQuery .Attributes) (not .IsBulk)}}
 	if config.Id.IsNull() && !config.{{toGoName $dataSourceAttribute.TfName}}.IsNull() {
 		offset := 0
 		limit := 1000

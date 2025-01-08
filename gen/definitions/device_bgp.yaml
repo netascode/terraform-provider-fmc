@@ -18,7 +18,7 @@ attributes:
     computed: true
   - model_name: type
     type: String
-    description: Name of the object; this is always 'bgp'
+    description: Type of the object; this is always 'bgp'
     computed: true
   - model_name: asNumber
     type: String

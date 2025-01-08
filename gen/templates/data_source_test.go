@@ -146,7 +146,7 @@ func TestAccDataSourceFmc{{camelCase .Name}}(t *testing.T) {
 				Config: {{if .TestPrerequisites}}testAccDataSourceFmc{{camelCase .Name}}PrerequisitesConfig+{{end}}testAccDataSourceFmc{{camelCase .Name}}Config(),
 				Check: resource.ComposeTestCheckFunc(checks...),
 			},
-			{{- if and .HasDataSourceQuery (not .IsBulk)}}
+			{{- if and (hasDataSourceQuery .Attributes) (not .IsBulk)}}
 			{
 				Config: {{if .TestPrerequisites}}testAccDataSourceFmc{{camelCase .Name}}PrerequisitesConfig+{{end}}testAccNamedDataSourceFmc{{camelCase .Name}}Config(),
 				Check: resource.ComposeTestCheckFunc(checks...),
@@ -288,7 +288,7 @@ func testAccDataSourceFmc{{camelCase .Name}}Config() string {
 	return config
 }
 
-{{if and .HasDataSourceQuery (not .IsBulk) -}}
+{{if and (hasDataSourceQuery .Attributes) (not .IsBulk) -}}
 func testAccNamedDataSourceFmc{{camelCase .Name}}Config() string {
 	config := `resource "fmc_{{snakeCase $name}}" "test" {` + "\n"
 	{{- range  .Attributes}}
