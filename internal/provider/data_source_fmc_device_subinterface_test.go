@@ -46,6 +46,7 @@ func TestAccDataSourceFmcDeviceSubinterface(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcDeviceSubinterfacePrerequisitesConfig + testAccDataSourceFmcDeviceSubinterfaceConfig(),
@@ -125,8 +126,8 @@ func testAccNamedDataSourceFmcDeviceSubinterfaceConfig() string {
 
 	config += `
 		data "fmc_device_subinterface" "test" {
-			name = fmc_device_subinterface.test.name
 			device_id = var.device_id
+			name = fmc_device_subinterface.test.name
 		}
 	`
 	return config

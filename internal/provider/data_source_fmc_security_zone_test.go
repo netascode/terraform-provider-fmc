@@ -31,10 +31,11 @@ import (
 func TestAccDataSourceFmcSecurityZone(t *testing.T) {
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_security_zone.test", "name", "security_zone_1"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_security_zone.test", "interface_mode", "ROUTED"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_security_zone.test", "interface_type", "ROUTED"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcSecurityZoneConfig(),
@@ -58,7 +59,7 @@ func TestAccDataSourceFmcSecurityZone(t *testing.T) {
 func testAccDataSourceFmcSecurityZoneConfig() string {
 	config := `resource "fmc_security_zone" "test" {` + "\n"
 	config += `	name = "security_zone_1"` + "\n"
-	config += `	interface_mode = "ROUTED"` + "\n"
+	config += `	interface_type = "ROUTED"` + "\n"
 	config += `}` + "\n"
 
 	config += `
@@ -72,7 +73,7 @@ func testAccDataSourceFmcSecurityZoneConfig() string {
 func testAccNamedDataSourceFmcSecurityZoneConfig() string {
 	config := `resource "fmc_security_zone" "test" {` + "\n"
 	config += `	name = "security_zone_1"` + "\n"
-	config += `	interface_mode = "ROUTED"` + "\n"
+	config += `	interface_type = "ROUTED"` + "\n"
 	config += `}` + "\n"
 
 	config += `

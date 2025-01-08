@@ -45,6 +45,7 @@ func TestAccDataSourceFmcDevicePhysicalInterface(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcDevicePhysicalInterfacePrerequisitesConfig + testAccDataSourceFmcDevicePhysicalInterfaceConfig(),
@@ -111,8 +112,8 @@ func testAccNamedDataSourceFmcDevicePhysicalInterfaceConfig() string {
 
 	config += `
 		data "fmc_device_physical_interface" "test" {
-			name = fmc_device_physical_interface.test.name
 			device_id = var.device_id
+			name = fmc_device_physical_interface.test.name
 		}
 	`
 	return config
