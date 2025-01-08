@@ -233,10 +233,9 @@ func (r *DeviceClusterResource) Create(ctx context.Context, req resource.CreateR
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("No Cluster named %q: %s", plan.Name.ValueString(), check))
 		return
 	}
-	//plan.fromBodyUnknowns(ctx, res)
+	plan.fromBodyUnknowns(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Create finished successfully", plan.Id.ValueString()))
-
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
