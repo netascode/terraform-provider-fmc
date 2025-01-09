@@ -70,6 +70,7 @@ data "fmc_device_physical_interface" "test" {
   id          = var.device_interface_name
 }
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+variable "device_interface_name" { default = null } // tests will set $TF_VAR_device_interface_name
 `
 
 // End of section. //template:end testPrerequisites
