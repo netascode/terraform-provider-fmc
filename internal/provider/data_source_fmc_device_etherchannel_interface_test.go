@@ -46,6 +46,7 @@ func TestAccDataSourceFmcDeviceEtherChannelInterface(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcDeviceEtherChannelInterfacePrerequisitesConfig + testAccDataSourceFmcDeviceEtherChannelInterfaceConfig(),
@@ -122,8 +123,8 @@ func testAccNamedDataSourceFmcDeviceEtherChannelInterfaceConfig() string {
 
 	config += `
 		data "fmc_device_etherchannel_interface" "test" {
-			name = fmc_device_etherchannel_interface.test.name
 			device_id = var.device_id
+			name = fmc_device_etherchannel_interface.test.name
 		}
 	`
 	return config
