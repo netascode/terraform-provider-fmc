@@ -154,10 +154,40 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.DeviceGroupId = types.StringNull()
 	}
+	if value := res.Get("prohibitPacketTransfer"); value.Exists() {
+		data.ProhibitPacketTransfer = types.BoolValue(value.Bool())
+	} else {
+		data.ProhibitPacketTransfer = types.BoolNull()
+	}
+	if value := res.Get("performanceTier"); value.Exists() {
+		data.PerformanceTier = types.StringValue(value.String())
+	} else {
+		data.PerformanceTier = types.StringNull()
+	}
+	if value := res.Get("snortEngine"); value.Exists() {
+		data.SnortEngine = types.StringValue(value.String())
+	} else {
+		data.SnortEngine = types.StringNull()
+	}
 	if value := res.Get("advanced.enableOGS"); value.Exists() {
 		data.ObjectGroupSearch = types.BoolValue(value.Bool())
 	} else {
 		data.ObjectGroupSearch = types.BoolValue(true)
+	}
+	if value := res.Get("accessPolicy.id"); value.Exists() {
+		data.AccessPolicyId = types.StringValue(value.String())
+	} else {
+		data.AccessPolicyId = types.StringNull()
+	}
+	if value := res.Get("dummy_nat_policy_id"); value.Exists() {
+		data.NatPolicyId = types.StringValue(value.String())
+	} else {
+		data.NatPolicyId = types.StringNull()
+	}
+	if value := res.Get("dummy_health_policy_id"); value.Exists() {
+		data.HealthPolicyId = types.StringValue(value.String())
+	} else {
+		data.HealthPolicyId = types.StringNull()
 	}
 	if value := res.Get("sw_version"); value.Exists() {
 		data.Version = types.StringValue(value.String())
@@ -235,10 +265,40 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.DeviceGroupId = types.StringNull()
 	}
+	if value := res.Get("prohibitPacketTransfer"); value.Exists() && !data.ProhibitPacketTransfer.IsNull() {
+		data.ProhibitPacketTransfer = types.BoolValue(value.Bool())
+	} else {
+		data.ProhibitPacketTransfer = types.BoolNull()
+	}
+	if value := res.Get("performanceTier"); value.Exists() && !data.PerformanceTier.IsNull() {
+		data.PerformanceTier = types.StringValue(value.String())
+	} else {
+		data.PerformanceTier = types.StringNull()
+	}
+	if value := res.Get("snortEngine"); value.Exists() && !data.SnortEngine.IsNull() {
+		data.SnortEngine = types.StringValue(value.String())
+	} else {
+		data.SnortEngine = types.StringNull()
+	}
 	if value := res.Get("advanced.enableOGS"); value.Exists() && !data.ObjectGroupSearch.IsNull() {
 		data.ObjectGroupSearch = types.BoolValue(value.Bool())
 	} else if data.ObjectGroupSearch.ValueBool() != true {
 		data.ObjectGroupSearch = types.BoolNull()
+	}
+	if value := res.Get("accessPolicy.id"); value.Exists() && !data.AccessPolicyId.IsNull() {
+		data.AccessPolicyId = types.StringValue(value.String())
+	} else {
+		data.AccessPolicyId = types.StringNull()
+	}
+	if value := res.Get("dummy_nat_policy_id"); value.Exists() && !data.NatPolicyId.IsNull() {
+		data.NatPolicyId = types.StringValue(value.String())
+	} else {
+		data.NatPolicyId = types.StringNull()
+	}
+	if value := res.Get("dummy_health_policy_id"); value.Exists() && !data.HealthPolicyId.IsNull() {
+		data.HealthPolicyId = types.StringValue(value.String())
+	} else {
+		data.HealthPolicyId = types.StringNull()
 	}
 	if value := res.Get("sw_version"); value.Exists() && !data.Version.IsNull() {
 		data.Version = types.StringValue(value.String())

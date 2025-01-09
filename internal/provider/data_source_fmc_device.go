@@ -154,12 +154,10 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"deployed_access_policy_name": schema.StringAttribute{
 				MarkdownDescription: "Deployed Access Control Policy Name - Informational only.",
-				Optional:            true,
 				Computed:            true,
 			},
 			"deployed_health_policy_name": schema.StringAttribute{
 				MarkdownDescription: "Deployed Health Policy Name - Informational only.",
-				Optional:            true,
 				Computed:            true,
 			},
 		},

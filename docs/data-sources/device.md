@@ -23,8 +23,6 @@ data "fmc_device" "example" {
 
 ### Optional
 
-- `deployed_access_policy_name` (String) Deployed Access Control Policy Name - Informational only.
-- `deployed_health_policy_name` (String) Deployed Health Policy Name - Informational only.
 - `domain` (String) The name of the FMC domain
 - `id` (String) The id of the object
 - `name` (String) User-specified name, must be unique.
@@ -32,6 +30,8 @@ data "fmc_device" "example" {
 ### Read-Only
 
 - `access_policy_id` (String) The UUID of the assigned access control policy. For example `fmc_access_control_policy.example.id`.
+- `deployed_access_policy_name` (String) Deployed Access Control Policy Name - Informational only.
+- `deployed_health_policy_name` (String) Deployed Health Policy Name - Informational only.
 - `deployment_status` (String) Shows deployment status - Informational only.
 - `device_group_id` (String) ID of the device group.
 - `ftd_mode` (String) FTD Mode - Informational only.
