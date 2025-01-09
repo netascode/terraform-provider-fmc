@@ -59,11 +59,15 @@ resource "fmc_device" "example" {
 - `deployed_access_policy_name` (String) Deployed Access Control Policy Name - Informational only.
 - `deployed_health_policy_name` (String) Deployed Health Policy Name - Informational only.
 - `deployment_status` (String) Shows deployment status - Informational only.
+- `device_serial_number` (String) Device Serial Number - Informational only.
 - `ftd_mode` (String) FTD Mode - Informational only.
 - `health_message` (String) Health Message of the device - Informational only.
 - `health_status` (String) Health Status of the device - Informational only.
 - `id` (String) The id of the object
 - `is_connected` (Boolean) Shows if the device is connected - Informational only.
+- `lsp_version` (String) LSP Version - Informational only.
+- `snort_version` (String) Snort Version - Informational only.
+- `vdb_version` (String) VDB Version - Informational only.
 - `version` (String) Version of the registered device - Informational only.
 
 ## Import

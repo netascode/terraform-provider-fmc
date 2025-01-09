@@ -152,6 +152,22 @@ func (d *DeviceDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				MarkdownDescription: "FTD Mode - Informational only.",
 				Computed:            true,
 			},
+			"device_serial_number": schema.StringAttribute{
+				MarkdownDescription: "Device Serial Number - Informational only.",
+				Computed:            true,
+			},
+			"snort_version": schema.StringAttribute{
+				MarkdownDescription: "Snort Version - Informational only.",
+				Computed:            true,
+			},
+			"vdb_version": schema.StringAttribute{
+				MarkdownDescription: "VDB Version - Informational only.",
+				Computed:            true,
+			},
+			"lsp_version": schema.StringAttribute{
+				MarkdownDescription: "LSP Version - Informational only.",
+				Computed:            true,
+			},
 			"deployed_access_policy_name": schema.StringAttribute{
 				MarkdownDescription: "Deployed Access Control Policy Name - Informational only.",
 				Computed:            true,

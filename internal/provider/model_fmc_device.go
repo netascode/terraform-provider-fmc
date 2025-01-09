@@ -56,6 +56,10 @@ type Device struct {
 	IsConnected              types.Bool   `tfsdk:"is_connected"`
 	DeploymentStatus         types.String `tfsdk:"deployment_status"`
 	FtdMode                  types.String `tfsdk:"ftd_mode"`
+	DeviceSerialNumber       types.String `tfsdk:"device_serial_number"`
+	SnortVersion             types.String `tfsdk:"snort_version"`
+	VdbVersion               types.String `tfsdk:"vdb_version"`
+	LspVersion               types.String `tfsdk:"lsp_version"`
 	DeployedAccessPolicyName types.String `tfsdk:"deployed_access_policy_name"`
 	DeployedHealthPolicyName types.String `tfsdk:"deployed_health_policy_name"`
 }
@@ -219,6 +223,26 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.FtdMode = types.StringNull()
 	}
+	if value := res.Get("deviceSerialNumber"); value.Exists() {
+		data.DeviceSerialNumber = types.StringValue(value.String())
+	} else {
+		data.DeviceSerialNumber = types.StringNull()
+	}
+	if value := res.Get("snortVersion"); value.Exists() {
+		data.SnortVersion = types.StringValue(value.String())
+	} else {
+		data.SnortVersion = types.StringNull()
+	}
+	if value := res.Get("vdbVersion"); value.Exists() {
+		data.VdbVersion = types.StringValue(value.String())
+	} else {
+		data.VdbVersion = types.StringNull()
+	}
+	if value := res.Get("lspVersion"); value.Exists() {
+		data.LspVersion = types.StringValue(value.String())
+	} else {
+		data.LspVersion = types.StringNull()
+	}
 	if value := res.Get("accessPolicy.name"); value.Exists() {
 		data.DeployedAccessPolicyName = types.StringValue(value.String())
 	} else {
@@ -329,6 +353,26 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		data.FtdMode = types.StringValue(value.String())
 	} else {
 		data.FtdMode = types.StringNull()
+	}
+	if value := res.Get("deviceSerialNumber"); value.Exists() && !data.DeviceSerialNumber.IsNull() {
+		data.DeviceSerialNumber = types.StringValue(value.String())
+	} else {
+		data.DeviceSerialNumber = types.StringNull()
+	}
+	if value := res.Get("snortVersion"); value.Exists() && !data.SnortVersion.IsNull() {
+		data.SnortVersion = types.StringValue(value.String())
+	} else {
+		data.SnortVersion = types.StringNull()
+	}
+	if value := res.Get("vdbVersion"); value.Exists() && !data.VdbVersion.IsNull() {
+		data.VdbVersion = types.StringValue(value.String())
+	} else {
+		data.VdbVersion = types.StringNull()
+	}
+	if value := res.Get("lspVersion"); value.Exists() && !data.LspVersion.IsNull() {
+		data.LspVersion = types.StringValue(value.String())
+	} else {
+		data.LspVersion = types.StringNull()
 	}
 	if value := res.Get("accessPolicy.name"); value.Exists() && !data.DeployedAccessPolicyName.IsNull() {
 		data.DeployedAccessPolicyName = types.StringValue(value.String())
@@ -464,6 +508,34 @@ func (data *Device) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 			data.FtdMode = types.StringValue(value.String())
 		} else {
 			data.FtdMode = types.StringNull()
+		}
+	}
+	if data.DeviceSerialNumber.IsUnknown() {
+		if value := res.Get("deviceSerialNumber"); value.Exists() {
+			data.DeviceSerialNumber = types.StringValue(value.String())
+		} else {
+			data.DeviceSerialNumber = types.StringNull()
+		}
+	}
+	if data.SnortVersion.IsUnknown() {
+		if value := res.Get("snortVersion"); value.Exists() {
+			data.SnortVersion = types.StringValue(value.String())
+		} else {
+			data.SnortVersion = types.StringNull()
+		}
+	}
+	if data.VdbVersion.IsUnknown() {
+		if value := res.Get("vdbVersion"); value.Exists() {
+			data.VdbVersion = types.StringValue(value.String())
+		} else {
+			data.VdbVersion = types.StringNull()
+		}
+	}
+	if data.LspVersion.IsUnknown() {
+		if value := res.Get("lspVersion"); value.Exists() {
+			data.LspVersion = types.StringValue(value.String())
+		} else {
+			data.LspVersion = types.StringNull()
 		}
 	}
 	if data.DeployedAccessPolicyName.IsUnknown() {

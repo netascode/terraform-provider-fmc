@@ -207,6 +207,34 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"device_serial_number": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Device Serial Number - Informational only.").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"snort_version": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Snort Version - Informational only.").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"vdb_version": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("VDB Version - Informational only.").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"lsp_version": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("LSP Version - Informational only.").String,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"deployed_access_policy_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Deployed Access Control Policy Name - Informational only.").String,
 				Computed:            true,

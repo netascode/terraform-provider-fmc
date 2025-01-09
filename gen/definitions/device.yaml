@@ -119,6 +119,22 @@ attributes:
     type: String
     description: FTD Mode - Informational only.
     computed: true
+  - model_name: deviceSerialNumber
+    type: String
+    description: Device Serial Number - Informational only.
+    computed: true
+  - model_name: snortVersion
+    type: String
+    description: Snort Version - Informational only.
+    computed: true
+  - model_name: vdbVersion
+    type: String
+    description: VDB Version - Informational only.
+    computed: true
+  - model_name: lspVersion
+    type: String
+    description: LSP Version - Informational only.
+    computed: true            
   - model_name: name
     tf_name: deployed_access_policy_name
     data_path: [ accessPolicy ]
