@@ -100,23 +100,23 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 			},
 			"ha_link_logical_name": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The logical name of failover interface.",
 				Computed:            true,
 			},
 			"ha_link_use_ipv6": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Use IPv6 addressing for HA communication.",
 				Computed:            true,
 			},
 			"ha_link_primary_ip": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The IP of primary node interface.",
 				Computed:            true,
 			},
 			"ha_link_secondary_ip": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The IP of secondary node interface.",
 				Computed:            true,
 			},
 			"ha_link_netmask": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Subnet mask for HA link.",
 				Computed:            true,
 			},
 			"state_link_use_same_as_ha": schema.BoolAttribute{
@@ -140,19 +140,19 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 			},
 			"state_link_use_ipv6": schema.BoolAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Use IPv6 addressing for HA communication.",
 				Computed:            true,
 			},
 			"state_link_primary_ip": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The IP of primary node interface.",
 				Computed:            true,
 			},
 			"state_link_secondary_ip": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "The IP of secondary node interface.",
 				Computed:            true,
 			},
 			"state_link_netmask": schema.StringAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Subnet mask for state link.",
 				Computed:            true,
 			},
 			"encryption_enabled": schema.BoolAttribute{
@@ -168,11 +168,11 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 			},
 			"failed_interfaces_percent": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Percentage of Failed Interfaces that triggers failover.",
 				Computed:            true,
 			},
 			"failed_interfaces_limit": schema.Int64Attribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "Number of Failed Interfaces that triggers failover.",
 				Computed:            true,
 			},
 			"peer_poll_time": schema.Int64Attribute{

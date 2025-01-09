@@ -55,10 +55,10 @@ resource "fmc_device_ha_pair" "example" {
 - `ha_link_interface_id` (String) ID of High Availability Link interface.
 - `ha_link_interface_name` (String) Name of High Availability Link interface.
 - `ha_link_interface_type` (String) Type of High Availability Link interface.
-- `ha_link_logical_name` (String)
-- `ha_link_netmask` (String)
-- `ha_link_primary_ip` (String)
-- `ha_link_secondary_ip` (String)
+- `ha_link_logical_name` (String) The logical name of failover interface.
+- `ha_link_netmask` (String) Subnet mask for HA link.
+- `ha_link_primary_ip` (String) The IP of primary node interface.
+- `ha_link_secondary_ip` (String) The IP of secondary node interface.
 - `name` (String) The name of the High Availability (HA) Pair.
 - `primary_device_id` (String) ID of primary FTD in the HA Pair.
 - `secondary_device_id` (String) ID of secondary FTD in the HA Pair.
@@ -73,9 +73,12 @@ resource "fmc_device_ha_pair" "example" {
 - `encryption_key` (String) Pass shared key for encryption if CUSTOM key geneeration scheme is selected.
 - `encryption_key_generation_scheme` (String) Select the encyption key generation scheme.
   - Choices: `AUTO`, `CUSTOM`
-- `failed_interfaces_limit` (Number) - Range: `1`-`211`
-- `failed_interfaces_percent` (Number) - Range: `1`-`100`
-- `ha_link_use_ipv6` (Boolean) - Default value: `false`
+- `failed_interfaces_limit` (Number) Number of Failed Interfaces that triggers failover.
+  - Range: `1`-`211`
+- `failed_interfaces_percent` (Number) Percentage of Failed Interfaces that triggers failover.
+  - Range: `1`-`100`
+- `ha_link_use_ipv6` (Boolean) Use IPv6 addressing for HA communication.
+  - Default value: `false`
 - `interface_hold_time` (Number) Interface Hold Time in seconds
   - Range: `25`-`75`
   - Default value: `25`
@@ -101,10 +104,10 @@ resource "fmc_device_ha_pair" "example" {
 - `state_link_interface_name` (String) Name of state link interface.
 - `state_link_interface_type` (String) Type of state link interface.
 - `state_link_logical_name` (String)
-- `state_link_netmask` (String)
-- `state_link_primary_ip` (String)
-- `state_link_secondary_ip` (String)
-- `state_link_use_ipv6` (Boolean)
+- `state_link_netmask` (String) Subnet mask for state link.
+- `state_link_primary_ip` (String) The IP of primary node interface.
+- `state_link_secondary_ip` (String) The IP of secondary node interface.
+- `state_link_use_ipv6` (Boolean) Use IPv6 addressing for HA communication.
 
 ### Read-Only
 

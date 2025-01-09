@@ -65,6 +65,7 @@ attributes:
     tf_name: ha_link_logical_name
     data_path: [ftdHABootstrap,lanFailover]
     example: LAN-INTERFACE
+    description: The logical name of failover interface. 
     requires_replace: true
   - model_name: useIPv6Address
     type: Bool
@@ -72,12 +73,14 @@ attributes:
     default_value: false
     data_path: [ftdHABootstrap,lanFailover]
     example: false
+    description: Use IPv6 addressing for HA communication.
     requires_replace: true
   - model_name: activeIP
     tf_name: ha_link_primary_ip
     mandatory: true
     type: String
     data_path: [ftdHABootstrap,lanFailover]
+    description: The IP of primary node interface.
     example: "1.1.1.1"
     requires_replace: true
   - model_name: standbyIP
@@ -86,12 +89,14 @@ attributes:
     tf_name: ha_link_secondary_ip
     data_path: [ftdHABootstrap,lanFailover]
     example: "1.1.1.2"
+    description: The IP of secondary node interface.
     requires_replace: true
   - model_name: subnetMask
     type: String
     tf_name: ha_link_netmask
     mandatory: true
     data_path: [ftdHABootstrap,lanFailover]
+    description: Subnet mask for HA link.
     example: "255.255.255.0"
     requires_replace: true
 # State Link
@@ -138,24 +143,28 @@ attributes:
     tf_name: state_link_use_ipv6
     data_path: [ftdHABootstrap,statefulFailover]
     example: false
+    description: Use IPv6 addressing for HA communication.
     requires_replace: true
   - model_name: activeIP
     tf_name: state_link_primary_ip
     type: String
     data_path: [ftdHABootstrap,statefulFailover]
     example: "10.10.10.1"
+    description: The IP of primary node interface.
     requires_replace: true
   - model_name: standbyIP
     type: String
     tf_name: state_link_secondary_ip
     data_path: [ftdHABootstrap,statefulFailover]
     example: "10.10.10.2"
+    description: The IP of secondary node interface.
     requires_replace: true
   - model_name: subnetMask
     type: String
     tf_name: state_link_netmask
     data_path: [ftdHABootstrap,statefulFailover]
     example: "255.255.255.0"
+    description: Subnet mask for state link.
     requires_replace: true
 # IPsec Encryption
   - model_name: isEncryptionEnabled
@@ -188,6 +197,7 @@ attributes:
     data_path: [ftdHAFailoverTriggerCriteria]
     tf_name: failed_interfaces_percent
     type: Int64
+    description: Percentage of Failed Interfaces that triggers failover.
     min_int: 1
     max_int: 100
     exclude_test: true
@@ -195,6 +205,7 @@ attributes:
   - model_name: noOfFailedInterfaceLimit
     data_path: [ftdHAFailoverTriggerCriteria]
     tf_name: failed_interfaces_limit
+    description: Number of Failed Interfaces that triggers failover.
     type: Int64
     min_int: 1
     max_int: 211

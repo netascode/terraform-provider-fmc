@@ -132,14 +132,14 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"ha_link_logical_name": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The logical name of failover interface.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"ha_link_use_ipv6": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddDefaultValueDescription("false").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Use IPv6 addressing for HA communication.").AddDefaultValueDescription("false").String,
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
@@ -148,21 +148,21 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"ha_link_primary_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IP of primary node interface.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"ha_link_secondary_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IP of secondary node interface.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"ha_link_netmask": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Subnet mask for HA link.").String,
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -204,28 +204,28 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"state_link_use_ipv6": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Use IPv6 addressing for HA communication.").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplace(),
 				},
 			},
 			"state_link_primary_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IP of primary node interface.").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"state_link_secondary_ip": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The IP of secondary node interface.").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"state_link_netmask": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Subnet mask for state link.").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -256,14 +256,14 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"failed_interfaces_percent": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 100).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Percentage of Failed Interfaces that triggers failover.").AddIntegerRangeDescription(1, 100).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 100),
 				},
 			},
 			"failed_interfaces_limit": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("").AddIntegerRangeDescription(1, 211).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Number of Failed Interfaces that triggers failover.").AddIntegerRangeDescription(1, 211).String,
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 211),

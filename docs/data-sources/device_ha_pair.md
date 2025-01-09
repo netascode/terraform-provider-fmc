@@ -33,16 +33,16 @@ data "fmc_device_ha_pair" "example" {
 - `encryption_enabled` (Boolean) Use encryption for communication.
 - `encryption_key` (String) Pass shared key for encryption if CUSTOM key geneeration scheme is selected.
 - `encryption_key_generation_scheme` (String) Select the encyption key generation scheme.
-- `failed_interfaces_limit` (Number)
-- `failed_interfaces_percent` (Number)
+- `failed_interfaces_limit` (Number) Number of Failed Interfaces that triggers failover.
+- `failed_interfaces_percent` (Number) Percentage of Failed Interfaces that triggers failover.
 - `ha_link_interface_id` (String) ID of High Availability Link interface.
 - `ha_link_interface_name` (String) Name of High Availability Link interface.
 - `ha_link_interface_type` (String) Type of High Availability Link interface.
-- `ha_link_logical_name` (String)
-- `ha_link_netmask` (String)
-- `ha_link_primary_ip` (String)
-- `ha_link_secondary_ip` (String)
-- `ha_link_use_ipv6` (Boolean)
+- `ha_link_logical_name` (String) The logical name of failover interface.
+- `ha_link_netmask` (String) Subnet mask for HA link.
+- `ha_link_primary_ip` (String) The IP of primary node interface.
+- `ha_link_secondary_ip` (String) The IP of secondary node interface.
+- `ha_link_use_ipv6` (Boolean) Use IPv6 addressing for HA communication.
 - `interface_hold_time` (Number) Interface Hold Time in seconds
 - `interface_poll_time` (Number) Peer Pool Time (1-15 SEC or 500-999 MSEC)
 - `interface_poll_time_unit` (String) Peer Pool Time Unit
@@ -56,9 +56,9 @@ data "fmc_device_ha_pair" "example" {
 - `state_link_interface_name` (String) Name of state link interface.
 - `state_link_interface_type` (String) Type of state link interface.
 - `state_link_logical_name` (String)
-- `state_link_netmask` (String)
-- `state_link_primary_ip` (String)
-- `state_link_secondary_ip` (String)
-- `state_link_use_ipv6` (Boolean)
+- `state_link_netmask` (String) Subnet mask for state link.
+- `state_link_primary_ip` (String) The IP of primary node interface.
+- `state_link_secondary_ip` (String) The IP of secondary node interface.
+- `state_link_use_ipv6` (Boolean) Use IPv6 addressing for HA communication.
 - `state_link_use_same_as_ha` (Boolean) Use the same link for state and HA.
 - `type` (String) Type of the resource; This is always `DeviceHAPair`.
