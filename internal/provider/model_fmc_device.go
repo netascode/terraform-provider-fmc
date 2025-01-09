@@ -34,34 +34,34 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type Device struct {
-	Id                       types.String `tfsdk:"id"`
-	Domain                   types.String `tfsdk:"domain"`
-	Name                     types.String `tfsdk:"name"`
-	Type                     types.String `tfsdk:"type"`
-	HostName                 types.String `tfsdk:"host_name"`
-	NatId                    types.String `tfsdk:"nat_id"`
-	LicenseCapabilities      types.Set    `tfsdk:"license_capabilities"`
-	RegistrationKey          types.String `tfsdk:"registration_key"`
-	DeviceGroupId            types.String `tfsdk:"device_group_id"`
-	ProhibitPacketTransfer   types.Bool   `tfsdk:"prohibit_packet_transfer"`
-	PerformanceTier          types.String `tfsdk:"performance_tier"`
-	SnortEngine              types.String `tfsdk:"snort_engine"`
-	ObjectGroupSearch        types.Bool   `tfsdk:"object_group_search"`
-	AccessPolicyId           types.String `tfsdk:"access_policy_id"`
-	NatPolicyId              types.String `tfsdk:"nat_policy_id"`
-	HealthPolicyId           types.String `tfsdk:"health_policy_id"`
-	Version                  types.String `tfsdk:"version"`
-	HealthStatus             types.String `tfsdk:"health_status"`
-	HealthMessage            types.String `tfsdk:"health_message"`
-	IsConnected              types.Bool   `tfsdk:"is_connected"`
-	DeploymentStatus         types.String `tfsdk:"deployment_status"`
-	FtdMode                  types.String `tfsdk:"ftd_mode"`
-	DeviceSerialNumber       types.String `tfsdk:"device_serial_number"`
-	SnortVersion             types.String `tfsdk:"snort_version"`
-	VdbVersion               types.String `tfsdk:"vdb_version"`
-	LspVersion               types.String `tfsdk:"lsp_version"`
-	DeployedAccessPolicyName types.String `tfsdk:"deployed_access_policy_name"`
-	DeployedHealthPolicyName types.String `tfsdk:"deployed_health_policy_name"`
+	Id                           types.String `tfsdk:"id"`
+	Domain                       types.String `tfsdk:"domain"`
+	Name                         types.String `tfsdk:"name"`
+	Type                         types.String `tfsdk:"type"`
+	HostName                     types.String `tfsdk:"host_name"`
+	NatId                        types.String `tfsdk:"nat_id"`
+	LicenseCapabilities          types.Set    `tfsdk:"license_capabilities"`
+	RegistrationKey              types.String `tfsdk:"registration_key"`
+	DeviceGroupId                types.String `tfsdk:"device_group_id"`
+	ProhibitPacketTransfer       types.Bool   `tfsdk:"prohibit_packet_transfer"`
+	PerformanceTier              types.String `tfsdk:"performance_tier"`
+	SnortEngine                  types.String `tfsdk:"snort_engine"`
+	ObjectGroupSearch            types.Bool   `tfsdk:"object_group_search"`
+	AccessPolicyId               types.String `tfsdk:"access_policy_id"`
+	NatPolicyId                  types.String `tfsdk:"nat_policy_id"`
+	HealthPolicyId               types.String `tfsdk:"health_policy_id"`
+	InfoVersion                  types.String `tfsdk:"info_version"`
+	InfoHealthStatus             types.String `tfsdk:"info_health_status"`
+	InfoHealthMessage            types.String `tfsdk:"info_health_message"`
+	InfoIsConnected              types.Bool   `tfsdk:"info_is_connected"`
+	InfoDeploymentStatus         types.String `tfsdk:"info_deployment_status"`
+	InfoFtdMode                  types.String `tfsdk:"info_ftd_mode"`
+	InfoDeviceSerialNumber       types.String `tfsdk:"info_device_serial_number"`
+	InfoSnortVersion             types.String `tfsdk:"info_snort_version"`
+	InfoVdbVersion               types.String `tfsdk:"info_vdb_version"`
+	InfoLspVersion               types.String `tfsdk:"info_lsp_version"`
+	InfoDeployedAccessPolicyName types.String `tfsdk:"info_deployed_access_policy_name"`
+	InfoDeployedHealthPolicyName types.String `tfsdk:"info_deployed_health_policy_name"`
 }
 
 // End of section. //template:end types
@@ -194,64 +194,64 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 		data.HealthPolicyId = types.StringNull()
 	}
 	if value := res.Get("sw_version"); value.Exists() {
-		data.Version = types.StringValue(value.String())
+		data.InfoVersion = types.StringValue(value.String())
 	} else {
-		data.Version = types.StringNull()
+		data.InfoVersion = types.StringNull()
 	}
 	if value := res.Get("healthStatus"); value.Exists() {
-		data.HealthStatus = types.StringValue(value.String())
+		data.InfoHealthStatus = types.StringValue(value.String())
 	} else {
-		data.HealthStatus = types.StringNull()
+		data.InfoHealthStatus = types.StringNull()
 	}
 	if value := res.Get("healthMessage"); value.Exists() {
-		data.HealthMessage = types.StringValue(value.String())
+		data.InfoHealthMessage = types.StringValue(value.String())
 	} else {
-		data.HealthMessage = types.StringNull()
+		data.InfoHealthMessage = types.StringNull()
 	}
 	if value := res.Get("isConnected"); value.Exists() {
-		data.IsConnected = types.BoolValue(value.Bool())
+		data.InfoIsConnected = types.BoolValue(value.Bool())
 	} else {
-		data.IsConnected = types.BoolNull()
+		data.InfoIsConnected = types.BoolNull()
 	}
 	if value := res.Get("deploymentStatus"); value.Exists() {
-		data.DeploymentStatus = types.StringValue(value.String())
+		data.InfoDeploymentStatus = types.StringValue(value.String())
 	} else {
-		data.DeploymentStatus = types.StringNull()
+		data.InfoDeploymentStatus = types.StringNull()
 	}
 	if value := res.Get("ftdMode"); value.Exists() {
-		data.FtdMode = types.StringValue(value.String())
+		data.InfoFtdMode = types.StringValue(value.String())
 	} else {
-		data.FtdMode = types.StringNull()
+		data.InfoFtdMode = types.StringNull()
 	}
 	if value := res.Get("deviceSerialNumber"); value.Exists() {
-		data.DeviceSerialNumber = types.StringValue(value.String())
+		data.InfoDeviceSerialNumber = types.StringValue(value.String())
 	} else {
-		data.DeviceSerialNumber = types.StringNull()
+		data.InfoDeviceSerialNumber = types.StringNull()
 	}
 	if value := res.Get("snortVersion"); value.Exists() {
-		data.SnortVersion = types.StringValue(value.String())
+		data.InfoSnortVersion = types.StringValue(value.String())
 	} else {
-		data.SnortVersion = types.StringNull()
+		data.InfoSnortVersion = types.StringNull()
 	}
 	if value := res.Get("vdbVersion"); value.Exists() {
-		data.VdbVersion = types.StringValue(value.String())
+		data.InfoVdbVersion = types.StringValue(value.String())
 	} else {
-		data.VdbVersion = types.StringNull()
+		data.InfoVdbVersion = types.StringNull()
 	}
 	if value := res.Get("lspVersion"); value.Exists() {
-		data.LspVersion = types.StringValue(value.String())
+		data.InfoLspVersion = types.StringValue(value.String())
 	} else {
-		data.LspVersion = types.StringNull()
+		data.InfoLspVersion = types.StringNull()
 	}
 	if value := res.Get("accessPolicy.name"); value.Exists() {
-		data.DeployedAccessPolicyName = types.StringValue(value.String())
+		data.InfoDeployedAccessPolicyName = types.StringValue(value.String())
 	} else {
-		data.DeployedAccessPolicyName = types.StringNull()
+		data.InfoDeployedAccessPolicyName = types.StringNull()
 	}
 	if value := res.Get("healthPolicy.name"); value.Exists() {
-		data.DeployedHealthPolicyName = types.StringValue(value.String())
+		data.InfoDeployedHealthPolicyName = types.StringValue(value.String())
 	} else {
-		data.DeployedHealthPolicyName = types.StringNull()
+		data.InfoDeployedHealthPolicyName = types.StringNull()
 	}
 }
 
@@ -324,65 +324,65 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.HealthPolicyId = types.StringNull()
 	}
-	if value := res.Get("sw_version"); value.Exists() && !data.Version.IsNull() {
-		data.Version = types.StringValue(value.String())
+	if value := res.Get("sw_version"); value.Exists() && !data.InfoVersion.IsNull() {
+		data.InfoVersion = types.StringValue(value.String())
 	} else {
-		data.Version = types.StringNull()
+		data.InfoVersion = types.StringNull()
 	}
-	if value := res.Get("healthStatus"); value.Exists() && !data.HealthStatus.IsNull() {
-		data.HealthStatus = types.StringValue(value.String())
+	if value := res.Get("healthStatus"); value.Exists() && !data.InfoHealthStatus.IsNull() {
+		data.InfoHealthStatus = types.StringValue(value.String())
 	} else {
-		data.HealthStatus = types.StringNull()
+		data.InfoHealthStatus = types.StringNull()
 	}
-	if value := res.Get("healthMessage"); value.Exists() && !data.HealthMessage.IsNull() {
-		data.HealthMessage = types.StringValue(value.String())
+	if value := res.Get("healthMessage"); value.Exists() && !data.InfoHealthMessage.IsNull() {
+		data.InfoHealthMessage = types.StringValue(value.String())
 	} else {
-		data.HealthMessage = types.StringNull()
+		data.InfoHealthMessage = types.StringNull()
 	}
-	if value := res.Get("isConnected"); value.Exists() && !data.IsConnected.IsNull() {
-		data.IsConnected = types.BoolValue(value.Bool())
+	if value := res.Get("isConnected"); value.Exists() && !data.InfoIsConnected.IsNull() {
+		data.InfoIsConnected = types.BoolValue(value.Bool())
 	} else {
-		data.IsConnected = types.BoolNull()
+		data.InfoIsConnected = types.BoolNull()
 	}
-	if value := res.Get("deploymentStatus"); value.Exists() && !data.DeploymentStatus.IsNull() {
-		data.DeploymentStatus = types.StringValue(value.String())
+	if value := res.Get("deploymentStatus"); value.Exists() && !data.InfoDeploymentStatus.IsNull() {
+		data.InfoDeploymentStatus = types.StringValue(value.String())
 	} else {
-		data.DeploymentStatus = types.StringNull()
+		data.InfoDeploymentStatus = types.StringNull()
 	}
-	if value := res.Get("ftdMode"); value.Exists() && !data.FtdMode.IsNull() {
-		data.FtdMode = types.StringValue(value.String())
+	if value := res.Get("ftdMode"); value.Exists() && !data.InfoFtdMode.IsNull() {
+		data.InfoFtdMode = types.StringValue(value.String())
 	} else {
-		data.FtdMode = types.StringNull()
+		data.InfoFtdMode = types.StringNull()
 	}
-	if value := res.Get("deviceSerialNumber"); value.Exists() && !data.DeviceSerialNumber.IsNull() {
-		data.DeviceSerialNumber = types.StringValue(value.String())
+	if value := res.Get("deviceSerialNumber"); value.Exists() && !data.InfoDeviceSerialNumber.IsNull() {
+		data.InfoDeviceSerialNumber = types.StringValue(value.String())
 	} else {
-		data.DeviceSerialNumber = types.StringNull()
+		data.InfoDeviceSerialNumber = types.StringNull()
 	}
-	if value := res.Get("snortVersion"); value.Exists() && !data.SnortVersion.IsNull() {
-		data.SnortVersion = types.StringValue(value.String())
+	if value := res.Get("snortVersion"); value.Exists() && !data.InfoSnortVersion.IsNull() {
+		data.InfoSnortVersion = types.StringValue(value.String())
 	} else {
-		data.SnortVersion = types.StringNull()
+		data.InfoSnortVersion = types.StringNull()
 	}
-	if value := res.Get("vdbVersion"); value.Exists() && !data.VdbVersion.IsNull() {
-		data.VdbVersion = types.StringValue(value.String())
+	if value := res.Get("vdbVersion"); value.Exists() && !data.InfoVdbVersion.IsNull() {
+		data.InfoVdbVersion = types.StringValue(value.String())
 	} else {
-		data.VdbVersion = types.StringNull()
+		data.InfoVdbVersion = types.StringNull()
 	}
-	if value := res.Get("lspVersion"); value.Exists() && !data.LspVersion.IsNull() {
-		data.LspVersion = types.StringValue(value.String())
+	if value := res.Get("lspVersion"); value.Exists() && !data.InfoLspVersion.IsNull() {
+		data.InfoLspVersion = types.StringValue(value.String())
 	} else {
-		data.LspVersion = types.StringNull()
+		data.InfoLspVersion = types.StringNull()
 	}
-	if value := res.Get("accessPolicy.name"); value.Exists() && !data.DeployedAccessPolicyName.IsNull() {
-		data.DeployedAccessPolicyName = types.StringValue(value.String())
+	if value := res.Get("accessPolicy.name"); value.Exists() && !data.InfoDeployedAccessPolicyName.IsNull() {
+		data.InfoDeployedAccessPolicyName = types.StringValue(value.String())
 	} else {
-		data.DeployedAccessPolicyName = types.StringNull()
+		data.InfoDeployedAccessPolicyName = types.StringNull()
 	}
-	if value := res.Get("healthPolicy.name"); value.Exists() && !data.DeployedHealthPolicyName.IsNull() {
-		data.DeployedHealthPolicyName = types.StringValue(value.String())
+	if value := res.Get("healthPolicy.name"); value.Exists() && !data.InfoDeployedHealthPolicyName.IsNull() {
+		data.InfoDeployedHealthPolicyName = types.StringValue(value.String())
 	} else {
-		data.DeployedHealthPolicyName = types.StringNull()
+		data.InfoDeployedHealthPolicyName = types.StringNull()
 	}
 }
 
@@ -468,88 +468,88 @@ func (data *Device) updateFromPolicyBody(ctx context.Context, res gjson.Result) 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *Device) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
-	if data.Version.IsUnknown() {
+	if data.InfoVersion.IsUnknown() {
 		if value := res.Get("sw_version"); value.Exists() {
-			data.Version = types.StringValue(value.String())
+			data.InfoVersion = types.StringValue(value.String())
 		} else {
-			data.Version = types.StringNull()
+			data.InfoVersion = types.StringNull()
 		}
 	}
-	if data.HealthStatus.IsUnknown() {
+	if data.InfoHealthStatus.IsUnknown() {
 		if value := res.Get("healthStatus"); value.Exists() {
-			data.HealthStatus = types.StringValue(value.String())
+			data.InfoHealthStatus = types.StringValue(value.String())
 		} else {
-			data.HealthStatus = types.StringNull()
+			data.InfoHealthStatus = types.StringNull()
 		}
 	}
-	if data.HealthMessage.IsUnknown() {
+	if data.InfoHealthMessage.IsUnknown() {
 		if value := res.Get("healthMessage"); value.Exists() {
-			data.HealthMessage = types.StringValue(value.String())
+			data.InfoHealthMessage = types.StringValue(value.String())
 		} else {
-			data.HealthMessage = types.StringNull()
+			data.InfoHealthMessage = types.StringNull()
 		}
 	}
-	if data.IsConnected.IsUnknown() {
+	if data.InfoIsConnected.IsUnknown() {
 		if value := res.Get("isConnected"); value.Exists() {
-			data.IsConnected = types.BoolValue(value.Bool())
+			data.InfoIsConnected = types.BoolValue(value.Bool())
 		} else {
-			data.IsConnected = types.BoolNull()
+			data.InfoIsConnected = types.BoolNull()
 		}
 	}
-	if data.DeploymentStatus.IsUnknown() {
+	if data.InfoDeploymentStatus.IsUnknown() {
 		if value := res.Get("deploymentStatus"); value.Exists() {
-			data.DeploymentStatus = types.StringValue(value.String())
+			data.InfoDeploymentStatus = types.StringValue(value.String())
 		} else {
-			data.DeploymentStatus = types.StringNull()
+			data.InfoDeploymentStatus = types.StringNull()
 		}
 	}
-	if data.FtdMode.IsUnknown() {
+	if data.InfoFtdMode.IsUnknown() {
 		if value := res.Get("ftdMode"); value.Exists() {
-			data.FtdMode = types.StringValue(value.String())
+			data.InfoFtdMode = types.StringValue(value.String())
 		} else {
-			data.FtdMode = types.StringNull()
+			data.InfoFtdMode = types.StringNull()
 		}
 	}
-	if data.DeviceSerialNumber.IsUnknown() {
+	if data.InfoDeviceSerialNumber.IsUnknown() {
 		if value := res.Get("deviceSerialNumber"); value.Exists() {
-			data.DeviceSerialNumber = types.StringValue(value.String())
+			data.InfoDeviceSerialNumber = types.StringValue(value.String())
 		} else {
-			data.DeviceSerialNumber = types.StringNull()
+			data.InfoDeviceSerialNumber = types.StringNull()
 		}
 	}
-	if data.SnortVersion.IsUnknown() {
+	if data.InfoSnortVersion.IsUnknown() {
 		if value := res.Get("snortVersion"); value.Exists() {
-			data.SnortVersion = types.StringValue(value.String())
+			data.InfoSnortVersion = types.StringValue(value.String())
 		} else {
-			data.SnortVersion = types.StringNull()
+			data.InfoSnortVersion = types.StringNull()
 		}
 	}
-	if data.VdbVersion.IsUnknown() {
+	if data.InfoVdbVersion.IsUnknown() {
 		if value := res.Get("vdbVersion"); value.Exists() {
-			data.VdbVersion = types.StringValue(value.String())
+			data.InfoVdbVersion = types.StringValue(value.String())
 		} else {
-			data.VdbVersion = types.StringNull()
+			data.InfoVdbVersion = types.StringNull()
 		}
 	}
-	if data.LspVersion.IsUnknown() {
+	if data.InfoLspVersion.IsUnknown() {
 		if value := res.Get("lspVersion"); value.Exists() {
-			data.LspVersion = types.StringValue(value.String())
+			data.InfoLspVersion = types.StringValue(value.String())
 		} else {
-			data.LspVersion = types.StringNull()
+			data.InfoLspVersion = types.StringNull()
 		}
 	}
-	if data.DeployedAccessPolicyName.IsUnknown() {
+	if data.InfoDeployedAccessPolicyName.IsUnknown() {
 		if value := res.Get("accessPolicy.name"); value.Exists() {
-			data.DeployedAccessPolicyName = types.StringValue(value.String())
+			data.InfoDeployedAccessPolicyName = types.StringValue(value.String())
 		} else {
-			data.DeployedAccessPolicyName = types.StringNull()
+			data.InfoDeployedAccessPolicyName = types.StringNull()
 		}
 	}
-	if data.DeployedHealthPolicyName.IsUnknown() {
+	if data.InfoDeployedHealthPolicyName.IsUnknown() {
 		if value := res.Get("healthPolicy.name"); value.Exists() {
-			data.DeployedHealthPolicyName = types.StringValue(value.String())
+			data.InfoDeployedHealthPolicyName = types.StringValue(value.String())
 		} else {
-			data.DeployedHealthPolicyName = types.StringNull()
+			data.InfoDeployedHealthPolicyName = types.StringNull()
 		}
 	}
 }
