@@ -57,7 +57,13 @@ var (
 )
 
 {{- if .MinimumVersion}}
-var minFMCVersionObjectSupport{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersion}}"))
+var minFMCVersion{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersion}}"))
+{{- end}}
+{{- if .MinimumVersionCreate}}
+var minFMCVersionCreate{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersionCreate}}"))
+{{- end}}
+{{- if .MinimumVersionBulkCreate}}
+var minFMCVersionBulkCreate{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersionBulkCreate}}"))
 {{- end}}
 {{- if .MinimumVersionBulkDelete}}
 var minFMCVersionBulkDelete{{camelCase .Name}} = version.Must(version.NewVersion("{{.MinimumVersionBulkDelete}}"))
@@ -450,6 +456,16 @@ func (r *{{camelCase .Name}}Resource) Configure(_ context.Context, req resource.
 // Section below is generated&owned by "gen/generator.go". //template:begin create
 
 func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	{{- if or .MinimumVersion .MinimumVersionCreate}}
+	// Get FMC version
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
+
+	// Check if FMC client is connected to supports this object
+	if fmcVersion.LessThan(minFMCVersion{{if .MinimumVersionCreate}}Create{{end}}{{camelCase .Name}}) {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support {{.Name}} creation, minumum required version is {{if .MinimumVersionCreate}}{{.MinimumVersionCreate}}{{else}}{{.MinimumVersion}}{{end}}", r.client.FMCVersion))
+		return
+	}
+	{{- end}}
 	var plan {{camelCase .Name}}
 
 	// Read plan
@@ -465,13 +481,21 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	}
 
 	{{- if and .PutCreate (not .IsBulk)}}
-	tflog.Debug(ctx, fmt.Sprintf("%s: considering object name %s", plan.Id, plan.Name))
 
-	if plan.Id.ValueString() == "" && plan.Name.ValueString() != "" {
+	{{- $attrTfName := "name" }}
+	{{- $attrModelName := "name" }}
+	{{- if hasDataSourceQuery .Attributes}}
+	{{- $attr := getDataSourceQueryAttribute . }}
+	{{- $attrTfName = $attr.TfName }}
+	{{- $attrModelName = $attr.ModelName }}
+	{{- end}}
+	
+	tflog.Debug(ctx, fmt.Sprintf("%s: considering object {{$attrTfName}} %s", plan.Id, plan.{{toGoName $attrTfName}}))
+	if plan.Id.ValueString() == "" && plan.{{toGoName $attrTfName}}.ValueString() != "" {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := r.client.Get(plan.getPath()+queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
@@ -479,9 +503,9 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if plan.Name.ValueString() == v.Get("name").String() {
+					if plan.{{toGoName $attrTfName}}.ValueString() == v.Get("{{$attrModelName}}").String() {
 						plan.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%s', id: %s", plan.Id, plan.Name.ValueString(), plan.Id))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{$attrTfName}} '%s', id: %s", plan.Id, plan.{{toGoName $attrTfName}}.ValueString(), plan.Id))
 						return false
 					}
 					return true
@@ -494,7 +518,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 		}
 
 		if plan.Id.ValueString() == "" {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", plan.Name.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with {{$attrTfName}}: %s", plan.{{toGoName $attrTfName}}.ValueString()))
 			return
 		}
 	}
@@ -557,6 +581,16 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	{{- if .MinimumVersion}}
+	// Get FMC version
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
+
+	// Check if FMC client is connected to supports this object
+	if fmcVersion.LessThan(minFMCVersion{{camelCase .Name}}) {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support {{.Name}}, minimum required version is {{.MinimumVersion}}", r.client.FMCVersion))
+		return
+	}
+	{{- end}}
 	var state {{camelCase .Name}}
 
 	// Read state
@@ -898,46 +932,84 @@ func (r *{{camelCase .Name}}Resource) ImportState(ctx context.Context, req resou
 {{- if .IsBulk}}
 // createSubresources takes list of objects, splits them into bulks and creates them
 // We want to save the state after each create event, to be able track already created resources
-func (r *{{camelCase .Name}}Resource) createSubresources(ctx context.Context, state, plan {{camelCase .Name}}, reqMods ...func(*fmc.Req)) ({{camelCase .Name}}, diag.Diagnostics) {
-	var idx = 0
-	var bulk {{camelCase .Name}}
-	bulk.Items = make(map[string]{{camelCase .Name}}Items, bulkSizeCreate)
+func (r *{{camelCase .Name}}Resource) createSubresources(ctx context.Context, state, plan {{camelCase .Name}}, reqMods ...func(*fmc.Req)) ({{camelCase .Name}}, diag.Diagnostics) {	
+	{{- if .MinimumVersionBulkCreate}}
+	// Get FMC version from the clinet
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Creating bulk of objects", state.Id.ValueString()))
+	// Check if FMC version supports bulk creates
+	if fmcVersion.LessThan(minFMCVersionBulkCreate{{camelCase .Name}}) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: One-by-one creation mode ({{.Name}})", state.Id.ValueString()))
+		var tmpObject {{camelCase .Name}}
+		tmpObject.Items = make(map[string]{{camelCase .Name}}Items, 1)
+		for k, v := range plan.Items {
+			tmpObject.Items[k] = v
 
-	// iterate over all items
-	for k, v := range plan.Items {
-		// count loops
-		idx++
-
-		// add object to current bulk
-		bulk.Items[k] = v
-
-		// If bulk size was reached or all entries have been processed
-		if idx%bulkSizeCreate == 0 || idx == len(plan.Items) {
-
-			// Parse body of the request to string
-			body := bulk.toBody(ctx, {{camelCase .Name}}{})
-
-			// Execute request
-			urlPath := bulk.getPath() + "?bulk=true"
-			res, err := r.client.Post(urlPath, body, reqMods...)
+			body := tmpObject.toBodyNonBulk(ctx, state)
+			res, err := r.client.Post(state.getPath(), body, reqMods...)
 			if err != nil {
 				return state, diag.Diagnostics{
-					diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to create a bulk (POST) id: %s, got error: %s, %s", state.Id.ValueString(), err, res.String())),
+					diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("%s: Failed to create object (POST) id %s, got error: %s, %s", state.Id.ValueString(), v.Id.ValueString(), err, res.String())),
 				}
 			}
 
-			// Read result and save it to the state
-			bulk.fromBodyUnknowns(ctx, res)
-			for k, v := range bulk.Items {
-				state.Items[k] = v
-			}
+			// fromBodyUnknowns expect result to be listed under "items" key
+			body, _ = sjson.SetRaw("{items:[]}", "items.-1", res.String())
+			res = gjson.Parse(body)
 
-			// Clear bulk item for next run
-			bulk.Items = make(map[string]{{camelCase .Name}}Items, bulkSizeCreate)
+			// Read computed values
+			tmpObject.fromBodyUnknowns(ctx, res)
+
+			// Save object to plan
+			state.Items[k] = tmpObject.Items[k]
+
+			// Clear tmpObject.Items
+			delete(tmpObject.Items, k)
+
 		}
+	} else { {{- end}}
+		var idx = 0
+		var bulk {{camelCase .Name}}
+		bulk.Items = make(map[string]{{camelCase .Name}}Items, bulkSizeCreate)
+
+		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk creation mode ({{.Name}})", state.Id.ValueString()))
+
+		// iterate over all items
+		for k, v := range plan.Items {
+			// count loops
+			idx++
+
+			// add object to current bulk
+			bulk.Items[k] = v
+
+			// If bulk size was reached or all entries have been processed
+			if idx%bulkSizeCreate == 0 || idx == len(plan.Items) {
+
+				// Parse body of the request to string
+				body := bulk.toBody(ctx, {{camelCase .Name}}{})
+
+				// Execute request
+				urlPath := bulk.getPath() + "?bulk=true"
+				res, err := r.client.Post(urlPath, body, reqMods...)
+				if err != nil {
+					return state, diag.Diagnostics{
+						diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to create a bulk (POST) id: %s, got error: %s, %s", state.Id.ValueString(), err, res.String())),
+					}
+				}
+
+				// Read result and save it to the state
+				bulk.fromBodyUnknowns(ctx, res)
+				for k, v := range bulk.Items {
+					state.Items[k] = v
+				}
+
+				// Clear bulk item for next run
+				bulk.Items = make(map[string]{{camelCase .Name}}Items, bulkSizeCreate)
+			}
+		}
+	{{- if .MinimumVersionBulkCreate}}
 	}
+	{{- end}}
 
 	return state, nil
 }
@@ -951,16 +1023,35 @@ func (r *{{camelCase .Name}}Resource) createSubresources(ctx context.Context, st
 // deleteSubresources takes list of objects and deletes them either in bulk, or one-by-one, depending on FMC version
 func (r *{{camelCase .Name}}Resource) deleteSubresources(ctx context.Context, state, plan {{camelCase .Name}}, reqMods ...func(*fmc.Req)) ({{camelCase .Name}}, diag.Diagnostics) {
 	objectsToRemove := plan.Clone()
-
-	tflog.Debug(ctx, fmt.Sprintf("%s: Deleting bulk of objects", state.Id.ValueString()))
 	
 	{{- if .MinimumVersionBulkDelete}}
+	
 	// Get FMC version from the clinet
 	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
 
 	// Check if FMC version supports bulk deletes
-	if fmcVersion.GreaterThanOrEqual(minFMCVersionBulkDelete{{camelCase .Name}}) {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk deletion mode", state.Id.ValueString()))
+	if fmcVersion.LessThan(minFMCVersionBulkDelete{{camelCase .Name}}) {
+		tflog.Debug(ctx, fmt.Sprintf("%s: One-by-one deletion mode ({{.Name}})", state.Id.ValueString()))
+		for k, v := range objectsToRemove.Items {
+			// Check if the object was not already deleted
+			if v.Id.IsNull() {
+				delete(state.Items, k)
+				continue
+			}
+
+			urlPath := state.getPath() + "/" + url.QueryEscape(v.Id.ValueString())
+			res, err := r.client.Delete(urlPath, reqMods...)
+			if err != nil {
+				return state, diag.Diagnostics{
+					diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("%s: Failed to delete object (DELETE) id %s, got error: %s, %s", state.Id.ValueString(), v.Id.ValueString(), err, res.String())),
+				}
+			}
+
+			// Remove deleted item from state
+			delete(state.Items, k)
+		}
+	} else { {{- end}}
+		tflog.Debug(ctx, fmt.Sprintf("%s: Bulk deletion mode ({{.Name}})", state.Id.ValueString()))
 
 		var idx = 0
 		var idsToRemove strings.Builder
@@ -1003,27 +1094,6 @@ func (r *{{camelCase .Name}}Resource) deleteSubresources(ctx context.Context, st
 		for _, v := range alreadyDeleted {
 			delete(state.Items, v)
 		}
-
-	} else { {{- end}}
-		tflog.Debug(ctx, fmt.Sprintf("%s: One-by-one deletion mode", state.Id.ValueString()))
-		for k, v := range objectsToRemove.Items {
-			// Check if the object was not already deleted
-			if v.Id.IsNull() {
-				delete(state.Items, k)
-				continue
-			}
-
-			urlPath := state.getPath() + "/" + url.QueryEscape(v.Id.ValueString())
-			res, err := r.client.Delete(urlPath, reqMods...)
-			if err != nil {
-				return state, diag.Diagnostics{
-					diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("%s: Failed to delete object (DELETE) id %s, got error: %s, %s", state.Id.ValueString(), v.Id.ValueString(), err, res.String())),
-				}
-			}
-
-			// Remove deleted item from state
-			delete(state.Items, k)
-		}
 	{{- if .MinimumVersionBulkDelete}}
 	}
 	{{- end}}
@@ -1043,7 +1113,7 @@ func (r *{{camelCase .Name}}Resource) updateSubresources(ctx context.Context, st
 	var tmpObject {{camelCase .Name}}
 	tmpObject.Items = make(map[string]{{camelCase .Name}}Items, 1)
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Updating bulk of objects", state.Id.ValueString()))
+	tflog.Debug(ctx, fmt.Sprintf("%s: One-by-one update mode ({{.Name}})", state.Id.ValueString()))
 
 	for k, v := range plan.Items {
 		tmpObject.Items[k] = v

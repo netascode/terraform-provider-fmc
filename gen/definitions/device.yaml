@@ -1,7 +1,6 @@
 ---
 name: Device
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devices/devicerecords
-data_source_name_query: true
 doc_category: Devices
 test_tags: [TF_VAR_device_ip, TF_VAR_device_registration_key]
 attributes:
@@ -50,6 +49,27 @@ attributes:
     type: String
     description: ID of the device group.
     exclude_example: true
+    default_value: Device
+    example: Device
+  - tf_name: access_policy_id
+    type: String
+    mandatory: true
+    model_name: id
+    data_path:
+      - accessPolicy
+    write_only: true # actually is read-write, but (for reading) generated code hurts custom code
+    description: The UUID of the assigned access control policy. For example `fmc_access_control_policy.example.id`.
+    example: 76d24097-41c4-4558-a4d0-a8c07ac08470
+    minimum_test_value: fmc_access_control_policy.minimum.id
+    test_value: fmc_access_control_policy.test.id
+  - model_name: dummy_nat_policy_id
+    tf_name: nat_policy_id
+    type: String
+    write_only: true # actually is read-write, but (for reading) generated code hurts custom code
+    description: The UUID of the assigned NAT policy.
+    exclude_example: true
+    test_value: "null"
+    # test_value: fmc_ftd_nat_policy.test.id
   - model_name: prohibitPacketTransfer
     type: Bool
     description: Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.

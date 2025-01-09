@@ -40,6 +40,7 @@ func TestAccDataSourceFmcDeviceVRF(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcDeviceVRFPrerequisitesConfig + testAccDataSourceFmcDeviceVRFConfig(),
@@ -109,8 +110,8 @@ func testAccNamedDataSourceFmcDeviceVRFConfig() string {
 
 	config += `
 		data "fmc_device_vrf" "test" {
-			name = fmc_device_vrf.test.name
 			device_id = var.device_id
+			name = fmc_device_vrf.test.name
 		}
 	`
 	return config

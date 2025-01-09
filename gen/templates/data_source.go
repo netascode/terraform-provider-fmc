@@ -56,8 +56,6 @@ func (d *{{camelCase .Name}}DataSource) Metadata(_ context.Context, req datasour
 	resp.TypeName = req.ProviderTypeName + "_{{snakeCase .Name}}"
 }
 
-{{- $nameQuery := .DataSourceNameQuery}}
-
 func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -66,7 +64,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				{{- if not .DataSourceNameQuery}}
+				{{- if and (not (hasDataSourceQuery .Attributes)) (not .IsBulk) }}
 				Required:            true,
 				{{- else}}
 				{{- if not .IsBulk}}
@@ -89,7 +87,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- if .Reference}}
 				Required:            true,
 				{{- else}}
-				{{- if and (eq .ModelName "name") ($nameQuery)}}
+				{{- if .DataSourceQuery }}
 				Optional:            true,
 				{{- end}}
 				{{- if isNestedMap .}}
@@ -159,13 +157,13 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 		},
 	}
 }
-
-{{- if and .DataSourceNameQuery (not .IsBulk)}}
+{{- $dataSourceAttribute := getDataSourceQueryAttribute .}}
+{{- if and (hasDataSourceQuery .Attributes) (not .IsBulk)}}
 func (d *{{camelCase .Name}}DataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
     return []datasource.ConfigValidator{
         datasourcevalidator.ExactlyOneOf(
             path.MatchRoot("id"),
-            path.MatchRoot("name"),
+			path.MatchRoot("{{$dataSourceAttribute.TfName}}"),
         ),
     }
 }
@@ -184,6 +182,16 @@ func (d *{{camelCase .Name}}DataSource) Configure(_ context.Context, req datasou
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	{{- if .MinimumVersion}}
+	// Get FMC version
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
+
+	// Check if FMC client is connected to supports this object
+	if fmcVersion.LessThan(minFMCVersion{{camelCase .Name}}) {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support {{.Name}}, minimum required version is {{.MinimumVersion}}", r.client.FMCVersion))
+		return
+	}
+	{{- end}}
 	var config {{camelCase .Name}}
 
 	// Read config
@@ -201,12 +209,12 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
 
-	{{- if and .DataSourceNameQuery (not .IsBulk)}}
-	if config.Id.IsNull() && !config.Name.IsNull() {
+	{{- if and (hasDataSourceQuery .Attributes) (not .IsBulk)}}
+	if config.Id.IsNull() && !config.{{toGoName $dataSourceAttribute.TfName}}.IsNull() {
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := d.client.Get(config.getPath() + queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
@@ -214,9 +222,9 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if config.Name.ValueString() == v.Get("name").String() {
+					if config.{{toGoName $dataSourceAttribute.TfName}}.ValueString() == v.Get("{{$dataSourceAttribute.ModelName}}").String() {
 						config.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with name '%v', id: %v", config.Id.String(), config.Name.ValueString(), config.Id.String()))
+						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with {{$dataSourceAttribute.TfName}} '%v', id: %v", config.Id.String(), config.{{toGoName $dataSourceAttribute.TfName}}.ValueString(), config.Id.String()))
 						return false
 					}
 					return true
@@ -229,7 +237,7 @@ func (d *{{camelCase .Name}}DataSource) Read(ctx context.Context, req datasource
 		}
 
 		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with name: %s", config.Name.ValueString()))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with {{$dataSourceAttribute.TfName}}: %s", config.{{toGoName $dataSourceAttribute.TfName}}.ValueString()))
 			return
 		}
 	}
