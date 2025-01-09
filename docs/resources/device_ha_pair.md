@@ -3,12 +3,12 @@
 page_title: "fmc_device_ha_pair Resource - terraform-provider-fmc"
 subcategory: "Device"
 description: |-
-  This resource can manage a Device HA Pair.
+  Resource to manage HA Pair. failed_interfaces_limit or failed_interfaces_percent needs to be set.
 ---
 
 # fmc_device_ha_pair (Resource)
 
-This resource can manage a Device HA Pair.
+Resource to manage HA Pair. failed_interfaces_limit or failed_interfaces_percent needs to be set.
 
 ## Example Usage
 
@@ -24,7 +24,7 @@ resource "fmc_device_ha_pair" "example" {
   ha_link_use_ipv6                 = false
   ha_link_primary_ip               = "1.1.1.1"
   ha_link_secondary_ip             = "1.1.1.2"
-  ha_link_subnet_mask              = "255.255.255.0"
+  ha_link_netmask                  = "255.255.255.0"
   state_link_use_same_as_ha        = false
   state_link_interface_id          = "76d24097-hj7r-7786-a4d0-a8c07ac08470"
   state_link_interface_name        = "GigabitEthernet0/0"
@@ -33,7 +33,7 @@ resource "fmc_device_ha_pair" "example" {
   state_link_use_ipv6              = false
   state_link_primary_ip            = "10.10.10.1"
   state_link_secondary_ip          = "10.10.10.2"
-  state_link_subnet_mask           = "255.255.255.0"
+  state_link_netmask               = "255.255.255.0"
   encryption_enabled               = true
   encryption_key_generation_scheme = "AUTO"
   failed_interfaces_limit          = 1
@@ -56,6 +56,7 @@ resource "fmc_device_ha_pair" "example" {
 - `ha_link_interface_name` (String) Name of High Availability Link interface.
 - `ha_link_interface_type` (String) Type of High Availability Link interface.
 - `ha_link_logical_name` (String)
+- `ha_link_netmask` (String)
 - `ha_link_primary_ip` (String)
 - `ha_link_secondary_ip` (String)
 - `name` (String) The name of the High Availability (HA) Pair.
@@ -74,29 +75,35 @@ resource "fmc_device_ha_pair" "example" {
   - Choices: `AUTO`, `CUSTOM`
 - `failed_interfaces_limit` (Number) - Range: `1`-`211`
 - `failed_interfaces_percent` (Number) - Range: `1`-`100`
-- `ha_link_subnet_mask` (String)
 - `ha_link_use_ipv6` (Boolean) - Default value: `false`
 - `interface_hold_time` (Number) Interface Hold Time in seconds
   - Range: `25`-`75`
+  - Default value: `25`
 - `interface_poll_time` (Number) Peer Pool Time (1-15 SEC or 500-999 MSEC)
   - Range: `1`-`999`
+  - Default value: `5`
 - `interface_poll_time_unit` (String) Peer Pool Time Unit
   - Choices: `SEC`, `MSEC`
+  - Default value: `SEC`
 - `peer_hold_time` (Number) Peer Hold Time (3-45 SEC or 800-999 MSEC)
   - Range: `3`-`999`
+  - Default value: `15`
 - `peer_hold_time_unit` (String) Peer Hold Time Unit
   - Choices: `SEC`, `MSEC`
+  - Default value: `SEC`
 - `peer_poll_time` (Number) Peer Pool Time (1-15 SEC or 200-999 MSEC)
   - Range: `1`-`999`
+  - Default value: `1`
 - `peer_poll_time_unit` (String) Peer Pool Time Unit
   - Choices: `SEC`, `MSEC`
+  - Default value: `SEC`
 - `state_link_interface_id` (String) ID of physical interface.
 - `state_link_interface_name` (String) Name of state link interface.
 - `state_link_interface_type` (String) Type of state link interface.
 - `state_link_logical_name` (String)
+- `state_link_netmask` (String)
 - `state_link_primary_ip` (String)
 - `state_link_secondary_ip` (String)
-- `state_link_subnet_mask` (String)
 - `state_link_use_ipv6` (Boolean)
 
 ### Read-Only

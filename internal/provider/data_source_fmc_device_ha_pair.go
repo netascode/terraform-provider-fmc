@@ -93,7 +93,6 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 			"ha_link_interface_name": schema.StringAttribute{
 				MarkdownDescription: "Name of High Availability Link interface.",
-				Optional:            true,
 				Computed:            true,
 			},
 			"ha_link_interface_type": schema.StringAttribute{
@@ -116,7 +115,7 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"ha_link_subnet_mask": schema.StringAttribute{
+			"ha_link_netmask": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
@@ -130,7 +129,6 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 			"state_link_interface_name": schema.StringAttribute{
 				MarkdownDescription: "Name of state link interface.",
-				Optional:            true,
 				Computed:            true,
 			},
 			"state_link_interface_type": schema.StringAttribute{
@@ -153,7 +151,7 @@ func (d *DeviceHAPairDataSource) Schema(ctx context.Context, req datasource.Sche
 				MarkdownDescription: "",
 				Computed:            true,
 			},
-			"state_link_subnet_mask": schema.StringAttribute{
+			"state_link_netmask": schema.StringAttribute{
 				MarkdownDescription: "",
 				Computed:            true,
 			},
@@ -254,7 +252,7 @@ func (d *DeviceHAPairDataSource) Read(ctx context.Context, req datasource.ReadRe
 		offset := 0
 		limit := 1000
 		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d", limit, offset)
+			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
 			res, err := d.client.Get(config.getPath()+queryString, reqMods...)
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))

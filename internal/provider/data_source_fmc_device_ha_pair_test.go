@@ -41,13 +41,13 @@ func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_use_ipv6", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_primary_ip", "1.1.1.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_secondary_ip", "1.1.1.2"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_subnet_mask", "255.255.255.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "ha_link_netmask", "255.255.255.0"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_interface_name", "GigabitEthernet0/0"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_logical_name", "Stateful-INTERFACE"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_use_ipv6", "false"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_primary_ip", "10.10.10.1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_secondary_ip", "10.10.10.2"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_subnet_mask", "255.255.255.0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "state_link_netmask", "255.255.255.0"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "encryption_enabled", "true"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "failed_interfaces_limit", "1"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_ha_pair.test", "peer_poll_time", "1"))
@@ -60,6 +60,7 @@ func TestAccDataSourceFmcDeviceHAPair(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ErrorCheck:               func(err error) error { return testAccErrorCheck(t, err) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcDeviceHAPairPrerequisitesConfig + testAccDataSourceFmcDeviceHAPairConfig(),
@@ -98,7 +99,7 @@ func testAccDataSourceFmcDeviceHAPairConfig() string {
 	config += `	ha_link_use_ipv6 = false` + "\n"
 	config += `	ha_link_primary_ip = "1.1.1.1"` + "\n"
 	config += `	ha_link_secondary_ip = "1.1.1.2"` + "\n"
-	config += `	ha_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	ha_link_netmask = "255.255.255.0"` + "\n"
 	config += `	state_link_use_same_as_ha = false` + "\n"
 	config += `	state_link_interface_id = "76d24097-hj7r-7786-a4d0-a8c07ac08470"` + "\n"
 	config += `	state_link_interface_name = "GigabitEthernet0/0"` + "\n"
@@ -107,7 +108,7 @@ func testAccDataSourceFmcDeviceHAPairConfig() string {
 	config += `	state_link_use_ipv6 = false` + "\n"
 	config += `	state_link_primary_ip = "10.10.10.1"` + "\n"
 	config += `	state_link_secondary_ip = "10.10.10.2"` + "\n"
-	config += `	state_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	state_link_netmask = "255.255.255.0"` + "\n"
 	config += `	encryption_enabled = true` + "\n"
 	config += `	encryption_key_generation_scheme = "AUTO"` + "\n"
 	config += `	failed_interfaces_limit = 1` + "\n"
@@ -140,7 +141,7 @@ func testAccNamedDataSourceFmcDeviceHAPairConfig() string {
 	config += `	ha_link_use_ipv6 = false` + "\n"
 	config += `	ha_link_primary_ip = "1.1.1.1"` + "\n"
 	config += `	ha_link_secondary_ip = "1.1.1.2"` + "\n"
-	config += `	ha_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	ha_link_netmask = "255.255.255.0"` + "\n"
 	config += `	state_link_use_same_as_ha = false` + "\n"
 	config += `	state_link_interface_id = "76d24097-hj7r-7786-a4d0-a8c07ac08470"` + "\n"
 	config += `	state_link_interface_name = "GigabitEthernet0/0"` + "\n"
@@ -149,7 +150,7 @@ func testAccNamedDataSourceFmcDeviceHAPairConfig() string {
 	config += `	state_link_use_ipv6 = false` + "\n"
 	config += `	state_link_primary_ip = "10.10.10.1"` + "\n"
 	config += `	state_link_secondary_ip = "10.10.10.2"` + "\n"
-	config += `	state_link_subnet_mask = "255.255.255.0"` + "\n"
+	config += `	state_link_netmask = "255.255.255.0"` + "\n"
 	config += `	encryption_enabled = true` + "\n"
 	config += `	encryption_key_generation_scheme = "AUTO"` + "\n"
 	config += `	failed_interfaces_limit = 1` + "\n"

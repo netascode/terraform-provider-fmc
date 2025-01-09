@@ -24,10 +24,8 @@ data "fmc_device_ha_pair" "example" {
 ### Optional
 
 - `domain` (String) The name of the FMC domain
-- `ha_link_interface_name` (String) Name of High Availability Link interface.
 - `id` (String) The id of the object
 - `name` (String) The name of the High Availability (HA) Pair.
-- `state_link_interface_name` (String) Name of state link interface.
 
 ### Read-Only
 
@@ -38,11 +36,12 @@ data "fmc_device_ha_pair" "example" {
 - `failed_interfaces_limit` (Number)
 - `failed_interfaces_percent` (Number)
 - `ha_link_interface_id` (String) ID of High Availability Link interface.
+- `ha_link_interface_name` (String) Name of High Availability Link interface.
 - `ha_link_interface_type` (String) Type of High Availability Link interface.
 - `ha_link_logical_name` (String)
+- `ha_link_netmask` (String)
 - `ha_link_primary_ip` (String)
 - `ha_link_secondary_ip` (String)
-- `ha_link_subnet_mask` (String)
 - `ha_link_use_ipv6` (Boolean)
 - `interface_hold_time` (Number) Interface Hold Time in seconds
 - `interface_poll_time` (Number) Peer Pool Time (1-15 SEC or 500-999 MSEC)
@@ -54,11 +53,12 @@ data "fmc_device_ha_pair" "example" {
 - `primary_device_id` (String) ID of primary FTD in the HA Pair.
 - `secondary_device_id` (String) ID of secondary FTD in the HA Pair.
 - `state_link_interface_id` (String) ID of physical interface.
+- `state_link_interface_name` (String) Name of state link interface.
 - `state_link_interface_type` (String) Type of state link interface.
 - `state_link_logical_name` (String)
+- `state_link_netmask` (String)
 - `state_link_primary_ip` (String)
 - `state_link_secondary_ip` (String)
-- `state_link_subnet_mask` (String)
 - `state_link_use_ipv6` (Boolean)
 - `state_link_use_same_as_ha` (Boolean) Use the same link for state and HA.
 - `type` (String) Type of the resource; This is always `DeviceHAPair`.

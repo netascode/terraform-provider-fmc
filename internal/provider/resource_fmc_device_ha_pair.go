@@ -32,7 +32,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -66,7 +68,7 @@ func (r *DeviceHAPairResource) Metadata(ctx context.Context, req resource.Metada
 func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device HA Pair.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("Resource to manage HA Pair. failed_interfaces_limit or failed_interfaces_percent needs to be set.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -159,9 +161,9 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"ha_link_subnet_mask": schema.StringAttribute{
+			"ha_link_netmask": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
-				Optional:            true,
+				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -222,7 +224,7 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"state_link_subnet_mask": schema.StringAttribute{
+			"state_link_netmask": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("").String,
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
@@ -268,53 +270,67 @@ func (r *DeviceHAPairResource) Schema(ctx context.Context, req resource.SchemaRe
 				},
 			},
 			"peer_poll_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time (1-15 SEC or 200-999 MSEC)").AddIntegerRangeDescription(1, 999).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time (1-15 SEC or 200-999 MSEC)").AddIntegerRangeDescription(1, 999).AddDefaultValueDescription("1").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 999),
 				},
+				Default: int64default.StaticInt64(1),
 			},
 			"peer_poll_time_unit": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time Unit").AddStringEnumDescription("SEC", "MSEC").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time Unit").AddStringEnumDescription("SEC", "MSEC").AddDefaultValueDescription("SEC").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("SEC", "MSEC"),
 				},
+				Default: stringdefault.StaticString("SEC"),
 			},
 			"peer_hold_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Peer Hold Time (3-45 SEC or 800-999 MSEC)").AddIntegerRangeDescription(3, 999).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Hold Time (3-45 SEC or 800-999 MSEC)").AddIntegerRangeDescription(3, 999).AddDefaultValueDescription("15").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(3, 999),
 				},
+				Default: int64default.StaticInt64(15),
 			},
 			"peer_hold_time_unit": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Peer Hold Time Unit").AddStringEnumDescription("SEC", "MSEC").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Hold Time Unit").AddStringEnumDescription("SEC", "MSEC").AddDefaultValueDescription("SEC").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("SEC", "MSEC"),
 				},
+				Default: stringdefault.StaticString("SEC"),
 			},
 			"interface_poll_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time (1-15 SEC or 500-999 MSEC)").AddIntegerRangeDescription(1, 999).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time (1-15 SEC or 500-999 MSEC)").AddIntegerRangeDescription(1, 999).AddDefaultValueDescription("5").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(1, 999),
 				},
+				Default: int64default.StaticInt64(5),
 			},
 			"interface_poll_time_unit": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time Unit").AddStringEnumDescription("SEC", "MSEC").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Peer Pool Time Unit").AddStringEnumDescription("SEC", "MSEC").AddDefaultValueDescription("SEC").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("SEC", "MSEC"),
 				},
+				Default: stringdefault.StaticString("SEC"),
 			},
 			"interface_hold_time": schema.Int64Attribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Interface Hold Time in seconds").AddIntegerRangeDescription(25, 75).String,
+				MarkdownDescription: helpers.NewAttributeDescription("Interface Hold Time in seconds").AddIntegerRangeDescription(25, 75).AddDefaultValueDescription("25").String,
 				Optional:            true,
+				Computed:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(25, 75),
 				},
+				Default: int64default.StaticInt64(25),
 			},
 			"action": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("FTD HA PUT operation action. Specifically used for manual switch. HA Break will be triggered when you run terraform destroy").AddStringEnumDescription("SWITCH", "HABREAK").String,
@@ -400,15 +416,16 @@ func (r *DeviceHAPairResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Send second request to configure missing pieces
 	body = plan.toBodyUpdateTimers(ctx, DeviceHAPair{})
-	res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (PUT) after create, got error: %s, %s", err, res.String()))
-		// Save state, as at this point HA Pair is created, though not fully configured
-		diags = resp.State.Set(ctx, &plan)
-		resp.Diagnostics.Append(diags...)
-		return
+	if body != "" {
+		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update object (PUT) after create, got error: %s, %s", err, res.String()))
+			// Save state, as at this point HA Pair is created, though not fully configured
+			diags = resp.State.Set(ctx, &plan)
+			resp.Diagnostics.Append(diags...)
+			return
+		}
 	}
-
 	// Ending code to poll object
 	plan.fromBodyUnknowns(ctx, res)
 

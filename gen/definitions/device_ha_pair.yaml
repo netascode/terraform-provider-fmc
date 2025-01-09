@@ -1,14 +1,15 @@
 ---
 name: Device HA Pair
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/devicehapairs/ftddevicehapairs
-data_source_name_query: true
 doc_category: Device
 test_tags: [TF_VAR_device_id, TF_VAR_device_2_id]
+res_description: Resource to manage HA Pair. failed_interfaces_limit or failed_interfaces_percent needs to be set. 
 attributes:
   - model_name: name
     type: String
     mandatory: true
     description: The name of the High Availability (HA) Pair.
+    data_source_query: true
     example: FTD_HA
   - model_name: type
     type: String
@@ -88,7 +89,8 @@ attributes:
     requires_replace: true
   - model_name: subnetMask
     type: String
-    tf_name: ha_link_subnet_mask
+    tf_name: ha_link_netmask
+    mandatory: true
     data_path: [ftdHABootstrap,lanFailover]
     example: "255.255.255.0"
     requires_replace: true
@@ -151,7 +153,7 @@ attributes:
     requires_replace: true
   - model_name: subnetMask
     type: String
-    tf_name: state_link_subnet_mask
+    tf_name: state_link_netmask
     data_path: [ftdHABootstrap,statefulFailover]
     example: "255.255.255.0"
     requires_replace: true
@@ -204,12 +206,14 @@ attributes:
     description: Peer Pool Time (1-15 SEC or 200-999 MSEC)
     min_int: 1
     max_int: 999
+    default_value: 1
     example: 1
   - model_name: peerPollTimeUnit
     data_path: [ftdHAFailoverTriggerCriteria]
     type: String
     description: Peer Pool Time Unit
     enum_values: [ SEC, MSEC ]
+    default_value: SEC
     example: SEC
   - model_name: peerHoldTime
     data_path: [ftdHAFailoverTriggerCriteria]
@@ -217,12 +221,14 @@ attributes:
     description: Peer Hold Time (3-45 SEC or 800-999 MSEC)
     min_int: 3
     max_int: 999
+    default_value: 15
     example: 15
   - model_name: peerHoldTimeUnit
     data_path: [ftdHAFailoverTriggerCriteria]
     type: String
     description: Peer Hold Time Unit
     enum_values: [ SEC, MSEC ]
+    default_value: SEC
     example: SEC
   - model_name: interfacePollTime
     data_path: [ftdHAFailoverTriggerCriteria]
@@ -230,12 +236,14 @@ attributes:
     description: Peer Pool Time (1-15 SEC or 500-999 MSEC)
     min_int: 1
     max_int: 999
+    default_value: 5
     example: 5
   - model_name: interfacePollTimeUnit
     data_path: [ftdHAFailoverTriggerCriteria]
     type: String
     description: Peer Pool Time Unit
     enum_values: [ SEC, MSEC ]
+    default_value: SEC
     example: SEC
   - model_name: interfaceHoldTime
     data_path: [ftdHAFailoverTriggerCriteria]
@@ -243,6 +251,7 @@ attributes:
     description: Interface Hold Time in seconds
     min_int: 25
     max_int: 75
+    default_value: 25
     example: 25
 # Other
   - model_name: action
