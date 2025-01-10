@@ -386,7 +386,7 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
 	res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
-	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+	if err != nil && strings.Contains(err.Error(), "StatusCode 400") {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {
