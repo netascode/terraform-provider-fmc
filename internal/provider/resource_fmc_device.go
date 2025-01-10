@@ -358,6 +358,8 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		time.Sleep(atom)
 	}
 
+	plan.fromBodyUnknowns(ctx, res)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Created successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)

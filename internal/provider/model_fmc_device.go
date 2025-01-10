@@ -223,22 +223,22 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.InfoFtdMode = types.StringNull()
 	}
-	if value := res.Get("deviceSerialNumber"); value.Exists() {
+	if value := res.Get("metadata.deviceSerialNumber"); value.Exists() {
 		data.InfoDeviceSerialNumber = types.StringValue(value.String())
 	} else {
 		data.InfoDeviceSerialNumber = types.StringNull()
 	}
-	if value := res.Get("snortVersion"); value.Exists() {
+	if value := res.Get("metadata.snortVersion"); value.Exists() {
 		data.InfoSnortVersion = types.StringValue(value.String())
 	} else {
 		data.InfoSnortVersion = types.StringNull()
 	}
-	if value := res.Get("vdbVersion"); value.Exists() {
+	if value := res.Get("metadata.vdbVersion"); value.Exists() {
 		data.InfoVdbVersion = types.StringValue(value.String())
 	} else {
 		data.InfoVdbVersion = types.StringNull()
 	}
-	if value := res.Get("lspVersion"); value.Exists() {
+	if value := res.Get("metadata.lspVersion"); value.Exists() {
 		data.InfoLspVersion = types.StringValue(value.String())
 	} else {
 		data.InfoLspVersion = types.StringNull()
@@ -354,22 +354,22 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.InfoFtdMode = types.StringNull()
 	}
-	if value := res.Get("deviceSerialNumber"); value.Exists() && !data.InfoDeviceSerialNumber.IsNull() {
+	if value := res.Get("metadata.deviceSerialNumber"); value.Exists() && !data.InfoDeviceSerialNumber.IsNull() {
 		data.InfoDeviceSerialNumber = types.StringValue(value.String())
 	} else {
 		data.InfoDeviceSerialNumber = types.StringNull()
 	}
-	if value := res.Get("snortVersion"); value.Exists() && !data.InfoSnortVersion.IsNull() {
+	if value := res.Get("metadata.snortVersion"); value.Exists() && !data.InfoSnortVersion.IsNull() {
 		data.InfoSnortVersion = types.StringValue(value.String())
 	} else {
 		data.InfoSnortVersion = types.StringNull()
 	}
-	if value := res.Get("vdbVersion"); value.Exists() && !data.InfoVdbVersion.IsNull() {
+	if value := res.Get("metadata.vdbVersion"); value.Exists() && !data.InfoVdbVersion.IsNull() {
 		data.InfoVdbVersion = types.StringValue(value.String())
 	} else {
 		data.InfoVdbVersion = types.StringNull()
 	}
-	if value := res.Get("lspVersion"); value.Exists() && !data.InfoLspVersion.IsNull() {
+	if value := res.Get("metadata.lspVersion"); value.Exists() && !data.InfoLspVersion.IsNull() {
 		data.InfoLspVersion = types.StringValue(value.String())
 	} else {
 		data.InfoLspVersion = types.StringNull()
@@ -511,28 +511,28 @@ func (data *Device) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 		}
 	}
 	if data.InfoDeviceSerialNumber.IsUnknown() {
-		if value := res.Get("deviceSerialNumber"); value.Exists() {
+		if value := res.Get("metadata.deviceSerialNumber"); value.Exists() {
 			data.InfoDeviceSerialNumber = types.StringValue(value.String())
 		} else {
 			data.InfoDeviceSerialNumber = types.StringNull()
 		}
 	}
 	if data.InfoSnortVersion.IsUnknown() {
-		if value := res.Get("snortVersion"); value.Exists() {
+		if value := res.Get("metadata.snortVersion"); value.Exists() {
 			data.InfoSnortVersion = types.StringValue(value.String())
 		} else {
 			data.InfoSnortVersion = types.StringNull()
 		}
 	}
 	if data.InfoVdbVersion.IsUnknown() {
-		if value := res.Get("vdbVersion"); value.Exists() {
+		if value := res.Get("metadata.vdbVersion"); value.Exists() {
 			data.InfoVdbVersion = types.StringValue(value.String())
 		} else {
 			data.InfoVdbVersion = types.StringNull()
 		}
 	}
 	if data.InfoLspVersion.IsUnknown() {
-		if value := res.Get("lspVersion"); value.Exists() {
+		if value := res.Get("metadata.lspVersion"); value.Exists() {
 			data.InfoLspVersion = types.StringValue(value.String())
 		} else {
 			data.InfoLspVersion = types.StringNull()

@@ -125,21 +125,25 @@ attributes:
     description: FTD Mode - Informational only.
     computed: true
   - model_name: deviceSerialNumber
+    data_path: [ metadata ]
     tf_name: info_device_serial_number
     type: String
     description: Device Serial Number - Informational only.
     computed: true
   - model_name: snortVersion
+    data_path: [ metadata ]
     tf_name: info_snort_version
     type: String
     description: Snort Version - Informational only.
     computed: true
   - model_name: vdbVersion
+    data_path: [ metadata ]
     tf_name: info_vdb_version
     type: String
     description: VDB Version - Informational only.
     computed: true
   - model_name: lspVersion
+    data_path: [ metadata ]
     tf_name: info_lsp_version
     type: String
     description: LSP Version - Informational only.
