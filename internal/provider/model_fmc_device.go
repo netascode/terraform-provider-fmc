@@ -84,9 +84,7 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 	if !data.Name.IsNull() {
 		body, _ = sjson.Set(body, "name", data.Name.ValueString())
 	}
-	if !data.Type.IsNull() {
-		body, _ = sjson.Set(body, "type", data.Type.ValueString())
-	}
+	body, _ = sjson.Set(body, "type", "Device")
 	if !data.HostName.IsNull() {
 		body, _ = sjson.Set(body, "hostName", data.HostName.ValueString())
 	}
@@ -123,7 +121,7 @@ func (data Device) toBody(ctx context.Context, state Device) string {
 		body, _ = sjson.Set(body, "dummy_nat_policy_id", data.NatPolicyId.ValueString())
 	}
 	if !data.HealthPolicyId.IsNull() {
-		body, _ = sjson.Set(body, "dummy_health_policy_id", data.HealthPolicyId.ValueString())
+		body, _ = sjson.Set(body, "healthPolicy.id", data.HealthPolicyId.ValueString())
 	}
 	return body
 }
@@ -141,7 +139,7 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("type"); value.Exists() {
 		data.Type = types.StringValue(value.String())
 	} else {
-		data.Type = types.StringValue("Device")
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("hostName"); value.Exists() {
 		data.HostName = types.StringValue(value.String())
@@ -188,7 +186,7 @@ func (data *Device) fromBody(ctx context.Context, res gjson.Result) {
 	} else {
 		data.NatPolicyId = types.StringNull()
 	}
-	if value := res.Get("dummy_health_policy_id"); value.Exists() {
+	if value := res.Get("healthPolicy.id"); value.Exists() {
 		data.HealthPolicyId = types.StringValue(value.String())
 	} else {
 		data.HealthPolicyId = types.StringNull()
@@ -271,7 +269,7 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	}
 	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
 		data.Type = types.StringValue(value.String())
-	} else if data.Type.ValueString() != "Device" {
+	} else {
 		data.Type = types.StringNull()
 	}
 	if value := res.Get("hostName"); value.Exists() && !data.HostName.IsNull() {
@@ -319,7 +317,7 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.NatPolicyId = types.StringNull()
 	}
-	if value := res.Get("dummy_health_policy_id"); value.Exists() && !data.HealthPolicyId.IsNull() {
+	if value := res.Get("healthPolicy.id"); value.Exists() && !data.HealthPolicyId.IsNull() {
 		data.HealthPolicyId = types.StringValue(value.String())
 	} else {
 		data.HealthPolicyId = types.StringNull()
@@ -388,86 +386,18 @@ func (data *Device) fromBodyPartial(ctx context.Context, res gjson.Result) {
 
 // End of section. //template:end fromBodyPartial
 
-func (data *Device) fromPolicyBody(ctx context.Context, res gjson.Result) {
-	query := fmt.Sprintf(`items.#(targets.#(id=="%s"))#.policy`, data.Id.ValueString())
-	list := res.Get(query)
-	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in %d policies: %s", query, len(list.Array()), list))
-
-	if !list.Exists() {
-		data.AccessPolicyId = types.StringNull()
-		data.NatPolicyId = types.StringNull()
-		data.HealthPolicyId = types.StringNull()
-		return
-	}
-
-	value := list.Get(`#(type=="AccessPolicy").id`)
-	tflog.Debug(ctx, fmt.Sprintf("gjson search AccessPolicy resulted in: %s", value))
-	if value.Exists() {
-		data.AccessPolicyId = types.StringValue(value.String())
-	} else {
-		data.AccessPolicyId = types.StringNull()
-	}
-
-	value = list.Get(`#(type=="FTDNatPolicy").id`)
-	tflog.Debug(ctx, fmt.Sprintf("gjson search FTDNatPolicy resulted in: %s", value))
-	if value.Exists() {
-		data.NatPolicyId = types.StringValue(value.String())
-	} else {
-		data.NatPolicyId = types.StringNull()
-	}
-
-	value = list.Get(`#(type=="HealthPolicy").id`)
-	tflog.Debug(ctx, fmt.Sprintf("gjson search HealthPolicy resulted in: %s", value))
-	if value.Exists() {
-		data.HealthPolicyId = types.StringValue(value.String())
-	} else {
-		data.HealthPolicyId = types.StringNull()
-	}
-
-}
-
-func (data *Device) updateFromPolicyBody(ctx context.Context, res gjson.Result) {
-	query := fmt.Sprintf(`items.#(targets.#(id=="%s"))#.policy`, data.Id.ValueString())
-	list := res.Get(query)
-	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in %d policies for update: %s", query, len(list.Array()), list))
-
-	if !list.Exists() {
-		data.AccessPolicyId = types.StringNull()
-		data.NatPolicyId = types.StringNull()
-		data.HealthPolicyId = types.StringNull()
-		return
-	}
-
-	value := list.Get(`#(type=="AccessPolicy").id`)
-	tflog.Debug(ctx, fmt.Sprintf("gjson search AccessPolicy resulted in: %s", value))
-	if value.Exists() && !data.AccessPolicyId.IsNull() {
-		data.AccessPolicyId = types.StringValue(value.String())
-	} else {
-		data.AccessPolicyId = types.StringNull()
-	}
-
-	value = list.Get(`#(type=="FTDNatPolicy").id`)
-	tflog.Debug(ctx, fmt.Sprintf("gjson search FTDNatPolicy resulted in: %s", value))
-	if value.Exists() && !data.NatPolicyId.IsNull() {
-		data.NatPolicyId = types.StringValue(value.String())
-	} else {
-		data.NatPolicyId = types.StringNull()
-	}
-
-	value = list.Get(`#(type=="HealthPolicy").id`)
-	tflog.Debug(ctx, fmt.Sprintf("gjson search HealthPolicy resulted in: %s", value))
-	if value.Exists() && !data.HealthPolicyId.IsNull() {
-		data.HealthPolicyId = types.StringValue(value.String())
-	} else {
-		data.HealthPolicyId = types.StringNull()
-	}
-}
-
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBodyUnknowns
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *Device) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 	if data.InfoVersion.IsUnknown() {
 		if value := res.Get("sw_version"); value.Exists() {
 			data.InfoVersion = types.StringValue(value.String())
@@ -555,3 +485,38 @@ func (data *Device) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 }
 
 // End of section. //template:end fromBodyUnknowns
+
+// Fill response with policies IDs obtained from different API endpoint
+func (data *Device) fromBodyPolicy(ctx context.Context, res gjson.Result, policies gjson.Result) gjson.Result {
+	query := fmt.Sprintf(`items.#(targets.#(id=="%s"))#.policy`, data.Id.ValueString())
+	list := policies.Get(query)
+	tflog.Debug(ctx, fmt.Sprintf("gjson path %s resulted in %d policies for update: %s", query, len(list.Array()), list))
+
+	if !list.Exists() {
+		tflog.Error(ctx, fmt.Sprintf("No mandatory policies found for device %s", data.Id.ValueString()))
+		return res
+	}
+
+	var ret = res.String()
+
+	// Altough AccessPolicy ID exists in device object, it may have different upper/lower cases in ID, which causes problems when compared with tfstate
+	value := list.Get(`#(type=="AccessPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search AccessPolicy resulted in: %s", value))
+	if value.Exists() {
+		ret, _ = sjson.Set(ret, "accessPolicy.id", value.String())
+	}
+
+	value = list.Get(`#(type=="FTDNatPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search FTDNatPolicy resulted in: %s", value))
+	if value.Exists() {
+		ret, _ = sjson.Set(ret, "dummy_nat_policy_id", value.String())
+	}
+
+	value = list.Get(`#(type=="HealthPolicy").id`)
+	tflog.Debug(ctx, fmt.Sprintf("gjson search HealthPolicy resulted in: %s", value))
+	if value.Exists() {
+		ret, _ = sjson.Set(ret, "healthPolicy.id", value.String())
+	}
+
+	return gjson.Parse(ret)
+}

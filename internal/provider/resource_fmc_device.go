@@ -35,7 +35,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -98,10 +97,11 @@ func (r *DeviceResource) Schema(ctx context.Context, req resource.SchemaRequest,
 				Required:            true,
 			},
 			"type": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Type of the device; this value is always 'Device'.").AddDefaultValueDescription("Device").String,
-				Optional:            true,
+				MarkdownDescription: helpers.NewAttributeDescription("Type of the device; this value is always 'Device'.").String,
 				Computed:            true,
-				Default:             stringdefault.StaticString("Device"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"host_name": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Hostname or IP address of the device. Either the host_name or nat_id must be present.").String,
@@ -385,6 +385,7 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
+	// Get device object
 	res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 400") {
 		resp.State.RemoveResource(ctx)
@@ -394,6 +395,7 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// Get policy assignments for the device
 	policies, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments?expanded=true", reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, policies.String()))
@@ -405,13 +407,14 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// Update body with policy assignments
+	res = state.fromBodyPolicy(ctx, res, policies)
+
 	// After `terraform import` we switch to a full read.
 	if imp {
 		state.fromBody(ctx, res)
-		state.fromPolicyBody(ctx, policies)
 	} else {
 		state.fromBodyPartial(ctx, res)
-		state.updateFromPolicyBody(ctx, policies)
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", state.Id.ValueString()))
@@ -424,9 +427,10 @@ func (r *DeviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state Device
+	var diags diag.Diagnostics
 
 	// Read plan
-	diags := req.Plan.Get(ctx, &plan)
+	diags = req.Plan.Get(ctx, &plan)
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
@@ -447,29 +451,43 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 	body := plan.toBody(ctx, state)
 	body, _ = sjson.Delete(body, "accessPolicy") // usable for POST, but not for PUT
 	body, _ = sjson.Delete(body, "dummy_nat_policy_id")
-	body, _ = sjson.Delete(body, "dummy_health_policy_id")
+	body, _ = sjson.Delete(body, "healthPolicy") // usable for POST, but not for PUT
 	res, err := r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("access_policy_id"), req.Plan, req.State, reqMods...)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	if plan.AccessPolicyId != state.AccessPolicyId {
+		diags = r.updatePolicy(ctx, plan.Id, path.Root("access_policy_id"), req.Plan, req.State, reqMods...)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, req.State, reqMods...)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	if plan.NatPolicyId != state.NatPolicyId {
+		diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, req.State, reqMods...)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("health_policy_id"), req.Plan, req.State, reqMods...)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	if plan.HealthPolicyId != state.HealthPolicyId {
+		diags = r.updatePolicy(ctx, plan.Id, path.Root("health_policy_id"), req.Plan, req.State, reqMods...)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	if plan.DeviceGroupId != state.DeviceGroupId {
+		diags = r.updateDeviceGroup(ctx, plan.Id, req.Plan, req.State, reqMods...)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
@@ -571,6 +589,86 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.Stri
 			"Client Error",
 			fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()),
 		)}
+	}
+
+	return nil
+}
+
+func (r *DeviceResource) updateDeviceGroup(ctx context.Context, device basetypes.StringValue, plan tfsdk.Plan, state tfsdk.State, reqMods ...func(*fmc.Req)) diag.Diagnostics {
+	deviceId := device.ValueString()
+
+	// Extract IDs of current and planned device group
+	var planDeviceGroup types.String
+	if diags := plan.GetAttribute(ctx, path.Root("device_group_id"), &planDeviceGroup); diags.HasError() {
+		return diags
+	}
+
+	var stateDeviceGroup types.String
+	if diags := state.GetAttribute(ctx, path.Root("device_group_id"), &stateDeviceGroup); diags.HasError() {
+		return diags
+	}
+
+	if !stateDeviceGroup.IsNull() {
+		// Get Device Group to which device currently belongs
+		res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devicegroups/devicegrouprecords"+"/"+url.QueryEscape(stateDeviceGroup.ValueString()), reqMods...)
+		if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to get current device group (GET), got error: %s, %s", err, res.String()))}
+		}
+
+		// Remove device from current device group
+		// Device Group endpoint returns 'metadata' twice in the response, which breaks sjson.Delete. Hence we copy needed fields to a new JSON.
+		var request = ""
+		resString := res.String()
+		request, _ = sjson.Set(request, "id", gjson.Get(resString, "id").String())
+		request, _ = sjson.Set(request, "type", gjson.Get(resString, "type").String())
+		request, _ = sjson.Set(request, "name", gjson.Get(resString, "name").String())
+
+		// Get all members
+		members := gjson.Get(resString, "members").Array()
+		filteredMembers := []string{}
+
+		// Filter out the device to be removed
+		for _, member := range members {
+			if member.Get("id").String() != deviceId {
+				filteredMembers = append(filteredMembers, member.Raw)
+			}
+		}
+
+		// Update request
+		request, _ = sjson.SetRaw(request, "members", fmt.Sprintf("[%s]", strings.Join(filteredMembers, ",")))
+
+		// Make the PUT request
+		res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devicegroups/devicegrouprecords"+"/"+url.QueryEscape(stateDeviceGroup.ValueString()), request, reqMods...)
+		if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to remove (PUT) device from current device group, got error: %s, %s", err, res.String()))}
+		}
+	}
+
+	if !planDeviceGroup.IsNull() {
+		// Get Device Group to which device needs to be assigned
+		res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devicegroups/devicegrouprecords"+"/"+url.QueryEscape(planDeviceGroup.ValueString()), reqMods...)
+		if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to get destination device group (GET), got error: %s, %s", err, res.String()))}
+		}
+
+		// Put device to new device group
+		// Device Group endpoint returns 'metadata' twice in the response, which breaks sjson.Delete. Hence we copy needed fields to a new JSON.
+		var request = ""
+		resString := res.String()
+		request, _ = sjson.Set(request, "id", gjson.Get(resString, "id").String())
+		request, _ = sjson.Set(request, "type", gjson.Get(resString, "type").String())
+		request, _ = sjson.Set(request, "name", gjson.Get(resString, "name").String())
+		members := gjson.Get(resString, "members")
+		if members.Exists() {
+			request, _ = sjson.SetRaw(request, "members", members.Raw)
+		} else {
+			request, _ = sjson.SetRaw(request, "members", "[]")
+		}
+		request, _ = sjson.SetRaw(request, "members.-1", fmt.Sprintf(`{"id":"%s"}`, deviceId))
+		res, err = r.client.Put("/api/fmc_config/v1/domain/{DOMAIN_UUID}/devicegroups/devicegrouprecords"+"/"+url.QueryEscape(planDeviceGroup.ValueString()), request, reqMods...)
+		if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", fmt.Sprintf("Failed to add (PUT) device to new device group, got error: %s, %s", err, res.String()))}
+		}
 	}
 
 	return nil

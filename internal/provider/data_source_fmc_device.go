@@ -253,15 +253,14 @@ func (d *DeviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	config.fromBody(ctx, res)
-
-	policies, err := d.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments?offset=0&limit=1000&expanded=true", reqMods...)
+	policies, err := d.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments?expanded=true", reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object, got error: %s", err))
 		return
 	}
 
-	config.fromPolicyBody(ctx, policies)
+	res = config.fromBodyPolicy(ctx, res, policies)
+	config.fromBody(ctx, res)
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Read finished successfully", config.Id.ValueString()))
 

@@ -51,8 +51,6 @@ resource "fmc_device" "example" {
 - `prohibit_packet_transfer` (Boolean) Value true prohibits the device from sending packet data with events to the Firepower Management Center. Value false allows the transfer when a certain event is triggered. Not all traffic data is sent; connection events do not include a payload, only connection metadata.
 - `snort_engine` (String) Performance tier for the managed device, applicable only to vFTD devices >=6.8.0.
   - Choices: `SNORT2`, `SNORT3`
-- `type` (String) Type of the device; this value is always 'Device'.
-  - Default value: `Device`
 
 ### Read-Only
 
@@ -69,6 +67,7 @@ resource "fmc_device" "example" {
 - `info_snort_version` (String) Snort Version - Informational only.
 - `info_vdb_version` (String) VDB Version - Informational only.
 - `info_version` (String) Version of the registered device - Informational only.
+- `type` (String) Type of the device; this value is always 'Device'.
 
 ## Import
 

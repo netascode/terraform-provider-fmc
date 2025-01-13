@@ -107,7 +107,6 @@ func testAccFmcDeviceConfig_minimum() string {
 func testAccFmcDeviceConfig_all() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "MyDeviceName1"` + "\n"
-	config += `	type = ""` + "\n"
 	config += `	host_name = var.device_ip` + "\n"
 	config += `	nat_id = ""` + "\n"
 	config += `	license_capabilities = ["ESSENTIALS"]` + "\n"

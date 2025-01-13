@@ -9,13 +9,17 @@ attributes:
     type: String
     mandatory: true
     description: User-specified name, must be unique.
-    data_source_query: true    
+    data_source_query: true
     example: MyDeviceName1
+  # type is set twice on purpose - to make sure this is part of POST request and to make it computed field
   - model_name: type
     type: String
     description: Type of the device; this value is always 'Device'.
-    exclude_example: true
-    default_value: Device  # cannot be computed as type is required during the registration process    
+    value: Device
+  - model_name: type
+    type: String
+    description: Type of the device; this value is always 'Device'.
+    computed: true
   - model_name: hostName
     type: String
     description: Hostname or IP address of the device. Either the host_name or nat_id must be present.
@@ -46,7 +50,7 @@ attributes:
     test_value: var.device_registration_key
   - model_name: id
     tf_name: device_group_id
-    data_path: [ deviceGroup ]    
+    data_path: [ deviceGroup ]
     type: String
     description: ID of the device group.
     exclude_example: true
@@ -87,7 +91,8 @@ attributes:
     description: The UUID of the assigned NAT policy.
     exclude_example: true
     exclude_test: true
-  - model_name: dummy_health_policy_id
+  - model_name: id
+    data_path: [ healthPolicy ]
     tf_name: health_policy_id
     type: String
     description: The UUID of the assigned Health policy.
