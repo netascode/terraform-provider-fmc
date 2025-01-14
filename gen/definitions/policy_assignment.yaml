@@ -1,0 +1,56 @@
+---
+name: Policy Assignment
+rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments
+no_delete: true
+doc_category: Policy Assignments
+test_tags: [TF_VAR_target_id]
+attributes:
+  - model_name: type
+    type: String
+    value: "PolicyAssignment"
+  - model_name: name
+    type: String
+    description: Name of the policy to be assigned.
+    mandatory: false
+    example: AccessPolicyName
+    data_path: ["policy"]
+    exclude_example: true
+    exclude_test: true    
+  - model_name: id
+    tf_name: policy_id
+    type: String
+    description: ID of the policy to be assigned.
+    id: true
+    mandatory: true
+    example: 0050568A-2561-0ed3-0000-004294972836
+    data_path: ["policy"]
+    test_value: fmc_access_control_policy.example.id
+  - model_name: targets
+    type: Set
+    mandatory: true
+    attributes:
+      - model_name: id
+        type: String
+        id: true
+        mandatory: true
+        example: "9862719c-8d5f-11ef-99a6-aef0794da1c1"
+        test_value: var.target_id
+      - model_name: type
+        type: String
+        enum_values: [Device,DeviceHAPair,DeviceGroup]
+        mandatory: true
+        example: Device
+
+test_prerequisites: |-
+  resource "fmc_access_control_policy" "example" {
+      categories                        = []
+      default_action                    = "BLOCK"
+      default_action_log_begin          = false
+      default_action_log_end            = false
+      default_action_send_events_to_fmc = false
+      default_action_send_syslog        = false
+      name                              = "policy-example-test"
+      rules                             = []
+  }
+
+  variable "target_id" { default = null } // tests will set $TF_VAR_target_id
