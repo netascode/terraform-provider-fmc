@@ -65,7 +65,11 @@ func (d *PolicyAssignmentDataSource) Schema(ctx context.Context, req datasource.
 				MarkdownDescription: "The name of the FMC domain",
 				Optional:            true,
 			},
-			"name": schema.StringAttribute{
+			"type": schema.StringAttribute{
+				MarkdownDescription: "Type of the object; this is always 'PolicyAssignment'",
+				Computed:            true,
+			},
+			"policy_name": schema.StringAttribute{
 				MarkdownDescription: "Name of the policy to be assigned.",
 				Computed:            true,
 			},
@@ -73,17 +77,25 @@ func (d *PolicyAssignmentDataSource) Schema(ctx context.Context, req datasource.
 				MarkdownDescription: "ID of the policy to be assigned.",
 				Computed:            true,
 			},
+			"policy_type": schema.StringAttribute{
+				MarkdownDescription: "Type of the policy to be assigned.",
+				Computed:            true,
+			},
+			"after_destroy_policy_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the Policy to be assigned after this policy assignment is destroyed. Applicable for Health and Access Control Policies only.",
+				Computed:            true,
+			},
 			"targets": schema.SetNestedAttribute{
-				MarkdownDescription: "",
+				MarkdownDescription: "List of devices to which policy should be attached",
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "ID of the device to which policy should be attached",
 							Computed:            true,
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: "",
+							MarkdownDescription: "Type of the device to which policy should be attached",
 							Computed:            true,
 						},
 					},

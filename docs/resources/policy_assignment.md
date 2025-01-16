@@ -14,7 +14,9 @@ This resource can manage a Policy Assignment.
 
 ```terraform
 resource "fmc_policy_assignment" "example" {
-  policy_id = "0050568A-2561-0ed3-0000-004294972836"
+  policy_id               = "0050568A-2561-0ed3-0000-004294972836"
+  policy_type             = "FTDNatPolicy"
+  after_destroy_policy_id = "0050568A-2561-0ed3-0000-004294972836"
   targets = [
     {
       id   = "9862719c-8d5f-11ef-99a6-aef0794da1c1"
@@ -30,24 +32,29 @@ resource "fmc_policy_assignment" "example" {
 ### Required
 
 - `policy_id` (String) ID of the policy to be assigned.
-- `targets` (Attributes Set) (see [below for nested schema](#nestedatt--targets))
+- `policy_type` (String) Type of the policy to be assigned.
+  - Choices: `FTDNatPolicy`, `HealthPolicy`, `AccessPolicy`
+- `targets` (Attributes Set) List of devices to which policy should be attached (see [below for nested schema](#nestedatt--targets))
 
 ### Optional
 
+- `after_destroy_policy_id` (String) ID of the Policy to be assigned after this policy assignment is destroyed. Applicable for Health and Access Control Policies only.
 - `domain` (String) The name of the FMC domain
-- `name` (String) Name of the policy to be assigned.
 
 ### Read-Only
 
 - `id` (String) The id of the object
+- `policy_name` (String) Name of the policy to be assigned.
+- `type` (String) Type of the object; this is always 'PolicyAssignment'
 
 <a id="nestedatt--targets"></a>
 ### Nested Schema for `targets`
 
 Required:
 
-- `id` (String)
-- `type` (String) - Choices: `Device`, `DeviceHAPair`, `DeviceGroup`
+- `id` (String) ID of the device to which policy should be attached
+- `type` (String) Type of the device to which policy should be attached
+  - Choices: `Device`, `DeviceHAPair`, `DeviceGroup`
 
 ## Import
 

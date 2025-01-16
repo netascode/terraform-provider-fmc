@@ -30,18 +30,16 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
 func TestAccFmcPolicyAssignment(t *testing.T) {
-	if os.Getenv("TF_VAR_target_id") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_target_id")
+	if os.Getenv("TF_VAR_device_id") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id")
 	}
 	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_policy_assignment.test", "type"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_policy_assignment.test", "policy_name"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_policy_assignment.test", "policy_type", "FTDNatPolicy"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_policy_assignment.test", "targets.0.type", "Device"))
 
 	var steps []resource.TestStep
-	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
-		steps = append(steps, resource.TestStep{
-			Config: testAccFmcPolicyAssignmentPrerequisitesConfig + testAccFmcPolicyAssignmentConfig_minimum(),
-		})
-	}
 	steps = append(steps, resource.TestStep{
 		Config: testAccFmcPolicyAssignmentPrerequisitesConfig + testAccFmcPolicyAssignmentConfig_all(),
 		Check:  resource.ComposeTestCheckFunc(checks...),
@@ -64,44 +62,26 @@ func TestAccFmcPolicyAssignment(t *testing.T) {
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
 const testAccFmcPolicyAssignmentPrerequisitesConfig = `
-resource "fmc_access_control_policy" "example" {
-    categories                        = []
-    default_action                    = "BLOCK"
-    default_action_log_begin          = false
-    default_action_log_end            = false
-    default_action_send_events_to_fmc = false
-    default_action_send_syslog        = false
-    name                              = "policy-example-test"
-    rules                             = []
+resource "fmc_ftd_nat_policy" "example" {
+  name = "pa_nat_policy"
 }
 
-variable "target_id" { default = null } // tests will set $TF_VAR_target_id
+variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 `
 
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
-
-func testAccFmcPolicyAssignmentConfig_minimum() string {
-	config := `resource "fmc_policy_assignment" "test" {` + "\n"
-	config += `	policy_id = fmc_access_control_policy.example.id` + "\n"
-	config += `	targets = [{` + "\n"
-	config += `		id = var.target_id` + "\n"
-	config += `		type = "Device"` + "\n"
-	config += `	}]` + "\n"
-	config += `}` + "\n"
-	return config
-}
-
 // End of section. //template:end testAccConfigMinimal
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 
 func testAccFmcPolicyAssignmentConfig_all() string {
 	config := `resource "fmc_policy_assignment" "test" {` + "\n"
-	config += `	policy_id = fmc_access_control_policy.example.id` + "\n"
+	config += `	policy_id = fmc_ftd_nat_policy.example.id` + "\n"
+	config += `	policy_type = "FTDNatPolicy"` + "\n"
 	config += `	targets = [{` + "\n"
-	config += `		id = var.target_id` + "\n"
+	config += `		id = var.device_id` + "\n"
 	config += `		type = "Device"` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"

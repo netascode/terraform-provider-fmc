@@ -34,11 +34,14 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
 type PolicyAssignment struct {
-	Id       types.String              `tfsdk:"id"`
-	Domain   types.String              `tfsdk:"domain"`
-	Name     types.String              `tfsdk:"name"`
-	PolicyId types.String              `tfsdk:"policy_id"`
-	Targets  []PolicyAssignmentTargets `tfsdk:"targets"`
+	Id                   types.String              `tfsdk:"id"`
+	Domain               types.String              `tfsdk:"domain"`
+	Type                 types.String              `tfsdk:"type"`
+	PolicyName           types.String              `tfsdk:"policy_name"`
+	PolicyId             types.String              `tfsdk:"policy_id"`
+	PolicyType           types.String              `tfsdk:"policy_type"`
+	AfterDestroyPolicyId types.String              `tfsdk:"after_destroy_policy_id"`
+	Targets              []PolicyAssignmentTargets `tfsdk:"targets"`
 }
 
 type PolicyAssignmentTargets struct {
@@ -63,12 +66,14 @@ func (data PolicyAssignment) toBody(ctx context.Context, state PolicyAssignment)
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
 	}
-	body, _ = sjson.Set(body, "type", "PolicyAssignment")
-	if !data.Name.IsNull() {
-		body, _ = sjson.Set(body, "policy.name", data.Name.ValueString())
-	}
 	if !data.PolicyId.IsNull() {
 		body, _ = sjson.Set(body, "policy.id", data.PolicyId.ValueString())
+	}
+	if !data.PolicyType.IsNull() {
+		body, _ = sjson.Set(body, "policy.type", data.PolicyType.ValueString())
+	}
+	if !data.AfterDestroyPolicyId.IsNull() {
+		body, _ = sjson.Set(body, "dummy_after_destroy_policy_id", data.AfterDestroyPolicyId.ValueString())
 	}
 	if len(data.Targets) > 0 {
 		body, _ = sjson.Set(body, "targets", []interface{}{})
@@ -91,15 +96,25 @@ func (data PolicyAssignment) toBody(ctx context.Context, state PolicyAssignment)
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
 func (data *PolicyAssignment) fromBody(ctx context.Context, res gjson.Result) {
-	if value := res.Get("policy.name"); value.Exists() {
-		data.Name = types.StringValue(value.String())
+	if value := res.Get("type"); value.Exists() {
+		data.Type = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.Type = types.StringNull()
+	}
+	if value := res.Get("policy.name"); value.Exists() {
+		data.PolicyName = types.StringValue(value.String())
+	} else {
+		data.PolicyName = types.StringNull()
 	}
 	if value := res.Get("policy.id"); value.Exists() {
 		data.PolicyId = types.StringValue(value.String())
 	} else {
 		data.PolicyId = types.StringNull()
+	}
+	if value := res.Get("policy.type"); value.Exists() {
+		data.PolicyType = types.StringValue(value.String())
+	} else {
+		data.PolicyType = types.StringNull()
 	}
 	if value := res.Get("targets"); value.Exists() {
 		data.Targets = make([]PolicyAssignmentTargets, 0)
@@ -131,15 +146,25 @@ func (data *PolicyAssignment) fromBody(ctx context.Context, res gjson.Result) {
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
 func (data *PolicyAssignment) fromBodyPartial(ctx context.Context, res gjson.Result) {
-	if value := res.Get("policy.name"); value.Exists() && !data.Name.IsNull() {
-		data.Name = types.StringValue(value.String())
+	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+		data.Type = types.StringValue(value.String())
 	} else {
-		data.Name = types.StringNull()
+		data.Type = types.StringNull()
+	}
+	if value := res.Get("policy.name"); value.Exists() && !data.PolicyName.IsNull() {
+		data.PolicyName = types.StringValue(value.String())
+	} else {
+		data.PolicyName = types.StringNull()
 	}
 	if value := res.Get("policy.id"); value.Exists() && !data.PolicyId.IsNull() {
 		data.PolicyId = types.StringValue(value.String())
 	} else {
 		data.PolicyId = types.StringNull()
+	}
+	if value := res.Get("policy.type"); value.Exists() && !data.PolicyType.IsNull() {
+		data.PolicyType = types.StringValue(value.String())
+	} else {
+		data.PolicyType = types.StringNull()
 	}
 	for i := 0; i < len(data.Targets); i++ {
 		keys := [...]string{"id"}
@@ -198,6 +223,20 @@ func (data *PolicyAssignment) fromBodyPartial(ctx context.Context, res gjson.Res
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *PolicyAssignment) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
+	if data.PolicyName.IsUnknown() {
+		if value := res.Get("policy.name"); value.Exists() {
+			data.PolicyName = types.StringValue(value.String())
+		} else {
+			data.PolicyName = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns
