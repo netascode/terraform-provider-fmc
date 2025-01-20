@@ -41,25 +41,25 @@ import (
 
 // Ensure provider defined types fully satisfy framework interfaces
 var (
-	_ resource.Resource = &DeployResource{}
+	_ resource.Resource = &DeviceDeployResource{}
 )
 
-func NewDeployResource() resource.Resource {
-	return &DeployResource{}
+func NewDeviceDeployResource() resource.Resource {
+	return &DeviceDeployResource{}
 }
 
-type DeployResource struct {
+type DeviceDeployResource struct {
 	client *fmc.Client
 }
 
-func (r *DeployResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_deploy"
+func (r *DeviceDeployResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_deploy"
 }
 
-func (r *DeployResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DeviceDeployResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Deploy.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device Deploy.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -97,7 +97,7 @@ func (r *DeployResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	}
 }
 
-func (r *DeployResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *DeviceDeployResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -107,8 +107,8 @@ func (r *DeployResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 // End of section. //template:end model
 
-func (r *DeployResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan Deploy
+func (r *DeviceDeployResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan DeviceDeploy
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -134,8 +134,8 @@ func (r *DeployResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *DeployResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state Deploy
+func (r *DeviceDeployResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state DeviceDeploy
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -151,8 +151,8 @@ func (r *DeployResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *DeployResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan Deploy
+func (r *DeviceDeployResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan DeviceDeploy
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -177,8 +177,8 @@ func (r *DeployResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 // Section below is generated&owned by "gen/generator.go". //template:begin delete
 
-func (r *DeployResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state Deploy
+func (r *DeviceDeployResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state DeviceDeploy
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -201,7 +201,7 @@ func (r *DeployResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 // End of section. //template:end delete
 
-func (r *DeployResource) triggerDeployment(ctx context.Context, plan Deploy, reqMods [](func(*fmc.Req))) diag.Diagnostics {
+func (r *DeviceDeployResource) triggerDeployment(ctx context.Context, plan DeviceDeploy, reqMods [](func(*fmc.Req))) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Triggering deployment", plan.Id.ValueString()))
@@ -261,7 +261,7 @@ func (r *DeployResource) triggerDeployment(ctx context.Context, plan Deploy, req
 	if len(deviceIdsSlice) > 0 {
 		// Trigger deployment if any devices are in deployable state
 		tflog.Debug(ctx, fmt.Sprintf("%s: Deploying devices: %v", plan.Id.ValueString(), deviceIdsSlice))
-		body := plan.toBody(ctx, Deploy{})
+		body := plan.toBody(ctx, DeviceDeploy{})
 		res, err := r.client.Post(plan.getPath(), body, reqMods...)
 		if err != nil {
 			diags.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))

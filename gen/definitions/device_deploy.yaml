@@ -1,5 +1,5 @@
 ---
-name: Deploy
+name: Device Deploy
 rest_endpoint: /api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/deploymentrequests
 no_data_source: true
 no_import: true

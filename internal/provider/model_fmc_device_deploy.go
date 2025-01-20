@@ -31,7 +31,7 @@ import (
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
 
-type Deploy struct {
+type DeviceDeploy struct {
 	Id             types.String `tfsdk:"id"`
 	Domain         types.String `tfsdk:"domain"`
 	Version        types.String `tfsdk:"version"`
@@ -44,7 +44,7 @@ type Deploy struct {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPath
 
-func (data Deploy) getPath() string {
+func (data DeviceDeploy) getPath() string {
 	return "/api/fmc_config/v1/domain/{DOMAIN_UUID}/deployment/deploymentrequests"
 }
 
@@ -52,7 +52,7 @@ func (data Deploy) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
 
-func (data Deploy) toBody(ctx context.Context, state Deploy) string {
+func (data DeviceDeploy) toBody(ctx context.Context, state DeviceDeploy) string {
 	body := ""
 	if data.Id.ValueString() != "" {
 		body, _ = sjson.Set(body, "id", data.Id.ValueString())
@@ -79,7 +79,7 @@ func (data Deploy) toBody(ctx context.Context, state Deploy) string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
 
-func (data *Deploy) fromBody(ctx context.Context, res gjson.Result) {
+func (data *DeviceDeploy) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("version"); value.Exists() {
 		data.Version = types.StringValue(value.String())
 	} else {
@@ -110,7 +110,7 @@ func (data *Deploy) fromBody(ctx context.Context, res gjson.Result) {
 // uncouple the provider from the exact values that the backend API might summon to replace nulls. (Such behavior might
 // easily change across versions of the backend API.) For List/Set/Map attributes, the func only updates the
 // "managed" elements, instead of all elements.
-func (data *Deploy) fromBodyPartial(ctx context.Context, res gjson.Result) {
+func (data *DeviceDeploy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	if value := res.Get("version"); value.Exists() && !data.Version.IsNull() {
 		data.Version = types.StringValue(value.String())
 	} else {
@@ -139,7 +139,7 @@ func (data *Deploy) fromBodyPartial(ctx context.Context, res gjson.Result) {
 
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
-func (data *Deploy) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+func (data *DeviceDeploy) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 }
 
 // End of section. //template:end fromBodyUnknowns

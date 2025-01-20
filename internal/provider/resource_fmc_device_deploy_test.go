@@ -27,7 +27,7 @@ import (
 
 // End of section. //template:end imports
 
-func TestAccFmcDeploy(t *testing.T) {
+func TestAccFmcDeviceDeploy(t *testing.T) {
 	if os.Getenv("TF_VAR_device_id") == "" {
 		t.Skip("skipping test, set environment variable TF_VAR_device_id")
 	}
@@ -36,12 +36,12 @@ func TestAccFmcDeploy(t *testing.T) {
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
 		steps = append(steps, resource.TestStep{
-			Config:             testAccFmcDeployPrerequisitesConfig + testAccFmcDeployConfig_minimum(),
+			Config:             testAccFmcDeviceDeployPrerequisitesConfig + testAccFmcDeviceDeployConfig_minimum(),
 			ExpectNonEmptyPlan: true,
 		})
 	}
 	steps = append(steps, resource.TestStep{
-		Config:             testAccFmcDeployPrerequisitesConfig + testAccFmcDeployConfig_all(),
+		Config:             testAccFmcDeviceDeployPrerequisitesConfig + testAccFmcDeviceDeployConfig_all(),
 		Check:              resource.ComposeTestCheckFunc(checks...),
 		ExpectNonEmptyPlan: true,
 	})
@@ -56,7 +56,7 @@ func TestAccFmcDeploy(t *testing.T) {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
 
-const testAccFmcDeployPrerequisitesConfig = `
+const testAccFmcDeviceDeployPrerequisitesConfig = `
 
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 `
@@ -65,8 +65,8 @@ variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigMinimal
 
-func testAccFmcDeployConfig_minimum() string {
-	config := `resource "fmc_deploy" "test" {` + "\n"
+func testAccFmcDeviceDeployConfig_minimum() string {
+	config := `resource "fmc_device_deploy" "test" {` + "\n"
 	config += `	device_list = [var.device_id]` + "\n"
 	config += `}` + "\n"
 	return config
@@ -76,8 +76,8 @@ func testAccFmcDeployConfig_minimum() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccConfigAll
 
-func testAccFmcDeployConfig_all() string {
-	config := `resource "fmc_deploy" "test" {` + "\n"
+func testAccFmcDeviceDeployConfig_all() string {
+	config := `resource "fmc_device_deploy" "test" {` + "\n"
 	config += `	device_list = [var.device_id]` + "\n"
 	config += `}` + "\n"
 	return config
