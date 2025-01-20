@@ -333,16 +333,20 @@ func (r *DeviceResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Configuring the non-access policy assignments", plan.Id.ValueString()))
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, resp.State, reqMods...)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	if !plan.NatPolicyId.IsNull() {
+		diags = r.updatePolicy(ctx, plan.Id, path.Root("nat_policy_id"), req.Plan, resp.State, reqMods...)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
-	diags = r.updatePolicy(ctx, plan.Id, path.Root("health_policy_id"), req.Plan, resp.State, reqMods...)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	if !plan.HealthPolicyId.IsNull() {
+		diags = r.updatePolicy(ctx, plan.Id, path.Root("health_policy_id"), req.Plan, resp.State, reqMods...)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	// Let long-running deployment finish because it enables DELETE verb. Our tests really expect that.
@@ -523,7 +527,10 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.Stri
 	defer policyMu.Unlock()
 
 	if planPolicy.IsNull() {
-		res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments"+"/"+url.QueryEscape(statePolicy.ValueString()), reqMods...)
+		if policyPath.String() == "health_policy_id" {
+			return nil
+		}
+		res, err := r.client.Get("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments/"+url.QueryEscape(statePolicy.ValueString()), reqMods...)
 		if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 			return nil
 		} else if err != nil {
@@ -548,6 +555,25 @@ func (r *DeviceResource) updatePolicy(ctx context.Context, device basetypes.Stri
 			return diag.Diagnostics{diag.NewErrorDiagnostic(
 				"Client Error",
 				fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()),
+			)}
+		}
+		return nil
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("policy path: %s", policyPath.String()))
+	if policyPath.String() == "health_policy_id" {
+		stub, _ := sjson.Set("{}", "id", planPolicy.ValueString())
+		stub, _ = sjson.Set(stub, "policy.id", planPolicy.ValueString())
+		stub, _ = sjson.Set(stub, "policy.type", "HealthPolicy")
+		stub, _ = sjson.Set(stub, "targets", []any{})
+		stubdev, _ := sjson.Set("{}", "id", devId)
+		stubdev, _ = sjson.Set(stubdev, "type", "Device")
+		stub, _ = sjson.SetRaw(stub, "targets.-1", stubdev)
+		res, err := r.client.Post("/api/fmc_config/v1/domain/{DOMAIN_UUID}/assignment/policyassignments", stub, reqMods...)
+		if err != nil {
+			return diag.Diagnostics{diag.NewErrorDiagnostic(
+				"Client Error",
+				fmt.Sprintf("Failed to configure object (POST), got error: %s, %s", err, res.String()),
 			)}
 		}
 		return nil
