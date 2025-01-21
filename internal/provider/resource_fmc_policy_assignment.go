@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -40,6 +41,13 @@ import (
 )
 
 // End of section. //template:end imports
+
+/*
+	Each device must have Access Control Policy and Health Policy attached.
+	When policy assignment is updated, the device is automatically removed from previous attachment.
+	Health policy is always assigned by POST request with only devices that need to be assigned. Adding already assigned devices would trigger re-assignment and re-deploy.
+	Other policies with each POST/PUT request require all devices that should be attached.
+*/
 
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
@@ -148,6 +156,8 @@ func (r *PolicyAssignmentResource) Configure(_ context.Context, req resource.Con
 
 func (r *PolicyAssignmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan PolicyAssignment
+	var res gjson.Result
+	var err error
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -161,57 +171,40 @@ func (r *PolicyAssignmentResource) Create(ctx context.Context, req resource.Crea
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
-
 	// make sure only one policy assignment is updated at a time
 	policyMu.Lock()
 	defer policyMu.Unlock()
 
-	// Check if policy assignment already exists
-	// For Update requests it may not exist in case all devices are re-assigned to other policies (i.a. other TF resource)
-	res, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.PolicyId.ValueString()), reqMods...)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment does not exist", plan.Id.ValueString()))
-
-		// Create object (POST)
-		body := plan.toBody(ctx, PolicyAssignment{})
-		body, _ = sjson.Delete(body, "dummy_after_destroy_policy_id")
-
-		res, err = r.client.Post(plan.getPath(), body, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-			return
-		}
-	} else if err != nil {
-		// Failed to retrieve policy assignments
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
+	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.Id.ValueString()))
+	// Check if this is Health Policy, as this is handled differently
+	if plan.PolicyType.ValueString() == "HealthPolicy" {
+		res, diags = r.createPolicyAssignment(ctx, plan, reqMods...)
+		resp.Diagnostics.Append(diags...)
 	} else {
-		// Policy assignment already exists - need to update it
-		tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", plan.Id.ValueString()))
-
-		// Update object (PUT)
-		updateBody := res.String()
-		updateBody, _ = sjson.Delete(updateBody, "links")
-
-		// Update target list
-		for _, target := range plan.Targets {
-			if !res.Get(fmt.Sprintf("targets.#(id==%s)", target.Id.ValueString())).Exists() {
-				updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
-					"id":   target.Id.ValueString(),
-					"type": target.Type.ValueString(),
-				})
+		// Check if policy assignment already exists
+		res, err = r.client.Get(plan.getPath()+"/"+url.QueryEscape(plan.PolicyId.ValueString()), reqMods...)
+		if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+			// Policy assignment does not exist - need to create it
+			tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment does not exist", plan.Id.ValueString()))
+			res, diags = r.createPolicyAssignment(ctx, plan, reqMods...)
+			if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+				return
 			}
-		}
-
-		// Update object
-		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.PolicyId.ValueString()), updateBody, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update policy assignment (PUT), got error: %s, %s", err, res.String()))
+		} else if err != nil {
+			// Failed to retrieve policy assignments
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 			return
+		} else {
+			// Policy assignment already exists - need to update it
+			tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", plan.Id.ValueString()))
+			res, diags = r.updatePolicyAssignment(ctx, res, plan, PolicyAssignment{}, plan, reqMods...)
+			if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+				return
+			}
 		}
 	}
 
+	// Extract object ID (Equal to policy ID)
 	plan.Id = types.StringValue(res.Get("id").String())
 	plan.fromBodyUnknowns(ctx, res)
 
@@ -276,8 +269,8 @@ func (r *PolicyAssignmentResource) Read(ctx context.Context, req resource.ReadRe
 // End of section. //template:end read
 
 func (r *PolicyAssignmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Update assigns policy to device once on the list
 	var plan, state PolicyAssignment
+	var toAdd, toRemove PolicyAssignment
 
 	// Read plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -297,86 +290,92 @@ func (r *PolicyAssignmentResource) Update(ctx context.Context, req resource.Upda
 		reqMods = append(reqMods, fmc.DomainName(plan.Domain.ValueString()))
 	}
 
+	// Compute list of targets that should be removed (exist in state, but not in plan)
+	toRemove = plan
+	toRemove.Targets = []PolicyAssignmentTargets{}
+	for _, target := range state.Targets {
+		if !plan.containsTarget(target) {
+			toRemove.Targets = append(toRemove.Targets, target)
+		}
+	}
+
+	// Compute list of targets that should be added (exist in plan, but not in state)
+	toAdd = plan
+	toAdd.Targets = []PolicyAssignmentTargets{}
+	for _, target := range plan.Targets {
+		if !state.containsTarget(target) {
+			toAdd.Targets = append(toAdd.Targets, target)
+		}
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
 	// make sure only one policy assignment is updated at a time
 	policyMu.Lock()
 	defer policyMu.Unlock()
 
-	urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
-	res, err := r.client.Get(urlPath, reqMods...)
-	if err != nil && (strings.Contains(err.Error(), "StatusCode 404") || strings.Contains(err.Error(), "StatusCode 500")) {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment does not exist", plan.Id.ValueString()))
-
-		// Create object (POST)
-		body := plan.toBody(ctx, PolicyAssignment{})
-		body, _ = sjson.Delete(body, "dummy_after_destroy_policy_id")
-
-		res, err = r.client.Post(plan.getPath(), body, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-			return
+	// Check if this is Health Policy, as this is handled differently
+	if state.PolicyType.ValueString() == "HealthPolicy" {
+		// Check if there are any devices to be removed and policy `after destroy` is set
+		if !state.AfterDestroyPolicyId.IsNull() && len(toRemove.Targets) > 0 {
+			toRemove.PolicyId = state.AfterDestroyPolicyId
+			_, diags = r.createPolicyAssignment(ctx, toRemove, reqMods...)
+			resp.Diagnostics.Append(diags...)
 		}
-	} else if err != nil {
-		// Failed to retrieve policy assignments
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-		return
+		if len(toAdd.Targets) > 0 {
+			_, diags = r.createPolicyAssignment(ctx, toAdd, reqMods...)
+			resp.Diagnostics.Append(diags...)
+		}
+		plan.PolicyName = types.StringNull()
 	} else {
-		// Policy assignment already exists - need to update it (PUT)
-		tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", plan.Id.ValueString()))
-
-		updateBody := res.String()
-		updateBody, _ = sjson.Delete(updateBody, "links")
-
-		if state.PolicyType.ValueString() == "AccessPolicy" || state.PolicyType.ValueString() == "HealthPolicy" {
-			// Update target list
-			for _, target := range plan.Targets {
-				if !res.Get(fmt.Sprintf("targets.#(id==%s)", target.Id.ValueString())).Exists() {
-					updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
-						"id":   target.Id.ValueString(),
-						"type": target.Type.ValueString(),
-					})
+		// This is policy other than Health Policy
+		// Check if Access Policy target needs to be re-assigned
+		if state.PolicyType.ValueString() == "AccessPolicy" && len(toRemove.Targets) > 0 && !plan.AfterDestroyPolicyId.IsNull() {
+			toRemove.PolicyId = plan.AfterDestroyPolicyId
+			res, err := r.client.Get(plan.getPath()+"/"+url.QueryEscape(toRemove.PolicyId.ValueString()), reqMods...)
+			if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+				// Policy assignment does not exist - need to create it
+				tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment does not exist", plan.Id.ValueString()))
+				_, diags = r.createPolicyAssignment(ctx, toRemove, reqMods...)
+				if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+					return
 				}
-			}
-		} else {
-			// Get list of IDs from devices from state
-			var stateTargets = make([]string, len(state.Targets))
-			for _, target := range state.Targets {
-				stateTargets = append(stateTargets, target.Id.ValueString())
-			}
-
-			// Update target list - remove all devices from state
-			existingTargets := gjson.Get(updateBody, "targets").Array()
-			updateBody, _ = sjson.Set(updateBody, "targets", []interface{}{})
-			for _, target := range existingTargets {
-				if !helpers.Contains(stateTargets, target.Get("id").String()) {
-					updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
-						"id":   target.Get("id").String(),
-						"type": target.Get("type").String(),
-					})
-				}
-			}
-
-			// temporary variable for JSON lookups
-			tmpUpdateBody := gjson.Parse(updateBody)
-
-			// Add devices from plan
-			for _, target := range plan.Targets {
-				tflog.Debug(ctx, fmt.Sprintf("target: %s", target.Id.ValueString()))
-				if !tmpUpdateBody.Get(fmt.Sprintf("targets.#(id==%s)", target.Id.String())).Exists() {
-					updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
-						"id":   target.Id.ValueString(),
-						"type": target.Type.ValueString(),
-					})
+			} else if err != nil {
+				// Failed to retrieve policy assignments
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
+				return
+			} else {
+				// Policy assignment already exists - need to update it
+				tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", plan.Id.ValueString()))
+				_, diags = r.updatePolicyAssignment(ctx, res, toRemove, toRemove, PolicyAssignment{}, reqMods...)
+				if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+					return
 				}
 			}
 		}
 
-		// Update object
-		res, err = r.client.Put(plan.getPath()+"/"+url.QueryEscape(plan.PolicyId.ValueString()), updateBody, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update policy assignment (PUT), got error: %s, %s", err, res.String()))
+		// Check if policy assignment exists
+		// It may not exist if devices were reassigned to other policies outside of this resource
+		urlPath := state.getPath() + "/" + url.QueryEscape(state.Id.ValueString())
+		res, err := r.client.Get(urlPath, reqMods...)
+		if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+			// Policy assignment does not exist - need to create it
+			tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment does not exist", plan.Id.ValueString()))
+			_, diags := r.createPolicyAssignment(ctx, plan, reqMods...)
+			if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+				return
+			}
+		} else if err != nil {
+			// Failed to retrieve policy assignments
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 			return
+		} else {
+			// Policy assignment already exists - need to update it (PUT)
+			tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", plan.Id.ValueString()))
+			_, diags := r.updatePolicyAssignment(ctx, res, plan, toRemove, toAdd, reqMods...)
+			if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+				return
+			}
 		}
 	}
 
@@ -387,6 +386,7 @@ func (r *PolicyAssignmentResource) Update(ctx context.Context, req resource.Upda
 }
 
 func (r *PolicyAssignmentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// There is no DELETE endpoint for this resource. Every update happens through PUT request or re-assignment.
 	var state PolicyAssignment
 
 	// Read state
@@ -406,101 +406,60 @@ func (r *PolicyAssignmentResource) Delete(ctx context.Context, req resource.Dele
 	defer policyMu.Unlock()
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
+	// Check if this is Health Policy, as this is handled differently
 	if state.PolicyType.ValueString() == "HealthPolicy" {
-		state.PolicyId = state.AfterDestroyPolicyId
-
-		// Create object (POST)
-		body := state.toBody(ctx, PolicyAssignment{})
-		body, _ = sjson.Delete(body, "dummy_after_destroy_policy_id")
-
-		res, err := r.client.Post(state.getPath(), body, reqMods...)
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-			return
+		if state.AfterDestroyPolicyId.IsNull() {
+			tflog.Debug(ctx, fmt.Sprintf("%s: No after destroy policy ID provided", state.Id.ValueString()))
+		} else {
+			state.PolicyId = state.AfterDestroyPolicyId
+			_, diags := r.createPolicyAssignment(ctx, state, reqMods...)
+			resp.Diagnostics.Append(diags...)
 		}
 	} else if state.PolicyType.ValueString() == "AccessPolicy" {
-		res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.AfterDestroyPolicyId.ValueString()), reqMods...)
-		if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
-			tflog.Debug(ctx, fmt.Sprintf("%s: After destroy policy assignment does not exist", state.Id.ValueString()))
-
-			state.PolicyId = state.AfterDestroyPolicyId
-
-			// Create object (POST)
-			body := state.toBody(ctx, PolicyAssignment{})
-			body, _ = sjson.Delete(body, "dummy_after_destroy_policy_id")
-
-			res, err = r.client.Post(state.getPath(), body, reqMods...)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
-				return
-			}
-		} else if err != nil {
-			// Failed to retrieve policy assignments
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
-			return
+		if state.AfterDestroyPolicyId.IsNull() {
+			// No 'after destroy' policy ID provided - just remove the policy assignment resource
+			tflog.Debug(ctx, fmt.Sprintf("%s: No after destroy policy ID provided", state.Id.ValueString()))
 		} else {
-			// Policy assignment already exists - need to update it
-			tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", state.Id.ValueString()))
+			// 'After destroy' policy ID provided - reassign devices to the new policy
+			res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.AfterDestroyPolicyId.ValueString()), reqMods...)
+			if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
+				tflog.Debug(ctx, fmt.Sprintf("%s: After destroy policy assignment does not exist", state.Id.ValueString()))
 
-			// Update object (PUT)
-			updateBody := res.String()
-			updateBody, _ = sjson.Delete(updateBody, "links")
-
-			// Update target list
-			for _, target := range state.Targets {
-				if !res.Get(fmt.Sprintf("targets.#(id==%s)", target.Id.ValueString())).Exists() {
-					updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
-						"id":   target.Id.ValueString(),
-						"type": target.Type.ValueString(),
-					})
+				// Set desired policy to after destroy policy
+				state.PolicyId = state.AfterDestroyPolicyId
+				_, diags := r.createPolicyAssignment(ctx, state, reqMods...)
+				if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+					return
 				}
-			}
-
-			// Update object
-			res, err = r.client.Put(state.getPath()+"/"+url.QueryEscape(state.AfterDestroyPolicyId.ValueString()), updateBody, reqMods...)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update policy assignment (PUT), got error: %s, %s", err, res.String()))
+			} else if err != nil {
+				// Failed to retrieve policy assignments
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 				return
+			} else {
+				// Policy assignment already exists - need to update it with destroy policy
+				tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment already exists", state.Id.ValueString()))
+
+				state.PolicyId = state.AfterDestroyPolicyId
+				_, diags := r.updatePolicyAssignment(ctx, res, state, PolicyAssignment{}, state, reqMods...)
+				resp.Diagnostics.Append(diags...)
 			}
 		}
 	} else {
+		// Any other policy assignment is optional, hence we can just remove that assignment
 		res, err := r.client.Get(state.getPath()+"/"+url.QueryEscape(state.PolicyId.ValueString()), reqMods...)
+		// If there is no error, policy exists and we can remove assignments from it
 		if err == nil {
 			// Policy assignment already exists - need to update it (remove configured devices, but keep non-managed ones)
 			tflog.Debug(ctx, fmt.Sprintf("%s: Policy assignment exists", state.Id.ValueString()))
 
-			// Get list of IDs from devices from state
-			var stateTargets = make([]string, len(state.Targets))
-			for _, target := range state.Targets {
-				stateTargets = append(stateTargets, target.Id.ValueString())
-			}
-
-			// Update object (PUT)
-			updateBody := res.String()
-			updateBody, _ = sjson.Delete(updateBody, "links")
-
-			// Update target list - keep non-managed devices
-			existingTargets := gjson.Get(updateBody, "targets").Array()
-			updateBody, _ = sjson.Set(updateBody, "targets", []interface{}{})
-			for _, target := range existingTargets {
-				if !helpers.Contains(stateTargets, target.Get("id").String()) {
-					updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
-						"id":   target.Get("id").String(),
-						"type": target.Get("type").String(),
-					})
-				}
-			}
-
-			// There is no DELETE API endpoint for policy assignment, so we need to update the policy assignment (even with empty targets)
-			res, err = r.client.Put(state.getPath()+"/"+url.QueryEscape(state.PolicyId.ValueString()), updateBody, reqMods...)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to update policy assignment (PUT), got error: %s, %s", err, res.String()))
-				return
-			}
+			_, diag := r.updatePolicyAssignment(ctx, res, state, state, PolicyAssignment{}, reqMods...)
+			resp.Diagnostics.Append(diag...)
 		}
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
+	if !resp.Diagnostics.HasError() {
+		tflog.Debug(ctx, fmt.Sprintf("%s: Delete finished successfully", state.Id.ValueString()))
+	}
 
 	resp.State.RemoveResource(ctx)
 }
@@ -514,3 +473,81 @@ func (r *PolicyAssignmentResource) ImportState(ctx context.Context, req resource
 }
 
 // End of section. //template:end import
+
+// createPolicyAssignment creates a new policy assignment using POST request
+func (r *PolicyAssignmentResource) createPolicyAssignment(ctx context.Context, data PolicyAssignment, reqMods ...func(*fmc.Req)) (gjson.Result, diag.Diagnostics) {
+	var diag diag.Diagnostics
+
+	body := data.toBody(ctx, PolicyAssignment{})
+	body, _ = sjson.Delete(body, "dummy_after_destroy_policy_id")
+
+	res, err := r.client.Post(data.getPath(), body, reqMods...)
+	if err != nil {
+		diag.AddError("Client Error", fmt.Sprintf("Failed to configure object (POST/PUT), got error: %s, %s", err, res.String()))
+		return res, diag
+	}
+	return res, nil
+}
+
+// updatePolicyAssignment updates exsiting policy assigment using PUT request
+func (r *PolicyAssignmentResource) updatePolicyAssignment(ctx context.Context, res gjson.Result, data, toRemove, toAdd PolicyAssignment, reqMods ...func(*fmc.Req)) (gjson.Result, diag.Diagnostics) {
+	var diag diag.Diagnostics
+
+	if len(toRemove.Targets) == 0 && len(toAdd.Targets) == 0 {
+		tflog.Debug(ctx, fmt.Sprintf("%s: No changes to policy assignment requested", data.Id.ValueString()))
+		return res, diag
+	}
+
+	updateBody := res.String()
+	updateBody, _ = sjson.Delete(updateBody, "links")
+
+	// Remove targets from updateBody based on `toRemove` list
+	if len(toRemove.Targets) > 0 {
+		// Get list of IDs from devices from state
+		var stateTargets = make([]string, len(toRemove.Targets))
+		for _, target := range toRemove.Targets {
+			stateTargets = append(stateTargets, target.Id.ValueString())
+		}
+
+		existingTargets := gjson.Get(updateBody, "targets").Array()
+		updateBody, _ = sjson.Set(updateBody, "targets", []interface{}{})
+		for _, target := range existingTargets {
+			if !helpers.Contains(stateTargets, target.Get("id").String()) {
+				updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
+					"id":   target.Get("id").String(),
+					"type": target.Get("type").String(),
+				})
+			}
+		}
+	}
+
+	// Add targets to updateBody based on `toAdd` list
+	if len(toAdd.Targets) > 0 {
+		for _, target := range toAdd.Targets {
+			if !res.Get(fmt.Sprintf("targets.#(id==%s)", target.Id.ValueString())).Exists() {
+				updateBody, _ = sjson.Set(updateBody, "targets.-1", map[string]string{
+					"id":   target.Id.ValueString(),
+					"type": target.Type.ValueString(),
+				})
+			}
+		}
+	}
+
+	// Update object
+	resPut, err := r.client.Put(data.getPath()+"/"+url.QueryEscape(data.PolicyId.ValueString()), updateBody, reqMods...)
+	if err != nil {
+		diag.AddError("Client Error", fmt.Sprintf("Failed to update policy assignment (PUT), got error: %s, %s", err, res.String()))
+		return resPut, diag
+	}
+	return resPut, diag
+}
+
+// Checks if given target is on the target list
+func (r *PolicyAssignment) containsTarget(target PolicyAssignmentTargets) bool {
+	for _, t := range r.Targets {
+		if t.Id.ValueString() == target.Id.ValueString() {
+			return true
+		}
+	}
+	return false
+}
