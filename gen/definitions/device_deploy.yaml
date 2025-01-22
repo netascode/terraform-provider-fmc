@@ -28,6 +28,7 @@ attributes:
     example: "false"
     exclude_test: true
   - model_name: deviceList
+    tf_name: device_id_list
     type: List
     description: List of device ids to be deployed.
     mandatory: true
