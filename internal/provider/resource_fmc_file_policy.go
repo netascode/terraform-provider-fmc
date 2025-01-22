@@ -25,6 +25,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -53,6 +54,8 @@ var (
 	_ resource.Resource                = &FilePolicyResource{}
 	_ resource.ResourceWithImportState = &FilePolicyResource{}
 )
+var minFMCVersionFilePolicy = version.Must(version.NewVersion("7.0"))
+var minFMCVersionCreateFilePolicy = version.Must(version.NewVersion("7.4"))
 
 func NewFilePolicyResource() resource.Resource {
 	return &FilePolicyResource{}

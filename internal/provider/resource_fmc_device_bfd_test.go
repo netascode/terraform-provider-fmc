@@ -41,7 +41,7 @@ func TestAccFmcDeviceBFD(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "destination_host_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "source_host_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "slow_timer", ""))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "slow_timer", "1000"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -96,7 +96,7 @@ func testAccFmcDeviceBFDConfig_all() string {
 	config += `	destination_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	source_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
 	config += `	interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	slow_timer = ` + "\n"
+	config += `	slow_timer = 1000` + "\n"
 	config += `}` + "\n"
 	return config
 }

@@ -39,7 +39,7 @@ func TestAccFmcDevice(t *testing.T) {
 		os.Setenv("TF_VAR_ftd_addr", ftdAddr)
 	}
 	// Prepare Terraform's var.registration_key
-	os.Setenv("TF_VAR_registration_key", ftd.MustRandomizeKey())
+	os.Setenv("TF_VAR_device_registration_key", ftd.MustRandomizeKey())
 
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))

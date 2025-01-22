@@ -26,7 +26,8 @@ attributes:
     type: Bool
     description: Ignore warnings during deployment.
     example: "false"
-    exclude_test: true
+    minimum_test_value: "true"
+    test_value: "true"
   - model_name: deviceList
     tf_name: device_id_list
     type: List
