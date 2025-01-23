@@ -56,8 +56,6 @@ resource "fmc_url" "test" {
   name        = "url_1"
   url         = "https://www.example.com/app"
 }
-
-    
 `
 
 // End of section. //template:end testPrerequisites

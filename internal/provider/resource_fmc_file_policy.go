@@ -54,7 +54,6 @@ var (
 	_ resource.Resource                = &FilePolicyResource{}
 	_ resource.ResourceWithImportState = &FilePolicyResource{}
 )
-var minFMCVersionFilePolicy = version.Must(version.NewVersion("7.0"))
 var minFMCVersionCreateFilePolicy = version.Must(version.NewVersion("7.4"))
 
 func NewFilePolicyResource() resource.Resource {
@@ -246,6 +245,14 @@ func (r *FilePolicyResource) Configure(_ context.Context, req resource.Configure
 // End of section. //template:end model
 
 func (r *FilePolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Get FMC version
+	fmcVersion, _ := version.NewVersion(strings.Split(r.client.FMCVersion, " ")[0])
+
+	// Check if FMC client is connected to supports this object
+	if fmcVersion.LessThan(minFMCVersionCreateFilePolicy) {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support File Policy creation, minumum required version is 7.4", r.client.FMCVersion))
+		return
+	}
 	var plan FilePolicy
 
 	// Read plan
@@ -427,7 +434,7 @@ func (r *FilePolicyResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}

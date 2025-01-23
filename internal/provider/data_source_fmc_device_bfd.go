@@ -22,15 +22,13 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
-	"github.com/tidwall/gjson"
 )
 
 // End of section. //template:end imports
@@ -63,8 +61,7 @@ func (d *DeviceBFDDataSource) Schema(ctx context.Context, req datasource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The id of the object",
-				Optional:            true,
-				Computed:            true,
+				Required:            true,
 			},
 			"domain": schema.StringAttribute{
 				MarkdownDescription: "The name of the FMC domain",
@@ -88,7 +85,6 @@ func (d *DeviceBFDDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			},
 			"interface_logical_name": schema.StringAttribute{
 				MarkdownDescription: "Logical Name of the interface of BFD assignment if SINGLE_HOP selected.",
-				Optional:            true,
 				Computed:            true,
 			},
 			"destination_host_object_id": schema.StringAttribute{
@@ -110,14 +106,6 @@ func (d *DeviceBFDDataSource) Schema(ctx context.Context, req datasource.SchemaR
 		},
 	}
 }
-func (d *DeviceBFDDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.ExactlyOneOf(
-			path.MatchRoot("id"),
-			path.MatchRoot("interface_logical_name"),
-		),
-	}
-}
 
 func (d *DeviceBFDDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -132,6 +120,14 @@ func (d *DeviceBFDDataSource) Configure(_ context.Context, req datasource.Config
 // Section below is generated&owned by "gen/generator.go". //template:begin read
 
 func (d *DeviceBFDDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	// Get FMC version
+	fmcVersion, _ := version.NewVersion(strings.Split(d.client.FMCVersion, " ")[0])
+
+	// Check if FMC client is connected to supports this object
+	if fmcVersion.LessThan(minFMCVersionDeviceBFD) {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("UnsupportedVersion: FMC version %s does not support Device BFD, minimum required version is 7.4", d.client.FMCVersion))
+		return
+	}
 	var config DeviceBFD
 
 	// Read config
@@ -148,37 +144,6 @@ func (d *DeviceBFDDataSource) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", config.Id.String()))
-	if config.Id.IsNull() && !config.InterfaceLogicalName.IsNull() {
-		offset := 0
-		limit := 1000
-		for page := 1; ; page++ {
-			queryString := fmt.Sprintf("?limit=%d&offset=%d&expanded=true", limit, offset)
-			res, err := d.client.Get(config.getPath()+queryString, reqMods...)
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve objects, got error: %s", err))
-				return
-			}
-			if value := res.Get("items"); len(value.Array()) > 0 {
-				value.ForEach(func(k, v gjson.Result) bool {
-					if config.InterfaceLogicalName.ValueString() == v.Get("ifname").String() {
-						config.Id = types.StringValue(v.Get("id").String())
-						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with interface_logical_name '%v', id: %v", config.Id.String(), config.InterfaceLogicalName.ValueString(), config.Id.String()))
-						return false
-					}
-					return true
-				})
-			}
-			if !config.Id.IsNull() || !res.Get("paging.next.0").Exists() {
-				break
-			}
-			offset += limit
-		}
-
-		if config.Id.IsNull() {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to find object with interface_logical_name: %s", config.InterfaceLogicalName.ValueString()))
-			return
-		}
-	}
 	urlPath := config.getPath() + "/" + url.QueryEscape(config.Id.ValueString())
 	res, err := d.client.Get(urlPath, reqMods...)
 	if err != nil {

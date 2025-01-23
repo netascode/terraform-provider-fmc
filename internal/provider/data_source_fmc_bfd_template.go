@@ -117,6 +117,10 @@ func (d *BFDTemplateDataSource) Schema(ctx context.Context, req datasource.Schem
 				MarkdownDescription: "Authentication types",
 				Computed:            true,
 			},
+			"authentication_password_encryption": schema.StringAttribute{
+				MarkdownDescription: "Determines if authentication_password is encrypted",
+				Computed:            true,
+			},
 		},
 	}
 }

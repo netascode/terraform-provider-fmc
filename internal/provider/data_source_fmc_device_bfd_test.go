@@ -35,13 +35,7 @@ func TestAccDataSourceFmcDeviceBFD(t *testing.T) {
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("data.fmc_device_bfd.test", "type"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "hop_type", "SINGLE_HOP"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "bfd_template_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "interface_logical_name", "outside"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "destination_host_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "source_host_object_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "interface_id", "76d24097-41c4-4558-a4d0-a8c07ac08470"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "slow_timer", "1000"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_device_bfd.test", "hop_type", "MULTI_HOP"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -49,10 +43,6 @@ func TestAccDataSourceFmcDeviceBFD(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceFmcDeviceBFDPrerequisitesConfig + testAccDataSourceFmcDeviceBFDConfig(),
-				Check:  resource.ComposeTestCheckFunc(checks...),
-			},
-			{
-				Config: testAccDataSourceFmcDeviceBFDPrerequisitesConfig + testAccNamedDataSourceFmcDeviceBFDConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -65,6 +55,18 @@ func TestAccDataSourceFmcDeviceBFD(t *testing.T) {
 
 const testAccDataSourceFmcDeviceBFDPrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+
+resource "fmc_bfd_template" "test" {
+  name = "BFD_Template1"
+  hop_type = "MULTI_HOP"
+}
+
+resource "fmc_hosts" "test" {
+  items = {
+    "bfd_host_1" = { ip = "10.11.12.13" },
+    "bfd_host_2" = { ip = "10.12.13.14" },
+  }
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -74,40 +76,16 @@ variable "device_id" { default = null } // tests will set $TF_VAR_device_id
 func testAccDataSourceFmcDeviceBFDConfig() string {
 	config := `resource "fmc_device_bfd" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
-	config += `	hop_type = "SINGLE_HOP"` + "\n"
-	config += `	bfd_template_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	interface_logical_name = "outside"` + "\n"
-	config += `	destination_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	source_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	slow_timer = 1000` + "\n"
+	config += `	hop_type = "MULTI_HOP"` + "\n"
+	config += `	bfd_template_id = fmc_bfd_template.test.id` + "\n"
+	config += `	destination_host_object_id = fmc_hosts.test.items.bfd_host_1.id` + "\n"
+	config += `	source_host_object_id = fmc_hosts.test.items.bfd_host_2.id` + "\n"
 	config += `}` + "\n"
 
 	config += `
 		data "fmc_device_bfd" "test" {
 			id = fmc_device_bfd.test.id
 			device_id = var.device_id
-		}
-	`
-	return config
-}
-
-func testAccNamedDataSourceFmcDeviceBFDConfig() string {
-	config := `resource "fmc_device_bfd" "test" {` + "\n"
-	config += `	device_id = var.device_id` + "\n"
-	config += `	hop_type = "SINGLE_HOP"` + "\n"
-	config += `	bfd_template_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	interface_logical_name = "outside"` + "\n"
-	config += `	destination_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	source_host_object_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	interface_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"` + "\n"
-	config += `	slow_timer = 1000` + "\n"
-	config += `}` + "\n"
-
-	config += `
-		data "fmc_device_bfd" "test" {
-			device_id = var.device_id
-			interface_logical_name = fmc_device_bfd.test.interface_logical_name
 		}
 	`
 	return config

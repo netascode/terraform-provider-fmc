@@ -65,7 +65,7 @@ func (d *VLANTagGroupsDataSource) Schema(ctx context.Context, req datasource.Sch
 				Optional:            true,
 			},
 			"items": schema.MapNestedAttribute{
-				MarkdownDescription: "Map of vlan tag groups. The key of the map is the name of the individual VLN Tag Group. ",
+				MarkdownDescription: "Map of vlan tag groups. The key of the map is the name of the individual VLN Tag Group.",
 				Optional:            true,
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{

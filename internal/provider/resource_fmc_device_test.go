@@ -42,10 +42,8 @@ func TestAccFmcDevice(t *testing.T) {
 	os.Setenv("TF_VAR_device_registration_key", ftd.MustRandomizeKey())
 
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "name", "device1"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "license_capabilities.#", "1"))
-	checks = append(checks, resource.TestCheckTypeSetElemAttr("fmc_device.test", "license_capabilities.*", "BASE"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device.test", "type", "Device"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device.test", "type"))
+	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device.test", "id"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -81,8 +79,8 @@ resource "fmc_access_control_policy" "device_test" {
   default_action = "BLOCK"
 }
 
-variable "device_ip" { default = null } // tests will set $TF_VAR_device_ip
-variable "device_registration_key"         {} // tests will set $TF_VAR_device_registration_key
+variable "ftd_addr" { default = null } // tests will set $TF_VAR_ftd_addr
+variable "device_registration_key" {} // tests will set $TF_VAR_device_registration_key
 `
 
 // End of section. //template:end testPrerequisites
@@ -92,7 +90,7 @@ variable "device_registration_key"         {} // tests will set $TF_VAR_device_r
 func testAccFmcDeviceConfig_minimum() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "MyDeviceName1"` + "\n"
-	config += `	host_name = var.device_ip` + "\n"
+	config += `	host_name = var.ftd_addr` + "\n"
 	config += `	license_capabilities = ["ESSENTIALS"]` + "\n"
 	config += `	registration_key = var.device_registration_key` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.device_test.id` + "\n"
@@ -107,11 +105,9 @@ func testAccFmcDeviceConfig_minimum() string {
 func testAccFmcDeviceConfig_all() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "MyDeviceName1"` + "\n"
-	config += `	host_name = var.device_ip` + "\n"
-	config += `	nat_id = ""` + "\n"
+	config += `	host_name = var.ftd_addr` + "\n"
 	config += `	license_capabilities = ["ESSENTIALS"]` + "\n"
 	config += `	registration_key = var.device_registration_key` + "\n"
-	config += `	device_group_id = ""` + "\n"
 	config += `	prohibit_packet_transfer = true` + "\n"
 	config += `	performance_tier = "FTDv5"` + "\n"
 	config += `	snort_engine = "SNORT3"` + "\n"

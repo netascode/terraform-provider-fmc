@@ -102,7 +102,7 @@ func (r *BFDTemplateResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 			"echo": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Enables/disables BFD echo.").AddStringEnumDescription("ENABLED", "DISABLED").String,
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("ENABLED", "DISABLED"),
 				},
@@ -151,6 +151,13 @@ func (r *BFDTemplateResource) Schema(ctx context.Context, req resource.SchemaReq
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf("MD5", "METICULOUSMD5", "METICULOUSSHA1", "SHA1", "NONE"),
+				},
+			},
+			"authentication_password_encryption": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("Determines if authentication_password is encrypted").AddStringEnumDescription("UN_ENCRYPTED", "ENCRYPTED", "NONE").String,
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.OneOf("UN_ENCRYPTED", "ENCRYPTED", "NONE"),
 				},
 			},
 		},
@@ -333,7 +340,7 @@ func (r *BFDTemplateResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 	res, err := r.client.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), reqMods...)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
 	}
