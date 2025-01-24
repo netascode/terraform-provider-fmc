@@ -81,6 +81,7 @@ resource "fmc_access_control_policy" "device_test" {
 
 variable "ftd_addr" { default = null } // tests will set $TF_VAR_ftd_addr
 variable "device_registration_key" {} // tests will set $TF_VAR_device_registration_key
+variable "license_capabilities" {} // tests will set $TF_VAR_license_capabilities
 `
 
 // End of section. //template:end testPrerequisites
@@ -91,7 +92,7 @@ func testAccFmcDeviceConfig_minimum() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "MyDeviceName1"` + "\n"
 	config += `	host_name = var.ftd_addr` + "\n"
-	config += `	license_capabilities = ["ESSENTIALS"]` + "\n"
+	config += `	license_capabilities = [var.license_capabilities]` + "\n"
 	config += `	registration_key = var.device_registration_key` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.device_test.id` + "\n"
 	config += `}` + "\n"
@@ -106,12 +107,10 @@ func testAccFmcDeviceConfig_all() string {
 	config := `resource "fmc_device" "test" {` + "\n"
 	config += `	name = "MyDeviceName1"` + "\n"
 	config += `	host_name = var.ftd_addr` + "\n"
-	config += `	license_capabilities = ["ESSENTIALS"]` + "\n"
+	config += `	license_capabilities = [var.license_capabilities]` + "\n"
 	config += `	registration_key = var.device_registration_key` + "\n"
-	config += `	prohibit_packet_transfer = true` + "\n"
 	config += `	performance_tier = "FTDv5"` + "\n"
 	config += `	snort_engine = "SNORT3"` + "\n"
-	config += `	object_group_search = true` + "\n"
 	config += `	access_policy_id = fmc_access_control_policy.device_test.id` + "\n"
 	config += `}` + "\n"
 	return config
