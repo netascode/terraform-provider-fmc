@@ -353,6 +353,14 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 	return false
 }
 
+// Templating helper function to return true if object is domain dependent (exists within a domain)
+func IsDomainDependent(config YamlConfig) bool {
+	if strings.Contains(config.RestEndpoint, "{DOMAIN_UUID}") {
+		return true
+	}
+	return false
+}
+
 // Templating helper function to return number of import parts
 func ImportParts(attributes []YamlConfigAttribute) int {
 	parts := 1
@@ -395,6 +403,7 @@ var functions = template.FuncMap{
 	"isNestedList":                IsNestedList,
 	"isNestedMap":                 IsNestedMap,
 	"isNestedSet":                 IsNestedSet,
+	"isDomainDependent":           IsDomainDependent,
 	"importParts":                 ImportParts,
 	"subtract":                    Subtract,
 }
