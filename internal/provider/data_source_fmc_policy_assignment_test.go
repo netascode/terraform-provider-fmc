@@ -47,6 +47,10 @@ func TestAccDataSourceFmcPolicyAssignment(t *testing.T) {
 				Config: testAccDataSourceFmcPolicyAssignmentPrerequisitesConfig + testAccDataSourceFmcPolicyAssignmentConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
+			{
+				Config: testAccDataSourceFmcPolicyAssignmentPrerequisitesConfig + testAccNamedDataSourceFmcPolicyAssignmentConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
 		},
 	})
 }
@@ -80,6 +84,24 @@ func testAccDataSourceFmcPolicyAssignmentConfig() string {
 	config += `
 		data "fmc_policy_assignment" "test" {
 			id = fmc_policy_assignment.test.id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcPolicyAssignmentConfig() string {
+	config := `resource "fmc_policy_assignment" "test" {` + "\n"
+	config += `	policy_id = fmc_ftd_nat_policy.example.id` + "\n"
+	config += `	policy_type = "FTDNatPolicy"` + "\n"
+	config += `	targets = [{` + "\n"
+	config += `		id = var.device_id` + "\n"
+	config += `		type = "Device"` + "\n"
+	config += `	}]` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_policy_assignment" "test" {
+			policy_name = fmc_policy_assignment.test.policy_name
 		}
 	`
 	return config

@@ -17,6 +17,7 @@ attributes:
     type: String
     description: Name of the policy to be assigned.
     computed: true
+    data_source_query: true
   - model_name: id
     tf_name: policy_id
     type: String
