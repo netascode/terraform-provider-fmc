@@ -74,6 +74,10 @@ func (d *VLANTagGroupsDataSource) Schema(ctx context.Context, req datasource.Sch
 							MarkdownDescription: "UUID of the managed URL Groups.",
 							Computed:            true,
 						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: "Type of the object; this value is always 'VlanGroupTag'",
+							Computed:            true,
+						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: "Optional user-created description.",
 							Computed:            true,
