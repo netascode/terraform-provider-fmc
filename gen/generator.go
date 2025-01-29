@@ -356,10 +356,7 @@ func IsNestedSet(attribute YamlConfigAttribute) bool {
 
 // Templating helper function to return true if object is domain dependent (exists within a domain)
 func IsDomainDependent(config YamlConfig) bool {
-	if strings.Contains(config.RestEndpoint, "{DOMAIN_UUID}") {
-		return true
-	}
-	return false
+	return strings.Contains(config.RestEndpoint, "{DOMAIN_UUID}")
 }
 
 // Templating helper function to return number of import parts
