@@ -88,9 +88,6 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 			"registration_status": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Status of a smart license.").String,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"force": schema.BoolAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Set to true to re-register smart license.").String,
@@ -123,7 +120,7 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// Read state before create
+	// Read state before create, so we can check what is the current registration status
 	reqMods := [](func(*fmc.Req)){}
 	res, err := r.client.Get(state.getPath(), reqMods...)
 	if err != nil {
@@ -132,8 +129,7 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 	}
 	state.fromBody(ctx, res.Get("items.0"))
 
-	// When smart license is already in evaluation mode and user requests evaluation mode - do nothing. Sending a request in such case would result in an error.
-	// It's not automatically detected by terraform, because two different fields keep status (RegistrationStatus) and requested status (RegistrationType)
+	// If smart license is already in evaluation mode and user requests evaluation mode - do nothing. Sending a request in such case would result in an error.
 	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Smart license is already in evaluation mode, no action required", state.Id.ValueString()))
 		plan.RegistrationStatus = state.RegistrationStatus
@@ -155,8 +151,12 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// Wait till registration is finished
-	res, diags = r.waitForRegistration(ctx)
+	// Wait untill registration is finished
+	if plan.RegistrationType.ValueString() == "REGISTER" {
+		res, diags = r.waitForRegistration(ctx, "REGISTERED")
+	} else {
+		res, diags = r.waitForRegistration(ctx, "EVALUATION")
+	}
 	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 		return
 	}
@@ -181,7 +181,6 @@ func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
@@ -224,12 +223,11 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	// Set request domain if provided
 	reqMods := [](func(*fmc.Req)){}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.Id.ValueString()))
 
-	// When smart license is already in evaluation mode and user requests evaluation mode - do nothing. Sending a request in such case would result in an error.
+	// If smart license is already in evaluation mode and user requests evaluation mode - do nothing. Sending a request in such case would result in an error.
 	// It's not automatically detected by terraform, because two different fields keep status (RegistrationStatus) and requested status (RegistrationType)
 	if state.RegistrationStatus.ValueString() == "EVALUATION" && plan.RegistrationType.ValueString() == "EVALUATION" {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Smart license is already in evaluation mode, no action required", state.Id.ValueString()))
@@ -239,7 +237,7 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	// When re-registration is forced, only deregister it the device is already registered
+	// If re-registration is forced, only deregister it the device is already registered
 	if plan.Force.ValueBool() && state.RegistrationStatus.ValueString() == "REGISTERED" {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Force flag is set, deregistering smart license", plan.Id.ValueString()))
 		res, err := r.deregisterSmartLicense(ctx, reqMods...)
@@ -255,7 +253,7 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 		state.fromBody(ctx, res.Get("items.0"))
 	}
 
-	// When force flag is not set to true, only register license if it is not already registered
+	// Register FMC only if it is not already registered
 	if state.RegistrationStatus.ValueString() != "REGISTERED" {
 		tflog.Debug(ctx, fmt.Sprintf("%s: Starting registration", plan.Id.ValueString()))
 		body := plan.toBody(ctx, SmartLicense{})
@@ -267,7 +265,7 @@ func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRe
 			return
 		}
 
-		res, diags = r.waitForRegistration(ctx)
+		res, diags = r.waitForRegistration(ctx, "REGISTERED")
 		if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
 			return
 		}
@@ -292,9 +290,9 @@ func (r *SmartLicenseResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	if state.RegistrationStatus.ValueString() == "EVALUATION" {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("%s: Smart license is in evaluation mode, cannot be deregistered", state.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Smart license is in evaluation mode, cannot be deregistered", state.Id.ValueString()))
 	} else if state.RetainRegistration.ValueBool() {
-		tflog.Debug(ctx, fmt.Sprintf("%s: Keep license flag is set, not removing smart license registration", state.Id.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("%s: Retain registration flag is set, device is not unregistered", state.Id.ValueString()))
 	} else {
 		reqMods := [](func(*fmc.Req)){}
 
@@ -320,7 +318,7 @@ func (r *SmartLicenseResource) deregisterSmartLicense(ctx context.Context, reqMo
 }
 
 // Wait for registration to finish
-func (r *SmartLicenseResource) waitForRegistration(ctx context.Context) (gjson.Result, diag.Diagnostics) {
+func (r *SmartLicenseResource) waitForRegistration(ctx context.Context, expectedState string) (gjson.Result, diag.Diagnostics) {
 	var diag diag.Diagnostics
 	const atom time.Duration = 5 * time.Second
 
@@ -333,11 +331,11 @@ func (r *SmartLicenseResource) waitForRegistration(ctx context.Context) (gjson.R
 			return task, diag
 		}
 		stat := strings.ToUpper(task.Get("items.0.regStatus").String())
-		if stat == "REGISTERED" {
+		if stat == expectedState {
 			return task, nil
 		}
 		time.Sleep(atom)
 	}
-	diag.AddError("Client Error", "Registration failed, request timed out")
+	diag.AddError("Client Error", "Registration failed, FMC did not finish registration in time")
 	return gjson.Result{}, diag
 }

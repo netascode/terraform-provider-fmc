@@ -173,12 +173,12 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				{{- else if and (len .DefaultValue) (eq .Type "String")}}
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
-				{{- if or .Id .Reference .RequiresReplace .Computed}}
+				{{- if or .Id .Reference .RequiresReplace (and .Computed (not .ComputedRefreshValue))}}
 				PlanModifiers: []planmodifier.{{.Type}}{
 					{{- if or .Id .Reference .RequiresReplace}}
 					{{snakeCase .Type}}planmodifier.RequiresReplace(),
 					{{end}}
-					{{- if .Computed}}
+					{{- if and .Computed (not .ComputedRefreshValue)}}
 					{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 					{{end}}
 				},
@@ -244,7 +244,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							{{- else if and (len .DefaultValue) (eq .Type "String")}}
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
-							{{- if or (and .ResourceId $useStateForUnknown) .Computed}}
+							{{- if or (and .ResourceId $useStateForUnknown) (and .Computed (not .ComputedRefreshValue))}}
 							PlanModifiers: []planmodifier.{{.Type}}{
 								{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 							},
@@ -318,7 +318,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											{{- if .RequiresReplace}}
 											{{snakeCase .Type}}planmodifier.RequiresReplace(),
 											{{end}}
-											{{- if .Computed}}
+											{{- if and .Computed (not .ComputedRefreshValue)}}
 											{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 											{{end}}
 										},
@@ -388,7 +388,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														{{- if .RequiresReplace}}
 														{{snakeCase .Type}}planmodifier.RequiresReplace(),
 														{{end}}
-														{{- if .Computed}}
+														{{- if and .Computed (not .ComputedRefreshValue)}}
 														{{snakeCase .Type}}planmodifier.UseStateForUnknown(),
 														{{end}}
 													},

@@ -25,6 +25,7 @@ attributes:
     type: String
     description: Status of a smart license.
     computed: true
+    computed_refresh_value: true
   - model_name: dummy_force
     tf_name: force
     type: Bool
