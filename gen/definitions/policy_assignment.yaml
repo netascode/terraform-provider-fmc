@@ -9,7 +9,6 @@ attributes:
     type: String
     description: Type of the object; this is always 'PolicyAssignment'
     computed: true
-  # Health Policy API assignment does not return policy name in the response
   - model_name: name
     tf_name: policy_name
     data_path: ["policy"]
