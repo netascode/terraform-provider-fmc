@@ -20,7 +20,8 @@ attributes:
     example: true
   - model_name: type
     type: String
-    value: "VlanTag"
+    description: Type of the object; this value is always 'VlanTag'
+    computed: true
   - model_name: startTag
     type: String
     example: "12"

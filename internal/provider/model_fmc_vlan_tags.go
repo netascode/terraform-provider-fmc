@@ -43,6 +43,7 @@ type VLANTagsItems struct {
 	Id          types.String `tfsdk:"id"`
 	Description types.String `tfsdk:"description"`
 	Overridable types.Bool   `tfsdk:"overridable"`
+	Type        types.String `tfsdk:"type"`
 	StartTag    types.String `tfsdk:"start_tag"`
 	EndTag      types.String `tfsdk:"end_tag"`
 }
@@ -77,7 +78,6 @@ func (data VLANTags) toBody(ctx context.Context, state VLANTags) string {
 			if !item.Overridable.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "overridable", item.Overridable.ValueBool())
 			}
-			itemBody, _ = sjson.Set(itemBody, "type", "VlanTag")
 			if !item.StartTag.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "data.startTag", item.StartTag.ValueString())
 			}
@@ -129,6 +129,11 @@ func (data *VLANTags) fromBody(ctx context.Context, res gjson.Result) {
 			data.Overridable = types.BoolValue(value.Bool())
 		} else {
 			data.Overridable = types.BoolNull()
+		}
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
 		}
 		if value := res.Get("data.startTag"); value.Exists() {
 			data.StartTag = types.StringValue(value.String())
@@ -183,6 +188,11 @@ func (data *VLANTags) fromBodyPartial(ctx context.Context, res gjson.Result) {
 		} else {
 			data.Overridable = types.BoolNull()
 		}
+		if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
 		if value := res.Get("data.startTag"); value.Exists() && !data.StartTag.IsNull() {
 			data.StartTag = types.StringValue(value.String())
 		} else {
@@ -228,6 +238,14 @@ func (data *VLANTags) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
 				v.Id = types.StringValue(value.String())
 			} else {
 				v.Id = types.StringNull()
+			}
+			data.Items[i] = v
+		}
+		if v := data.Items[i]; v.Type.IsUnknown() {
+			if value := r.Get("type"); value.Exists() {
+				v.Type = types.StringValue(value.String())
+			} else {
+				v.Type = types.StringNull()
 			}
 			data.Items[i] = v
 		}

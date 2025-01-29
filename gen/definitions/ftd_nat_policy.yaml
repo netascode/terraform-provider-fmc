@@ -46,9 +46,7 @@ attributes:
         tf_name: nat_type
         type: String
         description: Type of the rule
-        enum_values:
-          - STATIC
-          - DYNAMIC
+        enum_values: [STATIC, DYNAMIC]
         example: STATIC
         mandatory: true
       - model_name: fallThrough
@@ -205,9 +203,7 @@ attributes:
         tf_name: nat_type
         type: String
         description: Type of the rule
-        enum_values:
-          - STATIC
-          - DYNAMIC
+        enum_values: [STATIC, DYNAMIC]
         example: STATIC
         mandatory: true
       - model_name: id

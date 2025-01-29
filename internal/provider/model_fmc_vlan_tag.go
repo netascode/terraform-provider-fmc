@@ -36,6 +36,7 @@ type VLANTag struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 	Overridable types.Bool   `tfsdk:"overridable"`
+	Type        types.String `tfsdk:"type"`
 	StartTag    types.String `tfsdk:"start_tag"`
 	EndTag      types.String `tfsdk:"end_tag"`
 }
@@ -66,7 +67,6 @@ func (data VLANTag) toBody(ctx context.Context, state VLANTag) string {
 	if !data.Overridable.IsNull() {
 		body, _ = sjson.Set(body, "overridable", data.Overridable.ValueBool())
 	}
-	body, _ = sjson.Set(body, "type", "VlanTag")
 	if !data.StartTag.IsNull() {
 		body, _ = sjson.Set(body, "data.startTag", data.StartTag.ValueString())
 	}
@@ -95,6 +95,11 @@ func (data *VLANTag) fromBody(ctx context.Context, res gjson.Result) {
 		data.Overridable = types.BoolValue(value.Bool())
 	} else {
 		data.Overridable = types.BoolNull()
+	}
+	if value := res.Get("type"); value.Exists() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
 	}
 	if value := res.Get("data.startTag"); value.Exists() {
 		data.StartTag = types.StringValue(value.String())
@@ -132,6 +137,11 @@ func (data *VLANTag) fromBodyPartial(ctx context.Context, res gjson.Result) {
 	} else {
 		data.Overridable = types.BoolNull()
 	}
+	if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+		data.Type = types.StringValue(value.String())
+	} else {
+		data.Type = types.StringNull()
+	}
 	if value := res.Get("data.startTag"); value.Exists() && !data.StartTag.IsNull() {
 		data.StartTag = types.StringValue(value.String())
 	} else {
@@ -151,6 +161,13 @@ func (data *VLANTag) fromBodyPartial(ctx context.Context, res gjson.Result) {
 // fromBodyUnknowns updates the Unknown Computed tfstate values from a JSON.
 // Known values are not changed (usual for Computed attributes with UseStateForUnknown or with Default).
 func (data *VLANTag) fromBodyUnknowns(ctx context.Context, res gjson.Result) {
+	if data.Type.IsUnknown() {
+		if value := res.Get("type"); value.Exists() {
+			data.Type = types.StringValue(value.String())
+		} else {
+			data.Type = types.StringNull()
+		}
+	}
 }
 
 // End of section. //template:end fromBodyUnknowns
