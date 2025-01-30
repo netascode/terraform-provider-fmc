@@ -111,6 +111,7 @@ type YamlConfig struct {
 	ResDescription           string                `yaml:"res_description"`
 	DocCategory              string                `yaml:"doc_category"`
 	ExcludeTest              bool                  `yaml:"exclude_test"`
+	SkipTest                 bool                  `yaml:"skip_test"`
 	SkipMinimumTest          bool                  `yaml:"skip_minimum_test"`
 	Attributes               []YamlConfigAttribute `yaml:"attributes"`
 	TestTags                 []string              `yaml:"test_tags"`
@@ -616,8 +617,10 @@ func main() {
 			if configs[i].NoImport && t.path == "./gen/templates/import.sh" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data_source.go" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data_source_test.go" ||
+				configs[i].SkipTest && t.path == "./gen/templates/data_source_test.go" ||
 				configs[i].NoDataSource && t.path == "./gen/templates/data-source.tf" ||
 				configs[i].NoResource && t.path == "./gen/templates/resource.go" ||
+				configs[i].SkipTest && t.path == "./gen/templates/resource_test.go" ||
 				configs[i].NoResource && t.path == "./gen/templates/resource_test.go" ||
 				configs[i].NoResource && t.path == "./gen/templates/resource.tf" ||
 				// Data source test cannot be generated if there is no corresponding resource

@@ -27,6 +27,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -86,15 +87,15 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 				Optional:            true,
 			},
 			"registration_status": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Status of a smart license.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Smart license registration status").String,
 				Computed:            true,
 			},
 			"force": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Set to true to re-register smart license.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Set to true to force Smart License re-registration. This will take effect on each apply.").String,
 				Optional:            true,
 			},
 			"retain_registration": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Set to true to keep the configure license after resource is destroyed.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Set to true to keep registration after the resource is destroyed.").String,
 				Optional:            true,
 			},
 		},
@@ -110,6 +111,26 @@ func (r *SmartLicenseResource) Configure(_ context.Context, req resource.Configu
 }
 
 // End of section. //template:end model
+
+var _ resource.ResourceWithValidateConfig = &SmartLicenseResource{}
+
+func (p *SmartLicenseResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data SmartLicense
+
+	diags := req.Config.Get(ctx, &data)
+	if resp.Diagnostics.Append(diags...); resp.Diagnostics.HasError() {
+		return
+	}
+
+	if data.RegistrationType.ValueString() == "REGISTER" && (data.Token.IsNull() || data.Token.IsUnknown()) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("token"),
+			"Missing Attribute Configuration",
+			"Token is required when registration_type is set to REGISTER",
+		)
+		return
+	}
+}
 
 func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan, state SmartLicense

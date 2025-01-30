@@ -14,8 +14,10 @@ This resource can manage a Smart License.
 
 ```terraform
 resource "fmc_smart_license" "example" {
-  registration_type = "REGISTER"
-  token             = "X2M3YmJlY..."
+  registration_type   = "REGISTER"
+  token               = "X2M3YmJlY..."
+  force               = false
+  retain_registration = false
 }
 ```
 
@@ -29,11 +31,11 @@ resource "fmc_smart_license" "example" {
 
 ### Optional
 
-- `force` (Boolean) Set to true to re-register smart license.
-- `retain_registration` (Boolean) Set to true to keep the configure license after resource is destroyed.
+- `force` (Boolean) Set to true to force Smart License re-registration. This will take effect on each apply.
+- `retain_registration` (Boolean) Set to true to keep registration after the resource is destroyed.
 - `token` (String) Registration token. Mandatory when registration_type is set to REGISTER.
 
 ### Read-Only
 
 - `id` (String) The id of the object
-- `registration_status` (String) Status of a smart license.
+- `registration_status` (String) Smart license registration status
