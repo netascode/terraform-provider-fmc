@@ -116,22 +116,6 @@ func (d *ExtendedACLDataSource) Schema(ctx context.Context, req datasource.Schem
 								},
 							},
 						},
-						"source_sgt_literals": schema.SetNestedAttribute{
-							MarkdownDescription: "Set of SGT that represent tag of source traffic (literally specified).",
-							Computed:            true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"tag": schema.StringAttribute{
-										MarkdownDescription: "",
-										Computed:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: "",
-										Computed:            true,
-									},
-								},
-							},
-						},
 						"destination_network_literals": schema.SetNestedAttribute{
 							MarkdownDescription: "Set of objects that represent destinations of traffic (literally specified).",
 							Computed:            true,

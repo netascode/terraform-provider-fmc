@@ -13,12 +13,6 @@ resource "fmc_extended_acl" "example" {
           type  = "Network"
         }
       ]
-      source_sgt_literals = [
-        {
-          tag  = "11"
-          type = "securityGroupTag"
-        }
-      ]
       destination_network_literals = [
         {
           value = "10.2.2.2"

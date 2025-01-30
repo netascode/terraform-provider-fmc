@@ -142,22 +142,6 @@ func (r *ExtendedACLResource) Schema(ctx context.Context, req resource.SchemaReq
 								},
 							},
 						},
-						"source_sgt_literals": schema.SetNestedAttribute{
-							MarkdownDescription: helpers.NewAttributeDescription("Set of SGT that represent tag of source traffic (literally specified).").String,
-							Optional:            true,
-							NestedObject: schema.NestedAttributeObject{
-								Attributes: map[string]schema.Attribute{
-									"tag": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
-										Optional:            true,
-									},
-									"type": schema.StringAttribute{
-										MarkdownDescription: helpers.NewAttributeDescription("").String,
-										Optional:            true,
-									},
-								},
-							},
-						},
 						"destination_network_literals": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destinations of traffic (literally specified).").String,
 							Optional:            true,

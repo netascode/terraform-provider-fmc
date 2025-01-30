@@ -72,19 +72,20 @@ attributes:
           - model_name: type
             type: String
             example: Network
-      - model_name: literals
-        data_path: [securityGroupTags]
-        tf_name: source_sgt_literals
-        description: Set of SGT that represent tag of source traffic (literally specified).
-        type: Set
-        attributes:
-          - model_name: tag
-            type: String
-            id: true
-            example: 11
-          - model_name: type
-            type: String
-            example: securityGroupTag            
+      # Possible to configure SGT litterals via API but not via GUI
+      #- model_name: literals
+      #  data_path: [securityGroupTags]
+      #  tf_name: source_sgt_literals
+      #  description: Set of SGT that represent tag of source traffic (literally specified).
+      #  type: Set
+      #  attributes:
+      #    - model_name: tag
+      #      type: String
+      #      id: true
+      #      example: 11
+      #    - model_name: type
+      #      type: String
+      #      example: SecurityGroupTag            
       - model_name: literals
         data_path: [destinationNetworks]
         tf_name: destination_network_literals
