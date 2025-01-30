@@ -45,6 +45,10 @@ func TestAccDataSourceFmcDeviceBFD(t *testing.T) {
 				Config: testAccDataSourceFmcDeviceBFDPrerequisitesConfig + testAccDataSourceFmcDeviceBFDConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
+			{
+				Config: testAccDataSourceFmcDeviceBFDPrerequisitesConfig + testAccNamedDataSourceFmcDeviceBFDConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
 		},
 	})
 }
@@ -86,6 +90,24 @@ func testAccDataSourceFmcDeviceBFDConfig() string {
 		data "fmc_device_bfd" "test" {
 			id = fmc_device_bfd.test.id
 			device_id = var.device_id
+		}
+	`
+	return config
+}
+
+func testAccNamedDataSourceFmcDeviceBFDConfig() string {
+	config := `resource "fmc_device_bfd" "test" {` + "\n"
+	config += `	device_id = var.device_id` + "\n"
+	config += `	hop_type = "MULTI_HOP"` + "\n"
+	config += `	bfd_template_id = fmc_bfd_template.test.id` + "\n"
+	config += `	destination_host_object_id = fmc_hosts.test.items.bfd_host_1.id` + "\n"
+	config += `	source_host_object_id = fmc_hosts.test.items.bfd_host_2.id` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "fmc_device_bfd" "test" {
+			device_id = var.device_id
+			interface_logical_name = fmc_device_bfd.test.interface_logical_name
 		}
 	`
 	return config

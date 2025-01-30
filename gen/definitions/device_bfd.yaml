@@ -38,6 +38,7 @@ attributes:
     type: String
     exclude_test: true
     exclude_example: true
+    data_source_query: true
   - model_name: id
     data_path: [destinationAddress]
     tf_name: destination_host_object_id
@@ -65,7 +66,6 @@ attributes:
     description: "BFD Slow Timer value in range: 1000-30000, default: 1000"
     min_int: 1000
     max_int: 30000
-    #default_value: 1000
     example: 1000
     exclude_example: true
     exclude_test: true
