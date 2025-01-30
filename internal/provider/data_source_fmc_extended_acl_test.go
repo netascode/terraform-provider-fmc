@@ -38,6 +38,8 @@ func TestAccDataSourceFmcExtendedACL(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.log_interval_seconds", "120"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.source_network_literals.0.value", "10.1.1.0/24"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.source_network_literals.0.type", "Network"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.source_sgt_literals.0.tag", "11"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.source_sgt_literals.0.type", "securityGroupTag"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.destination_network_literals.0.value", "10.2.2.2"))
 	checks = append(checks, resource.TestCheckResourceAttr("data.fmc_extended_acl.test", "entries.0.destination_network_literals.0.type", "Host"))
 	resource.Test(t, resource.TestCase{
@@ -77,6 +79,11 @@ resource "fmc_port" "test" {
   protocol = "UDP"
   port = "65000"
 }
+
+resource "fmc_sgt" "test" {
+  name = "mysgt2"
+  tag = "11"
+}
 `
 
 // End of section. //template:end testPrerequisites
@@ -96,12 +103,19 @@ func testAccDataSourceFmcExtendedACLConfig() string {
 	config += `			value = "10.1.1.0/24"` + "\n"
 	config += `			type = "Network"` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_sgt_literals = [{` + "\n"
+	config += `			tag = "11"` + "\n"
+	config += `			type = "securityGroupTag"` + "\n"
+	config += `		}]` + "\n"
 	config += `		destination_network_literals = [{` + "\n"
 	config += `			value = "10.2.2.2"` + "\n"
 	config += `			type = "Host"` + "\n"
 	config += `		}]` + "\n"
 	config += `		source_network_objects = [{` + "\n"
 	config += `			id = fmc_network.test.id` + "\n"
+	config += `		}]` + "\n"
+	config += `		source_sgt_objects = [{` + "\n"
+	config += `			id = fmc_sgt.test.id` + "\n"
 	config += `		}]` + "\n"
 	config += `		destination_network_objects = [{` + "\n"
 	config += `			id = fmc_host.test.id` + "\n"
@@ -136,12 +150,19 @@ func testAccNamedDataSourceFmcExtendedACLConfig() string {
 	config += `			value = "10.1.1.0/24"` + "\n"
 	config += `			type = "Network"` + "\n"
 	config += `		}]` + "\n"
+	config += `		source_sgt_literals = [{` + "\n"
+	config += `			tag = "11"` + "\n"
+	config += `			type = "securityGroupTag"` + "\n"
+	config += `		}]` + "\n"
 	config += `		destination_network_literals = [{` + "\n"
 	config += `			value = "10.2.2.2"` + "\n"
 	config += `			type = "Host"` + "\n"
 	config += `		}]` + "\n"
 	config += `		source_network_objects = [{` + "\n"
 	config += `			id = fmc_network.test.id` + "\n"
+	config += `		}]` + "\n"
+	config += `		source_sgt_objects = [{` + "\n"
+	config += `			id = fmc_sgt.test.id` + "\n"
 	config += `		}]` + "\n"
 	config += `		destination_network_objects = [{` + "\n"
 	config += `			id = fmc_host.test.id` + "\n"

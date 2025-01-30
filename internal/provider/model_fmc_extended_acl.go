@@ -47,8 +47,10 @@ type ExtendedACLEntries struct {
 	Logging                    types.String                                   `tfsdk:"logging"`
 	LogIntervalSeconds         types.Int64                                    `tfsdk:"log_interval_seconds"`
 	SourceNetworkLiterals      []ExtendedACLEntriesSourceNetworkLiterals      `tfsdk:"source_network_literals"`
+	SourceSgtLiterals          []ExtendedACLEntriesSourceSgtLiterals          `tfsdk:"source_sgt_literals"`
 	DestinationNetworkLiterals []ExtendedACLEntriesDestinationNetworkLiterals `tfsdk:"destination_network_literals"`
 	SourceNetworkObjects       []ExtendedACLEntriesSourceNetworkObjects       `tfsdk:"source_network_objects"`
+	SourceSgtObjects           []ExtendedACLEntriesSourceSgtObjects           `tfsdk:"source_sgt_objects"`
 	DestinationNetworkObjects  []ExtendedACLEntriesDestinationNetworkObjects  `tfsdk:"destination_network_objects"`
 	SourcePortObjects          []ExtendedACLEntriesSourcePortObjects          `tfsdk:"source_port_objects"`
 	DestinationPortObjects     []ExtendedACLEntriesDestinationPortObjects     `tfsdk:"destination_port_objects"`
@@ -58,11 +60,18 @@ type ExtendedACLEntriesSourceNetworkLiterals struct {
 	Value types.String `tfsdk:"value"`
 	Type  types.String `tfsdk:"type"`
 }
+type ExtendedACLEntriesSourceSgtLiterals struct {
+	Tag  types.String `tfsdk:"tag"`
+	Type types.String `tfsdk:"type"`
+}
 type ExtendedACLEntriesDestinationNetworkLiterals struct {
 	Value types.String `tfsdk:"value"`
 	Type  types.String `tfsdk:"type"`
 }
 type ExtendedACLEntriesSourceNetworkObjects struct {
+	Id types.String `tfsdk:"id"`
+}
+type ExtendedACLEntriesSourceSgtObjects struct {
 	Id types.String `tfsdk:"id"`
 }
 type ExtendedACLEntriesDestinationNetworkObjects struct {
@@ -127,6 +136,19 @@ func (data ExtendedACL) toBody(ctx context.Context, state ExtendedACL) string {
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.literals.-1", itemChildBody)
 				}
 			}
+			if len(item.SourceSgtLiterals) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "securityGroupTags.literals", []interface{}{})
+				for _, childItem := range item.SourceSgtLiterals {
+					itemChildBody := ""
+					if !childItem.Tag.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "tag", childItem.Tag.ValueString())
+					}
+					if !childItem.Type.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "type", childItem.Type.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "securityGroupTags.literals.-1", itemChildBody)
+				}
+			}
 			if len(item.DestinationNetworkLiterals) > 0 {
 				itemBody, _ = sjson.Set(itemBody, "destinationNetworks.literals", []interface{}{})
 				for _, childItem := range item.DestinationNetworkLiterals {
@@ -148,6 +170,16 @@ func (data ExtendedACL) toBody(ctx context.Context, state ExtendedACL) string {
 						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
 					}
 					itemBody, _ = sjson.SetRaw(itemBody, "sourceNetworks.objects.-1", itemChildBody)
+				}
+			}
+			if len(item.SourceSgtObjects) > 0 {
+				itemBody, _ = sjson.Set(itemBody, "securityGroupTags.objects", []interface{}{})
+				for _, childItem := range item.SourceSgtObjects {
+					itemChildBody := ""
+					if !childItem.Id.IsNull() {
+						itemChildBody, _ = sjson.Set(itemChildBody, "id", childItem.Id.ValueString())
+					}
+					itemBody, _ = sjson.SetRaw(itemBody, "securityGroupTags.objects.-1", itemChildBody)
 				}
 			}
 			if len(item.DestinationNetworkObjects) > 0 {
@@ -245,6 +277,25 @@ func (data *ExtendedACL) fromBody(ctx context.Context, res gjson.Result) {
 					return true
 				})
 			}
+			if value := res.Get("securityGroupTags.literals"); value.Exists() {
+				data.SourceSgtLiterals = make([]ExtendedACLEntriesSourceSgtLiterals, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := ExtendedACLEntriesSourceSgtLiterals{}
+					if value := res.Get("tag"); value.Exists() {
+						data.Tag = types.StringValue(value.String())
+					} else {
+						data.Tag = types.StringNull()
+					}
+					if value := res.Get("type"); value.Exists() {
+						data.Type = types.StringValue(value.String())
+					} else {
+						data.Type = types.StringNull()
+					}
+					(*parent).SourceSgtLiterals = append((*parent).SourceSgtLiterals, data)
+					return true
+				})
+			}
 			if value := res.Get("destinationNetworks.literals"); value.Exists() {
 				data.DestinationNetworkLiterals = make([]ExtendedACLEntriesDestinationNetworkLiterals, 0)
 				value.ForEach(func(k, res gjson.Result) bool {
@@ -275,6 +326,20 @@ func (data *ExtendedACL) fromBody(ctx context.Context, res gjson.Result) {
 						data.Id = types.StringNull()
 					}
 					(*parent).SourceNetworkObjects = append((*parent).SourceNetworkObjects, data)
+					return true
+				})
+			}
+			if value := res.Get("securityGroupTags.objects"); value.Exists() {
+				data.SourceSgtObjects = make([]ExtendedACLEntriesSourceSgtObjects, 0)
+				value.ForEach(func(k, res gjson.Result) bool {
+					parent := &data
+					data := ExtendedACLEntriesSourceSgtObjects{}
+					if value := res.Get("id"); value.Exists() {
+						data.Id = types.StringValue(value.String())
+					} else {
+						data.Id = types.StringNull()
+					}
+					(*parent).SourceSgtObjects = append((*parent).SourceSgtObjects, data)
 					return true
 				})
 			}
@@ -428,6 +493,54 @@ func (data *ExtendedACL) fromBodyPartial(ctx context.Context, res gjson.Result) 
 			}
 			(*parent).SourceNetworkLiterals[i] = data
 		}
+		for i := 0; i < len(data.SourceSgtLiterals); i++ {
+			keys := [...]string{"tag"}
+			keyValues := [...]string{data.SourceSgtLiterals[i].Tag.ValueString()}
+
+			parent := &data
+			data := (*parent).SourceSgtLiterals[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("securityGroupTags.literals").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourceSgtLiterals[%d] = %+v",
+					i,
+					(*parent).SourceSgtLiterals[i],
+				))
+				(*parent).SourceSgtLiterals = slices.Delete((*parent).SourceSgtLiterals, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("tag"); value.Exists() && !data.Tag.IsNull() {
+				data.Tag = types.StringValue(value.String())
+			} else {
+				data.Tag = types.StringNull()
+			}
+			if value := res.Get("type"); value.Exists() && !data.Type.IsNull() {
+				data.Type = types.StringValue(value.String())
+			} else {
+				data.Type = types.StringNull()
+			}
+			(*parent).SourceSgtLiterals[i] = data
+		}
 		for i := 0; i < len(data.DestinationNetworkLiterals); i++ {
 			keys := [...]string{"value"}
 			keyValues := [...]string{data.DestinationNetworkLiterals[i].Value.ValueString()}
@@ -518,6 +631,49 @@ func (data *ExtendedACL) fromBodyPartial(ctx context.Context, res gjson.Result) 
 				data.Id = types.StringNull()
 			}
 			(*parent).SourceNetworkObjects[i] = data
+		}
+		for i := 0; i < len(data.SourceSgtObjects); i++ {
+			keys := [...]string{"id"}
+			keyValues := [...]string{data.SourceSgtObjects[i].Id.ValueString()}
+
+			parent := &data
+			data := (*parent).SourceSgtObjects[i]
+			parentRes := &res
+			var res gjson.Result
+
+			parentRes.Get("securityGroupTags.objects").ForEach(
+				func(_, v gjson.Result) bool {
+					found := false
+					for ik := range keys {
+						if v.Get(keys[ik]).String() != keyValues[ik] {
+							found = false
+							break
+						}
+						found = true
+					}
+					if found {
+						res = v
+						return false
+					}
+					return true
+				},
+			)
+			if !res.Exists() {
+				tflog.Debug(ctx, fmt.Sprintf("removing SourceSgtObjects[%d] = %+v",
+					i,
+					(*parent).SourceSgtObjects[i],
+				))
+				(*parent).SourceSgtObjects = slices.Delete((*parent).SourceSgtObjects, i, i+1)
+				i--
+
+				continue
+			}
+			if value := res.Get("id"); value.Exists() && !data.Id.IsNull() {
+				data.Id = types.StringValue(value.String())
+			} else {
+				data.Id = types.StringNull()
+			}
+			(*parent).SourceSgtObjects[i] = data
 		}
 		for i := 0; i < len(data.DestinationNetworkObjects); i++ {
 			keys := [...]string{"id"}

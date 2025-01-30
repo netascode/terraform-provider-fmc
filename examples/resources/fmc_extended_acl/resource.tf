@@ -13,6 +13,12 @@ resource "fmc_extended_acl" "example" {
           type  = "Network"
         }
       ]
+      source_sgt_literals = [
+        {
+          tag  = "11"
+          type = "securityGroupTag"
+        }
+      ]
       destination_network_literals = [
         {
           value = "10.2.2.2"
@@ -20,6 +26,11 @@ resource "fmc_extended_acl" "example" {
         }
       ]
       source_network_objects = [
+        {
+          id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+        }
+      ]
+      source_sgt_objects = [
         {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }

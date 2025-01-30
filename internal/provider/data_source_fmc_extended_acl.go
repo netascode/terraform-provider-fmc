@@ -116,6 +116,22 @@ func (d *ExtendedACLDataSource) Schema(ctx context.Context, req datasource.Schem
 								},
 							},
 						},
+						"source_sgt_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of SGT that represent tag of source traffic (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"tag": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
 						"destination_network_literals": schema.SetNestedAttribute{
 							MarkdownDescription: "Set of objects that represent destinations of traffic (literally specified).",
 							Computed:            true,
@@ -139,6 +155,18 @@ func (d *ExtendedACLDataSource) Schema(ctx context.Context, req datasource.Schem
 								Attributes: map[string]schema.Attribute{
 									"id": schema.StringAttribute{
 										MarkdownDescription: "UUID of the object (such as fmc_network.example.id, etc.).",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_sgt_objects": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of SGT that represent tag of source traffic (fmc_sgts).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"id": schema.StringAttribute{
+										MarkdownDescription: "UUID of the object (such as fmc_sgts.example.id, etc.).",
 										Computed:            true,
 									},
 								},
