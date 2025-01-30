@@ -64,8 +64,8 @@ attributes:
     data_path: [gateway, object]
     tf_name: gateway_host_object_id
     description: >-
-      UUID of the next hop for this route (such as fmc_host.example.id). Exactly one of `gateway_object_id`
-      or `gateway_literal` must be present.
+      UUID of the next hop for this route (such as fmc_host.example.id). Exactly one of `gateway_host_object_id`
+      or `gateway_host_literal` must be present.
     type: String
     exclude_example: true
     exclude_test: true
@@ -74,8 +74,8 @@ attributes:
     tf_name: gateway_host_literal
     type: String
     description: >-
-      The next hop for this route as a literal IPv4 address. Exactly one of `gateway_object_id`
-      or `gateway_literal` must be present.
+      The next hop for this route as a literal IPv4 address. Exactly one of `gateway_host_object_id`
+      or `gateway_host_literal` must be present.
     example: 10.0.0.1
     minimum_test_value: '"10.0.0.2"'
   - model_name: isTunneled

@@ -116,11 +116,11 @@ func (r *DeviceIPv4StaticRouteResource) Schema(ctx context.Context, req resource
 				},
 			},
 			"gateway_host_object_id": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("UUID of the next hop for this route (such as fmc_host.example.id). Exactly one of `gateway_object_id` or `gateway_literal` must be present.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the next hop for this route (such as fmc_host.example.id). Exactly one of `gateway_host_object_id` or `gateway_host_literal` must be present.").String,
 				Optional:            true,
 			},
 			"gateway_host_literal": schema.StringAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("The next hop for this route as a literal IPv4 address. Exactly one of `gateway_object_id` or `gateway_literal` must be present.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("The next hop for this route as a literal IPv4 address. Exactly one of `gateway_host_object_id` or `gateway_host_literal` must be present.").String,
 				Optional:            true,
 			},
 			"is_tunneled": schema.BoolAttribute{
@@ -328,8 +328,8 @@ func (r *DeviceIPv4StaticRouteResource) ImportState(ctx context.Context, req res
 func (r DeviceIPv4StaticRouteResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.Conflicting(
-			path.MatchRoot("gateway_object_id"),
-			path.MatchRoot("gateway_literal"),
+			path.MatchRoot("gateway_host_object_id"),
+			path.MatchRoot("gateway_host_literal"),
 		),
 	}
 }
