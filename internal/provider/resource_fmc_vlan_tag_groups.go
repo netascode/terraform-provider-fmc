@@ -94,6 +94,13 @@ func (r *VLANTagGroupsResource) Schema(ctx context.Context, req resource.SchemaR
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
+						"type": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Type of the object; this value is always 'VlanGroupTag'").String,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"description": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Optional user-created description.").String,
 							Optional:            true,

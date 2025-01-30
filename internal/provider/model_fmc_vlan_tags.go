@@ -78,6 +78,7 @@ func (data VLANTags) toBody(ctx context.Context, state VLANTags) string {
 			if !item.Overridable.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "overridable", item.Overridable.ValueBool())
 			}
+			itemBody, _ = sjson.Set(itemBody, "type", "VlanTag")
 			if !item.StartTag.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "data.startTag", item.StartTag.ValueString())
 			}

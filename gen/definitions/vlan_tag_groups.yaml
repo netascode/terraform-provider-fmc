@@ -23,6 +23,10 @@ attributes:
         description: UUID of the managed URL Groups.
         exclude_example: true
         exclude_test: true
+      - model_name: type
+        type: String
+        description: Type of the object; this value is always 'VlanGroupTag'
+        computed: true
       - model_name: description
         type: String
         description: Optional user-created description.
