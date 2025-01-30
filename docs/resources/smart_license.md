@@ -32,7 +32,9 @@ resource "fmc_smart_license" "example" {
 ### Optional
 
 - `force` (Boolean) Set to true to force Smart License re-registration. This will take effect on each apply.
+  - Default value: `false`
 - `retain_registration` (Boolean) Set to true to keep registration after the resource is destroyed.
+  - Default value: `false`
 - `token` (String) Registration token. Mandatory when registration_type is set to REGISTER.
 
 ### Read-Only

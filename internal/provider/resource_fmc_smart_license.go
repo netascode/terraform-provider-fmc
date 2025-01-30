@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -91,12 +92,16 @@ func (r *SmartLicenseResource) Schema(ctx context.Context, req resource.SchemaRe
 				Computed:            true,
 			},
 			"force": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Set to true to force Smart License re-registration. This will take effect on each apply.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Set to true to force Smart License re-registration. This will take effect on each apply.").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
 			"retain_registration": schema.BoolAttribute{
-				MarkdownDescription: helpers.NewAttributeDescription("Set to true to keep registration after the resource is destroyed.").String,
+				MarkdownDescription: helpers.NewAttributeDescription("Set to true to keep registration after the resource is destroyed.").AddDefaultValueDescription("false").String,
 				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
 		},
 	}
@@ -172,7 +177,7 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// Wait untill registration is finished
+	// Wait until registration is finished
 	if plan.RegistrationType.ValueString() == "REGISTER" {
 		res, diags = r.waitForRegistration(ctx, "REGISTERED")
 	} else {
@@ -189,8 +194,6 @@ func (r *SmartLicenseResource) Create(ctx context.Context, req resource.CreateRe
 
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-
-	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
 func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -225,8 +228,6 @@ func (r *SmartLicenseResource) Read(ctx context.Context, req resource.ReadReques
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-
-	helpers.SetFlagImporting(ctx, false, resp.Private, &resp.Diagnostics)
 }
 
 func (r *SmartLicenseResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

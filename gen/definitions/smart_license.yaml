@@ -29,10 +29,12 @@ attributes:
     type: Bool
     description: Set to true to force Smart License re-registration. This will take effect on each apply.
     example: "false"
+    default_value: "false"
     write_only: true
   - model_name: dummy_retain_registration
     tf_name: retain_registration
     type: Bool
     description: Set to true to keep registration after the resource is destroyed.
     example: "false"
+    default_value: "false"
     write_only: true
