@@ -170,7 +170,7 @@ func (d *DeviceBFDDataSource) Read(ctx context.Context, req datasource.ReadReque
 			}
 			if value := res.Get("items"); len(value.Array()) > 0 {
 				value.ForEach(func(k, v gjson.Result) bool {
-					if config.InterfaceLogicalName.ValueString() == v.Get("ifname").String() {
+					if config.InterfaceLogicalName.ValueString() == v.Get("interface.ifname").String() {
 						config.Id = types.StringValue(v.Get("id").String())
 						tflog.Debug(ctx, fmt.Sprintf("%s: Found object with interface_logical_name '%v', id: %v", config.Id.String(), config.InterfaceLogicalName.ValueString(), config.Id.String()))
 						return false
