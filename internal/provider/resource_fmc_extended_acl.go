@@ -218,6 +218,68 @@ func (r *ExtendedACLResource) Schema(ctx context.Context, req resource.SchemaReq
 								},
 							},
 						},
+						"destination_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destination port of traffic (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("PortLiteral", "ICMPv4PortLiteral").String,
+										Required:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("PortLiteral", "ICMPv4PortLiteral"),
+										},
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Required:            true,
+									},
+									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"icmp_code": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
+						"source_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("Set of objects that represent destination port of traffic (literally specified).").String,
+							Optional:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").AddStringEnumDescription("PortLiteral", "ICMPv4PortLiteral").String,
+										Required:            true,
+										Validators: []validator.String{
+											stringvalidator.OneOf("PortLiteral", "ICMPv4PortLiteral"),
+										},
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Required:            true,
+									},
+									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+									"icmp_code": schema.StringAttribute{
+										MarkdownDescription: helpers.NewAttributeDescription("").String,
+										Optional:            true,
+									},
+								},
+							},
+						},
 					},
 				},
 				Validators: []validator.List{

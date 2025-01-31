@@ -41,6 +41,12 @@ func TestAccFmcExtendedACL(t *testing.T) {
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.source_network_literals.0.type", "Network"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.destination_network_literals.0.value", "10.2.2.2"))
 	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.destination_network_literals.0.type", "Host"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.destination_port_literals.0.type", "PortLiteral"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.destination_port_literals.0.port", "80"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.destination_port_literals.0.protocol", "6"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.source_port_literals.0.type", "PortLiteral"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.source_port_literals.0.port", "80"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_extended_acl.test", "entries.0.source_port_literals.0.protocol", "6"))
 
 	var steps []resource.TestStep
 	if os.Getenv("SKIP_MINIMUM_TEST") == "" {
@@ -142,6 +148,16 @@ func testAccFmcExtendedACLConfig_all() string {
 	config += `		}]` + "\n"
 	config += `		destination_port_objects = [{` + "\n"
 	config += `			id = fmc_port.test.id` + "\n"
+	config += `		}]` + "\n"
+	config += `		destination_port_literals = [{` + "\n"
+	config += `			type = "PortLiteral"` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `			protocol = "6"` + "\n"
+	config += `		}]` + "\n"
+	config += `		source_port_literals = [{` + "\n"
+	config += `			type = "PortLiteral"` + "\n"
+	config += `			port = "80"` + "\n"
+	config += `			protocol = "6"` + "\n"
 	config += `		}]` + "\n"
 	config += `	}]` + "\n"
 	config += `}` + "\n"

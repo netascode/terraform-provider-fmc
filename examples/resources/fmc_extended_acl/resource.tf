@@ -44,6 +44,24 @@ resource "fmc_extended_acl" "example" {
           id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
         }
       ]
+      destination_port_literals = [
+        {
+          type      = "PortLiteral"
+          port      = "80"
+          protocol  = "6"
+          icmp_type = "0"
+          icmp_code = "0"
+        }
+      ]
+      source_port_literals = [
+        {
+          type      = "PortLiteral"
+          port      = "80"
+          protocol  = "6"
+          icmp_type = "0"
+          icmp_code = "0"
+        }
+      ]
     }
   ]
 }

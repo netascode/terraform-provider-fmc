@@ -192,6 +192,62 @@ func (d *ExtendedACLDataSource) Schema(ctx context.Context, req datasource.Schem
 								},
 							},
 						},
+						"destination_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent destination port of traffic (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"icmp_code": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
+						"source_port_literals": schema.SetNestedAttribute{
+							MarkdownDescription: "Set of objects that represent destination port of traffic (literally specified).",
+							Computed:            true,
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"port": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"protocol": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"icmp_type": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+									"icmp_code": schema.StringAttribute{
+										MarkdownDescription: "",
+										Computed:            true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
