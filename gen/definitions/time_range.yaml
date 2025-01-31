@@ -76,4 +76,3 @@ attributes:
       enum_values: [MON, TUE, WED, THU, FRI, SAT, SUN]
       exclude_example: true
       exclude_test: true
-  
