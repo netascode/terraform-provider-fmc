@@ -65,7 +65,7 @@ func (r *StandardACLResource) Metadata(ctx context.Context, req resource.Metadat
 func (r *StandardACLResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Standard ACL.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Standard ACL.").AddMinimumVersionHeaderDescription().AddMinimumVersionAnyDescription().AddMinimumVersionCreateDescription("7.2").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

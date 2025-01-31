@@ -4,11 +4,16 @@ page_title: "fmc_standard_acl Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This resource can manage a Standard ACL.
+  The following restrictions apply:
+  Read operations are supported by any tested FMC versionMinimum FMC version for object management (Create/Update/Delete): 7.2
 ---
 
 # fmc_standard_acl (Resource)
 
 This resource can manage a Standard ACL.
+The following restrictions apply:
+  - Read operations are supported by any tested FMC version
+  - Minimum FMC version for object management (Create/Update/Delete): `7.2`
 
 ## Example Usage
 

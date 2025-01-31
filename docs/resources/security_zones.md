@@ -4,11 +4,16 @@ page_title: "fmc_security_zones Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This plural resource manages a bulk of Security Zones. The FMC API supports quick bulk creation of this resource. Deletion of this resource is done one-by-one or in bulk, depending of FMC version. Modification is always done one-by-one. Updating/deleting fmc_security_zones can thus take much more time than creating it
+  The following restrictions apply:
+  Bulk object deletion is not supported by FMC, it will be handled one-by-oneUpdates are always done one-by-one.
 ---
 
 # fmc_security_zones (Resource)
 
 This plural resource manages a bulk of Security Zones. The FMC API supports quick bulk creation of this resource. Deletion of this resource is done one-by-one or in bulk, depending of FMC version. Modification is always done one-by-one. Updating/deleting `fmc_security_zones` can thus take much more time than creating it
+The following restrictions apply:
+  - Bulk object deletion is not supported by FMC, it will be handled one-by-one
+  - Updates are always done one-by-one.
 
 ## Example Usage
 

@@ -4,11 +4,17 @@ page_title: "fmc_icmpv4_objects Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This plural resource manages a bulk of ICMPv4. The FMC API supports quick bulk creation of this resource. Deletion of this resource is done one-by-one or in bulk, depending of FMC version. Modification is always done one-by-one. Updating/deleting fmc_icmpv4_objects can thus take much more time than creating it
+  The following restrictions apply:
+  Minimum FMC version for bulk object deletion: 7.4If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.Updates are always done one-by-one.
 ---
 
 # fmc_icmpv4_objects (Resource)
 
 This plural resource manages a bulk of ICMPv4. The FMC API supports quick bulk creation of this resource. Deletion of this resource is done one-by-one or in bulk, depending of FMC version. Modification is always done one-by-one. Updating/deleting `fmc_icmpv4_objects` can thus take much more time than creating it
+The following restrictions apply:
+  - Minimum FMC version for bulk object deletion: `7.4`
+  - If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.
+  - Updates are always done one-by-one.
 
 ## Example Usage
 

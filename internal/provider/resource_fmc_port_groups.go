@@ -67,7 +67,7 @@ func (r *PortGroupsResource) Metadata(ctx context.Context, req resource.Metadata
 func (r *PortGroupsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Port Groups. The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one. Updating and deleting `fmc_port_groups` can thus take much more time than creating it (even >500 times more time, i.e. >50000%, depending on the change size).").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Port Groups. The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one. Updating and deleting `fmc_port_groups` can thus take much more time than creating it (even >500 times more time, i.e. >50000%, depending on the change size).").AddMinimumVersionHeaderDescription().AddMinimumVersionBulkDeleteDescription("7.4").AddMinimumVersionBulkDisclaimerDescription().AddMinimumVersionBulkUpdateDescription().String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

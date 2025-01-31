@@ -4,11 +4,17 @@ page_title: "fmc_port_groups Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This plural resource manages a bulk of Port Groups. The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one. Updating and deleting fmc_port_groups can thus take much more time than creating it (even >500 times more time, i.e. >50000%, depending on the change size).
+  The following restrictions apply:
+  Minimum FMC version for bulk object deletion: 7.4If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.Updates are always done one-by-one.
 ---
 
 # fmc_port_groups (Resource)
 
 This plural resource manages a bulk of Port Groups. The FMC API supports quick bulk creation for this resource, but the deletion/modification is done one-by-one. Updating and deleting `fmc_port_groups` can thus take much more time than creating it (even >500 times more time, i.e. >50000%, depending on the change size).
+The following restrictions apply:
+  - Minimum FMC version for bulk object deletion: `7.4`
+  - If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.
+  - Updates are always done one-by-one.
 
 ## Example Usage
 

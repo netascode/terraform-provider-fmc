@@ -26,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/netascode/go-fmc"
+	"github.com/netascode/terraform-provider-fmc/internal/provider/helpers"
 )
 
 // End of section. //template:end imports
@@ -53,7 +54,7 @@ func (d *URLsDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 func (d *URLsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This data source can read the URLs.",
+		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the URLs.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

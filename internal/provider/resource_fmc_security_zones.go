@@ -69,7 +69,7 @@ func (r *SecurityZonesResource) Metadata(ctx context.Context, req resource.Metad
 func (r *SecurityZonesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Security Zones. The FMC API supports quick bulk creation of this resource. Deletion of this resource is done one-by-one or in bulk, depending of FMC version. Modification is always done one-by-one. Updating/deleting `fmc_security_zones` can thus take much more time than creating it").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Security Zones. The FMC API supports quick bulk creation of this resource. Deletion of this resource is done one-by-one or in bulk, depending of FMC version. Modification is always done one-by-one. Updating/deleting `fmc_security_zones` can thus take much more time than creating it").AddMinimumVersionHeaderDescription().AddMinimumVersionBulkDeleteDescription("999").AddMinimumVersionBulkUpdateDescription().String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
