@@ -130,6 +130,7 @@ resource "fmc_access_control_policy" "example" {
       snmp_config_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       file_policy_id      = "76d24097-41c4-4558-a4d0-a8c07ac08470"
       intrusion_policy_id = "76d24097-41c4-4558-a4d0-a8c07ac08470"
+      time_range_id       = "0050568A-7F57-0ed3-0000-004294975576"
       variable_set_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
     }
   ]

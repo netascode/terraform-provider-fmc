@@ -99,6 +99,7 @@ type AccessControlPolicyRules struct {
 	Description                types.String                                         `tfsdk:"description"`
 	FilePolicyId               types.String                                         `tfsdk:"file_policy_id"`
 	IntrusionPolicyId          types.String                                         `tfsdk:"intrusion_policy_id"`
+	TimeRangeId                types.String                                         `tfsdk:"time_range_id"`
 	VariableSetId              types.String                                         `tfsdk:"variable_set_id"`
 }
 
@@ -551,6 +552,9 @@ func (data AccessControlPolicy) toBody(ctx context.Context, state AccessControlP
 			}
 			if !item.IntrusionPolicyId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "ipsPolicy.id", item.IntrusionPolicyId.ValueString())
+			}
+			if !item.TimeRangeId.IsNull() {
+				itemBody, _ = sjson.Set(itemBody, "timeRangeObjects.0.id", item.TimeRangeId.ValueString())
 			}
 			if !item.VariableSetId.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "variableSet.id", item.VariableSetId.ValueString())
@@ -1046,6 +1050,11 @@ func (data *AccessControlPolicy) fromBody(ctx context.Context, res gjson.Result)
 				data.IntrusionPolicyId = types.StringValue(value.String())
 			} else {
 				data.IntrusionPolicyId = types.StringNull()
+			}
+			if value := res.Get("timeRangeObjects.0.id"); value.Exists() {
+				data.TimeRangeId = types.StringValue(value.String())
+			} else {
+				data.TimeRangeId = types.StringNull()
 			}
 			if value := res.Get("variableSet.id"); value.Exists() {
 				data.VariableSetId = types.StringValue(value.String())
@@ -2087,6 +2096,11 @@ func (data *AccessControlPolicy) fromBodyPartial(ctx context.Context, res gjson.
 			data.IntrusionPolicyId = types.StringValue(value.String())
 		} else {
 			data.IntrusionPolicyId = types.StringNull()
+		}
+		if value := res.Get("timeRangeObjects.0.id"); value.Exists() && !data.TimeRangeId.IsNull() {
+			data.TimeRangeId = types.StringValue(value.String())
+		} else {
+			data.TimeRangeId = types.StringNull()
 		}
 		if value := res.Get("variableSet.id"); value.Exists() && !data.VariableSetId.IsNull() {
 			data.VariableSetId = types.StringValue(value.String())

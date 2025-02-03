@@ -543,6 +543,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 							MarkdownDescription: helpers.NewAttributeDescription("Identifier (UUID) of the fmc_intrusion_policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.").String,
 							Optional:            true,
 						},
+						"time_range_id": schema.StringAttribute{
+							MarkdownDescription: helpers.NewAttributeDescription("UUID of Time Range object applied to the rule.").String,
+							Optional:            true,
+						},
 						"variable_set_id": schema.StringAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Identifier (UUID) of the Variable Set for the rule action.").String,
 							Optional:            true,

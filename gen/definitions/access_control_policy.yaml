@@ -607,6 +607,13 @@ attributes:
         example: 76d24097-41c4-4558-a4d0-a8c07ac08470
         exclude_test: true
       - model_name: id
+        data_path: [timeRangeObjects.0]
+        tf_name: time_range_id
+        type: String
+        description: UUID of Time Range object applied to the rule.
+        example: 0050568A-7F57-0ed3-0000-004294975576
+        exclude_test: true        
+      - model_name: id
         data_path: [variableSet]
         tf_name: variable_set_id
         type: String

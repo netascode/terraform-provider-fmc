@@ -88,6 +88,7 @@ Read-Only:
 - `source_zones` (Attributes Set) Set of objects representing source security zones associated with the access rule (fmc_security_zone). (see [below for nested schema](#nestedatt--rules--source_zones))
 - `syslog_config_id` (String) UUID of the syslog config. Can be set only when send_syslog is true and either log_begin or log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `syslog_severity` (String) Override the Severity of syslog alerts.
+- `time_range_id` (String) UUID of Time Range object applied to the rule.
 - `url_categories` (Attributes Set) Set of objects representing the URL Categories associated with the rule (fmc_url_category). (see [below for nested schema](#nestedatt--rules--url_categories))
 - `url_literals` (Attributes Set) Set of objects representing the URLs associated with the rule (literally specified). (see [below for nested schema](#nestedatt--rules--url_literals))
 - `url_objects` (Attributes Set) Set of objects representing the URLs associated with the rule (fmc_url or fmc_url_group). (see [below for nested schema](#nestedatt--rules--url_objects))
