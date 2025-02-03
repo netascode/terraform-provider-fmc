@@ -183,7 +183,7 @@ func (r *FilePolicyResource) Schema(ctx context.Context, req resource.SchemaRequ
 								stringvalidator.OneOf("ANY", "UPLOAD", "DOWNLOAD"),
 							},
 						},
-						"file_type_categories": schema.SetNestedAttribute{
+						"file_categories": schema.SetNestedAttribute{
 							MarkdownDescription: helpers.NewAttributeDescription("Defines a list of file categories for inspection.").String,
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
