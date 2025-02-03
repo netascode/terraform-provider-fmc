@@ -30,12 +30,13 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin testAcc
 
 func TestAccFmcDeviceBFD(t *testing.T) {
-	if os.Getenv("TF_VAR_device_id") == "" {
-		t.Skip("skipping test, set environment variable TF_VAR_device_id")
+	if os.Getenv("TF_VAR_device_id") == "" || os.Getenv("TF_VAR_interface_name") == "" {
+		t.Skip("skipping test, set environment variable TF_VAR_device_id and TF_VAR_interface_name")
 	}
 	var checks []resource.TestCheckFunc
 	checks = append(checks, resource.TestCheckResourceAttrSet("fmc_device_bfd.test", "type"))
-	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "hop_type", "MULTI_HOP"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "hop_type", "SINGLE_HOP"))
+	checks = append(checks, resource.TestCheckResourceAttr("fmc_device_bfd.test", "slow_timer", "1000"))
 
 	var steps []resource.TestStep
 	steps = append(steps, resource.TestStep{
@@ -57,17 +58,19 @@ func TestAccFmcDeviceBFD(t *testing.T) {
 
 const testAccFmcDeviceBFDPrerequisitesConfig = `
 variable "device_id" { default = null } // tests will set $TF_VAR_device_id
+variable "interface_name" { default = null } // tests will set $TF_VAR_interface_name
 
 resource "fmc_bfd_template" "test" {
   name = "BFD_Template1"
-  hop_type = "MULTI_HOP"
+  hop_type = "SINGLE_HOP"
+  echo = "DISABLED"
 }
 
-resource "fmc_hosts" "test" {
-  items = {
-    "bfd_host_1" = { ip = "10.11.12.13" },
-    "bfd_host_2" = { ip = "10.12.13.14" },
-  }
+resource "fmc_device_physical_interface" "test" {
+  device_id = var.device_id
+  name = var.interface_name
+  logical_name = "outside"
+  mode = "NONE"
 }
 `
 
@@ -81,10 +84,11 @@ resource "fmc_hosts" "test" {
 func testAccFmcDeviceBFDConfig_all() string {
 	config := `resource "fmc_device_bfd" "test" {` + "\n"
 	config += `	device_id = var.device_id` + "\n"
-	config += `	hop_type = "MULTI_HOP"` + "\n"
+	config += `	hop_type = "SINGLE_HOP"` + "\n"
 	config += `	bfd_template_id = fmc_bfd_template.test.id` + "\n"
-	config += `	destination_host_object_id = fmc_hosts.test.items.bfd_host_1.id` + "\n"
-	config += `	source_host_object_id = fmc_hosts.test.items.bfd_host_2.id` + "\n"
+	config += `	interface_logical_name = fmc_device_physical_interface.test.logical_name` + "\n"
+	config += `	interface_id = fmc_device_physical_interface.test.id` + "\n"
+	config += `	slow_timer = 1000` + "\n"
 	config += `}` + "\n"
 	return config
 }
