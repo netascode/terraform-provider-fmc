@@ -241,9 +241,19 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							Computed:            true,
 							{{- end}}
 							{{- if len .EnumValues}}
+							{{- if isSet .}}
+							Validators: []validator.Set{
+								{{- if eq .ElementType "String"}}
+								setvalidator.ValueStringsAre(
+									stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
+								),
+								{{- end}}
+							},
+							{{- else}}
 							Validators: []validator.String{
 								stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 							},
+							{{- end}}
 							{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 							Validators: []validator.String{
 								{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
@@ -310,9 +320,19 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										Computed:            true,
 										{{- end}}
 										{{- if len .EnumValues}}
+										{{- if isSet .}}
+										Validators: []validator.Set{
+											{{- if eq .ElementType "String"}}
+											setvalidator.ValueStringsAre(
+												stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
+											),
+											{{- end}}
+										},
+										{{- else}}
 										Validators: []validator.String{
 											stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 										},
+										{{- end}}
 										{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 										Validators: []validator.String{
 											{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
@@ -380,9 +400,19 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													Computed:            true,
 													{{- end}}
 													{{- if len .EnumValues}}
+													{{- if isSet .}}
+													Validators: []validator.Set{
+														{{- if eq .ElementType "String"}}
+														setvalidator.ValueStringsAre(
+															stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
+														),
+														{{- end}}
+													},
+													{{- else}}
 													Validators: []validator.String{
 														stringvalidator.OneOf({{range .EnumValues}}"{{.}}", {{end}}),
 													},
+													{{- end}}
 													{{- else if or (len .StringPatterns) (ne .StringMinLength 0) (ne .StringMaxLength 0) }}
 													Validators: []validator.String{
 														{{- if or (ne .StringMinLength 0) (ne .StringMaxLength 0)}}
