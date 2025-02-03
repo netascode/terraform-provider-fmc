@@ -10,6 +10,11 @@ attributes:
     description: The name of the Tunnel Zone object.
     example: TunnelZone1
     data_source_query: true
+    # Type is defined twice on purpose, to be read-only attribute and to be in POST body
+  - model_name: type
+    type: String
+    description: Type of the object; this value is always 'TunnelTag'.
+    value: TunnelTag
   - model_name: type
     type: String
     description: Type of the object; this value is always 'TunnelTag'.

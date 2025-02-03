@@ -69,6 +69,7 @@ func (data TunnelZones) toBody(ctx context.Context, state TunnelZones) string {
 			if !item.Id.IsNull() && !item.Id.IsUnknown() {
 				itemBody, _ = sjson.Set(itemBody, "id", item.Id.ValueString())
 			}
+			itemBody, _ = sjson.Set(itemBody, "type", "TunnelTag")
 			if !item.Description.IsNull() {
 				itemBody, _ = sjson.Set(itemBody, "description", item.Description.ValueString())
 			}

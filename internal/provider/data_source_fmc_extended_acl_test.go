@@ -80,7 +80,7 @@ resource "fmc_host" "test" {
 
 resource "fmc_port" "test" {
   name = "myport2"
-  protocol = "UDP"
+  protocol = "TCP"
   port = "65000"
 }
 
