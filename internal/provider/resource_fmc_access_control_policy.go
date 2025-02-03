@@ -132,6 +132,10 @@ func (r *AccessControlPolicyResource) Schema(ctx context.Context, req resource.S
 				MarkdownDescription: helpers.NewAttributeDescription("UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.").String,
 				Optional:            true,
 			},
+			"prefilter_policy_id": schema.StringAttribute{
+				MarkdownDescription: helpers.NewAttributeDescription("UUID of the prefilter policy. ").String,
+				Optional:            true,
+			},
 			"default_action_syslog_severity": schema.StringAttribute{
 				MarkdownDescription: helpers.NewAttributeDescription("Override the Severity of syslog alerts.").AddStringEnumDescription("ALERT", "CRIT", "DEBUG", "EMERG", "ERR", "INFO", "NOTICE", "WARNING").String,
 				Optional:            true,

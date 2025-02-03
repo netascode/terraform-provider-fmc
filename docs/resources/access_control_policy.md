@@ -22,6 +22,7 @@ resource "fmc_access_control_policy" "example" {
   default_action_send_events_to_fmc = true
   default_action_send_syslog        = true
   default_action_syslog_config_id   = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
+  prefilter_policy_id               = "35e197ca-33a8-11ef-b2d1-d98ae17766e7"
   default_action_syslog_severity    = "DEBUG"
   default_action_snmp_config_id     = "76d24097-41c4-4558-a4d0-a8c07ac08470"
   categories = [
@@ -178,6 +179,7 @@ resource "fmc_access_control_policy" "example" {
   - Choices: `ALERT`, `CRIT`, `DEBUG`, `EMERG`, `ERR`, `INFO`, `NOTICE`, `WARNING`
 - `description` (String) Description
 - `domain` (String) The name of the FMC domain
+- `prefilter_policy_id` (String) UUID of the prefilter policy.
 - `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only

@@ -41,6 +41,7 @@ data "fmc_access_control_policy" "example" {
 - `default_action_syslog_config_id` (String) UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.
 - `default_action_syslog_severity` (String) Override the Severity of syslog alerts.
 - `description` (String) Description
+- `prefilter_policy_id` (String) UUID of the prefilter policy.
 - `rules` (Attributes List) The ordered list of rules. Rules must be sorted in the order of the corresponding categories, if they have `category_name`. Uncategorized non-mandatory rules must be below all other rules. The first matching rule is selected. Except for MONITOR rules, the system does not continue to evaluate traffic against additional rules after that traffic matches a rule. (see [below for nested schema](#nestedatt--rules))
 
 <a id="nestedatt--categories"></a>

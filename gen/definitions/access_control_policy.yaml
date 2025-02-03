@@ -65,6 +65,14 @@ attributes:
       in Access Control Logging applies.
     example: 35e197ca-33a8-11ef-b2d1-d98ae17766e7
     exclude_test: true
+  - model_name: id
+    data_path: [prefilterPolicySetting]
+    tf_name: prefilter_policy_id
+    type: String
+    description: >-
+      UUID of the prefilter policy. 
+    example: 35e197ca-33a8-11ef-b2d1-d98ae17766e7
+    exclude_test: true    
   - model_name: syslogSeverity
     data_path: [defaultAction]
     tf_name: default_action_syslog_severity
