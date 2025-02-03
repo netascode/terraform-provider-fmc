@@ -454,6 +454,8 @@ func (r *DeviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
+	plan.fromBodyUnknowns(ctx, res)
+
 	tflog.Debug(ctx, fmt.Sprintf("%s: Update finished successfully", plan.Id.ValueString()))
 
 	diags = resp.State.Set(ctx, &plan)
