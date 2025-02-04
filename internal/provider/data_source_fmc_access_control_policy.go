@@ -109,6 +109,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 				MarkdownDescription: "UUID of the syslog config. Can be set only when default_action_send_syslog is true and either default_action_log_begin or default_action_log_end is true. If not set, the default policy syslog configuration in Access Control Logging applies.",
 				Computed:            true,
 			},
+			"prefilter_policy_id": schema.StringAttribute{
+				MarkdownDescription: "UUID of the prefilter policy. ",
+				Computed:            true,
+			},
 			"default_action_syslog_severity": schema.StringAttribute{
 				MarkdownDescription: "Override the Severity of syslog alerts.",
 				Computed:            true,
@@ -480,6 +484,10 @@ func (d *AccessControlPolicyDataSource) Schema(ctx context.Context, req datasour
 						},
 						"intrusion_policy_id": schema.StringAttribute{
 							MarkdownDescription: "Identifier (UUID) of the fmc_intrusion_policy for the rule action. Cannot be set when action is BLOCK, BLOCK_RESET, TRUST, MONITOR.",
+							Computed:            true,
+						},
+						"time_range_id": schema.StringAttribute{
+							MarkdownDescription: "UUID of Time Range object applied to the rule.",
 							Computed:            true,
 						},
 						"variable_set_id": schema.StringAttribute{

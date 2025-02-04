@@ -135,7 +135,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"source_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of source interface",
+							MarkdownDescription: "ID of source security zone or interface group",
 							Computed:            true,
 						},
 						"original_source_id": schema.StringAttribute{
@@ -159,7 +159,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"destination_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of destination interface",
+							MarkdownDescription: "ID of destination security zone or interface group",
 							Computed:            true,
 						},
 						"translated_source_id": schema.StringAttribute{
@@ -199,7 +199,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"destination_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of destination interface",
+							MarkdownDescription: "ID of destination security zone or interface group",
 							Computed:            true,
 						},
 						"fall_through": schema.BoolAttribute{
@@ -235,7 +235,7 @@ func (d *FTDNATPolicyDataSource) Schema(ctx context.Context, req datasource.Sche
 							Computed:            true,
 						},
 						"source_interface_id": schema.StringAttribute{
-							MarkdownDescription: "ID of source interface",
+							MarkdownDescription: "ID of source security zone or interface group",
 							Computed:            true,
 						},
 						"translate_dns": schema.BoolAttribute{

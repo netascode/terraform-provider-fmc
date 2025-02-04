@@ -301,7 +301,7 @@ func (d *DevicePhysicalInterfaceDataSource) Schema(ctx context.Context, req data
 				Computed:            true,
 			},
 			"duplex": schema.StringAttribute{
-				MarkdownDescription: "Duplex configuraion, can be one of INLINE, PASSIVE, TAP, ERSPAN.",
+				MarkdownDescription: "Duplex configuraion.",
 				Computed:            true,
 			},
 			"speed": schema.StringAttribute{
