@@ -5,15 +5,13 @@ subcategory: "Objects"
 description: |-
   This plural resource manages a bulk of Dynamic Objects. The FMC API supports quick bulk creation and deletion of this resource. Modification is always done one-by-one. Refresh is done in bulk for all objects and one-by-one for evey object that has mapping defined. Updating/deleting fmc_dynamic_objects can thus take much more time than creating it
   The following restrictions apply:
-  Minimum FMC version for bulk object deletion: 7.0If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.Updates are always done one-by-one.
+  Updates are always done one-by-one.
 ---
 
 # fmc_dynamic_objects (Resource)
 
 This plural resource manages a bulk of Dynamic Objects. The FMC API supports quick bulk creation and deletion of this resource. Modification is always done one-by-one. Refresh is done in bulk for all objects and one-by-one for evey object that has mapping defined. Updating/deleting `fmc_dynamic_objects` can thus take much more time than creating it
 The following restrictions apply:
-  - Minimum FMC version for bulk object deletion: `7.0`
-  - If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.
   - Updates are always done one-by-one.
 
 ## Example Usage

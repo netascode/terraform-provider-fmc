@@ -65,7 +65,7 @@ func (r *DeviceBFDResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *DeviceBFDResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device BFD.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Device BFD.").AddMinimumVersionHeaderDescription().AddMinimumVersionDescription("7.4").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

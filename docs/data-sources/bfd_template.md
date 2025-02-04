@@ -4,11 +4,15 @@ page_title: "fmc_bfd_template Data Source - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This data source can read the BFD Template.
+  The following restrictions apply:
+  Minimum FMC version: 7.4
 ---
 
 # fmc_bfd_template (Data Source)
 
 This data source can read the BFD Template.
+The following restrictions apply:
+  - Minimum FMC version: `7.4`
 
 ## Example Usage
 

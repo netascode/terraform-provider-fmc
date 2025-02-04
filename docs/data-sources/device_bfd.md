@@ -4,11 +4,15 @@ page_title: "fmc_device_bfd Data Source - terraform-provider-fmc"
 subcategory: "Device"
 description: |-
   This data source can read the Device BFD.
+  The following restrictions apply:
+  Minimum FMC version: 7.4
 ---
 
 # fmc_device_bfd (Data Source)
 
 This data source can read the Device BFD.
+The following restrictions apply:
+  - Minimum FMC version: `7.4`
 
 ## Example Usage
 

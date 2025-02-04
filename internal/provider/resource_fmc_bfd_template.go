@@ -65,7 +65,7 @@ func (r *BFDTemplateResource) Metadata(ctx context.Context, req resource.Metadat
 func (r *BFDTemplateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a BFD Template.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a BFD Template.").AddMinimumVersionHeaderDescription().AddMinimumVersionDescription("7.4").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

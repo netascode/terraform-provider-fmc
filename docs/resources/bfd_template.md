@@ -4,11 +4,15 @@ page_title: "fmc_bfd_template Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This resource can manage a BFD Template.
+  The following restrictions apply:
+  Minimum FMC version: 7.4
 ---
 
 # fmc_bfd_template (Resource)
 
 This resource can manage a BFD Template.
+The following restrictions apply:
+  - Minimum FMC version: `7.4`
 
 ## Example Usage
 

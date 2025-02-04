@@ -4,11 +4,16 @@ page_title: "fmc_time_ranges Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This resource can manage a Time Ranges.
+  The following restrictions apply:
+  Bulk object deletion is not supported by FMC, it will be handled one-by-oneUpdates are always done one-by-one.
 ---
 
 # fmc_time_ranges (Resource)
 
 This resource can manage a Time Ranges.
+The following restrictions apply:
+  - Bulk object deletion is not supported by FMC, it will be handled one-by-one
+  - Updates are always done one-by-one.
 
 ## Example Usage
 

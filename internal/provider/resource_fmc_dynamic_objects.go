@@ -65,7 +65,7 @@ func (r *DynamicObjectsResource) Metadata(ctx context.Context, req resource.Meta
 func (r *DynamicObjectsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Dynamic Objects. The FMC API supports quick bulk creation and deletion of this resource. Modification is always done one-by-one. Refresh is done in bulk for all objects and one-by-one for evey object that has mapping defined. Updating/deleting `fmc_dynamic_objects` can thus take much more time than creating it").AddMinimumVersionHeaderDescription().AddMinimumVersionBulkDeleteDescription("7.0").AddMinimumVersionBulkDisclaimerDescription().AddMinimumVersionBulkUpdateDescription().String,
+		MarkdownDescription: helpers.NewAttributeDescription("This plural resource manages a bulk of Dynamic Objects. The FMC API supports quick bulk creation and deletion of this resource. Modification is always done one-by-one. Refresh is done in bulk for all objects and one-by-one for evey object that has mapping defined. Updating/deleting `fmc_dynamic_objects` can thus take much more time than creating it").AddMinimumVersionHeaderDescription().AddMinimumVersionBulkUpdateDescription().String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

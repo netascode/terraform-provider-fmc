@@ -4,11 +4,17 @@ page_title: "fmc_tunnel_zones Resource - terraform-provider-fmc"
 subcategory: "Objects"
 description: |-
   This resource can manage a Tunnel Zones.
+  The following restrictions apply:
+  Minimum FMC version for bulk object deletion: 7.4If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.Updates are always done one-by-one.
 ---
 
 # fmc_tunnel_zones (Resource)
 
 This resource can manage a Tunnel Zones.
+The following restrictions apply:
+  - Minimum FMC version for bulk object deletion: `7.4`
+  - If FMC version does not meet the minimum version requirement for bulk operations, this resource will automatically fall back to processing operations one-by-one.
+  - Updates are always done one-by-one.
 
 ## Example Usage
 

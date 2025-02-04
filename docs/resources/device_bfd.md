@@ -4,11 +4,15 @@ page_title: "fmc_device_bfd Resource - terraform-provider-fmc"
 subcategory: "Device"
 description: |-
   This resource can manage a Device BFD.
+  The following restrictions apply:
+  Minimum FMC version: 7.4
 ---
 
 # fmc_device_bfd (Resource)
 
 This resource can manage a Device BFD.
+The following restrictions apply:
+  - Minimum FMC version: `7.4`
 
 ## Example Usage
 

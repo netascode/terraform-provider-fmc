@@ -65,7 +65,7 @@ func (r *TunnelZonesResource) Metadata(ctx context.Context, req resource.Metadat
 func (r *TunnelZonesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Tunnel Zones.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage a Tunnel Zones.").AddMinimumVersionHeaderDescription().AddMinimumVersionBulkDeleteDescription("7.4").AddMinimumVersionBulkDisclaimerDescription().AddMinimumVersionBulkUpdateDescription().String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
