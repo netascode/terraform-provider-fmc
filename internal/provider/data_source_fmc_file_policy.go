@@ -60,20 +60,20 @@ func (d *FilePolicyDataSource) Metadata(_ context.Context, req datasource.Metada
 func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the File Policy.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This data source reads the File Policy.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				Optional:            true,
 				Computed:            true,
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of file policy.",
+				MarkdownDescription: "Name of file policy.",
 				Optional:            true,
 				Computed:            true,
 			},
@@ -123,11 +123,11 @@ func (d *FilePolicyDataSource) Schema(ctx context.Context, req datasource.Schema
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "Unique identifier representing the File Rule.",
+							MarkdownDescription: "Id of File Rule",
 							Computed:            true,
 						},
 						"type": schema.StringAttribute{
-							MarkdownDescription: "The name of file rule type.",
+							MarkdownDescription: "Type of File Rule.",
 							Computed:            true,
 						},
 						"application_protocol": schema.StringAttribute{

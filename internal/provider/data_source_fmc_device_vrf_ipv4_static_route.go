@@ -55,23 +55,23 @@ func (d *DeviceVRFIPv4StaticRouteDataSource) Metadata(_ context.Context, req dat
 func (d *DeviceVRFIPv4StaticRouteDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the Device VRF IPv4 Static Route.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This data source reads the Device VRF IPv4 Static Route.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				Required:            true,
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:            true,
 			},
 			"device_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the parent device (fmc_device.example.id).",
+				MarkdownDescription: "Id of the parent device.",
 				Required:            true,
 			},
 			"vrf_id": schema.StringAttribute{
-				MarkdownDescription: "UUID of the parent VRF.",
+				MarkdownDescription: "Id of the parent VRF.",
 				Required:            true,
 			},
 			"interface_logical_name": schema.StringAttribute{

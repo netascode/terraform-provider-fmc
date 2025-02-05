@@ -54,19 +54,19 @@ func (d *NetworksDataSource) Metadata(_ context.Context, req datasource.Metadata
 func (d *NetworksDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the Networks.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This data source reads the Networks.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				Computed:            true,
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:            true,
 			},
 			"items": schema.MapNestedAttribute{
-				MarkdownDescription: "Map of networks. The key of the map is the name of the individual Network. Renaming Networks in bulk is not yet implemented.",
+				MarkdownDescription: "Map of networks. The key of the map is the name of the individual Network.",
 				Optional:            true,
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{

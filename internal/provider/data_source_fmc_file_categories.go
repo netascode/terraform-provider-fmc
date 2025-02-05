@@ -54,25 +54,25 @@ func (d *FileCategoriesDataSource) Metadata(_ context.Context, req datasource.Me
 func (d *FileCategoriesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the File Categories.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This data source reads the File Categories.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				Computed:            true,
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:            true,
 			},
 			"items": schema.MapNestedAttribute{
-				MarkdownDescription: "Map of File Category. The key of the map is the name of the individual File Categories.",
+				MarkdownDescription: "Map of File Categories. The key of the map is the name of the individual File Category.",
 				Optional:            true,
 				Computed:            true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							MarkdownDescription: "UUID of the managed File Category.",
+							MarkdownDescription: "Id of the managed File Category.",
 							Computed:            true,
 						},
 						"type": schema.StringAttribute{

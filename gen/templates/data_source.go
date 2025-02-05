@@ -67,7 +67,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				{{- if and (not (hasDataSourceQuery .Attributes)) (not .IsBulk) }}
 				Required:            true,
 				{{- else}}
@@ -78,7 +78,7 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- end}}
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:			true,
 			},
 			{{- range .Attributes}}

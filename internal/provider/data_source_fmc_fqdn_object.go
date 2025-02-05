@@ -59,25 +59,25 @@ func (d *FQDNObjectDataSource) Metadata(_ context.Context, req datasource.Metada
 func (d *FQDNObjectDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the FQDN Object.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This data source reads the FQDN Object.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				Optional:            true,
 				Computed:            true,
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-created name of the resource.",
+				MarkdownDescription: "Name of the FQDN object.",
 				Optional:            true,
 				Computed:            true,
 			},
-			"value": schema.StringAttribute{
-				MarkdownDescription: "The fully qualified domain name.",
+			"fqdn": schema.StringAttribute{
+				MarkdownDescription: "Fully qualified domain name.",
 				Computed:            true,
 			},
 			"dns_resolution": schema.StringAttribute{

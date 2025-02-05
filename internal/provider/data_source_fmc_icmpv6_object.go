@@ -59,16 +59,16 @@ func (d *ICMPv6ObjectDataSource) Metadata(_ context.Context, req datasource.Meta
 func (d *ICMPv6ObjectDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: helpers.NewAttributeDescription("This data source can read the ICMPv6 Object.").String,
+		MarkdownDescription: helpers.NewAttributeDescription("This data source reads the ICMPv6 Object.").String,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The id of the object",
+				MarkdownDescription: "Id of the object",
 				Optional:            true,
 				Computed:            true,
 			},
 			"domain": schema.StringAttribute{
-				MarkdownDescription: "The name of the FMC domain",
+				MarkdownDescription: "Name of the FMC domain",
 				Optional:            true,
 			},
 			"icmp_type": schema.Int64Attribute{
@@ -80,12 +80,12 @@ func (d *ICMPv6ObjectDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "User-created name of the resource.",
+				MarkdownDescription: "Name of the resource.",
 				Optional:            true,
 				Computed:            true,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Optional user-created description.",
+				MarkdownDescription: "Description of the resource.",
 				Computed:            true,
 			},
 			"overridable": schema.BoolAttribute{

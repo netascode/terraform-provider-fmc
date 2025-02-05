@@ -31,7 +31,7 @@ func NewAttributeDescription(s string) *AttributeDescription {
 }
 
 func (d *AttributeDescription) AddMinimumVersionHeaderDescription() *AttributeDescription {
-	d.String = fmt.Sprintf("%s\nThe following restrictions apply:", d.String)
+	d.String = fmt.Sprintf("%s\n\nThe following restrictions apply:", d.String)
 	return d
 }
 
